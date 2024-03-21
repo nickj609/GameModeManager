@@ -4,9 +4,9 @@ A Counter-Strike 2 server plugin inspired by the [CS2 Modded Dedicated Server by
 ## Description
 GameModeManager streamlines your Counter-Strike 2 server administration with these features:
 
-- **Dynamic Map Lists:** Automatically updates your maplist.txt file based on the current game mode or map group, eliminating manual map changes.
 - **RTV Compatibility:** Works seamlessly with your chosen RTV plugin, ensuring smooth rock-the-vote functionality.
 - **Customizable Game Modes:** Easily define your server's game mode list and switch between them effortlessly using admin commands.
+- **Dynamic Map Lists:** Automatically updates your maplist.txt file based on the current game mode or map group, eliminating manual map changes.
 
 ## Requirements
 - Counter-Strike 2
