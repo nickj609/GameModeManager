@@ -47,9 +47,9 @@ GameModeManager offers flexible configuration options. See the default `GameMode
 | MapListFile         | Default path for the maplist.txt file that needs to be updated when the map group or game mode changes.                                   | 
 | DefaultMapFormat    | Sets the format for adding maps to the maplist.txt file to the default value `ws:{workshopid}`.                                           |
 | RTVEnabled          | If set to enabled, the RTV plugin specified will be reloaded after updating the maplist.txt file.                                         | 
-| RTVPlugin           | This is the default path to the RTV Plugin you are using. This can also just be the Module Name.                                          | 
-| ListEnabled         | When enabled, the Game Mode list specified will be used. Otherwise, the Game Mode list will be generated based on map groups discovered.  |
-| GameModeList        | Allows you to specify the list of game modes for your server. The corresponding CFG files need to be located in the `csgo/cfg` directory. |                                          
+| RTVPlugin           | This is the default path to the RTV Plugin you are using. This can also just be the module name.                                          | 
+| ListEnabled         | When enabled, the game mode list specified will be used. Otherwise, the list will be generated based on the map groups discovered.        |
+| GameModeList        | Allows you to specify the list of game modes for your server.                                                                             |                                          
 
 > [!NOTE]
 > - All game mode configuration files must be located in the `csgo/cfg` directory.
