@@ -1,8 +1,12 @@
 # GameModeManager
-This plugin was inspired by the use of the [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modded-server) and the [CS2 Rock The Vote plugin by Abnerfs](https://github.com/abnerfs/cs2-rockthevote).
+A Counter-Strike 2 server plugin inspired by the [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modded-server) and the [CS2 Rock The Vote plugin by Abnerfs](https://github.com/abnerfs/cs2-rockthevote). This plugin simplifies game mode management and enhances your server's experience.
 
 ## Description
-GameModeManager is a simple Counter-Strike 2 server plugin designed to update any maplist.txt file based on the current game mode and/or map group. In addition to enabling the default map cycle, it also provides RTV compatability and allows for any RTV plugin to be used.
+GameModeManager streamlines your Counter-Strike 2 server administration with these features:
+
+- **Dynamic Map Lists:** Automatically updates your maplist.txt file based on the current game mode or map group, eliminating manual map changes.
+- **RTV Compatibility:** Works seamlessly with your chosen RTV plugin, ensuring smooth rock-the-vote functionality.
+- **Customizable Game Modes:** Easily define your server's game mode list and switch between them effortlessly using admin commands.
 
 ## Requirements
 - Counter-Strike 2
@@ -10,12 +14,12 @@ GameModeManager is a simple Counter-Strike 2 server plugin designed to update an
 - Counter Strike Sharp v.197+
 
 ## Commands
-- `css_mapgroup` - Sets the current map group and updates the map list.
-- `css_modes` - Displays an admin menu with a list of game modes for the server.
+- `css_mapgroup` - Sets the map group and updates the map list.
+- `css_modes` - Displays an admin menu with game mode options.
 
   ![Screenshot 2024-03-21 161458](https://github.com/nickj609/GameModeManager/assets/32173425/db33fe48-21f3-455c-9987-5406fca99c4f)
 
-- `css_maps` - Displays an admin menu containing the list of maps for the current game mode/map group.
+- `css_maps` - Displays an admin menu with maps for the current game mode/map group.
 
   ![Screenshot 2024-03-21 161416](https://github.com/nickj609/GameModeManager/assets/32173425/f9c193b0-2ad3-4fa1-8a83-eaac812d2f21)
 
@@ -34,7 +38,7 @@ This plugin is also compatible with any RTV plugin as long as it uses a maplist.
 4. Update your custom configuration files for each game mode to include `css_mapgroup <map group>`.
 
 ## Configuration
-Although the configuration of this simple plugin is quite lengthy, it was designed to provide flexibility for different plugins and server configurations. 
+GameModeManager offers flexible configuration options. See the default `GameModeManager.json` for details and customization instructions.
 
 | Config              | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
