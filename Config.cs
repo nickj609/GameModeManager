@@ -25,7 +25,7 @@ namespace GameModeManager
             // Check if map group exists
             if (config.MapGroup == null) 
             {
-                throw new Exception($"Undefined: 'MapGroup': {config.MapGroup}");
+                throw new Exception($"Undefined: 'MapGroup'");
             }
 
             // Check if MapListFile is null
@@ -38,6 +38,30 @@ namespace GameModeManager
             if (!File.Exists(config.MapGroupsFile))  
             {
                 throw new Exception($"Cannot find 'MapGroupFile': {config.MapGroupsFile}");
+            }
+
+            // Check if RTVEnabled is of type bool
+            if (config.RTVEnabled != true && config.RTVEnabled != false) 
+            {
+                throw new Exception($"Invalid value for 'RTVEnabled' in configuration file. Expected 'true' or 'false'.");
+            }
+
+            // Check if ListEnabled is of type bool
+            if (config.ListEnabled != true && config.ListEnabled != false) 
+            {
+                throw new Exception($"Invalid value for 'ListEnabled' in configuration file. Expected 'true' or 'false'.");
+            }
+
+            // Check if DefaultMapFormat is of type bool
+            if (config.DefaultMapFormat != true && config.DefaultMapFormat != false)  // Example with RTVEnabled
+            {
+                throw new Exception($"Invalid value for 'DefaultMapFormat' in configuration file. Expected 'true' or 'false'.");
+            }
+
+            // Check if GameModeList is is a valid string collection and not empty
+            if(config.GameModeList == null || config.GameModeList.Count == 0)
+            {
+                throw new Exception($"Invalid 'GameModeList': List cannot be empty.");
             }
 
             Config = config; // After successful validation
