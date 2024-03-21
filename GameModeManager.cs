@@ -1,0 +1,40 @@
+﻿// Included libraries
+using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
+using Microsoft.Extensions.Logging;
+using CounterStrikeSharp.API.Modules.Cvars;
+using static CounterStrikeSharp.API.Core.Listeners;
+
+// Declare namespace
+namespace GameModeManager
+{
+    // Declare BasePlugin class
+    public partial class Plugin : BasePlugin
+    {
+        // Define plugin details
+        public override string ModuleName => "GameModeManager";
+        public override string ModuleVersion => "1.0.0";
+        public override string ModuleAuthor => "Striker-Nick";
+        public override string ModuleDescription => "A simple plugin/module that dynamically updates any maplist.txt file based on the current mapgroup.";
+
+        // Define plugin
+        private BasePlugin? _plugin;
+
+        // Construct On Load behavior
+        public override void Load(bool hotReload)
+        {   
+            // Set plugin
+            _plugin = this;
+
+            // Parse map groups and set default map list and game modes
+            try
+            {
+                ParseMapGroups();
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError($"{ex.Message}");
+            }
+        }
+    }
+}

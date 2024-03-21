@@ -1,0 +1,13 @@
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\bin\Debug\net7.0\GameModeManager.deps.json
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\bin\Debug\net7.0\GameModeManager.dll
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\bin\Debug\net7.0\GameModeManager.pdb
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\obj\Debug\net7.0\GameModeManager.csproj.AssemblyReference.cache
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\obj\Debug\net7.0\GameModeManager.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\obj\Debug\net7.0\GameModeManager.AssemblyInfoInputs.cache
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\obj\Debug\net7.0\GameModeManager.AssemblyInfo.cs
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\obj\Debug\net7.0\GameModeManager.csproj.CoreCompileInputs.cache
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\obj\Debug\net7.0\GameModeManager.dll
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\obj\Debug\net7.0\refint\GameModeManager.dll
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\obj\Debug\net7.0\GameModeManager.pdb
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\obj\Debug\net7.0\ref\GameModeManager.dll
+C:\Users\nickj\OneDrive\Documents\CS2\plugins\GameModeManager\bin\Debug\net7.0\lib\net7.0\Gameloop.Vdf.dll
