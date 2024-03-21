@@ -9,9 +9,4 @@
     <PackageReference Include="CounterStrikeSharp.API" Version="1.0.193"/>
     <PackageReference Include="Gameloop.Vdf" Version="0.6.2" PrivateAssets="build" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="lib/net7.0/Gameloop.Vdf.dll">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 </Project>
