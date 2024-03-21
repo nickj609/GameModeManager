@@ -23,13 +23,13 @@ GameModeManager is a simple Counter-Strike 2 server plugin designed to update an
   ![Screenshot 2024-03-21 161416](https://github.com/nickj609/GameModeManager/assets/32173425/f9c193b0-2ad3-4fa1-8a83-eaac812d2f21)
 
 ## Installation
+> [!IMPORTANT]
+> On first load, a configuration file will be created in `csgo/addons/counterstrikesharp/configs/plugins/GameModeManager/GameModeManager.json`.
+
 1. Install Metamod:Source and Counter Strike Sharp.
 2. Copy DLLs to `csgo/addons/counterstrikesharp/plugins/GameModeManager`.
 3. Ensure your `gamemodes_server.txt` file contains a list of map groups.
 4. Update your custom configuration files for each game mode to include `css_mapgroup <map group>`.
-
-> [!IMPORTANT]
-> On first load, a configuration file will be created in `csgo/addons/counterstrikesharp/configs/plugins/GameModeManager/GameModeManager.json`.
 
 ## Configuration
 Although the configuration of this simple plugin is quite lengthy, it was designed to provide flexibility for different plugins and server configurations. 
