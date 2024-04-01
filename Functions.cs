@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Timers;
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
 using CounterStrikeSharp.API;
@@ -30,154 +31,147 @@ namespace GameModeManager
             new Map("de_safehouse"),
             new Map("de_lake")
         };
-        private MapGroup defaultMapGroup = new MapGroup("mg_casual", defaultMaps);
+        private static MapGroup defaultMapGroup = new MapGroup("mg_active", defaultMaps);
 
-        // Define current mapgroup, new map group, and next map
-        public List<MapGroup> mapGroups = new List<MapGroup>();
-        public MapGroup? currentMapGroup;
-        public Map? currentMap;
+        // Define current map group, current map, and map group list
+        public static List<MapGroup> mapGroups = new List<MapGroup>();
+        public static MapGroup currentMapGroup = defaultMapGroup;
+        public static Map? currentMap;
 
         private void ParseMapGroups()
         {
-    
-            // Parse VDF to get a list of map groups
-            Logger.LogInformation($"Parsing map group file {Config.MapGroupsFile}...");
-            VProperty vdfObject = VdfConvert.Deserialize(File.ReadAllText(Config.MapGroupsFile));
-
-            var mapGroupsData = vdfObject.Value.OfType<VProperty>()
-                                        .Where(p => p.Key == "mapgroups")
-                                        .Select(p => p.Value)
-                                        .FirstOrDefault();
-            if (mapGroupsData != null)
+            Logger.LogInformation($"Parsing map group file {Config.MapGroup.File}.");
+            try
             {
-                foreach (VProperty group in mapGroupsData.OfType<VProperty>()) 
-                {     
-                    MapGroup newMapGroup = new MapGroup(group.Key);
+                // Deserialize gamemodes_server.txt (VDF) to VProperty
+                VProperty vdfObject = VdfConvert.Deserialize(File.ReadAllText(Config.MapGroup.File, Encoding.UTF8));
+                
+                if (vdfObject == null)
+                {
+                    Logger.LogError($"Error parsing gamemodes_server.txt. Possible causes: missing brackets, incorrect quotes, or extra commas. See the VDF specification for details.");
+                }
+                else
+                {
+                    // Create an array of only map groups
+                    var mapGroupsData = vdfObject.Value.OfType<VProperty>()
+                                            .Where(p => p.Key == "mapgroups")
+                                            .Select(p => p.Value)
+                                            .FirstOrDefault();
 
-                    var mapsProperty = group.Value.OfType<VProperty>()
-                            .Where(p => p.Key == "maps")
-                            .Select(p => p.Value)
-                            .FirstOrDefault();
-
-                    if (mapsProperty != null)
+                    // Parse array to populate map group list               
+                    if (mapGroupsData != null)
                     {
-                        // Add new maps to map list
-                        foreach (VProperty mapEntry in mapsProperty)
-                        {
-                            string mapName = mapEntry.Key;
+                        foreach (VProperty group in mapGroupsData.OfType<VProperty>()) 
+                        {  
+                            // Create map group
+                            MapGroup newMapGroup = new MapGroup(group.Key);
 
-                            if (mapName.StartsWith("workshop/"))
+                            // Create an array of maps
+                            var mapsProperty = group.Value.OfType<VProperty>()
+                                    .Where(p => p.Key == "maps")
+                                    .Select(p => p.Value)
+                                    .FirstOrDefault();
+
+                            // Parse array to add maps to map group
+                            if (mapsProperty != null)
                             {
-                                string[] parts = mapName.Split('/');
-                                string mapNameFormatted = parts[parts.Length - 1];
-                                string mapWorkshopId = parts[1]; 
-                                newMapGroup.Maps.Add(new Map(mapNameFormatted, mapWorkshopId));
+                                foreach (VProperty mapEntry in mapsProperty)
+                                {
+                                    string mapName = mapEntry.Key;
+
+                                    if (mapName.StartsWith("workshop/"))
+                                    {
+                                        string[] parts = mapName.Split('/');
+                                        string mapNameFormatted = parts[parts.Length - 1];
+                                        string mapWorkshopId = parts[1]; 
+                                        newMapGroup.Maps.Add(new Map(mapNameFormatted, mapWorkshopId));
+                                    }
+                                    else
+                                    {
+                                        newMapGroup.Maps.Add(new Map(mapName));
+                                    }
+                                }
                             }
                             else
                             {
-                                newMapGroup.Maps.Add(new Map(mapName));
+                                Logger.LogWarning("Mapgroup found, but the 'maps' property is missing or incomplete. Setting default maps.");
+                                newMapGroup.Maps = defaultMaps;
                             }
+                            // Add map group to map group list
+                            mapGroups.Add(newMapGroup);
                         }
                     }
                     else
                     {
-                        Logger.LogWarning("Mapgroup found, but the 'maps' property is missing or incomplete. Setting default maps...");
-                        newMapGroup.Maps = defaultMaps;
+                        Logger.LogWarning($"The mapgroup property in gamemodes_server.txt doesn't exist. Using default map group.");
+                        mapGroups.Add(defaultMapGroup);
                     }
-
-                    mapGroups.Add(newMapGroup);
                 }
+                // Set default map group from configuration file. If not found, use plugin default.
+                defaultMapGroup = mapGroups.FirstOrDefault(g => g.Name == $"{Config.MapGroup}") ?? new MapGroup("mg_active", defaultMaps);
+                currentMapGroup = defaultMapGroup;
+
+                // Update map list
+                UpdateMapList(defaultMapGroup);
             }
-            else
+            catch (Exception ex)
             {
-                Logger.LogWarning($"The mapgroup property in gamemodes_server.txt doesn't exist. Using default map group...");
-                mapGroups.Add(defaultMapGroup);
+                Logger.LogError($"{ex.Message}");
             }
-
-            // Set default map group from configuration file. If not found, use plugin default.
-            defaultMapGroup = mapGroups.FirstOrDefault(g => g.Name == $"{Config.MapGroup}") ?? new MapGroup("mg_casual", defaultMaps);
-            UpdateMapList(defaultMapGroup);
-
-            // Setup mode admin menu
-            SetupModeMenu();
         }
-
         // Define function to update map list
         private void UpdateMapList(MapGroup newMapGroup)
         {  
-            // Update map list
-            try 
+            // If using RTV Plugin
+            if(Config.RTV.Enabled)
             {
-                using (StreamWriter writer = new StreamWriter(Config.MapListFile))
+                // Update map list for RTV Plugin
+                Logger.LogInformation("Updating map list.");
+                try 
                 {
-                    foreach (Map map in newMapGroup.Maps)  
+                    using (StreamWriter writer = new StreamWriter(Config.RTV.MapListFile))
                     {
-                        if (string.IsNullOrEmpty(map.WorkshopId))
+                        foreach (Map map in newMapGroup.Maps)  
                         {
-                            writer.WriteLine(map.Name);
-                        }
-                        else
-                        {
-                            if(Config.DefaultMapFormat)
+                            if (string.IsNullOrEmpty(map.WorkshopId))
                             {
-                                writer.WriteLine($"ws:{map.WorkshopId}");
+                                writer.WriteLine(map.Name);
                             }
                             else
                             {
-                                writer.WriteLine($"{map.Name}:{map.WorkshopId}");
+                                if(Config.RTV.DefaultMapFormat)
+                                {
+                                    writer.WriteLine($"ws:{map.WorkshopId}");
+                                }
+                                else
+                                {
+                                    writer.WriteLine($"{map.Name}:{map.WorkshopId}");
+                                }
                             }
                         }
-                    }
+                    } 
                 } 
-            } 
-            catch (IOException ex)
-            {
-                Logger.LogError("Unable to update maplist.txt.");
-                Logger.LogError($"{ex.Message}");
-                throw;
-            }
-            
-            // Reload RTV Plugin
+                catch (IOException ex)
+                {
+                    Logger.LogError("Unable to update maplist.txt.");
+                    Logger.LogError($"{ex.Message}");
+                    throw;
+                }
 
-            if(Config.RTVEnabled)
-            {
-                Logger.LogInformation("Reloading RTV plugin...");
-                Server.ExecuteCommand($"css_plugins reload {Config.RTVPlugin}");
+                // Reload RTV Plugin
+                Logger.LogInformation("Reloading RTV plugin.");
+                Server.ExecuteCommand($"css_plugins reload {Config.RTV.Plugin}");
             }
-
             // Update map menu
             try
             {
+                Logger.LogInformation("Updating map menu.");
                 UpdateMapMenu(newMapGroup);
             }
             catch(Exception ex)
             {
                 Logger.LogError($"{ex.Message}");
             }
-
-            return;
-        }
-
-        // Define function to change map
-        private void ChangeMap(Map nextMap)
-        {
-            Logger.LogInformation("Changing map...");
-
-            // If map valid, change map. 
-            if (Server.IsMapValid(nextMap.Name))
-            {
-                Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
-            }
-            else if (nextMap.WorkshopId != null)
-            {
-                Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
-            }
-            else
-            {
-                Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
-            }
-
-            currentMap = nextMap;
             return;
         }
 
@@ -193,42 +187,40 @@ namespace GameModeManager
             // Create menu options for each map in the maplist
             foreach (Map map in newMapGroup.Maps)
             {
-
                 mapMenu.AddMenuOption(map.Name, (player, option) =>
                 {
                     Map? nextMap = map;
 
                     if (nextMap == null)
                     {
-                        Logger.LogWarning("Map not found when updating map menu. Using de_dust2 for next map..."); 
+                        Logger.LogWarning("Map not found when updating map menu. Using de_dust2 for next map."); 
                         nextMap = new Map("de_dust2");
                     }
-
                     // Close menu
                     MenuManager.CloseActiveMenu(player);
-
+                    // Write to chat
+                    Server.PrintToChatAll((player.PlayerName ?? "Server") + " changed the map to" + nextMap.Name);
                     // Change map
                     ChangeMap(nextMap);
                 });
             }
-
             return;
         }
-
         // Create mode menu
         private void SetupModeMenu()
         {
+            Logger.LogInformation("Creating mode menu.");
             modeMenu = new CenterHtmlMenu("Game Mode List");
 
-            if (Config.ListEnabled)
+            if (Config.GameMode.ListEnabled)
             {
-                foreach (string mode in Config.GameModeList)
+                // Add menu option for each game mode in game mode list
+                foreach (string mode in Config.GameMode.List)
                 {
                     modeMenu.AddMenuOption(mode, (player, option) =>
                     {
+                        // Execute game mode config and close menu
                         Server.ExecuteCommand($"exec {option.Text}.cfg");
-
-                        // Close menu
                         MenuManager.CloseActiveMenu(player);
                     });
                 }
@@ -236,7 +228,7 @@ namespace GameModeManager
             }
             else
             {
-                // Create menu options for each map in the maplist
+                // Create menu options for each map group parsed
                 foreach (MapGroup mapGroup in mapGroups)
                 {
                     string mapGroupName;
@@ -253,16 +245,65 @@ namespace GameModeManager
                     {
                         modeMenu.AddMenuOption(mapGroupName, (player, option) =>
                         {
+                            // Execute game mode config and close menu
                             Server.ExecuteCommand($"exec {option.Text}.cfg");
-
-                            // Close menu
                             MenuManager.CloseActiveMenu(player);
-
                         });
                     }
                 }
                 return;
             }
+        }
+        // Define function to change map
+        private void ChangeMap(Map nextMap)
+        {
+            Logger.LogInformation("Changing map...");
+
+            // Create map change delay
+            System.Timers.Timer delayTimer = new System.Timers.Timer();
+            delayTimer.Interval = 5000; // Example: 5-second delay
+            delayTimer.Elapsed += (sender, e) => 
+            {
+                delayTimer.Stop(); // Stop the timer after one execution 
+                
+                // If map valid, change map based on map type
+                if (Server.IsMapValid(nextMap.Name))
+                {
+                    Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
+                }
+                else if (nextMap.WorkshopId != null)
+                {
+                    Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
+                }
+                else
+                {
+                    Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
+                }
+            };
+            delayTimer.Start();
+
+            // Set current map
+            currentMap = nextMap;
+            return;
+        }
+        private HookResult EventGameEnd(EventCsIntermission @event, GameEventInfo info)
+        {
+            Console.WriteLine("Game has ended. Changing map...");
+
+            if(currentMapGroup == null)
+            {
+                currentMapGroup = defaultMapGroup;
+            }
+             
+            // Get a random map
+            Random rnd = new Random();
+            int randomIndex = rnd.Next(0, currentMapGroup.Maps.Count); 
+            Map randomMap = currentMapGroup.Maps[randomIndex];
+
+            // Use the random map ID in the server command
+            ChangeMap(randomMap);
+
+            return HookResult.Continue;
         }
     }
 }

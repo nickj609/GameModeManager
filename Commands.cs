@@ -18,66 +18,67 @@ namespace GameModeManager
         [CommandHelper(minArgs: 1, usage: "[mapgroup]", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnMapGroupCommand(CCSPlayerController player, CommandInfo command)
         {
-            Logger.LogInformation("OnMapGroupCommand execution started");
             if (player == null) 
             {
                 Logger.LogInformation($"Map group command detected!");
+                Logger.LogInformation($"Current MapGroup is {currentMapGroup.Name}.");
 
                 // Check map group to make sure its not already set or set incorrectly
                 MapGroup? newMapGroup = mapGroups.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
 
-                Logger.LogInformation($"Current MapGroup is {currentMapGroup}.");
-                Logger.LogInformation($"New MapGroup is {newMapGroup}.");
-
+                if (newMapGroup == null || newMapGroup.Name == null)
+                {
+                    Logger.LogInformation("New mapgroup could not be found. Setting default map group.");
+                    newMapGroup = defaultMapGroup;
+                }
+                else if (newMapGroup.Name != null)
+                {
+                    Logger.LogInformation($"New MapGroup is {newMapGroup.Name}.");
+                    if (newMapGroup.Maps == null)
+                    {
+                        Logger.LogInformation($"Maps for {newMapGroup.Name} could not be found. Setting default map group.");
+                        newMapGroup = defaultMapGroup;
+                    }
+                }
                 if (currentMapGroup == newMapGroup)
                 {
-                    Logger.LogInformation("Mapgroup is the same. Not updating map list...");
+                    Logger.LogInformation("Mapgroup is the same. No updates needed.");
 
                     return;
                 }
-                else if (newMapGroup == null)
-                {
-                    Logger.LogInformation("Mapgroup could not be found. Setting default map group");
-                    newMapGroup = defaultMapGroup;
-                }
-
                 // UpdateMapList
                 try
                 {
-                    Logger.LogInformation($"Finding new map list for new map group...");
                     UpdateMapList(newMapGroup);
                 }
                 catch(Exception ex)
                 {
                     Logger.LogError($"{ex.Message}");
                 }
-
-                // Reset new map group
+                // Set current map group
                 currentMapGroup = newMapGroup;
                 newMapGroup.Clear();
             }
         }
-
         // Construct admin map menu command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         [ConsoleCommand("css_maps", "Provides a list of maps for the current game mode.")]
         public void OnMapsCommand(CCSPlayerController player, CommandInfo command)
         {
-            Logger.LogInformation("OnMapsCommand execution started");
+            Logger.LogInformation("OnMapsCommand execution started.");
             if(player != null && _plugin != null)
             {
                 MenuManager.OpenCenterHtmlMenu(_plugin, player, mapMenu);
             }
         }
-
-        // Construct admin map menu command handler
+        // Construct admin mode menu command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_modes", "Provides a list of game modes")]
+        [ConsoleCommand("css_modes", "Provides a list of game modes.")]
         public void OnModesCommand(CCSPlayerController player, CommandInfo command)
         {
-            Logger.LogInformation("OnModesCommand execution started");
+            Logger.LogInformation("OnModesCommand execution started.");
             if(player != null && _plugin != null)
             {
                 MenuManager.OpenCenterHtmlMenu(_plugin, player, modeMenu);

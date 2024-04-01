@@ -15,83 +15,97 @@ namespace GameModeManager
 
         // Parse configuration object data and perform error checking
         public void OnConfigParsed(Config config)
-        {
-            // Check if plugin exists
-            if (!File.Exists(config.RTVPlugin)) 
+        {  
+            if (config.MapGroup.Default == null) 
             {
-                throw new Exception($"Cannot find 'RTVPlugin': {config.RTVPlugin}");
+                throw new Exception($"Undefined: MapGroup 'Default' can not be empty.");
+            }
+
+            if (!File.Exists(config.MapGroup.File))  
+            {
+                throw new Exception($"Cannot find MapGroup 'File': {config.MapGroup.File}");
             }
             
-            // Check if map group exists
-            if (config.MapGroup == null) 
+            
+            if (config.RTV.Enabled != true && config.RTV.Enabled != false) 
             {
-                throw new Exception($"Undefined: 'MapGroup'");
+                throw new Exception($"Invalid: RTV 'Enabled' should be 'true' or 'false'.");
             }
-
-            // Check if MapListFile is null
-            if (!File.Exists(config.MapListFile))  
+            else if(config.RTV.Enabled == true) 
             {
-                throw new Exception($"Cannot find 'MapListFile': {config.MapListFile}");
+                // If RTV is enabled, check if RTV plugin exists
+                if (!File.Exists(config.RTV.Plugin)) 
+                {
+                    throw new Exception($"Cannot find RTV 'Plugin': {config.RTV.Plugin}");
+                }
+                // Check if map list for RTV plugin exists
+                if (!File.Exists(config.RTV.MapListFile))  
+                {
+                    throw new Exception($"Cannot find RTV 'MapListFile': {config.RTV.MapListFile}");
+                }
+                // Check default map format
+                if (config.RTV.DefaultMapFormat != true && config.RTV.DefaultMapFormat != false)
+                {
+                    throw new Exception($"Invalid: RTV 'DefaultMapFormat' should be 'true' or 'false'.");
+                }
             }
-
-            // Check if MapGroupFile is null
-            if (!File.Exists(config.MapGroupsFile))  
+            
+            if (config.GameMode.ListEnabled != true && config.GameMode.ListEnabled != false) 
             {
-                throw new Exception($"Cannot find 'MapGroupFile': {config.MapGroupsFile}");
+                throw new Exception($"Invalid: GameMode 'ListEnabled' should be 'true' or 'false'.");
             }
-
-            // Check if RTVEnabled is of type bool
-            if (config.RTVEnabled != true && config.RTVEnabled != false) 
+            else if (config.GameMode.ListEnabled == true)
             {
-                throw new Exception($"Invalid value for 'RTVEnabled' in configuration file. Expected 'true' or 'false'.");
+                
+                if(config.GameMode.List == null || config.GameMode.List.Count == 0)
+                {
+                    throw new Exception($"Undefined: GameMode 'List' cannot be empty.");
+                }
             }
-
-            // Check if ListEnabled is of type bool
-            if (config.ListEnabled != true && config.ListEnabled != false) 
-            {
-                throw new Exception($"Invalid value for 'ListEnabled' in configuration file. Expected 'true' or 'false'.");
-            }
-
-            // Check if DefaultMapFormat is of type bool
-            if (config.DefaultMapFormat != true && config.DefaultMapFormat != false)  // Example with RTVEnabled
-            {
-                throw new Exception($"Invalid value for 'DefaultMapFormat' in configuration file. Expected 'true' or 'false'.");
-            }
-
-            // Check if GameModeList is is a valid string collection and not empty
-            if(config.GameModeList == null || config.GameModeList.Count == 0)
-            {
-                throw new Exception($"Invalid 'GameModeList': List cannot be empty.");
-            }
-
-            Config = config; // After successful validation
+            Config = config;
         }
     }
     public class Config : BasePluginConfig
     {
-        [JsonPropertyName("MapGroup")] public string MapGroup { get; set; } = "mg_casual"; // Default map group on server start
-        [JsonPropertyName("MapGroupsFile")] public string MapGroupsFile { get; set; } = "/home/steam/cs2/game/csgo/gamemodes_server.txt"; // Default game modes and map groups file
-        [JsonPropertyName("MapListFile")] public string MapListFile { get; set; } = "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"; // Default map list file
-        [JsonPropertyName("DefaultMapFormat")] public bool DefaultMapFormat { get; set; } = false; // Default file format (ws:<workshop id>). When set to false, uses format <map name>:<workshop id>. 
-        [JsonPropertyName("RTVEnabled")] public bool RTVEnabled { get; set; } = true; // Enable RTV Compatibility
-        [JsonPropertyName("RTVPlugin")] public string RTVPlugin { get; set; } = "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // RTV plugin path
-        [JsonPropertyName("ListEnabled")] public bool ListEnabled { get; set; } = true; // Enables custom game mode list. Default list is generated from map groups.
-        [JsonPropertyName("GameModeList")] public List<string> GameModeList { get; set; } = new List<string>
-        { 
-            "casual", 
-            "comp", 
-            "1v1",
-            "aim",
-            "awp",
-            "scoutzknivez",
-            "wingman",
-            "gungame",
-            "surf",
-            "dm",
-            "dm-multicfg",
-            "course",
-            "hz",
-            "minigames"
-        }; // Default Game Mode List
+        public class RTVSettings
+        {
+            [JsonPropertyName("Enabled")] public bool Enabled { get; set; } = false; // Enable RTV Compatibility
+            [JsonPropertyName("Plugin")] public string Plugin { get; set; } = "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // RTV plugin path
+            [JsonPropertyName("MapListFile")] public string MapListFile { get; set; } = "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"; // Default map list file
+            [JsonPropertyName("DefaultMapFormat")] public bool DefaultMapFormat { get; set; } = true; // Default file format (ws:<workshop id>). When set to false, uses format <map name>:<workshop id>. 
+        
+        }
+
+        public class MapGroupSettings
+        {
+            [JsonPropertyName("Default")] public string Default { get; set; } = "mg_active"; // Default map group on server start
+            [JsonPropertyName("File")] public string File { get; set; } = "/home/steam/cs2/game/csgo/gamemodes_server.txt"; // Default game modes and map groups file
+        }
+        
+        public class GameModeSettings
+        {
+            [JsonPropertyName("ListEnabled")] public bool ListEnabled { get; set; } = true; // Enables custom game mode list. Default list is generated from map groups.
+            [JsonPropertyName("List")] public List<string> List { get; set; } = new List<string>
+            {  
+                "comp", 
+                "1v1",
+                "aim",
+                "awp",
+                "scoutzknivez",
+                "wingman",
+                "gungame",
+                "surf",
+                "dm",
+                "dm-multicfg",
+                "course",
+                "hns",
+                "kz",
+                "minigames"
+            }; // Default Game Mode List
+        }
+
+         [JsonPropertyName("RTV")] public RTVSettings RTV { get; set; } = new RTVSettings();
+         [JsonPropertyName("MapGroup")] public MapGroupSettings MapGroup { get; set; } = new MapGroupSettings();
+         [JsonPropertyName("GameMode")] public GameModeSettings GameMode { get; set; } = new GameModeSettings();
     }
 }

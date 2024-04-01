@@ -13,7 +13,7 @@ namespace GameModeManager
     {
         // Define plugin details
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "1.0.0";
+        public override string ModuleVersion => "1.0.1";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin/module that dynamically updates any maplist.txt file based on the current mapgroup.";
 
@@ -34,6 +34,20 @@ namespace GameModeManager
             catch(Exception ex)
             {
                 Logger.LogError($"{ex.Message}");
+            }
+            // Setup mode admin menu
+            try
+            {
+                SetupModeMenu();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"{ex.Message}");
+            }
+            // Enable default map cycle
+            if(!Config.RTV.Enabled)
+            {
+                RegisterEventHandler<EventCsIntermission>(EventGameEnd);
             }
         }
     }
