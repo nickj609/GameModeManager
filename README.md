@@ -4,9 +4,10 @@ A Counter-Strike 2 server plugin inspired by the [CS2 Modded Dedicated Server by
 ## Description
 GameModeManager streamlines your Counter-Strike 2 server administration with these features:
 
+- **Admin Game Mode Menu:** Effortlessly switch between game modes.
+- **Admin Map List Menu:** Effortlessly switch between maps within the current game mode.
+- **Default Map Cycles:** Automatically changes the map to a random map within the current map group.
 - **RTV Compatibility:** Works seamlessly with your chosen RTV plugin, ensuring smooth rock-the-vote functionality.
-- **Customizable Game Modes:** Easily define your server's game mode list and switch between them effortlessly using admin commands.
-- **Dynamic Map Lists:** Automatically updates your maplist.txt file based on the current game mode or map group, eliminating manual map changes.
 
 ## Requirements
 - Counter-Strike 2
@@ -17,19 +18,23 @@ GameModeManager streamlines your Counter-Strike 2 server administration with the
 > If you are using the [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modded-server) you should remove the `Ultimate Map Chooser` plugin until the pull request is approved/finalized.
 
 ## Commands
+
+Server Only
 - `css_mapgroup` - Sets the map group and updates the map list.
-- `css_modes` - Displays an admin menu with game mode options.
+
+Client Only
+- `!modes (css_modes)` - Displays an admin menu with game mode options.
 
   ![Screenshot 2024-03-21 161458](https://github.com/nickj609/GameModeManager/assets/32173425/db33fe48-21f3-455c-9987-5406fca99c4f)
 
-- `css_maps` - Displays an admin menu with maps for the current game mode/map group.
+- `!maps (css_maps)` - Displays an admin menu with maps for the current game mode/map group.
 
   ![Screenshot 2024-03-21 161416](https://github.com/nickj609/GameModeManager/assets/32173425/f9c193b0-2ad3-4fa1-8a83-eaac812d2f21)
 
 ## RTV Plugin Compatibility
 
 > [!IMPORTANT]
-> You will need to set the `RTVEnabled` and `RTVPlugin` variables in the configuration file for RTV Plugin compatibility.
+> You will need to manually enable RTV Plugin Compatibility within the configuration file after the first load.
 
 This plugin is compatible with any RTV plugin as long as it uses a maplist.txt file.
 
@@ -38,8 +43,9 @@ This plugin is compatible with any RTV plugin as long as it uses a maplist.txt f
 ## Installation
 1. Install Metamod:Source and Counter Strike Sharp.
 2. Copy DLLs to `csgo/addons/counterstrikesharp/plugins/GameModeManager`.
-3. Ensure your `gamemodes_server.txt` file contains a list of map groups.
-4. Update your custom configuration files for each game mode to include `css_mapgroup <map group>`.
+3. Make sure your `gamemodes_server.txt` file is in VDF format and contains a list of map groups.
+4. If needed, update your custom configuration files for each game mode to include `css_mapgroup <map group>`.
+5. AFter the first run, update the configuration file `GameModeManager.json` as detailed below.
 
 ## Configuration
 > [!IMPORTANT]
@@ -47,16 +53,25 @@ This plugin is compatible with any RTV plugin as long as it uses a maplist.txt f
 
 GameModeManager offers flexible configuration options. See below for details and customization instructions.
 
-| Config              | Description                                                                                                                               |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| MapGroup            | Sets the default map group on server start.                                                                                               | 
-| MapGroupsFile       | Default path for the gamemodes_server.txt file used to specify game modes and map groups.                                                 | 
-| MapListFile         | Default path for the maplist.txt file that needs to be updated when the map group or game mode changes.                                   | 
+### RTV Settings
+| RTV                 | Description                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
+| Enabled             | If set to true, the RTV plugin specified will be reloaded after updating the maplist.txt file.                                            | 
+| Plugin              | This is the default path to the RTV Plugin you are using. This can also just be the module name.                                          | 
+| MapListFile         | This is the default path for the maplist.txt file that will be updated when the map group or game mode changes.                           | 
 | DefaultMapFormat    | Sets the format for adding maps to the maplist.txt file to the default value `ws:{workshopid}`.                                           |
-| RTVEnabled          | If set to enabled, the RTV plugin specified will be reloaded after updating the maplist.txt file.                                         | 
-| RTVPlugin           | This is the default path to the RTV Plugin you are using. This can also just be the module name.                                          | 
+
+### Map Group Settings
+| MapGroup            | Description                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Default             | Sets the default map group on server start.                                                                                               | 
+| File                | Default path for the gamemodes_server.txt file used to specify game modes and map groups.                                                 |     
+
+### Game Mode Settings
+| GameMode              | Description                                                                                                                             |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | ListEnabled         | When enabled, the game mode list specified will be used. Otherwise, the list will be generated based on the map groups discovered.        |
-| GameModeList        | Allows you to specify the list of game modes for your server.                                                                             |                                          
+| List                | Allows you to specify the list of game modes for your server.                                                                             |     
 
 > [!NOTE]
 > - All game mode configuration files must be located in the `csgo/cfg` directory.
@@ -64,34 +79,40 @@ GameModeManager offers flexible configuration options. See below for details and
 > - If `DefaultMapFormat` is set to `false`, the plugin will create the map list using the format `{mapname}:{workshopid}`.
 > - If `ListEnabled` is set to `false`, the Game Mode List will be created based on the discovered map groups. For example, `mg_surf` would display as `surf` and the `surf.cfg` would be executed. 
 
-#### Default Values
+### Default Values
 
 ```
-// This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2024/03/21 08:12:06
+// This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2024/04/01 04:22:02
 {
-  "MapGroup": "mg_active",
-  "MapGroupsFile": "/home/steam/cs2/game/csgo/gamemodes_server.txt",
-  "MapListFile": "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/maplist.txt",
-  "DefaultMapFormat": true,
-  "RTVEnabled": false,
-  "RTVPlugin": "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll",
-  "ListEnabled": true,
-  "GameModeList": [
-    "comp",
-    "1v1",
-    "aim",
-    "awp",
-    "scoutzknivez",
-    "wingman",
-    "gungame",
-    "surf",
-    "dm",
-    "dm-multicfg",
-    "course",
-    "hns",
-    "kz",
-    "minigames"
-  ],
+  "RTV": {
+    "Enabled": false,
+    "Plugin": "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll",
+    "MapListFile": "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/maplist.txt",
+    "DefaultMapFormat": false
+  },
+  "MapGroup": {
+    "Default": "mg_active",
+    "File": "/home/steam/cs2/game/csgo/gamemodes_server.txt"
+  },
+  "GameMode": {
+    "ListEnabled": true,
+    "List": [
+      "comp",
+      "1v1",
+      "aim",
+      "awp",
+      "scoutzknivez",
+      "wingman",
+      "gungame",
+      "surf",
+      "dm",
+      "dm-multicfg",
+      "course",
+      "hns",
+      "kz",
+      "minigames"
+    ]
+  },
   "ConfigVersion": 1
 }
 ```
@@ -102,21 +123,23 @@ GameModeManager offers flexible configuration options. See below for details and
 > 
 > `csgo/addons/counterstrikesharp/logs`
 
-#### Example Log File
+### Example
 ```
-2024-03-30 16:52:58.352 +00:00 [INFO] plugin:GameModeManager Parsing map group file /home/steam/cs2/game/csgo/gamemodes_server.txt...
-2024-03-30 16:52:58.366 +00:00 [INFO] plugin:GameModeManager Updating map list...
-2024-03-30 16:52:58.366 +00:00 [INFO] plugin:GameModeManager Reloading RTV plugin...
-2024-03-30 16:52:58.367 +00:00 [INFO] plugin:GameModeManager Updating map menu...
-2024-03-30 16:53:16.367 +00:00 [INFO] plugin:GameModeManager Creating mode menu...
-2024-03-30 16:53:32.320 +00:00 [INFO] plugin:GameModeManager OnModesCommand execution started
-2024-03-30 16:53:36.472 +00:00 [INFO] plugin:GameModeManager OnMapsCommand execution started
-2024-03-30 16:53:38.018 +00:00 [INFO] plugin:GameModeManager OnModesCommand execution started
-2024-03-30 16:53:57.951 +00:00 [INFO] plugin:GameModeManager Map group command detected!
-2024-03-30 16:53:57.952 +00:00 [INFO] plugin:GameModeManager Current MapGroup is mg_casual.
-2024-03-30 16:53:57.952 +00:00 [INFO] plugin:GameModeManager New MapGroup is mg_dm.
-2024-03-30 16:53:57.952 +00:00 [INFO] plugin:GameModeManager Updating map list...
-2024-03-30 16:53:57.952 +00:00 [INFO] plugin:GameModeManager Reloading RTV plugin...
-2024-03-30 16:53:57.953 +00:00 [INFO] plugin:GameModeManager Updating map menu...
+2024-04-01 03:26:13.249 +00:00 [INFO] plugin:GameModeManager Parsing map group file /home/steam/cs2/game/csgo/gamemodes_server.txt.
+2024-04-01 03:26:13.263 +00:00 [INFO] plugin:GameModeManager Updating map menu.
+2024-04-01 03:26:13.264 +00:00 [INFO] plugin:GameModeManager Creating mode menu.
+2024-04-01 03:27:05.147 +00:00 [INFO] plugin:GameModeManager OnMapsCommand execution started.
+2024-04-01 03:27:16.704 +00:00 [INFO] plugin:GameModeManager OnModesCommand execution started.
+2024-04-01 03:27:20.767 +00:00 [INFO] plugin:GameModeManager Map group command detected!
+2024-04-01 03:27:20.767 +00:00 [INFO] plugin:GameModeManager Current MapGroup is mg_active.
+2024-04-01 03:27:20.768 +00:00 [INFO] plugin:GameModeManager New MapGroup is mg_aim.
+2024-04-01 03:27:20.768 +00:00 [INFO] plugin:GameModeManager Updating map menu.
 ```
 
+### Common Error Messages
+| Error Message                                                  | Description                                                          |
+| ---------------------------------------------------------------| -------------------------------------------------------------------- | 
+| `Cannot Find`                                                  | Unable to locate the file specified from config.                     | 
+| `Incomplete VDF data`                                          | Your gamemodes_server.txt file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
+| `The mapgroup property doesn't exist.`                         | The "mapgroup" property in gamemodes_server.txt doesn't exist.       | 
+| `Error when parsing gamemodes_server.txt`                      | Your gamemodes_server.txt file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
