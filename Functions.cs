@@ -48,7 +48,7 @@ namespace GameModeManager
                 
                 if (vdfObject == null)
                 {
-                    Logger.LogError($"Error parsing gamemodes_server.txt. Possible causes: missing brackets, incorrect quotes, or extra commas. See the VDF specification for details.");
+                    Logger.LogError($"Error parsing gamemodes_server.txt.");
                 }
                 else
                 {
@@ -103,7 +103,7 @@ namespace GameModeManager
                     }
                     else
                     {
-                        Logger.LogWarning($"The mapgroup property in gamemodes_server.txt doesn't exist. Using default map group.");
+                        Logger.LogWarning($"The mapgroup property doesn't exist. Using default map group.");
                         mapGroups.Add(defaultMapGroup);
                     }
                 }

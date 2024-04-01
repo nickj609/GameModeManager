@@ -72,7 +72,7 @@ namespace GameModeManager
             [JsonPropertyName("Enabled")] public bool Enabled { get; set; } = false; // Enable RTV Compatibility
             [JsonPropertyName("Plugin")] public string Plugin { get; set; } = "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // RTV plugin path
             [JsonPropertyName("MapListFile")] public string MapListFile { get; set; } = "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"; // Default map list file
-            [JsonPropertyName("DefaultMapFormat")] public bool DefaultMapFormat { get; set; } = true; // Default file format (ws:<workshop id>). When set to false, uses format <map name>:<workshop id>. 
+            [JsonPropertyName("DefaultMapFormat")] public bool DefaultMapFormat { get; set; } = false; // Default file format (ws:<workshop id>). When set to false, uses format <map name>:<workshop id>. 
         
         }
 
