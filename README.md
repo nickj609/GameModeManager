@@ -137,9 +137,8 @@ GameModeManager offers flexible configuration options. See below for details and
 ```
 
 ### Common Error Messages
-| Error Message                                                  | Description                                                          |
-| ---------------------------------------------------------------| -------------------------------------------------------------------- | 
-| `Cannot Find`                                                  | Unable to locate the file specified from config.                     | 
+| Error Message                                                  | Description                                                                                                            |
+| ---------------------------------------------------------------| ---------------------------------------------------------------------------------------------------------------------- | 
+| `Cannot Find`                                                  | Unable to locate the file specified from config.                                                                       | 
 | `Incomplete VDF data`                                          | Your gamemodes_server.txt file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
-| `The mapgroup property doesn't exist.`                         | The "mapgroup" property in gamemodes_server.txt doesn't exist.       | 
-| `Error when parsing gamemodes_server.txt`                      | Your gamemodes_server.txt file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
+| `The mapgroup property doesn't exist`                          | The "mapgroup" property cannot be found in your `gamemodes_server.txt` file.                                           | 
