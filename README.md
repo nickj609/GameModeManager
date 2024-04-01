@@ -20,7 +20,7 @@ GameModeManager streamlines your Counter-Strike 2 server administration with the
 ## Commands
 
 Server Only
-- `css_mapgroup` - Sets the map group and updates the map list.
+- `css_mapgroup <mg_name>` - Sets the map group and updates the map list.
 
 Client Only
 - `!modes (css_modes)` - Displays an admin menu with game mode options.
