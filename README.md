@@ -120,7 +120,7 @@ GameModeManager offers flexible configuration options. See below for details and
 ### Languages
 This plugin will display all in-game menus and messaging within the language of the player. Below is an example language configuration you can customize to your liking.
 
-lang/en.json
+/lang/en.json
 ```
 {
   "plugin.prefix": "[{GREEN}Server{DEFAULT}]",
