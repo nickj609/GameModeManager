@@ -117,6 +117,20 @@ GameModeManager offers flexible configuration options. See below for details and
 }
 ```
 
+### Languages
+This plugin will display all in-game menus and messaging within the language of the player. Below is an example language configuration you can customize to your liking.
+
+lang/en.json
+```
+{
+  "plugin.prefix": "[{GREEN}Server{DEFAULT}]",
+  "changemap.message": "Admin {LIGHTRED}{0}{DEFAULT} has changed the map to {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} has changed the game mode to {LIGHTRED}{1}{DEFAULT}.",
+  "mode.hud.menu-title": "Game Mode List",
+  "maps.hud.menu-title": "Map List"
+}
+```
+
 ## Logging
 >[!WARNING]
 > Due to the heavy use of the above configuration file to specify paths to files and plugins, you may run into several issues upon the initial deployment. All logs associated with this plugin can be found in the below location.
