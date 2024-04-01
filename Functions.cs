@@ -48,7 +48,7 @@ namespace GameModeManager
                 
                 if (vdfObject == null)
                 {
-                    Logger.LogError($"Error parsing gamemodes_server.txt.");
+                    Logger.LogError($"Error when parsing gamemodes_server.txt.");
                 }
                 else
                 {
