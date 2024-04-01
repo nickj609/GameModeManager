@@ -20,7 +20,7 @@ GameModeManager streamlines your Counter-Strike 2 server administration with the
 ## Commands
 
 Server Only
-- `css_mapgroup` - Sets the map group and updates the map list.
+- `css_mapgroup <mg_name>` - Sets the map group and updates the map list.
 
 Client Only
 - `!modes (css_modes)` - Displays an admin menu with game mode options.
@@ -137,9 +137,8 @@ GameModeManager offers flexible configuration options. See below for details and
 ```
 
 ### Common Error Messages
-| Error Message                                                  | Description                                                          |
-| ---------------------------------------------------------------| -------------------------------------------------------------------- | 
-| `Cannot Find`                                                  | Unable to locate the file specified from config.                     | 
-| `Incomplete VDF data`                                          | Your gamemodes_server.txt file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
-| `The mapgroup property doesn't exist.`                         | The "mapgroup" property in gamemodes_server.txt doesn't exist.       | 
-| `Error when parsing gamemodes_server.txt`                      | Your gamemodes_server.txt file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
+| Error Message                                                  | Description                                                                                                            |
+| ---------------------------------------------------------------| ---------------------------------------------------------------------------------------------------------------------- | 
+| `Cannot Find`                                                  | Unable to locate the file specified from `GameModeManager.json` config.                                                                       | 
+| `Incomplete VDF data`                                          | Your `gamemodes_server.txt` file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
+| `The mapgroup property doesn't exist`                          | The "mapgroup" property cannot be found in your `gamemodes_server.txt` file.                                           | 
