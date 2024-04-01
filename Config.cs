@@ -16,6 +16,28 @@ namespace GameModeManager
         // Parse configuration object data and perform error checking
         public void OnConfigParsed(Config config)
         {  
+            // RTV Settings
+            if (config.RTV.Enabled != true && config.RTV.Enabled != false) 
+            {
+                throw new Exception($"Invalid: RTV 'Enabled' should be 'true' or 'false'.");
+            }
+            else if(config.RTV.Enabled == true) 
+            {
+                if (!File.Exists(config.RTV.Plugin)) 
+                {
+                    throw new Exception($"Cannot find RTV 'Plugin': {config.RTV.Plugin}");
+                }
+                if (!File.Exists(config.RTV.MapListFile))  
+                {
+                    throw new Exception($"Cannot find RTV 'MapListFile': {config.RTV.MapListFile}");
+                }
+                if (config.RTV.DefaultMapFormat != true && config.RTV.DefaultMapFormat != false)
+                {
+                    throw new Exception($"Invalid: RTV 'DefaultMapFormat' should be 'true' or 'false'.");
+                }
+            }
+            
+            // Map Group Settings
             if (config.MapGroup.Default == null) 
             {
                 throw new Exception($"Undefined: MapGroup 'Default' can not be empty.");
@@ -26,30 +48,7 @@ namespace GameModeManager
                 throw new Exception($"Cannot find MapGroup 'File': {config.MapGroup.File}");
             }
             
-            
-            if (config.RTV.Enabled != true && config.RTV.Enabled != false) 
-            {
-                throw new Exception($"Invalid: RTV 'Enabled' should be 'true' or 'false'.");
-            }
-            else if(config.RTV.Enabled == true) 
-            {
-                // If RTV is enabled, check if RTV plugin exists
-                if (!File.Exists(config.RTV.Plugin)) 
-                {
-                    throw new Exception($"Cannot find RTV 'Plugin': {config.RTV.Plugin}");
-                }
-                // Check if map list for RTV plugin exists
-                if (!File.Exists(config.RTV.MapListFile))  
-                {
-                    throw new Exception($"Cannot find RTV 'MapListFile': {config.RTV.MapListFile}");
-                }
-                // Check default map format
-                if (config.RTV.DefaultMapFormat != true && config.RTV.DefaultMapFormat != false)
-                {
-                    throw new Exception($"Invalid: RTV 'DefaultMapFormat' should be 'true' or 'false'.");
-                }
-            }
-            
+            // Game Mode Settings
             if (config.GameMode.ListEnabled != true && config.GameMode.ListEnabled != false) 
             {
                 throw new Exception($"Invalid: GameMode 'ListEnabled' should be 'true' or 'false'.");

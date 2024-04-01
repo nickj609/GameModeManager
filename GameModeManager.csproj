@@ -1,12 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>GameModeManager</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CounterStrikeSharp.API" Version="1.0.193"/>
-    <PackageReference Include="Gameloop.Vdf" Version="0.6.2" PrivateAssets="build" />
+    <PackageReference Include="Gameloop.Vdf" Version="0.6.2" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="lang\**\*.*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CopyGameLoop" AfterTargets="AfterBuild">
+  <Copy SourceFiles="lib\net7.0\Gameloop.Vdf.dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+  </Target>
 </Project>

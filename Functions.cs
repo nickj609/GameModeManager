@@ -2,14 +2,18 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Timers;
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
+using System.Globalization;
 using CounterStrikeSharp.API;
 using System.Collections.Generic;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
+using CounterStrikeSharp.API.Modules.Timers;
+using CounterStrikeSharp.API.Core.Attributes;
+using CounterStrikeSharp.API.Core.Translations;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
 
 // Declare namespace
 namespace GameModeManager
@@ -38,6 +42,7 @@ namespace GameModeManager
         public static MapGroup currentMapGroup = defaultMapGroup;
         public static Map? currentMap;
 
+        // Define function to parse map groups
         private void ParseMapGroups()
         {
             Logger.LogInformation($"Parsing map group file {Config.MapGroup.File}.");
@@ -48,7 +53,7 @@ namespace GameModeManager
                 
                 if (vdfObject == null)
                 {
-                    Logger.LogError($"Error when parsing gamemodes_server.txt.");
+                    Logger.LogError($"Incomplete VDF data.");
                 }
                 else
                 {
@@ -126,7 +131,7 @@ namespace GameModeManager
             if(Config.RTV.Enabled)
             {
                 // Update map list for RTV Plugin
-                Logger.LogInformation("Updating map list.");
+                Logger.LogInformation("Updating map list for RTV plugin.");
                 try 
                 {
                     using (StreamWriter writer = new StreamWriter(Config.RTV.MapListFile))
@@ -174,12 +179,11 @@ namespace GameModeManager
             }
             return;
         }
-
         // Define menus
-        private CenterHtmlMenu mapMenu = new CenterHtmlMenu("Map List");
-        private CenterHtmlMenu modeMenu = new CenterHtmlMenu("Game Mode List");
-
-        // Create map menu 
+        private static CenterHtmlMenu mapMenu = new CenterHtmlMenu("Map List");
+        private static CenterHtmlMenu modeMenu = new CenterHtmlMenu("Game Mode List");
+        
+        // Create and update map menu 
         private void UpdateMapMenu(MapGroup newMapGroup)
         {
             mapMenu = new CenterHtmlMenu("Map List");
@@ -196,12 +200,12 @@ namespace GameModeManager
                         Logger.LogWarning("Map not found when updating map menu. Using de_dust2 for next map."); 
                         nextMap = new Map("de_dust2");
                     }
+                    // Write to chat
+                    Server.PrintToChatAll(Localizer["changemap.message", player.PlayerName, nextMap.Name]);
+                    // Change map
+                    AddTimer(5.0f, () => ChangeMap(nextMap), TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
                     // Close menu
                     MenuManager.CloseActiveMenu(player);
-                    // Write to chat
-                    Server.PrintToChatAll((player.PlayerName ?? "Server") + " changed the map to" + nextMap.Name);
-                    // Change map
-                    ChangeMap(nextMap);
                 });
             }
             return;
@@ -219,8 +223,13 @@ namespace GameModeManager
                 {
                     modeMenu.AddMenuOption(mode, (player, option) =>
                     {
-                        // Execute game mode config and close menu
-                        Server.ExecuteCommand($"exec {option.Text}.cfg");
+                        // Write to chat
+                        Server.PrintToChatAll(Localizer["changemode.message", player.PlayerName, option.Text]);
+
+                        // Change game mode
+                        AddTimer(5.0f, () => Server.ExecuteCommand($"exec {option.Text}.cfg"), TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+
+                        // Close menu
                         MenuManager.CloseActiveMenu(player);
                     });
                 }
@@ -235,18 +244,26 @@ namespace GameModeManager
 
                     if(mapGroup.Name == null)
                     {   
-                        mapGroupName = defaultMapGroup.Name; 
+                        string[] parts = defaultMapGroup.Name.Split('_'); 
+                        mapGroupName = parts[parts.Length - 1];
                     }
                     else
                     {
-                        mapGroupName = mapGroup.Name;
+                        string[] parts = mapGroup.Name.Split('_');
+                        mapGroupName = parts[parts.Length - 1];
+        
                     }
                     if(mapGroupName != null)
                     {
                         modeMenu.AddMenuOption(mapGroupName, (player, option) =>
                         {
-                            // Execute game mode config and close menu
-                            Server.ExecuteCommand($"exec {option.Text}.cfg");
+                            // Write to chat
+                            Server.PrintToChatAll(Localizer["changemode.message", player.PlayerName, option.Text]);
+
+                            // Change game mode
+                            AddTimer(5.0f, () => Server.ExecuteCommand($"exec {option.Text}.cfg"), TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+
+                            // Close menu
                             MenuManager.CloseActiveMenu(player);
                         });
                     }
@@ -259,36 +276,30 @@ namespace GameModeManager
         {
             Logger.LogInformation("Changing map...");
 
-            // Create map change delay
-            System.Timers.Timer delayTimer = new System.Timers.Timer();
-            delayTimer.Interval = 5000; // Example: 5-second delay
-            delayTimer.Elapsed += (sender, e) => 
+            // If map valid, change map based on map type
+            if (Server.IsMapValid(nextMap.Name))
             {
-                delayTimer.Stop(); // Stop the timer after one execution 
-                
-                // If map valid, change map based on map type
-                if (Server.IsMapValid(nextMap.Name))
-                {
-                    Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
-                }
-                else if (nextMap.WorkshopId != null)
-                {
-                    Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
-                }
-                else
-                {
-                    Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
-                }
-            };
-            delayTimer.Start();
+                Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
+            }
+            else if (nextMap.WorkshopId != null)
+            {
+                Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
+            }
+            else
+            {
+                Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
+            }
 
             // Set current map
             currentMap = nextMap;
             return;
         }
+
+        // Construct EventGameEnd Handler to automatically change map
         private HookResult EventGameEnd(EventCsIntermission @event, GameEventInfo info)
         {
-            Console.WriteLine("Game has ended. Changing map...");
+            Logger.LogInformation("Game has ended. Picking random map from current map group...");
+            Server.PrintToChatAll(Localizer["plugin.prefix"] + " Game has ended. Changing map...");
 
             if(currentMapGroup == null)
             {
