@@ -45,7 +45,7 @@ This plugin is compatible with any RTV plugin as long as it uses a maplist.txt f
 2. Copy DLLs to `csgo/addons/counterstrikesharp/plugins/GameModeManager`.
 3. Make sure your `gamemodes_server.txt` file is in VDF format and contains a list of map groups.
 4. If needed, update your custom configuration files for each game mode to include `css_mapgroup <map group>`.
-5. AFter the first run, update the configuration file `GameModeManager.json` as detailed below.
+5. After the first run, update the configuration file `GameModeManager.json` as detailed below.
 
 ## Configuration
 > [!IMPORTANT]
