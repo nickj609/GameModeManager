@@ -45,7 +45,7 @@ This plugin is compatible with any RTV plugin as long as it uses a maplist.txt f
 2. Copy DLLs to `csgo/addons/counterstrikesharp/plugins/GameModeManager`.
 3. Make sure your `gamemodes_server.txt` file is in VDF format and contains a list of map groups.
 4. If needed, update your custom configuration files for each game mode to include `css_mapgroup <map group>`.
-5. AFter the first run, update the configuration file `GameModeManager.json` as detailed below.
+5. After the first run, update the configuration file `GameModeManager.json` as detailed below.
 
 ## Configuration
 > [!IMPORTANT]
@@ -54,29 +54,27 @@ This plugin is compatible with any RTV plugin as long as it uses a maplist.txt f
 GameModeManager offers flexible configuration options. See below for details and customization instructions.
 
 ### RTV Settings
-| RTV                 | Description                                                                                                                               |
+| Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| Enabled             | If set to true, the RTV plugin specified will be reloaded after updating the maplist.txt file.                                            | 
+| Enabled             | When enabled, the RTV plugin specified will be reloaded after updating the maplist.txt file.                                              | 
 | Plugin              | This is the default path to the RTV Plugin you are using. This can also just be the module name.                                          | 
 | MapListFile         | This is the default path for the maplist.txt file that will be updated when the map group or game mode changes.                           | 
-| DefaultMapFormat    | Sets the format for adding maps to the maplist.txt file to the default value `ws:{workshopid}`.                                           |
+| DefaultMapFormat    | When enabled, the format for adding maps to the maplist.txt file will be `ws:{workshopid}` instead of `{mapname}:{workshopid}`.           |
 
 ### Map Group Settings
-| MapGroup            | Description                                                                                                                               |
+| Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Default             | Sets the default map group on server start.                                                                                               | 
+| Default             | Default map group on server start (i.e. mg_active).                                                                                        | 
 | File                | Default path for the gamemodes_server.txt file used to specify game modes and map groups.                                                 |     
 
 ### Game Mode Settings
-| GameMode              | Description                                                                                                                             |
+| Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | ListEnabled         | When enabled, the game mode list specified will be used. Otherwise, the list will be generated based on the map groups discovered.        |
-| List                | Allows you to specify the list of game modes for your server.                                                                             |     
+| List                | A list of game modes for your server.                                                                                                     |     
 
 > [!NOTE]
-> - All game mode configuration files must be located in the `csgo/cfg` directory.
-> - All game mode configuration files must include `css_mapgroup` to set the current map group.
-> - If `DefaultMapFormat` is set to `false`, the plugin will create the map list using the format `{mapname}:{workshopid}`.
+> - All game mode configuration files must be located in the `csgo/cfg` directory and include `css_mapgroup` to set the current map group.
 > - If `ListEnabled` is set to `false`, the Game Mode List will be created based on the discovered map groups. For example, `mg_surf` would display as `surf` and the `surf.cfg` would be executed. 
 
 ### Default Values
@@ -117,6 +115,20 @@ GameModeManager offers flexible configuration options. See below for details and
 }
 ```
 
+### Languages
+This plugin will display all in-game menus and messaging within the language of the player. Below is an example language configuration you can customize to your liking.
+
+/lang/en.json
+```
+{
+  "plugin.prefix": "[{GREEN}Server{DEFAULT}]",
+  "changemap.message": "Admin {LIGHTRED}{0}{DEFAULT} has changed the map to {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} has changed the game mode to {LIGHTRED}{1}{DEFAULT}.",
+  "mode.hud.menu-title": "Game Mode List",
+  "maps.hud.menu-title": "Map List"
+}
+```
+
 ## Logging
 >[!WARNING]
 > Due to the heavy use of the above configuration file to specify paths to files and plugins, you may run into several issues upon the initial deployment. All logs associated with this plugin can be found in the below location.
@@ -137,8 +149,8 @@ GameModeManager offers flexible configuration options. See below for details and
 ```
 
 ### Common Error Messages
-| Error Message                                                  | Description                                                                                                            |
-| ---------------------------------------------------------------| ---------------------------------------------------------------------------------------------------------------------- | 
-| `Cannot Find`                                                  | Unable to locate the file specified from `GameModeManager.json` config.                                                                       | 
+| Error Message                                                  | Description                                                                                                              |
+| ---------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------------ | 
+| `Cannot Find`                                                  | Unable to locate the file specified from `GameModeManager.json` config.                                                  | 
 | `Incomplete VDF data`                                          | Your `gamemodes_server.txt` file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
-| `The mapgroup property doesn't exist`                          | The "mapgroup" property cannot be found in your `gamemodes_server.txt` file.                                           | 
+| `The mapgroup property doesn't exist`                          | The "mapgroup" property cannot be found in your `gamemodes_server.txt` file.                                             | 
