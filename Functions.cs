@@ -11,9 +11,7 @@ using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
-using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Core.Translations;
-using CounterStrikeSharp.API.Core.Attributes.Registration;
 
 // Declare namespace
 namespace GameModeManager
@@ -29,11 +27,7 @@ namespace GameModeManager
             new Map("de_mirage"),
             new Map("de_nuke"),
             new Map("de_overpass"),
-            new Map("de_vertigo"),
-            new Map("ar_shoots"),
-            new Map("ar_baggage"),
-            new Map("de_safehouse"),
-            new Map("de_lake")
+            new Map("de_vertigo")
         };
         private static MapGroup defaultMapGroup = new MapGroup("mg_active", defaultMaps);
 
@@ -41,6 +35,7 @@ namespace GameModeManager
         public static List<MapGroup> mapGroups = new List<MapGroup>();
         public static MapGroup currentMapGroup = defaultMapGroup;
         public static Map? currentMap;
+        public static List<Map> allMaps = new List<Map>();
 
         // Define function to parse map groups
         private void ParseMapGroups()
@@ -90,10 +85,12 @@ namespace GameModeManager
                                         string mapNameFormatted = parts[parts.Length - 1];
                                         string mapWorkshopId = parts[1]; 
                                         newMapGroup.Maps.Add(new Map(mapNameFormatted, mapWorkshopId));
+                                        allMaps.Add(new Map(mapNameFormatted, mapWorkshopId));
                                     }
                                     else
                                     {
                                         newMapGroup.Maps.Add(new Map(mapName));
+                                        allMaps.Add(new Map(mapName));
                                     }
                                 }
                             }
@@ -203,7 +200,7 @@ namespace GameModeManager
                     // Write to chat
                     Server.PrintToChatAll(Localizer["changemap.message", player.PlayerName, nextMap.Name]);
                     // Change map
-                    AddTimer(5.0f, () => ChangeMap(nextMap), TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+                    AddTimer(5.0f, () => ChangeMap(nextMap));
                     // Close menu
                     MenuManager.CloseActiveMenu(player);
                 });
@@ -227,7 +224,7 @@ namespace GameModeManager
                         Server.PrintToChatAll(Localizer["changemode.message", player.PlayerName, option.Text]);
 
                         // Change game mode
-                        AddTimer(5.0f, () => Server.ExecuteCommand($"exec {option.Text}.cfg"), TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+                        AddTimer(5.0f, () => Server.ExecuteCommand($"exec {option.Text}.cfg"));
 
                         // Close menu
                         MenuManager.CloseActiveMenu(player);
@@ -240,19 +237,15 @@ namespace GameModeManager
                 // Create menu options for each map group parsed
                 foreach (MapGroup mapGroup in mapGroups)
                 {
-                    string mapGroupName;
+                    // Split the string into parts by the underscore
+                    string[] nameParts = (mapGroup.Name ?? defaultMapGroup.Name).Split('_');
 
-                    if(mapGroup.Name == null)
-                    {   
-                        string[] parts = defaultMapGroup.Name.Split('_'); 
-                        mapGroupName = parts[parts.Length - 1];
-                    }
-                    else
-                    {
-                        string[] parts = mapGroup.Name.Split('_');
-                        mapGroupName = parts[parts.Length - 1];
-        
-                    }
+                    // Get the last part (the actual map group name)
+                    string tempName = nameParts[nameParts.Length - 1]; 
+
+                    // Combine the capitalized first letter with the rest
+                    string mapGroupName = tempName.Substring(0, 1).ToUpper() + tempName.Substring(1); 
+
                     if(mapGroupName != null)
                     {
                         modeMenu.AddMenuOption(mapGroupName, (player, option) =>
@@ -261,7 +254,8 @@ namespace GameModeManager
                             Server.PrintToChatAll(Localizer["changemode.message", player.PlayerName, option.Text]);
 
                             // Change game mode
-                            AddTimer(5.0f, () => Server.ExecuteCommand($"exec {option.Text}.cfg"), TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+                            string newMode = option.Text.ToLower();
+                            AddTimer(5.0f, () => Server.ExecuteCommand($"exec {newMode}.cfg"));
 
                             // Close menu
                             MenuManager.CloseActiveMenu(player);
@@ -304,8 +298,7 @@ namespace GameModeManager
             if(currentMapGroup == null)
             {
                 currentMapGroup = defaultMapGroup;
-            }
-             
+            }         
             // Get a random map
             Random rnd = new Random();
             int randomIndex = rnd.Next(0, currentMapGroup.Maps.Count); 
