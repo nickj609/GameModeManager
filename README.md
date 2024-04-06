@@ -23,6 +23,14 @@ Server Only
 - `css_mapgroup <mg_name>` - Sets the map group and updates the map list.
 
 Client Only
+- `!map <map name> <id>` - Changes the map to the map specified.
+  
+  > The map id is optional and only required if not already specified in an existing map group.
+
+- `!mode (css_mode)` - Changes the game mode to the mode specified.
+  
+  > Only the mode name is required. For example, for mg_surf you would do !mode surf. 
+  
 - `!modes (css_modes)` - Displays an admin menu with game mode options.
 
   ![Screenshot 2024-03-21 161458](https://github.com/nickj609/GameModeManager/assets/32173425/db33fe48-21f3-455c-9987-5406fca99c4f)
