@@ -27,6 +27,7 @@ namespace GameModeManager
             // Parse map groups and set default map list and game modes
             try
             {
+                Logger.LogInformation($"Loading map groups...");
                 ParseMapGroups();
             }
             catch(Exception ex)
@@ -37,6 +38,7 @@ namespace GameModeManager
             // Setup mode admin menu
             try
             {
+                Logger.LogInformation($"Creating game modes...");
                 SetupModeMenu();
             }
             catch (Exception ex)
