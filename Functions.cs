@@ -42,7 +42,7 @@ namespace GameModeManager
             Logger.LogInformation($"Parsing map group file {Config.MapGroup.File}.");
             try
             {
-                // Deserialize gamemodes_server.txt (VDF) to VProperty
+                // Deserialize gamemodes_server.txt (VDF) to VProperty with GameLoop.Vdf
                 VProperty vdfObject = VdfConvert.Deserialize(File.ReadAllText(Config.MapGroup.File, Encoding.UTF8));
                 
                 if (vdfObject == null)
