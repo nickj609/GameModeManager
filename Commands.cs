@@ -22,18 +22,16 @@ namespace GameModeManager
         {
             if (player == null) 
             {
-                Logger.LogInformation($"Map group command detected!");
-
                 // Get map group
                 MapGroup? newMapGroup = mapGroups.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
 
                 if (newMapGroup == null || newMapGroup.Name == null || newMapGroup.Maps == null)
                 {
-                    Logger.LogInformation("New mapgroup could not be found. Setting default map group.");
+                    Logger.LogWarning("New map group could not be found. Setting default map group.");
                     newMapGroup = defaultMapGroup;
                 }
-               
-                Logger.LogInformation($"New MapGroup is {newMapGroup.Name}.");
+                Logger.LogInformation($"Current map group is {currentMapGroup.Name}.");
+                Logger.LogInformation($"New map group is {newMapGroup.Name}.");
 
                 // Update map list and map menu
                 try
