@@ -10,7 +10,7 @@ GameModeManager streamlines your Counter-Strike 2 server administration with the
 - **RTV Compatibility:** Works seamlessly with your chosen RTV plugin, ensuring smooth rock-the-vote functionality.
 
 ## Credits
-This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gameloop.Vdf/) (licensed under the [MIT License](https://github.com/shravan2x/Gameloop.Vdf/blob/master/LICENSE)). 
+This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gameloop.Vdf/) (licensed under the [MIT License](https://github.com/shravan2x/Gameloop.Vdf/blob/master/LICENSE)) for parsing the `gamemodes_server.txt` file, which is in [Valve Data Format](https://developer.valvesoftware.com/wiki/VDF).
 
 ## Requirements
 - Counter-Strike 2
@@ -18,7 +18,7 @@ This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gam
 - Counter Strike Sharp v.197+
 
 > [!NOTE]
-> If you are using the [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modded-server) you should remove the `Ultimate Map Chooser` plugin until the pull request is approved/finalized.
+> If you are using the [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modded-server) you should remove the [Ultimate Map Chooser](https://github.com/kus/cs2-modded-server/tree/master/game/csgo/addons/counterstrikesharp/plugins/CS2-Ultimate-Mapchooser) plugin until the pull request is approved/finalized.
 
 ## Commands
 
