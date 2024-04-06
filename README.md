@@ -148,15 +148,10 @@ This plugin will display all in-game menus and messaging within the language of 
 
 ### Example
 ```
-2024-04-01 03:26:13.249 +00:00 [INFO] plugin:GameModeManager Parsing map group file /home/steam/cs2/game/csgo/gamemodes_server.txt.
-2024-04-01 03:26:13.263 +00:00 [INFO] plugin:GameModeManager Updating map menu.
-2024-04-01 03:26:13.264 +00:00 [INFO] plugin:GameModeManager Creating mode menu.
-2024-04-01 03:27:05.147 +00:00 [INFO] plugin:GameModeManager OnMapsCommand execution started.
-2024-04-01 03:27:16.704 +00:00 [INFO] plugin:GameModeManager OnModesCommand execution started.
-2024-04-01 03:27:20.767 +00:00 [INFO] plugin:GameModeManager Map group command detected!
-2024-04-01 03:27:20.767 +00:00 [INFO] plugin:GameModeManager Current MapGroup is mg_active.
-2024-04-01 03:27:20.768 +00:00 [INFO] plugin:GameModeManager New MapGroup is mg_aim.
-2024-04-01 03:27:20.768 +00:00 [INFO] plugin:GameModeManager Updating map menu.
+2024-04-01 03:26:13.249 +00:00 [INFO] plugin:GameModeManager Loading map groups...
+2024-04-01 03:26:13.264 +00:00 [INFO] plugin:GameModeManager Creating game modes...
+2024-04-01 03:27:20.767 +00:00 [INFO] plugin:GameModeManager Current map group is mg_active.
+2024-04-01 03:27:20.768 +00:00 [INFO] plugin:GameModeManager New map group is mg_aim.
 ```
 
 ### Common Error Messages
