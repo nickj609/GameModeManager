@@ -196,7 +196,7 @@ namespace GameModeManager
 
                     // Change map
                     AddTimer(5.0f, () => ChangeMap(nextMap));
-                    
+
                     // Close menu
                     MenuManager.CloseActiveMenu(player);
                 });
@@ -260,8 +260,6 @@ namespace GameModeManager
         // Define function to change map
         private void ChangeMap(Map nextMap)
         {
-            Logger.LogInformation("Changing map...");
-
             // If map valid, change map based on map type
             if (Server.IsMapValid(nextMap.Name))
             {
