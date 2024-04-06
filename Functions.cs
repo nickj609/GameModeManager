@@ -39,7 +39,6 @@ namespace GameModeManager
         // Define function to parse map groups
         private void ParseMapGroups()
         {
-            Logger.LogInformation($"Parsing map group file {Config.MapGroup.File}.");
             try
             {
                 // Deserialize gamemodes_server.txt (VDF) to VProperty with GameLoop.Vdf
@@ -48,6 +47,7 @@ namespace GameModeManager
                 if (vdfObject == null)
                 {
                     Logger.LogError($"Incomplete VDF data.");
+                    throw;
                 }
                 else
                 {
@@ -127,7 +127,6 @@ namespace GameModeManager
             if(Config.RTV.Enabled)
             {
                 // Update map list for RTV Plugin
-                Logger.LogInformation("Updating map list for RTV plugin.");
                 try 
                 {
                     using (StreamWriter writer = new StreamWriter(Config.RTV.MapListFile))
@@ -149,23 +148,21 @@ namespace GameModeManager
                                     writer.WriteLine($"{map.Name}:{map.WorkshopId}");
                                 }
                             }
-                        }
+                        } 
                     } 
                 } 
                 catch (IOException ex)
                 {
-                    Logger.LogError("Unable to update maplist.txt.");
+                    Logger.LogError("Could not update map list.");
                     Logger.LogError($"{ex.Message}");
                 }
 
                 // Reload RTV Plugin
-                Logger.LogInformation("Reloading RTV plugin.");
                 Server.ExecuteCommand($"css_plugins reload {Config.RTV.Plugin}");
             }
-            // Update map menu
+            // Update map list for map menu
             try
             {
-                Logger.LogInformation("Updating map menu.");
                 UpdateMapMenu(newMapGroup);
             }
             catch(Exception ex)
@@ -177,12 +174,12 @@ namespace GameModeManager
         private static CenterHtmlMenu mapMenu = new CenterHtmlMenu("Map List");
         private static CenterHtmlMenu modeMenu = new CenterHtmlMenu("Game Mode List");
         
-        // Create and update map menu 
+        // Update map menu 
         private void UpdateMapMenu(MapGroup newMapGroup)
         {
             mapMenu = new CenterHtmlMenu("Map List");
 
-            // Create menu options for each map in the maplist
+            // Create menu options for each map in the new map list
             foreach (Map map in newMapGroup.Maps)
             {
                 mapMenu.AddMenuOption(map.Name, (player, option) =>
@@ -196,8 +193,10 @@ namespace GameModeManager
                     }
                     // Write to chat
                     Server.PrintToChatAll(Localizer["changemap.message", player.PlayerName, nextMap.Name]);
+
                     // Change map
                     AddTimer(5.0f, () => ChangeMap(nextMap));
+                    
                     // Close menu
                     MenuManager.CloseActiveMenu(player);
                 });
@@ -206,7 +205,6 @@ namespace GameModeManager
         // Create mode menu
         private void SetupModeMenu()
         {
-            Logger.LogInformation("Creating mode menu.");
             modeMenu = new CenterHtmlMenu("Game Mode List");
 
             if (Config.GameMode.ListEnabled)
