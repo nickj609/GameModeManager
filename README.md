@@ -9,6 +9,9 @@ GameModeManager streamlines your Counter-Strike 2 server administration with the
 - **Default Map Cycles:** Automatically changes the map to a random map within the current map group.
 - **RTV Compatibility:** Works seamlessly with your chosen RTV plugin, ensuring smooth rock-the-vote functionality.
 
+## Credits
+This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gameloop.Vdf/) (licensed under the [MIT License](https://github.com/shravan2x/Gameloop.Vdf/blob/master/LICENSE)). 
+
 ## Requirements
 - Counter-Strike 2
 - Metamod:Source v1282+

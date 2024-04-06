@@ -1,13 +1,16 @@
 // Included libraries
 using System.Text;
-using Gameloop.Vdf;
-using Gameloop.Vdf.Linq;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Core.Translations;
+
+// Copyright (c) 2016 Shravan Rajinikanth
+// https://github.com/shravan2x/Gameloop.Vdf/blob/master/LICENSE
+using Gameloop.Vdf;       
+using Gameloop.Vdf.Linq;
 
 // Declare namespace
 namespace GameModeManager
