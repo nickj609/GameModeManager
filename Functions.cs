@@ -1,12 +1,8 @@
 // Included libraries
-using System;
-using System.IO;
 using System.Text;
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
-using System.Globalization;
 using CounterStrikeSharp.API;
-using System.Collections.Generic;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
@@ -34,8 +30,8 @@ namespace GameModeManager
         // Define current map group, current map, and map group list
         public static List<MapGroup> mapGroups = new List<MapGroup>();
         public static MapGroup currentMapGroup = defaultMapGroup;
-        public static Map? currentMap;
         public static List<Map> allMaps = new List<Map>();
+        public static Map? currentMap;
 
         // Define function to parse map groups
         private void ParseMapGroups()
@@ -157,7 +153,6 @@ namespace GameModeManager
                 {
                     Logger.LogError("Unable to update maplist.txt.");
                     Logger.LogError($"{ex.Message}");
-                    throw;
                 }
 
                 // Reload RTV Plugin
@@ -174,7 +169,6 @@ namespace GameModeManager
             {
                 Logger.LogError($"{ex.Message}");
             }
-            return;
         }
         // Define menus
         private static CenterHtmlMenu mapMenu = new CenterHtmlMenu("Map List");
@@ -205,7 +199,6 @@ namespace GameModeManager
                     MenuManager.CloseActiveMenu(player);
                 });
             }
-            return;
         }
         // Create mode menu
         private void SetupModeMenu()
@@ -230,7 +223,6 @@ namespace GameModeManager
                         MenuManager.CloseActiveMenu(player);
                     });
                 }
-                return;
             }
             else
             {
@@ -262,7 +254,6 @@ namespace GameModeManager
                         });
                     }
                 }
-                return;
             }
         }
         // Define function to change map
@@ -286,7 +277,6 @@ namespace GameModeManager
 
             // Set current map
             currentMap = nextMap;
-            return;
         }
     }
 }

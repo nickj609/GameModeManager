@@ -2,8 +2,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
-using CounterStrikeSharp.API.Modules.Cvars;
-using static CounterStrikeSharp.API.Core.Listeners;
 
 // Declare namespace
 namespace GameModeManager
@@ -35,6 +33,7 @@ namespace GameModeManager
             {
                 Logger.LogError($"{ex.Message}");
             }
+
             // Setup mode admin menu
             try
             {
@@ -44,6 +43,7 @@ namespace GameModeManager
             {
                 Logger.LogError($"{ex.Message}");
             }
+            
             // Enable default map cycle
             if(!Config.RTV.Enabled)
             {

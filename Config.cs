@@ -1,9 +1,7 @@
 // Included libraries
-using System.Text.Json;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
-using CounterStrikeSharp.API.Core.Attributes;
 
 // Declare namespace
 namespace GameModeManager

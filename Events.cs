@@ -1,6 +1,5 @@
 // Included libraries
 using CounterStrikeSharp.API;
-using System.Collections.Generic;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Core.Translations;

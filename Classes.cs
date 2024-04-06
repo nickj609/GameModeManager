@@ -1,12 +1,7 @@
-// Included libraries
-using CounterStrikeSharp.API;
-using System.Collections.Generic;
-using CounterStrikeSharp.API.Core;
-using Microsoft.Extensions.Logging;
-
 // Declare namespace
 namespace GameModeManager
 {
+    // Define map class
     public class Map : IEquatable<Map>
     {
         public string Name { get; set; }
@@ -39,6 +34,7 @@ namespace GameModeManager
         }
     }
 
+    // Define map group class
     public class MapGroup : IEquatable<MapGroup>
     {
         public string Name { get; set; }
