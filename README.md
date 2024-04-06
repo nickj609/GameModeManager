@@ -15,7 +15,7 @@ This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gam
 ## Requirements
 - [Counter-Strike 2](https://www.counter-strike.net/cs2)
 - [Metamod:Source](https://github.com/alliedmodders/metamod-source/) (v1282+)
-- [Counter Strike Sharp](https://github.com/roflmuffin/CounterStrikeSharp) (v.197+)
+- [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) (v.197+)
 
 > [!NOTE]
 > If you are using the [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modded-server) you should remove the [Ultimate Map Chooser](https://github.com/kus/cs2-modded-server/tree/master/game/csgo/addons/counterstrikesharp/plugins/CS2-Ultimate-Mapchooser) plugin until the pull request is approved/finalized.
