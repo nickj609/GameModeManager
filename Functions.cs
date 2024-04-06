@@ -8,7 +8,7 @@ using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Core.Translations;
 
 // Copyright (c) 2016 Shravan Rajinikanth
-// https://github.com/shravan2x/Gameloop.Vdf/blob/master/LICENSE
+// https://github.com/shravan2x/Gameloop.Vdf/
 using Gameloop.Vdf;       
 using Gameloop.Vdf.Linq;
 
@@ -46,8 +46,7 @@ namespace GameModeManager
                 
                 if (vdfObject == null)
                 {
-                    Logger.LogError($"Incomplete VDF data.");
-                    throw;
+                    throw new IOException("Incomplete VDF data.");
                 }
                 else
                 {
