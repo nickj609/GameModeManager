@@ -1,3 +1,7 @@
+![Copyright Nickj609l](https://img.shields.io/badge/Copyright-Nickj609-red) ![GitHub License](https://img.shields.io/github/license/nickj609/GameModeManager) ![Issues](https://img.shields.io/github/issues/nickj609/GameModeManager) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/nickj609/GameModeManager/total) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/nickj609/GameModeManager/latest)
+
+
+
 # GameModeManager
 A Counter-Strike 2 server plugin inspired by the [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modded-server) and the [CS2 Rock The Vote plugin by Abnerfs](https://github.com/abnerfs/cs2-rockthevote).
 
@@ -15,7 +19,7 @@ This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gam
 ## Requirements
 - [Counter-Strike 2](https://www.counter-strike.net/cs2)
 - [Metamod:Source](https://github.com/alliedmodders/metamod-source/) (v1282+)
-- [Counter Strike Sharp](https://github.com/roflmuffin/CounterStrikeSharp) (v.197+)
+- [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) (v.197+)
 
 > [!NOTE]
 > If you are using the [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modded-server) you should remove the [Ultimate Map Chooser](https://github.com/kus/cs2-modded-server/tree/master/game/csgo/addons/counterstrikesharp/plugins/CS2-Ultimate-Mapchooser) plugin until the pull request is approved/finalized.
@@ -148,15 +152,10 @@ This plugin will display all in-game menus and messaging within the language of 
 
 ### Example
 ```
-2024-04-01 03:26:13.249 +00:00 [INFO] plugin:GameModeManager Parsing map group file /home/steam/cs2/game/csgo/gamemodes_server.txt.
-2024-04-01 03:26:13.263 +00:00 [INFO] plugin:GameModeManager Updating map menu.
-2024-04-01 03:26:13.264 +00:00 [INFO] plugin:GameModeManager Creating mode menu.
-2024-04-01 03:27:05.147 +00:00 [INFO] plugin:GameModeManager OnMapsCommand execution started.
-2024-04-01 03:27:16.704 +00:00 [INFO] plugin:GameModeManager OnModesCommand execution started.
-2024-04-01 03:27:20.767 +00:00 [INFO] plugin:GameModeManager Map group command detected!
-2024-04-01 03:27:20.767 +00:00 [INFO] plugin:GameModeManager Current MapGroup is mg_active.
-2024-04-01 03:27:20.768 +00:00 [INFO] plugin:GameModeManager New MapGroup is mg_aim.
-2024-04-01 03:27:20.768 +00:00 [INFO] plugin:GameModeManager Updating map menu.
+2024-04-01 03:26:13.249 +00:00 [INFO] plugin:GameModeManager Loading map groups...
+2024-04-01 03:26:13.264 +00:00 [INFO] plugin:GameModeManager Creating game modes...
+2024-04-01 03:27:20.767 +00:00 [INFO] plugin:GameModeManager Current map group is mg_active.
+2024-04-01 03:27:20.768 +00:00 [INFO] plugin:GameModeManager New map group is mg_aim.
 ```
 
 ### Common Error Messages
