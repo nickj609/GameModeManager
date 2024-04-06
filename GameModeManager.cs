@@ -13,7 +13,7 @@ namespace GameModeManager
     {
         // Define plugin details
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "1.0.1";
+        public override string ModuleVersion => "1.0.3";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin/module that dynamically updates any maplist.txt file based on the current mapgroup.";
 
