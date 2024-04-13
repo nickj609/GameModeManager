@@ -1,8 +1,10 @@
 // Included libraries
 using System.Text;
-using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
+
+// Copyright (c) 2024 imi-tat0r
+// https://github.com/imi-tat0r/CS2-CustomVotes/
 using CS2_CustomVotes.Shared.Models;
 
 // Declare namespace
@@ -33,13 +35,13 @@ namespace GameModeManager
                 _options.Add("Stay", new VoteOption("Keep current game mode", new List<string> { "" }));
 
                 // Create mode options for each map group
-                foreach (MapGroup _mapGroup in _mapGroups)
+                foreach (MapGroup _mapGroup in MapGroups)
                 {
                     // Split the string into parts by the underscore
                     string[] _nameParts = (_mapGroup.Name ?? _defaultMapGroup.Name).Split('_');
 
                     // Get the last part (the actual map group name)
-                    string _tempName = _nameParts[nameParts.Length - 1]; 
+                    string _tempName = _nameParts[_nameParts.Length - 1]; 
 
                     // Combine the capitalized first letter with the rest
                     string _mapGroupName = _tempName.Substring(0, 1).ToUpper() + _tempName.Substring(1); 

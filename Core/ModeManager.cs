@@ -1,17 +1,13 @@
 // Included libraries
-using System.Text;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
+using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Core.Translations;
-
-// Copyright (c) 2016 Shravan Rajinikanth
-// https://github.com/shravan2x/Gameloop.Vdf/
-using Gameloop.Vdf;       
-using Gameloop.Vdf.Linq;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
 
 // Declare namespace
 namespace GameModeManager
@@ -37,8 +33,8 @@ namespace GameModeManager
                         Server.PrintToChatAll(Localizer["changemode.message", player.PlayerName, option.Text]);
 
                         // Change game mode
-                        _mode = option.Text.ToLower();
-                        AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_mode}.cfg"));
+                        string _option = option.Text.ToLower();
+                        AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
 
                         // Close menu
                         MenuManager.CloseActiveMenu(player);
@@ -48,13 +44,13 @@ namespace GameModeManager
             else
             {
                 // Create menu options for each map group parsed
-                foreach (MapGroup _mapGroup in _mapGroups)
+                foreach (MapGroup _mapGroup in MapGroups)
                 {
                     // Split the string into parts by the underscore
                     string[] _nameParts = (_mapGroup.Name ?? _defaultMapGroup.Name).Split('_');
 
                     // Get the last part (the actual map group name)
-                    string _tempName = _nameParts[nameParts.Length - 1]; 
+                    string _tempName = _nameParts[_nameParts.Length - 1]; 
 
                     // Combine the capitalized first letter with the rest
                     string _mapGroupName = _tempName.Substring(0, 1).ToUpper() + _tempName.Substring(1); 
@@ -67,8 +63,8 @@ namespace GameModeManager
                             Server.PrintToChatAll(Localizer["changemode.message", player.PlayerName, option.Text]);
 
                             // Change game mode
-                            string _mode = option.Text.ToLower();
-                            AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_mode}.cfg"));
+                            string _option = option.Text.ToLower();
+                            AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
 
                             // Close menu
                             MenuManager.CloseActiveMenu(player);
@@ -90,8 +86,8 @@ namespace GameModeManager
                 Server.PrintToChatAll(Localizer["changemode.message", player.PlayerName, command.ArgByIndex(1)]);
 
                 // Change game mode
-                string newMode = $"{command.ArgByIndex(1)}".ToLower();
-                AddTimer(5.0f, () => Server.ExecuteCommand($"exec {newMode}.cfg"));
+                string _option = $"{command.ArgByIndex(1)}".ToLower();
+                AddTimer(5.0f, () => Server.ExecuteCommand($"exec {_option}.cfg"));
             }
         }
 
@@ -103,8 +99,8 @@ namespace GameModeManager
         {
             if(player != null && _plugin != null)
             {
-                modeMenu.Title = Localizer["mode.hud.menu-title"];
-                MenuManager.OpenCenterHtmlMenu(_plugin, player, modeMenu);
+                _modeMenu.Title = Localizer["mode.hud.menu-title"];
+                MenuManager.OpenCenterHtmlMenu(_plugin, player, _modeMenu);
             }
         }
     }

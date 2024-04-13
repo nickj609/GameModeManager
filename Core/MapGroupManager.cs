@@ -1,12 +1,9 @@
 // Included libraries
 using System.Text;
-using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
-using CounterStrikeSharp.API.Modules.Menu;
-using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Commands;
-using CounterStrikeSharp.API.Core.Translations;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
 
 // Copyright (c) 2016 Shravan Rajinikanth
 // https://github.com/shravan2x/Gameloop.Vdf/
@@ -55,7 +52,7 @@ namespace GameModeManager
     // Define plugin class
     public partial class Plugin : BasePlugin
     {
-        // Define default maps and map group
+        // Define default map group and default maps
         private static List<Map> _defaultMaps = new List<Map>()
         {
             new Map("de_ancient"),
@@ -67,15 +64,13 @@ namespace GameModeManager
             new Map("de_vertigo")
         };
         private static MapGroup _defaultMapGroup = new MapGroup("mg_active", _defaultMaps);
-
-        // Define current map group, current map, and map group list
-        public static List<MapGroup> MapGroups = new List<MapGroup>();
+        
+        // Define current map group and map group list
         public static MapGroup CurrentMapGroup = _defaultMapGroup;
-        public static List<Map> Maps = new List<Map>();
-        public static Map? CurrentMap;
-
+        public static List<MapGroup> MapGroups = new List<MapGroup>();
+        
         // Define function to parse map groups
-        private MapGroup ParseMapGroups()
+        private void ParseMapGroups()
         {
             try
             {
@@ -85,7 +80,6 @@ namespace GameModeManager
                 if (vdfObject == null)
                 {
                     throw new IOException("VDF is empty or incomplete.");
-                    return;
                 }
                 else
                 {
@@ -137,7 +131,7 @@ namespace GameModeManager
                                 _group.Maps = _defaultMaps;
                             }
                             // Add map group to map group list
-                            mapGroups.Add(_group);
+                            MapGroups.Add(_group);
                         }
                     }
                     else
@@ -167,20 +161,20 @@ namespace GameModeManager
             if (player == null) 
             {
                 // Get map group
-                MapGroup? newMapGroup = mapGroups.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
+                MapGroup? _mapGroup = MapGroups.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
 
-                if (newMapGroup == null || newMapGroup.Name == null || newMapGroup.Maps == null)
+                if (_mapGroup == null || _mapGroup.Name == null || _mapGroup.Maps == null)
                 {
                     Logger.LogWarning("New map group could not be found. Setting default map group.");
-                    newMapGroup = defaultMapGroup;
+                    _mapGroup = _defaultMapGroup;
                 }
-                Logger.LogInformation($"Current map group is {currentMapGroup.Name}.");
-                Logger.LogInformation($"New map group is {newMapGroup.Name}.");
+                Logger.LogInformation($"Current map group is {CurrentMapGroup.Name}.");
+                Logger.LogInformation($"New map group is {_mapGroup.Name}.");
 
                 // Update map list and map menu
                 try
                 {
-                    UpdateMapList(newMapGroup);
+                    UpdateMapList(_mapGroup);
                 }
                 catch(Exception ex)
                 {

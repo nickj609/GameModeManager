@@ -2,8 +2,12 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
+using CounterStrikeSharp.API.Modules.Menu;
+using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Core.Translations;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
 
 // Declare namespace
 namespace GameModeManager
@@ -44,7 +48,10 @@ namespace GameModeManager
     // Plugin class
     public partial class Plugin : BasePlugin
     {
-
+        // Define current map and map list
+        public static Map? CurrentMap;     
+        public static List<Map> Maps = new List<Map>();
+       
         // Define function to update map list
         private void UpdateMapList(MapGroup _group)
         {  
@@ -109,7 +116,7 @@ namespace GameModeManager
             {
                 _mapMenu.AddMenuOption(_map.Name, (player, option) =>
                 {
-                    Map? _nextMap = map;
+                    Map? _nextMap = _map;
 
                     if (_nextMap == null)
                     {
@@ -136,7 +143,7 @@ namespace GameModeManager
             {
                 Server.ExecuteCommand($"changelevel \"{_nextMap.Name}\"");
             }
-            else if (nextMap.WorkshopId != null)
+            else if (_nextMap.WorkshopId != null)
             {
                 Server.ExecuteCommand($"host_workshop_map \"{_nextMap.WorkshopId}\"");
             }
@@ -188,40 +195,40 @@ namespace GameModeManager
             _counter++;
             return HookResult.Continue;
         }
-    }
-
-    // Construct change map command handler
-    [RequiresPermissions("@css/changemap")]
-    [CommandHelper(minArgs: 1, usage: "[map name] optional: [id]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
-    [ConsoleCommand("css_map", "Changes the map to the map specified in the command argument.")]
-    public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
-    {
-        if(player != null && _plugin != null)
+    
+        // Construct change map command handler
+        [RequiresPermissions("@css/changemap")]
+        [CommandHelper(minArgs: 1, usage: "[map name] optional: [id]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [ConsoleCommand("css_map", "Changes the map to the map specified in the command argument.")]
+        public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
-            Map? _foundMap = allMaps.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
-
-            if (_foundMap != null)
+            if(player != null && _plugin != null)
             {
-                _newMap = _foundMap; 
-            }
-            // Write to chat
-            Server.PrintToChatAll(Localizer["changemap.message", player.PlayerName, _newMap.Name]);
-            // Change map
-            AddTimer(5.0f, () => ChangeMap(_newMap));
-        }
-    }
+                Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
+                Map? _foundMap = Maps.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
 
-    // Construct admin map menu command handler
-    [RequiresPermissions("@css/changemap")]
-    [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-    [ConsoleCommand("css_maps", "Provides a list of maps for the current game mode.")]
-    public void OnMapsCommand(CCSPlayerController? player, CommandInfo command)
-    {
-        if(player != null && _plugin != null)
+                if (_foundMap != null)
+                {
+                    _newMap = _foundMap; 
+                }
+                // Write to chat
+                Server.PrintToChatAll(Localizer["changemap.message", player.PlayerName, _newMap.Name]);
+                // Change map
+                AddTimer(5.0f, () => ChangeMap(_newMap));
+            }
+        }
+
+        // Construct admin map menu command handler
+        [RequiresPermissions("@css/changemap")]
+        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [ConsoleCommand("css_maps", "Provides a list of maps for the current game mode.")]
+        public void OnMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
-           _mapMenu.Title = Localizer["maps.hud.menu-title"];
-            MenuManager.OpenCenterHtmlMenu(_plugin, player, _mapMenu);
+            if(player != null && _plugin != null)
+            {
+            _mapMenu.Title = Localizer["maps.hud.menu-title"];
+                MenuManager.OpenCenterHtmlMenu(_plugin, player, _mapMenu);
+            }
         }
     }
 }

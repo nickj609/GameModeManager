@@ -21,7 +21,7 @@ namespace GameModeManager
             }
             else if(_config.RTV.Enabled == true) 
             {
-                if (!File.Exists(config.RTV.Plugin)) 
+                if (!File.Exists(_config.RTV.Plugin)) 
                 {
                     throw new Exception($"Cannot find RTV 'Plugin': {_config.RTV.Plugin}");
                 }
@@ -47,7 +47,7 @@ namespace GameModeManager
 
             if (!File.Exists(_config.MapGroup.File))  
             {
-                throw new Exception($"Cannot find map group file: {config.MapGroup.File}");
+                throw new Exception($"Cannot find map group file: {_config.MapGroup.File}");
             }
             
             // Game Mode Settings
@@ -63,18 +63,25 @@ namespace GameModeManager
             {
                 throw new Exception("Game mode interval must be a number.");
             }
-            if (config.GameMode.ListEnabled != true && _config.GameMode.ListEnabled != false) 
+            if (_config.GameMode.ListEnabled != true && _config.GameMode.ListEnabled != false) 
             {
-                throw new Exception($"Invalid: Game mode list enabled should be 'true' or 'false'.");
+                throw new Exception("Invalid: Game mode list enabled should be 'true' or 'false'.");
             }
             else if (_config.GameMode.ListEnabled == true)
             {
                 if(_config.GameMode.List == null || _config.GameMode.List.Count == 0)
                 {
-                    throw new Exception($"Undefined: Game mode list cannot be empty.");
+                    throw new Exception("Undefined: Game mode list cannot be empty.");
                 }
             }
+
+            // Set config
             Config = _config;
+
+            if (Config.Version < 2)
+            {
+                throw new Exception("Your config file is too old, please delete it from addons/counterstrikesharp/configs/plugins/GameModeManager and let the plugin recreate it on load.");
+            }
         }
     }
     public class Config : BasePluginConfig
