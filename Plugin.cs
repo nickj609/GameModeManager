@@ -1,7 +1,9 @@
 ﻿// Included libraries
 using CounterStrikeSharp.API;
+using CS2_CustomVotes.Shared;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
+using CounterStrikeSharp.API.Core.Capabilities;
 
 // Declare namespace
 namespace GameModeManager
@@ -18,10 +20,16 @@ namespace GameModeManager
         // Define plugin
         private BasePlugin? _plugin;
 
+        // Define custom vote API and signal
+        public static PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
+        private bool _isCustomVotesLoaded = false;
+
         // Construct On Load behavior
         public override void Load(bool hotReload)
         {   
-            // Set plugin
+            base.Load(hotReload);
+
+            // Define plugin context
             _plugin = this;
 
             // Parse map groups and set default map list and game modes
@@ -51,6 +59,35 @@ namespace GameModeManager
             {
                 RegisterEventHandler<EventCsIntermission>(EventGameEnd);
             }
+        }
+        public override void OnAllPluginsLoaded(bool hotReload)
+        {
+            base.OnAllPluginsLoaded(hotReload);
+            
+            try
+            {
+                if (CustomVotesApi.Get() is null)
+                    return;
+            }
+            catch (Exception)
+            {
+                Logger.LogWarning("CS2-CustomVotes plugin not found. Custom votes will not be registered.");
+                return;
+            }
+            
+            _isCustomVotesLoaded = true;
+            Logger.LogInformation("Registering custom votes...");
+            RegisterCustomVotes();
+        }
+        public override void Unload(bool hotReload)
+        {
+                // Deregister votes and game events
+                if (_isCustomVotesLoaded)
+                {
+                    Logger.LogInformation("Deregistering custom votes...");
+                    DeregisterCustomVotes();
+                }
+                base.Unload(hotReload);
         }
     }
 }

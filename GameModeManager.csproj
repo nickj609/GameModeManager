@@ -7,12 +7,20 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CounterStrikeSharp.API" Version="1.0.193"/>
-    <PackageReference Include="Gameloop.Vdf" Version="0.6.2" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="lang\**\*.*" CopyToOutputDirectory="PreserveNewest" />
+    <Reference Include="lib\Gameloop.Vdf\Gameloop.Vdf.dll" Version="0.6.2" />
+    <Reference Include="CS2-CustomVotes.Shared" Version="1.0.1">
+      <Private>false</Private>
+      <HintPath>lib\counterstrikesharp\shared\CS2-CustomVotes.Shared\CS2-CustomVotes.Shared.dll</HintPath>
+    </Reference>
   </ItemGroup>
-  <Target Name="CopyGameLoop" AfterTargets="AfterBuild">
-  <Copy SourceFiles="lib\net7.0\Gameloop.Vdf.dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+  <Target Name="PublicBuild" AfterTargets="AfterBuild">
+        <MakeDir Directories="$(OutDir)Public\plugins\GameModeManager\lang"/>
+        <MakeDir Directories="$(OutDir)Public\plugins\CS2-CustomVotes"/>
+        <MakeDir Directories="$(OutDir)Public\shared\CS2-CustomVotes.Shared"/>
+        <Exec Command="xcopy /Y /R $(OutDir)*.* $(OutDir)Public\plugins\GameModeManager\" />
+        <Exec Command="xcopy /Y /E /R $(ProjectDir)lib\counterstrikesharp\ $(OutDir)Public\" />
+        <Exec Command="xcopy /Y /R $(ProjectDir)lang\*.* $(OutDir)Public\plugins\GameModeManager\lang\" />
   </Target>
 </Project>

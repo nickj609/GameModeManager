@@ -12,54 +12,69 @@ namespace GameModeManager
         public required Config Config { get; set; }
 
         // Parse configuration object data and perform error checking
-        public void OnConfigParsed(Config config)
+        public void OnConfigParsed(Config _config)
         {  
             // RTV Settings
-            if (config.RTV.Enabled != true && config.RTV.Enabled != false) 
+            if (_config.RTV.Enabled != true && _config.RTV.Enabled != false) 
             {
                 throw new Exception($"Invalid: RTV 'Enabled' should be 'true' or 'false'.");
             }
-            else if(config.RTV.Enabled == true) 
+            else if(_config.RTV.Enabled == true) 
             {
                 if (!File.Exists(config.RTV.Plugin)) 
                 {
-                    throw new Exception($"Cannot find RTV 'Plugin': {config.RTV.Plugin}");
+                    throw new Exception($"Cannot find RTV 'Plugin': {_config.RTV.Plugin}");
                 }
-                if (!File.Exists(config.RTV.MapListFile))  
+                if (!File.Exists(_config.RTV.MapListFile))  
                 {
-                    throw new Exception($"Cannot find RTV 'MapListFile': {config.RTV.MapListFile}");
+                    throw new Exception($"Cannot find RTV 'MapListFile': {_config.RTV.MapListFile}");
                 }
-                if (config.RTV.DefaultMapFormat != true && config.RTV.DefaultMapFormat != false)
+                if (_config.RTV.DefaultMapFormat != true && _config.RTV.DefaultMapFormat != false)
                 {
                     throw new Exception($"Invalid: RTV 'DefaultMapFormat' should be 'true' or 'false'.");
                 }
             }
             
             // Map Group Settings
-            if (config.MapGroup.Default == null) 
+            if (!float.TryParse(_config.MapGroup.Delay.ToString(), out _))  
             {
-                throw new Exception($"Undefined: MapGroup 'Default' can not be empty.");
+                throw new Exception("Map group delay must be a number.");
+            }
+            if (_config.MapGroup.Default == null) 
+            {
+                throw new Exception($"Undefined: Default map group can not be empty.");
             }
 
-            if (!File.Exists(config.MapGroup.File))  
+            if (!File.Exists(_config.MapGroup.File))  
             {
-                throw new Exception($"Cannot find MapGroup 'File': {config.MapGroup.File}");
+                throw new Exception($"Cannot find map group file: {config.MapGroup.File}");
             }
             
             // Game Mode Settings
-            if (config.GameMode.ListEnabled != true && config.GameMode.ListEnabled != false) 
+             if (_config.GameMode.Rotation != true && _config.GameMode.Rotation != false) 
             {
-                throw new Exception($"Invalid: GameMode 'ListEnabled' should be 'true' or 'false'.");
+                throw new Exception($"Invalid: Game mode rotation should be 'true' or 'false'.");
             }
-            else if (config.GameMode.ListEnabled == true)
+            if (!float.TryParse(_config.GameMode.Delay.ToString(), out _)) 
             {
-                
-                if(config.GameMode.List == null || config.GameMode.List.Count == 0)
+                throw new Exception("Game mode delay must be a number.");
+            }
+            if (!int.TryParse(_config.GameMode.Interval.ToString(), out _)) 
+            {
+                throw new Exception("Game mode interval must be a number.");
+            }
+            if (config.GameMode.ListEnabled != true && _config.GameMode.ListEnabled != false) 
+            {
+                throw new Exception($"Invalid: Game mode list enabled should be 'true' or 'false'.");
+            }
+            else if (_config.GameMode.ListEnabled == true)
+            {
+                if(_config.GameMode.List == null || _config.GameMode.List.Count == 0)
                 {
-                    throw new Exception($"Undefined: GameMode 'List' cannot be empty.");
+                    throw new Exception($"Undefined: Game mode list cannot be empty.");
                 }
             }
-            Config = config;
+            Config = _config;
         }
     }
     public class Config : BasePluginConfig
@@ -75,14 +90,18 @@ namespace GameModeManager
 
         public class MapGroupSettings
         {
+            [JsonPropertyName("Delay")] public float Delay { get; set; } = 5.0f; // Map change delay in seconds
             [JsonPropertyName("Default")] public string Default { get; set; } = "mg_active"; // Default map group on server start
             [JsonPropertyName("File")] public string File { get; set; } = "/home/steam/cs2/game/csgo/gamemodes_server.txt"; // Default game modes and map groups file
         }
         
         public class GameModeSettings
         {
-            [JsonPropertyName("ListEnabled")] public bool ListEnabled { get; set; } = true; // Enables custom game mode list. Default list is generated from map groups.
-            [JsonPropertyName("List")] public List<string> List { get; set; } = new List<string>
+            [JsonPropertyName("Rotation")] public bool Rotation { get; set; } = true; // Enables game mode rotation
+            [JsonPropertyName("Interval")] public int Interval { get; set; } = 4; // Changes game mode every x map rotations
+            [JsonPropertyName("Delay")] public float Delay { get; set; } = 5.0f; // Game mode change delay in seconds
+            [JsonPropertyName("ListEnabled")] public bool ListEnabled { get; set; } = true; // Enables custom game mode list. If set to false, generated from map groups.
+            [JsonPropertyName("List")] public List<string> List { get; set; } = new List<string> // Custom game mode list
             {  
                 "comp", 
                 "1v1",
@@ -101,6 +120,7 @@ namespace GameModeManager
             }; // Default Game Mode List
         }
 
+        // Create config
          [JsonPropertyName("RTV")] public RTVSettings RTV { get; set; } = new RTVSettings();
          [JsonPropertyName("MapGroup")] public MapGroupSettings MapGroup { get; set; } = new MapGroupSettings();
          [JsonPropertyName("GameMode")] public GameModeSettings GameMode { get; set; } = new GameModeSettings();
