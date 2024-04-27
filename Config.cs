@@ -95,6 +95,13 @@ namespace GameModeManager
         
         }
 
+        public class GameSettings
+        {
+            [JsonPropertyName("Enabled")] public bool Enabled { get; set; } = true; // Enable game settings
+            [JsonPropertyName("Home")] public string Home { get; set; } = "/home/steam/cs2/game/csgo/cfg"; // Enable game settings
+            [JsonPropertyName("Folder")] public string Folder { get; set; } = "settings"; // Default settings folder path
+        }
+
         public class MapGroupSettings
         {
             [JsonPropertyName("Delay")] public float Delay { get; set; } = 5.0f; // Map change delay in seconds
@@ -130,6 +137,7 @@ namespace GameModeManager
         // Create config
          [JsonPropertyName("RTV")] public RTVSettings RTV { get; set; } = new RTVSettings();
          [JsonPropertyName("MapGroup")] public MapGroupSettings MapGroup { get; set; } = new MapGroupSettings();
+         [JsonPropertyName("GameSettings")] public GameSettings Settings { get; set; } = new GameSettings();
          [JsonPropertyName("GameMode")] public GameModeSettings GameMode { get; set; } = new GameModeSettings();
     }
 }
