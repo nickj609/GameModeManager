@@ -74,14 +74,14 @@ namespace GameModeManager
                     throw new Exception("Undefined: Game mode list cannot be empty.");
                 }
             }
-
-            // Set config
-            Config = _config;
-
-            if (Config.Version < 2)
+     
+            if (_config.Version < 2)
             {
                 throw new Exception("Your config file is too old, please delete it from addons/counterstrikesharp/configs/plugins/GameModeManager and let the plugin recreate it on load.");
             }
+
+            // Set config
+            Config = _config;
         }
     }
     public class Config : BasePluginConfig
@@ -135,6 +135,7 @@ namespace GameModeManager
         }
 
         // Create config
+         public override int Version { get; set; } = 2;
          [JsonPropertyName("RTV")] public RTVSettings RTV { get; set; } = new RTVSettings();
          [JsonPropertyName("MapGroup")] public MapGroupSettings MapGroup { get; set; } = new MapGroupSettings();
          [JsonPropertyName("GameSettings")] public GameSettings Settings { get; set; } = new GameSettings();
