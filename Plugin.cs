@@ -54,12 +54,25 @@ namespace GameModeManager
                 Logger.LogError($"{ex.Message}");
             }
             
+            // Setup settings admin menu
+             try
+            {
+                Logger.LogInformation($"Loading settings...");
+                ParseSettings();
+                SetupSettingsMenu();
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError($"{ex.Message}");
+            }
+
             // Enable default map cycle
             if(!Config.RTV.Enabled)
             {
                 RegisterEventHandler<EventCsIntermission>(EventGameEnd);
             }
         }
+        
         public override void OnAllPluginsLoaded(bool hotReload)
         {
             base.OnAllPluginsLoaded(hotReload);
