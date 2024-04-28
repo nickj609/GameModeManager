@@ -16,6 +16,7 @@ namespace GameModeManager
         {
             // Define mode options
             var _modeOptions = new Dictionary<string, VoteOption>();
+            _modeOptions.Add("No", new VoteOption("No", new List<string> { "clear;" }));
 
             // Create mode options
             if (Config.GameMode.ListEnabled)
@@ -32,8 +33,6 @@ namespace GameModeManager
             }
             else
             {
-                _modeOptions.Add("Stay", new VoteOption("Keep current game mode", new List<string> { "" }));
-
                 // Create mode options for each map group
                 foreach (MapGroup _mapGroup in MapGroups)
                 {
@@ -56,7 +55,7 @@ namespace GameModeManager
                 "gamemode", // Command to trigger the vote
                 new List<string> {"gm", "changemode", "changegame"}, // aliases for the command (optional)
                 "Vote to change game mode.", // Description
-                "Stay", 
+                "No", 
                 30, // Time to vote
                 _modeOptions,
                 "center", // Menu style  - "center" or "chat"
@@ -65,6 +64,7 @@ namespace GameModeManager
 
             // Define setiing options
             var _settingOptions = new Dictionary<string, VoteOption>();
+             _settingOptions.Add("No", new VoteOption("No", new List<string> { "clear;" }));
 
             // Create setting options
             foreach (string _setting in Settings)
@@ -78,7 +78,7 @@ namespace GameModeManager
                 "gamesetting", // Command to trigger the vote
                 new List<string> {"gs", "changesetting", "settingchange"}, // aliases for the command (optional)
                 "Vote to change a game setting.", // Description
-                "Stay", 
+                "No", 
                 30, // Time to vote
                 _settingOptions,
                 "center", // Menu style  - "center" or "chat"
@@ -90,7 +90,7 @@ namespace GameModeManager
                 "extend", // Command to trigger the vote
                 new List<string>{"extendmap", "mapextend", "em"}, // aliases for the command (optional)
                 "Vote to extend map.", // Description
-                "No", 
+                "None", 
                 30, // Time to vote
                 new Dictionary<string, VoteOption> // vote options
                 {
@@ -98,7 +98,7 @@ namespace GameModeManager
                     { "10", new VoteOption("10 minutes", new List<string> { "sv_cheats 0" })},
                     { "15", new VoteOption("15 minutes", new List<string> { "sv_cheats 0" })},
                     { "20", new VoteOption("20 minutes", new List<string> { "sv_cheats 0" })},
-                    { "No", new VoteOption("Don't extend", new List<string> {""})}
+                    { "None", new VoteOption("None", new List<string> {"clear;"})}
                 },
                 "center", // Menu style  - "center" or "chat"
                 51 // Minimum percentage of votes required
@@ -106,9 +106,9 @@ namespace GameModeManager
         }
         private void DeregisterCustomVotes()
         {
+            Plugin.CustomVotesApi.Get()?.RemoveCustomVote("extend");
             Plugin.CustomVotesApi.Get()?.RemoveCustomVote("gamemode");
-            Plugin.CustomVotesApi.Get()?.RemoveCustomVote("extendmap");
-            Plugin.CustomVotesApi.Get()?.RemoveCustomVote("gamesettings");
+            Plugin.CustomVotesApi.Get()?.RemoveCustomVote("gamesetting");
         }
     }
 }
