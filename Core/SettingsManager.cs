@@ -20,23 +20,31 @@ namespace GameModeManager
         // Create settings list
         private void ParseSettings()
         {
+            string settingsDirectory = $"{Config.Settings.Home}/{Config.Settings.Folder}/";
             // Check if the directory exists
-            if (Directory.Exists(Config.Settings.Folder))
+            if (Directory.Exists(settingsDirectory))
             {
                 // Get all .cfg files
-                string[] _cfgFiles = Directory.GetFiles($"{Config.Settings.Home}/{Config.Settings.Folder}/", "*.cfg");
+                string[] _cfgFiles = Directory.GetFiles(settingsDirectory, "*.cfg");
 
-                // Process each file
-                foreach (string _file in _cfgFiles)
+                if (_cfgFiles.Length != 0)
                 {
-                    string _fileName = Path.GetFileNameWithoutExtension(_file);  // Extract file name without .cfg
-                    string _capitalizedName = char.ToUpper(_fileName[0]) + _fileName.Substring(1); // Capitalize the first letter
-                    Settings.Add(_capitalizedName);
+                     // Process each file
+                    foreach (string _file in _cfgFiles)
+                    {
+                        string _fileName = Path.GetFileNameWithoutExtension(_file);  // Extract file name without .cfg
+                        string _capitalizedName = char.ToUpper(_fileName[0]) + _fileName.Substring(1); // Capitalize the first letter
+                        Settings.Add(_capitalizedName);
+                    }
+                }
+                else
+                {
+                    Logger.LogError("Setting config files not found.");
                 }
             }
             else
             {
-                Console.WriteLine("Settings folder not found.");
+                Logger.LogError("Settings folder not found.");
             }
         }
             
