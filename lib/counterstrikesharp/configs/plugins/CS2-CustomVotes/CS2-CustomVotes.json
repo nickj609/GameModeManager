@@ -28,7 +28,7 @@
       "MinVotePercentage": -1,
       "Permission": {
         "RequiresAll": false,
-        "Permissions": []
+        "Permissions": ["@css/cheats"]
       }
     }
   ],
