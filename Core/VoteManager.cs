@@ -6,109 +6,112 @@ using Microsoft.Extensions.Logging;
 // Copyright (c) 2024 imi-tat0r
 // https://github.com/imi-tat0r/CS2-CustomVotes/
 using CS2_CustomVotes.Shared.Models;
+// ---------------------------------------------
 
 // Declare namespace
 namespace GameModeManager
 {
     public partial class Plugin : BasePlugin
     {
+        // Create vote flags for deregistration
+        bool _gamemodeVote = false;
+        bool _settingVote = false;
+
+        // Create register custom votes function
          private void RegisterCustomVotes()
         {
-            // Define mode options
-            var _modeOptions = new Dictionary<string, VoteOption>();
-            _modeOptions.Add("No", new VoteOption("No", new List<string> { "clear;" }));
-
-            // Create mode options
-            if (Config.GameMode.ListEnabled)
+            if(Config.Votes.GameMode)
             {
-                // Add menu option for each game mode in game mode list
-                foreach (string _mode in Config.GameMode.List)
+                // Define mode options
+                var _modeOptions = new Dictionary<string, VoteOption>();
+                _modeOptions.Add("No", new VoteOption("No", new List<string> { "clear;" }));
+
+                // Create mode options
+                if (Config.GameMode.ListEnabled)
                 {
-                    if(_mode != null)
+                    // Add menu option for each game mode in game mode list
+                    foreach (string _mode in Config.GameMode.List)
                     {
-                        string _option=_mode.ToLower();
-                        _modeOptions.Add(_mode, new VoteOption(_mode, new List<string> { $"exec {_option}.cfg" }));
+                        if(_mode != null)
+                        {
+                            string _option=_mode.ToLower();
+                            _modeOptions.Add(_mode, new VoteOption(_mode, new List<string> { $"exec {_option}.cfg" }));
+                        }
                     }
                 }
-            }
-            else
-            {
-                // Create mode options for each map group
-                foreach (MapGroup _mapGroup in MapGroups)
+                else
                 {
-                    // Capitalize game mode name
-                    string[] _nameParts = (_mapGroup.Name ?? _defaultMapGroup.Name).Split('_');
-                    string _tempName = _nameParts[_nameParts.Length - 1]; 
-                    string _mapGroupName = _tempName.Substring(0, 1).ToUpper() + _tempName.Substring(1); 
+                    // Create mode options for each map group
+                    foreach (MapGroup _mapGroup in MapGroups)
+                    {
+                        // Capitalize game mode name
+                        string[] _nameParts = (_mapGroup.Name ?? _defaultMapGroup.Name).Split('_');
+                        string _tempName = _nameParts[_nameParts.Length - 1]; 
+                        string _mapGroupName = _tempName.Substring(0, 1).ToUpper() + _tempName.Substring(1); 
 
-                    // Add game mode to vote
-                    if(_mapGroupName != null)
-                    {  
-                        string _option=_mapGroupName.ToLower();
-                        _modeOptions.Add(_mapGroupName, new VoteOption(_mapGroupName, new List<string> { $"exec {_option}.cfg" }));
+                        // Add game mode to vote
+                        if(_mapGroupName != null)
+                        {  
+                            string _option=_mapGroupName.ToLower();
+                            _modeOptions.Add(_mapGroupName, new VoteOption(_mapGroupName, new List<string> { $"exec {_option}.cfg" }));
+                        }
                     }
                 }
+                // Add game modes vote
+                Plugin.CustomVotesApi.Get()?.AddCustomVote(
+                    "gamemode", // Command to trigger the vote
+                    new List<string> {"gm", "changemode", "changegame"}, // aliases for the command (optional)
+                    "Vote to change game mode.", // Description
+                    "No", 
+                    30, // Time to vote
+                    _modeOptions,
+                    "center", // Menu style  - "center" or "chat"
+                    51 // Minimum percentage of votes required
+                ); 
+
+                // Set game mode vote flag
+                _gamemodeVote = true;
             }
-
-            // Add game modes vote
-            Plugin.CustomVotesApi.Get()?.AddCustomVote(
-                "gamemode", // Command to trigger the vote
-                new List<string> {"gm", "changemode", "changegame"}, // aliases for the command (optional)
-                "Vote to change game mode.", // Description
-                "No", 
-                30, // Time to vote
-                _modeOptions,
-                "center", // Menu style  - "center" or "chat"
-                51 // Minimum percentage of votes required
-            ); 
-
-            // Define setiing options
-            var _settingOptions = new Dictionary<string, VoteOption>();
-             _settingOptions.Add("No", new VoteOption("No", new List<string> { "clear;" }));
-
-            // Create setting options
-            foreach (string _setting in Settings)
+            if(Config.Votes.GameSetting)
             {
-                string _option = _setting.ToLower();
-                _settingOptions.Add(_setting, new VoteOption(_setting, new List<string> { $"exec {Config.Settings.Folder}/{_option}.cfg" }));
-            }
+                // Define setiing options
+                var _settingOptions = new Dictionary<string, VoteOption>();
+                _settingOptions.Add("No", new VoteOption("No", new List<string> { "clear;" }));
 
-            // Add game settings vote
-            Plugin.CustomVotesApi.Get()?.AddCustomVote(
-                "gamesetting", // Command to trigger the vote
-                new List<string> {"gs", "changesetting", "settingchange"}, // aliases for the command (optional)
-                "Vote to change a game setting.", // Description
-                "No", 
-                30, // Time to vote
-                _settingOptions,
-                "center", // Menu style  - "center" or "chat"
-                51 // Minimum percentage of votes required
-            ); 
-
-            // Add extend map vote
-            Plugin.CustomVotesApi.Get()?.AddCustomVote(
-                "extend", // Command to trigger the vote
-                new List<string>{"extendmap", "mapextend", "em"}, // aliases for the command (optional)
-                "Vote to extend map.", // Description
-                "None", 
-                30, // Time to vote
-                new Dictionary<string, VoteOption> // vote options
+                // Create setting options
+                foreach (Setting _setting in Settings)
                 {
-                    { "5", new VoteOption("5 minutes", new List<string> { "sv_cheats 0" })},
-                    { "10", new VoteOption("10 minutes", new List<string> { "sv_cheats 0" })},
-                    { "15", new VoteOption("15 minutes", new List<string> { "sv_cheats 0" })},
-                    { "20", new VoteOption("20 minutes", new List<string> { "sv_cheats 0" })},
-                    { "None", new VoteOption("None", new List<string> {"clear;"})}
-                },
-                "center", // Menu style  - "center" or "chat"
-                51 // Minimum percentage of votes required
-            ); 
+                    _settingOptions.Add($"Enable {_setting.Name}", new VoteOption($"Enable {_setting.Name}", new List<string> { $"exec {Config.Settings.Folder}/{_setting.ConfigEnable}" }));
+                    _settingOptions.Add($"Disable {_setting.Name}", new VoteOption($"Disable {_setting.Name}", new List<string> { $"exec {Config.Settings.Folder}/{_setting.ConfigDisable}" }));
+                }
+
+                // Add game settings vote
+                Plugin.CustomVotesApi.Get()?.AddCustomVote(
+                    "gamesetting", // Command to trigger the vote
+                    new List<string> {"gs", "changesetting", "settingchange"}, // aliases for the command (optional)
+                    "Vote to change a game setting.", // Description
+                    "No", 
+                    30, // Time to vote
+                    _settingOptions,
+                    "center", // Menu style  - "center" or "chat"
+                    51 // Minimum percentage of votes required
+                ); 
+
+                // Set game setting vote flag
+                _settingVote = true;
+            }
         }
+        // Create deregister custom votes function
         private void DeregisterCustomVotes()
         {
-            Plugin.CustomVotesApi.Get()?.RemoveCustomVote("extend");
-            Plugin.CustomVotesApi.Get()?.RemoveCustomVote("gamemode");
-            Plugin.CustomVotesApi.Get()?.RemoveCustomVote("gamesetting");
+            if (_gamemodeVote == true)
+            {
+                Plugin.CustomVotesApi.Get()?.RemoveCustomVote("gamemode");
+            }
+            if (_settingVote == true)
+            {
+                Plugin.CustomVotesApi.Get()?.RemoveCustomVote("gamesetting");
+            }
         }
     }
 }
