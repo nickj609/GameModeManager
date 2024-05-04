@@ -9,6 +9,7 @@ using CounterStrikeSharp.API.Core.Attributes.Registration;
 // https://github.com/shravan2x/Gameloop.Vdf/
 using Gameloop.Vdf;       
 using Gameloop.Vdf.Linq;
+// ------------------------------------------
 
 // Declare namespace
 namespace GameModeManager
