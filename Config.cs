@@ -1,4 +1,5 @@
 // Included libraries
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
@@ -23,18 +24,52 @@ namespace GameModeManager
             {
                 if (!File.Exists(_config.RTV.Plugin)) 
                 {
-                    throw new Exception($"Cannot find RTV 'Plugin': {_config.RTV.Plugin}");
+                    string localRTVPluginPath = Path.Join(Server.GameDirectory + "/csgo/", _config.RTV.Plugin);
+                    if (File.Exists(localRTVPluginPath))
+                    {
+                        _config.RTV.Plugin = localRTVPluginPath;
+                    }
+                    else
+                    {
+                        throw new Exception($"Cannot find RTV 'Plugin': {_config.RTV.Plugin}");
+                    }
                 }
                 if (!File.Exists(_config.RTV.MapListFile))  
                 {
-                    throw new Exception($"Cannot find RTV 'MapListFile': {_config.RTV.MapListFile}");
+                    string localRTVMapListFilePath = Path.Join(Server.GameDirectory + "/csgo/", _config.RTV.MapListFile);
+                    if (File.Exists(localRTVMapListFilePath))
+                    {
+                        _config.RTV.MapListFile = localRTVMapListFilePath;
+                    }
+                    else
+                    {
+                        throw new Exception($"Cannot find RTV 'MapListFile': {_config.RTV.MapListFile}");
+                    }
                 }
                 if (_config.RTV.DefaultMapFormat != true && _config.RTV.DefaultMapFormat != false)
                 {
                     throw new Exception($"Invalid: RTV 'DefaultMapFormat' should be 'true' or 'false'.");
                 }
             }
-            
+
+            // Game Settings Settings
+            if (_config.Settings.Enabled != true && _config.Settings.Enabled != false) 
+            {
+                throw new Exception($"Invalid: Game settings 'Enabled' should be 'true' or 'false'.");
+            }
+            if (!Directory.Exists(_config.Settings.Home))
+            {
+                string localSettingsHomePath = Path.Join(Server.GameDirectory + "/csgo/", _config.Settings.Home);
+                if (Directory.Exists(localSettingsHomePath))
+                {
+                    _config.Settings.Home = localSettingsHomePath;
+                }
+                else
+                {
+                    throw new Exception($"Cannot find Settings 'Home': {_config.Settings.Home}");
+                }
+            }
+
             // Map Group Settings
             if (!float.TryParse(_config.MapGroup.Delay.ToString(), out _))  
             {
@@ -47,7 +82,15 @@ namespace GameModeManager
 
             if (!File.Exists(_config.MapGroup.File))  
             {
-                throw new Exception($"Cannot find map group file: {_config.MapGroup.File}");
+                string localMapGroupFilePath = Path.Join(Server.GameDirectory + "/csgo/", _config.MapGroup.File);
+                if (File.Exists(localMapGroupFilePath))
+                {
+                    _config.MapGroup.File = localMapGroupFilePath;
+                }
+                else
+                {
+                    throw new Exception($"Cannot find map group file: {_config.MapGroup.File}");
+                }
             }
             
             // Game Mode Settings
@@ -89,8 +132,8 @@ namespace GameModeManager
         public class RTVSettings
         {
             [JsonPropertyName("Enabled")] public bool Enabled { get; set; } = false; // Enable RTV Compatibility
-            [JsonPropertyName("Plugin")] public string Plugin { get; set; } = "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // RTV plugin path
-            [JsonPropertyName("MapListFile")] public string MapListFile { get; set; } = "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"; // Default map list file
+            [JsonPropertyName("Plugin")] public string Plugin { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // RTV plugin path
+            [JsonPropertyName("MapListFile")] public string MapListFile { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"; // Default map list file
             [JsonPropertyName("DefaultMapFormat")] public bool DefaultMapFormat { get; set; } = false; // Default file format (ws:<workshop id>). When set to false, uses format <map name>:<workshop id>. 
         
         }
@@ -98,7 +141,7 @@ namespace GameModeManager
         public class GameSettings
         {
             [JsonPropertyName("Enabled")] public bool Enabled { get; set; } = true; // Enable game settings
-            [JsonPropertyName("Home")] public string Home { get; set; } = "/home/steam/cs2/game/csgo/cfg"; // Enable game settings
+            [JsonPropertyName("Home")] public string Home { get; set; } = "cfg"; // Enable game settings
             [JsonPropertyName("Folder")] public string Folder { get; set; } = "settings"; // Default settings folder path
         }
 
@@ -106,7 +149,7 @@ namespace GameModeManager
         {
             [JsonPropertyName("Delay")] public float Delay { get; set; } = 5.0f; // Map change delay in seconds
             [JsonPropertyName("Default")] public string Default { get; set; } = "mg_active"; // Default map group on server start
-            [JsonPropertyName("File")] public string File { get; set; } = "/home/steam/cs2/game/csgo/gamemodes_server.txt"; // Default game modes and map groups file
+            [JsonPropertyName("File")] public string File { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
         }
         
         public class GameModeSettings
