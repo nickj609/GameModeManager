@@ -1,7 +1,7 @@
 {
   "CustomVotesEnabled": true,
   "VoteCooldown": 60,
-  "ChatPrefix": "[{DarkBlue}CustomVotes{Default}]",
+  "ChatPrefix": "[{Green}Server{Default}]",
   "ForceStyle": "none",
   "CustomVotes": [
     {
