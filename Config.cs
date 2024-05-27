@@ -9,6 +9,9 @@ namespace GameModeManager
     {   
         // Define configuration object
         public required Config Config { get; set; }
+        public required string GameDirectory = Path.Join(Server.GameDirectory + "/csgo/");
+        public required string ConfigDirectory = Path.Join(GameDirectory + "/cfg/");
+        public required string SettingsDirectory = Path.Join(ConfigDirectory + "/settings/");
 
         // Parse configuration object data and perform error checking
         public void OnConfigParsed(Config _config)
@@ -20,11 +23,19 @@ namespace GameModeManager
             }
             else if(_config.RTV.Enabled == true) 
             {
-                if (!File.Exists(_config.RTV.Plugin)) 
+                if (File.Exists(Path.Join(GameDirectory, _config.RTV.Plugin)))
+                {
+                    _config.RTV.Plugin = Path.Join(GameDirectory, _config.RTV.Plugin);
+                }
+                else
                 {
                     throw new Exception($"Cannot find RTV 'Plugin': {_config.RTV.Plugin}");
                 }
-                if (!File.Exists(_config.RTV.MapListFile))  
+                if (File.Exists(Path.Join(GameDirectory, _config.RTV.MapListFile))) 
+                {
+                    _config.RTV.MapListFile = Path.Join(GameDirectory, _config.RTV.MapListFile);
+                }
+                else
                 {
                     throw new Exception($"Cannot find RTV 'MapListFile': {_config.RTV.MapListFile}");
                 }
@@ -33,6 +44,7 @@ namespace GameModeManager
                     throw new Exception($"Invalid: RTV 'DefaultMapFormat' should be 'true' or 'false'.");
                 }
             }
+
             // Map group settings
             if (!float.TryParse(_config.MapGroup.Delay.ToString(), out _))  
             {
@@ -42,10 +54,15 @@ namespace GameModeManager
             {
                 throw new Exception($"Undefined: Default map group can not be empty.");
             }
-            if (!File.Exists(_config.MapGroup.File))  
+            if (File.Exists(Path.Join(GameDirectory, _config.MapGroup.File)))  
+            {
+                _config.MapGroup.File = Path.Join(GameDirectory, _config.MapGroup.File);
+            }
+            else
             {
                 throw new Exception($"Cannot find map group file: {_config.MapGroup.File}");
             }
+
             // Game mode settings
              if (_config.GameMode.Rotation != true && _config.GameMode.Rotation != false) 
             {
@@ -70,15 +87,21 @@ namespace GameModeManager
                     throw new Exception("Undefined: Game mode list cannot be empty.");
                 }
             }
+
             // Game Settings
              if (_config.Settings.Enabled != true && _config.Settings.Enabled != false) 
             {
                 throw new Exception($"Invalid: Game setting should be 'true' or 'false'.");
             }
-            if (!File.Exists($"{_config.Settings.Home}/{_config.Settings.Folder}")) 
+            if (File.Exists(Path.Join(ConfigDirectory, _config.Settings.Folder)))
             {
-                throw new Exception($"Cannot find 'Home Folder': {_config.Settings.Home}/{_config.Settings.Folder}");
+                SettingsDirectory = Path.Join(ConfigDirectory, _config.Settings.Folder);
             }
+            else
+            {
+                throw new Exception($"Cannot find 'Settings Folder': {ConfigDirectory}{_config.Settings.Folder}");
+            }
+
             // Vote Settings
             if (_config.Votes.Enabled != true && _config.Votes.Enabled != false) 
             {
@@ -92,6 +115,7 @@ namespace GameModeManager
             {
                 throw new Exception($"Invalid: game settings should be 'true' or 'false'.");
             }
+
             // Config version check
             if (_config.Version < 2)
             {
@@ -108,28 +132,30 @@ namespace GameModeManager
         public class RTVSettings
         {
             public bool Enabled { get; set; } = false; // Enable RTV Compatibility
-            public string Plugin { get; set; } = "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // RTV plugin path
-            public string MapListFile { get; set; } = "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"; // Default map list file
+            public string Plugin { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // RTV plugin path
+            public string MapListFile { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"; // Default map list file
             public bool DefaultMapFormat { get; set; } = false; // Default file format (ws:<workshop id>). When set to false, uses format <map name>:<workshop id>. 
         
         }
         public class GameSettings
         {
+            
             public bool Enabled { get; set; } = true; // Enable game settings
-            public string Home { get; set; } = "/home/steam/cs2/game/csgo/cfg"; // Enable game settings
             public string Folder { get; set; } = "settings"; // Default settings folder path
+            public string Style { get; set; } = "center"; // Changes admin menu type (i.e. "chat" or "center")
         }
         public class MapGroupSettings
         {
             public float Delay { get; set; } = 5.0f; // Map change delay in seconds
             public string Default { get; set; } = "mg_active"; // Default map group on server start
-            public string File { get; set; } = "/home/steam/cs2/game/csgo/gamemodes_server.txt"; // Default game modes and map groups file
+            public string File { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
         }
         public class GameModeSettings
         {
             public bool Rotation { get; set; } = true; // Enables game mode rotation
             public int Interval { get; set; } = 4; // Changes game mode every x map rotations
             public float Delay { get; set; } = 5.0f; // Game mode change delay in seconds
+            public string Style { get; set; } = "center"; // Changes admin menu type (i.e. "chat" or "center")
             public bool ListEnabled { get; set; } = true; // Enables custom game mode list. If set to false, generated from map groups.
             public List<string> List { get; set; } = new List<string> // Custom game mode list
             {  
@@ -154,6 +180,7 @@ namespace GameModeManager
             public bool Enabled { get; set; } = false; // Enables CS2-CustomVotes compatibility
             public bool GameMode { get; set; } = false; // Enables vote to change game mode
             public bool GameSetting { get; set; } = false; // Enables vote to change game setting
+            public string Style { get; set; } = "center"; // Changes vote menu type (i.e. "chat" or "center")
 
         }
 

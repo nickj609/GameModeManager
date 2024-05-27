@@ -46,11 +46,22 @@ namespace GameModeManager
             ConfigDisable = "";
         }
     }
+
+    public class SettingsMenuFactory
+    {
+        public BaseMenu CreateMenu(string style)
+        {
+            if (style == "center") {
+                return new CenterHtmlMenu("Settings List");
+            } else {
+                return new ChatMenu("Settings List");
+            }
+        }
+    }
     public partial class Plugin : BasePlugin
     {
         // Define settings list
         public static List<Setting> Settings = new List<Setting>();
-        string settingsDirectory = "";
         private string FormatSettingName(string settingName)
         {
 
@@ -73,13 +84,13 @@ namespace GameModeManager
         // Create settings list
         private void ParseSettings()
         {
-            settingsDirectory =  $"{Config.Settings.Home}/{Config.Settings.Folder}/";
+            SettingsDirectory =  $"{ConfigDirectory}{Config.Settings.Folder}";
 
             // Check if the directory exists
-            if (Directory.Exists(settingsDirectory))
+            if (Directory.Exists(SettingsDirectory))
             {
                 // Get all .cfg files
-                string[] _cfgFiles = Directory.GetFiles(settingsDirectory, "*.cfg");
+                string[] _cfgFiles = Directory.GetFiles(SettingsDirectory, "*.cfg");
 
                 if (_cfgFiles.Length != 0)
                 {
@@ -127,42 +138,16 @@ namespace GameModeManager
             }
         }
             
-        // Create settings menu
-        private static CenterHtmlMenu _settingsMenu = new CenterHtmlMenu("Settings List");
-        private static CenterHtmlMenu _settingsEnableMenu = new CenterHtmlMenu("Settings List");
-        private static CenterHtmlMenu _settingsDisableMenu = new CenterHtmlMenu("Settings List");
-
         // Setup settings menu
-        private void SetupSettingsMenu()
+        public void SetupSettingsMenu()
         {
-            // Define settings menu
-            _settingsMenu = new CenterHtmlMenu("Settings List");
-            _settingsEnableMenu = new CenterHtmlMenu("Enable Settings");
-            _settingsDisableMenu = new CenterHtmlMenu("Disable Settings");
+            // Create menus
+            var menuFactory = new SettingsMenuFactory();
+            var _settingsMenu = menuFactory.CreateMenu(Config.Settings.Style); 
+            var _settingsEnableMenu = menuFactory.CreateMenu(Config.Settings.Style);
+            var _settingsDisableMenu = menuFactory.CreateMenu(Config.Settings.Style);
 
-            // Add Main Menu options
-            _settingsMenu.AddMenuOption("Enable settings", (player, option) =>
-            {
-                _settingsEnableMenu.Title = Localizer["settings.enable.hud.menu-title"];
-
-                if(player != null && _plugin != null)
-                {
-                    // Open sub menu
-                    MenuManager.OpenCenterHtmlMenu(_plugin, player, _settingsEnableMenu);
-                }
-            });
-
-            _settingsMenu.AddMenuOption("Disable settings", (player, option) =>
-            {
-                _settingsDisableMenu.Title = Localizer["settings.disable.hud.menu-title"];
-
-                if(player != null && _plugin != null)
-                {
-                    // Open sub menu
-                    MenuManager.OpenCenterHtmlMenu(_plugin, player, _settingsDisableMenu);
-                }
-            });
-
+            // Create enable menu options
             foreach (Setting _setting in Settings)
             {
                 _settingsEnableMenu.AddMenuOption(_setting.Name, (player, option) =>
@@ -171,13 +156,14 @@ namespace GameModeManager
                     Server.PrintToChatAll(Localizer["enable.changesetting.message", player.PlayerName, option.Text]);
 
                     // Change game setting
-                    Server.ExecuteCommand($"exec {settingsDirectory}{_setting.ConfigEnable}");
+                    Server.ExecuteCommand($"exec {SettingsDirectory}{_setting.ConfigEnable}");
 
                     // Close menu
                     MenuManager.CloseActiveMenu(player);
                 });
             }
 
+            // Create disable menu options
             foreach (Setting _setting in Settings)
             {
                 _settingsDisableMenu.AddMenuOption(_setting.Name, (player, option) =>
@@ -186,12 +172,47 @@ namespace GameModeManager
                     Server.PrintToChatAll(Localizer["disable.changesetting.message", player.PlayerName, option.Text]);
 
                     // Change game setting
-                    Server.ExecuteCommand($"exec {settingsDirectory}{_setting.ConfigDisable}");
+                    Server.ExecuteCommand($"exec {SettingsDirectory}{_setting.ConfigDisable}");
 
                     // Close menu
                     MenuManager.CloseActiveMenu(player);
                 });
             }
+
+            // Create main menu options
+            _settingsMenu.AddMenuOption("Enable settings", (player, option) =>
+            {
+                _settingsEnableMenu.Title = Localizer["settings.enable.hud.menu-title"];
+
+                if(player != null && _plugin != null)
+                {
+                    if(_settingsEnableMenu is CenterHtmlMenu)
+                    {
+                        MenuManager.OpenCenterHtmlMenu(_plugin, player, _settingsEnableMenu);
+                    }
+                    else if (_settingsEnableMenu is ChatMenu)
+                    {
+                        MenuManager.OpenChatMenu(player, _settingsEnableMenu);
+                    }
+                }
+            });
+            _settingsMenu.AddMenuOption("Disable settings", (player, option) =>
+            {
+                _settingsDisableMenu.Title = Localizer["settings.disable.hud.menu-title"];
+
+                if(player != null && _plugin != null)
+                {
+                    // Open sub menu
+                    if(_settingsDisableMenu is CenterHtmlMenu)
+                    {
+                        MenuManager.OpenCenterHtmlMenu(_plugin, player, _settingsDisableMenu);
+                    }
+                    else if (_settingsEnableMenu is ChatMenu)
+                    {
+                        MenuManager.OpenChatMenu(player, _settingsDisableMenu);
+                    }
+                }
+            });
         }
         // Construct change setting command handler
         [RequiresPermissions("@css/cvar")]
@@ -201,20 +222,16 @@ namespace GameModeManager
         {
             if(player != null && _plugin != null)
             {
-                // Set vars
+                // Get args
                 string _status = $"{command.ArgByIndex(1).ToLower()}";
                 string _settingName = $"{command.ArgByIndex(2)}";
 
-                if (_status == "enable" && _settingName != null)
-                {
-                    // Find game setting
-                    Setting? _option = Settings.FirstOrDefault(s => s.Name == _settingName);
+                // Find game setting
+                Setting? _option = Settings.FirstOrDefault(s => s.Name == _settingName);
 
-                    if (_option == null)
-                    {
-                        command.ReplyToCommand($"Can't find setting: {command.ArgByIndex(2)}");
-                    }
-                    else
+                if(_option != null) 
+                {
+                    if (_status == "enable")
                     {
                         // Write to chat
                         Server.PrintToChatAll(Localizer["enable.changesetting.message", player.PlayerName, command.ArgByIndex(2)]);
@@ -222,17 +239,7 @@ namespace GameModeManager
                         // Change game setting
                         Server.ExecuteCommand($"exec settings/{_option.ConfigDisable}");
                     }
-                }
-                else if (_status == "disable" && _settingName != null)
-                {
-                    // Find game setting
-                    Setting? _option = Settings.FirstOrDefault(s => s.Name == _settingName);
-
-                    if (_option == null)
-                    {
-                        command.ReplyToCommand($"Can't find setting: {command.ArgByIndex(2)}");
-                    }
-                    else
+                    else if (_status == "disable")
                     {
                         // Write to chat
                         Server.PrintToChatAll(Localizer["disable.changesetting.message", player.PlayerName, command.ArgByIndex(2)]);
@@ -240,11 +247,16 @@ namespace GameModeManager
                         // Change game setting
                         Server.ExecuteCommand($"exec settings/{_option.ConfigDisable}");
                     }
+                    else
+                    {
+                        
+                        command.ReplyToCommand($"Unexpected argument: {command.ArgByIndex(1)}");
+                    }  
                 }
                 else
                 {
-                    command.ReplyToCommand($"Unexpected argument: {command.ArgByIndex(1)}");
-                }  
+                    command.ReplyToCommand($"Can't find setting: {command.ArgByIndex(2)}");
+                }
             }
         }
         // Construct admin setting menu command handler
@@ -253,11 +265,19 @@ namespace GameModeManager
         [ConsoleCommand("css_settings", "Provides a list of game settings.")]
         public void OnSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _plugin != null)
+            if(player != null && _plugin != null && _settingsMenu != null)
             {
                 // Open menu
-                _modeMenu.Title = Localizer["settings.hud.menu-title"];
-                MenuManager.OpenCenterHtmlMenu(_plugin, player, _settingsMenu);
+                _settingsMenu.Title = Localizer["settings.hud.menu-title"];
+
+                if(_settingsMenu is CenterHtmlMenu)
+                {
+                    MenuManager.OpenCenterHtmlMenu(_plugin, player, _settingsMenu);
+                }
+                else if (_settingsMenu is ChatMenu)
+                {
+                    MenuManager.OpenChatMenu(player, _settingsMenu);
+                }
             }
         }
     }
