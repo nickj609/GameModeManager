@@ -226,7 +226,7 @@ namespace GameModeManager
         {
             if(player != null && _plugin != null)
             {
-            _mapMenu.Title = Localizer["maps.hud.menu-title"];
+                _mapMenu.Title = Localizer["maps.hud.menu-title"];
                 MenuManager.OpenCenterHtmlMenu(_plugin, player, _mapMenu);
             }
         }
