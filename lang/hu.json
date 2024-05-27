@@ -1,7 +1,12 @@
 {
-    "plugin.prefix": "[{GREEN}Szerver{DEFAULT}]", 
-    "changemap.message": "Admin {LIGHTRED}{0}{DEFAULT} megváltoztatta a pályát erre: {LIGHTRED}{1}{DEFAULT}.",
-    "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} megváltoztatta a játékmódot erre: {LIGHTRED}{1}{DEFAULT}.", 
-    "mode.hud.menu-title": "Játékmód-lista", 
-    "maps.hud.menu-title": "Pályalista" 
-  }
+  "plugin.prefix": "[{GREEN}Szerver{DEFAULT}]",
+  "changemap.message": "Admin {LIGHTRED}{0}{DEFAULT} megváltoztatta a pályát {LIGHTRED}{1}{DEFAULT}-re.",
+  "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} megváltoztatta a játékmódot {LIGHTRED}{1}{DEFAULT}-re.",
+  "enable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} {LIGHTRED}bekapcsolta{DEFAULT} a(z) {LIGHTRED}{1}{DEFAULT} beállítást.",
+  "disable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} {LIGHTRED}kikapcsolta{DEFAULT} a(z) {LIGHTRED}{1}{DEFAULT} beállítást.",
+  "setting.hud.menu-title": "Beállítások listája",
+  "mode.hud.menu-title": "Játékmód lista",
+  "maps.hud.menu-title": "Pálya lista",
+  "settings.enable.hud.menu-title": "Beállítások engedélyezése",
+  "settings.disable.hud.menu-title": "Beállítások letiltása"
+}

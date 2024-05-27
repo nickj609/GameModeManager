@@ -1,7 +1,12 @@
 {
-    "plugin.prefix": "[{GREEN}Serveris{DEFAULT}]",
-    "changemap.message": "Admins {LIGHTRED}{0}{DEFAULT} ir nomainījis karti uz {LIGHTRED}{1}{DEFAULT}.",
-    "changemode.message": "Admins {LIGHTRED}{0}{DEFAULT} ir nomainījis spēles režīmu uz {LIGHTRED}{1}{DEFAULT}.",
-    "mode.hud.menu-title": "Spēles režīmu saraksts",
-    "maps.hud.menu-title": "Karšu Saraksts"
-  }
+  "plugin.prefix": "[{GREEN}Serveris{DEFAULT}]",
+  "changemap.message": "Admin {LIGHTRED}{0}{DEFAULT} ir mainījis karti uz {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} ir mainījis spēles režīmu uz {LIGHTRED}{1}{DEFAULT}.",
+  "enable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} ir {LIGHTRED}ieslēdzis{DEFAULT} iestatījumu {LIGHTRED}{1}{DEFAULT}.",
+  "disable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} ir {LIGHTRED}atslēdzis{DEFAULT} iestatījumu {LIGHTRED}{1}{DEFAULT}.",
+  "setting.hud.menu-title": "Iestatījumu saraksts",
+  "mode.hud.menu-title": "Spēles režīmu saraksts",
+  "maps.hud.menu-title": "Karšu saraksts",
+  "settings.enable.hud.menu-title": "Iespējot iestatījumus",
+  "settings.disable.hud.menu-title": "Atspējot iestatījumus"
+}

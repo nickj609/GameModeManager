@@ -1,7 +1,12 @@
 {
-    "plugin.prefix": "[{GREEN}Server{DEFAULT}]",
-    "changemap.message": "Admin {LIGHTRED}{0}{DEFAULT} hat die Karte zu {LIGHTRED}{1}{DEFAULT} geändert.",
-    "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} hat den Spielmodus zu {LIGHTRED}{1}{DEFAULT} geändert.",
-    "mode.hud.menu-title": "Liste der Spielmodi",
-    "maps.hud.menu-title": "Kartenliste"
-  }
+  "plugin.prefix": "[{GREEN}Server{DEFAULT}]",
+  "changemap.message": "Admin {LIGHTRED}{0}{DEFAULT} hat die Karte zu {LIGHTRED}{1}{DEFAULT} geändert.",
+  "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} hat den Spielmodus zu {LIGHTRED}{1}{DEFAULT} geändert.",
+  "enable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} hat die Einstellung {LIGHTRED}{1}{DEFAULT} {LIGHTRED}aktiviert{DEFAULT}.",
+  "disable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} hat die Einstellung {LIGHTRED}{1}{DEFAULT} {LIGHTRED}deaktiviert{DEFAULT}.",
+  "setting.hud.menu-title": "Einstellungenliste",
+  "mode.hud.menu-title": "Spielmodiliste",
+  "maps.hud.menu-title": "Kartenliste",
+  "settings.enable.hud.menu-title": "Einstellungen aktivieren",
+  "settings.disable.hud.menu-title": "Einstellungen deaktivieren"
+}
