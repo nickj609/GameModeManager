@@ -27,21 +27,45 @@ namespace GameModeManager
             {
                 if (File.Exists(Path.Join(GameDirectory, _config.RTV.Plugin)))
                 {
+<<<<<<< main
+                    string localRTVPluginPath = Path.Join(Server.GameDirectory + "/csgo/", _config.RTV.Plugin);
+                    if (File.Exists(localRTVPluginPath))
+                    {
+                        _config.RTV.Plugin = localRTVPluginPath;
+                    }
+                    else
+                    {
+                        throw new Exception($"Cannot find RTV 'Plugin': {_config.RTV.Plugin}");
+                    }
+=======
                     _config.RTV.Plugin = Path.Join(GameDirectory, _config.RTV.Plugin);
                 }
                 else
                 {
                     Logger.LogError($"Cannot find RTV 'Plugin': {_config.RTV.Plugin}");
                     throw new Exception($"Cannot find RTV 'Plugin': {_config.RTV.Plugin}");
+>>>>>>> main
                 }
                 if (File.Exists(Path.Join(GameDirectory, _config.RTV.MapListFile))) 
                 {
+<<<<<<< main
+                    string localRTVMapListFilePath = Path.Join(Server.GameDirectory + "/csgo/", _config.RTV.MapListFile);
+                    if (File.Exists(localRTVMapListFilePath))
+                    {
+                        _config.RTV.MapListFile = localRTVMapListFilePath;
+                    }
+                    else
+                    {
+                        throw new Exception($"Cannot find RTV 'MapListFile': {_config.RTV.MapListFile}");
+                    }
+=======
                     _config.RTV.MapListFile = Path.Join(GameDirectory, _config.RTV.MapListFile);
                 }
                 else
                 {
                     Logger.LogError($"Cannot find RTV 'MapListFile': {_config.RTV.MapListFile}");
                     throw new Exception($"Cannot find RTV 'MapListFile': {_config.RTV.MapListFile}");
+>>>>>>> main
                 }
                 if (_config.RTV.DefaultMapFormat != true && _config.RTV.DefaultMapFormat != false)
                 {
@@ -50,7 +74,29 @@ namespace GameModeManager
                 }
             }
 
+<<<<<<< main
+            // Game Settings Settings
+            if (_config.Settings.Enabled != true && _config.Settings.Enabled != false) 
+            {
+                throw new Exception($"Invalid: Game settings 'Enabled' should be 'true' or 'false'.");
+            }
+            if (!Directory.Exists(_config.Settings.Home))
+            {
+                string localSettingsHomePath = Path.Join(Server.GameDirectory + "/csgo/", _config.Settings.Home);
+                if (Directory.Exists(localSettingsHomePath))
+                {
+                    _config.Settings.Home = localSettingsHomePath;
+                }
+                else
+                {
+                    throw new Exception($"Cannot find Settings 'Home': {_config.Settings.Home}");
+                }
+            }
+
+            // Map Group Settings
+=======
             // Map group settings
+>>>>>>> main
             if (!float.TryParse(_config.MapGroup.Delay.ToString(), out _))  
             {
                 Logger.LogError("Map group delay must be a number.");
@@ -67,8 +113,20 @@ namespace GameModeManager
             }
             else
             {
+<<<<<<< main
+                string localMapGroupFilePath = Path.Join(Server.GameDirectory + "/csgo/", _config.MapGroup.File);
+                if (File.Exists(localMapGroupFilePath))
+                {
+                    _config.MapGroup.File = localMapGroupFilePath;
+                }
+                else
+                {
+                    throw new Exception($"Cannot find map group file: {_config.MapGroup.File}");
+                }
+=======
                 Logger.LogError($"Cannot find map group file: {_config.MapGroup.File}");
                 throw new Exception($"Cannot find map group file: {_config.MapGroup.File}");
+>>>>>>> main
             }
 
             // Game mode settings
@@ -150,24 +208,43 @@ namespace GameModeManager
         // Define settings classes
         public class RTVSettings
         {
+<<<<<<< main
+            [JsonPropertyName("Enabled")] public bool Enabled { get; set; } = false; // Enable RTV Compatibility
+            [JsonPropertyName("Plugin")] public string Plugin { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // RTV plugin path
+            [JsonPropertyName("MapListFile")] public string MapListFile { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"; // Default map list file
+            [JsonPropertyName("DefaultMapFormat")] public bool DefaultMapFormat { get; set; } = false; // Default file format (ws:<workshop id>). When set to false, uses format <map name>:<workshop id>. 
+=======
             public bool Enabled { get; set; } = false; // Enable RTV Compatibility
             public string Plugin { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // RTV plugin path
             public string MapListFile { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"; // Default map list file
             public bool DefaultMapFormat { get; set; } = false; // Default file format (ws:<workshop id>). When set to false, uses format <map name>:<workshop id>. 
+>>>>>>> main
         
         }
         public class GameSettings
         {
+<<<<<<< main
+            [JsonPropertyName("Enabled")] public bool Enabled { get; set; } = true; // Enable game settings
+            [JsonPropertyName("Home")] public string Home { get; set; } = "cfg"; // Enable game settings
+            [JsonPropertyName("Folder")] public string Folder { get; set; } = "settings"; // Default settings folder path
+=======
             
             public bool Enabled { get; set; } = true; // Enable game settings
             public string Folder { get; set; } = "settings"; // Default settings folder path
             public string Style { get; set; } = "center"; // Changes admin menu type (i.e. "chat" or "center")
+>>>>>>> main
         }
         public class MapGroupSettings
         {
+<<<<<<< main
+            [JsonPropertyName("Delay")] public float Delay { get; set; } = 5.0f; // Map change delay in seconds
+            [JsonPropertyName("Default")] public string Default { get; set; } = "mg_active"; // Default map group on server start
+            [JsonPropertyName("File")] public string File { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
+=======
             public float Delay { get; set; } = 5.0f; // Map change delay in seconds
             public string Default { get; set; } = "mg_active"; // Default map group on server start
             public string File { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
+>>>>>>> main
         }
         public class GameModeSettings
         {
