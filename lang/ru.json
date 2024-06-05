@@ -1,7 +1,12 @@
 {
-    "plugin.prefix": "[{GREEN}Сервер{DEFAULT}]",  // Server = Сервер
-    "changemap.message": "Администратор {LIGHTRED}{0}{DEFAULT} сменил карту на {LIGHTRED}{1}{DEFAULT}.",  // Admin changed map to...
-    "changemode.message": "Администратор {LIGHTRED}{0}{DEFAULT} сменил игровой режим на {LIGHTRED}{1}{DEFAULT}.",  // Admin changed game mode to...
-    "mode.hud.menu-title": "Список режимов игры",  // List of game modes
-    "maps.hud.menu-title": "Список карт"  // List of maps
-  }
+  "plugin.prefix": "[{GREEN}Сервер{DEFAULT}]", 
+  "changemap.message": "Администратор {LIGHTRED}{0}{DEFAULT} сменил карту на {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.message": "Администратор {LIGHTRED}{0}{DEFAULT} изменил режим игры на {LIGHTRED}{1}{DEFAULT}.",
+  "enable.changesetting.message": "Администратор {LIGHTRED}{0}{DEFAULT} {LIGHTRED}включил{DEFAULT} настройку {LIGHTRED}{1}{DEFAULT}.",
+  "disable.changesetting.message": "Администратор {LIGHTRED}{0}{DEFAULT} {LIGHTRED}выключил{DEFAULT} настройку {LIGHTRED}{1}{DEFAULT}.", 
+  "setting.hud.menu-title": "Список настроек",
+  "mode.hud.menu-title": "Список игровых режимов", 
+  "maps.hud.menu-title": "Список карт", 
+  "settings.enable.hud.menu-title": "Включить настройки",  
+  "settings.disable.hud.menu-title": "Отключить настройки"
+}

@@ -16,11 +16,11 @@
     </Reference>
   </ItemGroup>
   <Target Name="PublicBuild" AfterTargets="AfterBuild">
-        <MakeDir Directories="$(OutDir)Public\plugins\GameModeManager\lang"/>
-        <MakeDir Directories="$(OutDir)Public\plugins\CS2-CustomVotes"/>
-        <MakeDir Directories="$(OutDir)Public\shared\CS2-CustomVotes.Shared"/>
-        <Exec Command="xcopy /Y /R $(OutDir)*.* $(OutDir)Public\plugins\GameModeManager\" />
-        <Exec Command="xcopy /Y /E /R $(ProjectDir)lib\counterstrikesharp\ $(OutDir)Public\" />
-        <Exec Command="xcopy /Y /R $(ProjectDir)lang\*.* $(OutDir)Public\plugins\GameModeManager\lang\" />
+        <MakeDir Directories="$(OutDir)Public\addons\counterstrikesharp\plugins\GameModeManager\lang"/>
+        <MakeDir Directories="$(OutDir)Public\addons\counterstrikesharp\plugins\CS2-CustomVotes"/>
+        <MakeDir Directories="$(OutDir)Public\addons\counterstrikesharp\shared\CS2-CustomVotes.Shared"/>
+        <Exec Command="xcopy /Y /R $(OutDir)*.* $(OutDir)Public\addons\counterstrikesharp\plugins\GameModeManager\" />
+        <Exec Command="xcopy /Y /E /R $(ProjectDir)lib\csgo\ $(OutDir)Public\" />
+        <Exec Command="xcopy /Y /R $(ProjectDir)lang\*.* $(OutDir)Public\addons\counterstrikesharp\plugins\GameModeManager\lang\" />
   </Target>
 </Project>
