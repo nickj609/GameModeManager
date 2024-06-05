@@ -71,6 +71,7 @@ namespace GameModeManager
             // Register EvenGameEnd handler if RTV is not enabled to perform map and game mode rotations
             if(!Config.RTV.Enabled)
             {
+                Logger.LogInformation($"Enabling game mode and map rotations...");
                 RegisterEventHandler<EventCsIntermission>(EventGameEnd);
             }
         }
