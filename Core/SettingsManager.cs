@@ -83,28 +83,30 @@ namespace GameModeManager
                     foreach (string _file in _cfgFiles)
                     {
                         string _fileName = FormatSettingName(_file);
+                        string _fileNameFull = Path.GetFileName(_file);
 
                         if (_fileName != null)
                         {
                             // Find existing setting if it's already in the list
-                            var setting = Settings.FirstOrDefault(s => s.Name == _fileName);
+                            var _setting = Settings.FirstOrDefault(s => s.Name == _fileName);
 
-                            if (setting == null)
+                            if (_setting == null)
                             {
                                 // Create a new setting if not found
-                                setting = new Setting(_fileName);
-                                Settings.Add(setting);
+                                _setting = new Setting(_fileName);
+                                Settings.Add(_setting);
                             }
 
                             // Assign config path based on prefix
-                            if (_file.StartsWith("enable_")) 
+                            if (_fileNameFull.StartsWith("enable_")) 
                             {
-                                setting.ConfigEnable = _file;
+                                _setting.ConfigEnable = _fileNameFull;
                             } 
                             else 
                             {
-                                setting.ConfigDisable = _file;
+                                _setting.ConfigDisable = _fileNameFull;
                             }
+                            
                         }
                         else
                         {
