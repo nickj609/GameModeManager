@@ -1,4 +1,5 @@
 // Included libraries
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 
@@ -9,9 +10,9 @@ namespace GameModeManager
     {   
         // Define configuration object
         public required Config Config { get; set; }
-        public required string GameDirectory = Path.Join(Server.GameDirectory + "/csgo/");
-        public required string ConfigDirectory = Path.Join(GameDirectory + "/cfg/");
-        public required string SettingsDirectory = Path.Join(ConfigDirectory + "/settings/");
+        public static string GameDirectory = Path.Join(Server.GameDirectory + "/csgo/");
+        public static string ConfigDirectory = Path.Join(GameDirectory + "/cfg/");
+        public static string SettingsDirectory = Path.Join(ConfigDirectory + "/settings/");
 
         // Parse configuration object data and perform error checking
         public void OnConfigParsed(Config _config)
@@ -19,7 +20,8 @@ namespace GameModeManager
             // RTV settings
             if (_config.RTV.Enabled != true && _config.RTV.Enabled != false) 
             {
-                throw new Exception($"Invalid: RTV 'Enabled' should be 'true' or 'false'.");
+                Logger.LogError("Invalid: RTV 'Enabled' should be 'true' or 'false'.");
+                throw new Exception("Invalid: RTV 'Enabled' should be 'true' or 'false'.");
             }
             else if(_config.RTV.Enabled == true) 
             {
@@ -29,6 +31,7 @@ namespace GameModeManager
                 }
                 else
                 {
+                    Logger.LogError($"Cannot find RTV 'Plugin': {_config.RTV.Plugin}");
                     throw new Exception($"Cannot find RTV 'Plugin': {_config.RTV.Plugin}");
                 }
                 if (File.Exists(Path.Join(GameDirectory, _config.RTV.MapListFile))) 
@@ -37,22 +40,26 @@ namespace GameModeManager
                 }
                 else
                 {
+                    Logger.LogError($"Cannot find RTV 'MapListFile': {_config.RTV.MapListFile}");
                     throw new Exception($"Cannot find RTV 'MapListFile': {_config.RTV.MapListFile}");
                 }
                 if (_config.RTV.DefaultMapFormat != true && _config.RTV.DefaultMapFormat != false)
                 {
-                    throw new Exception($"Invalid: RTV 'DefaultMapFormat' should be 'true' or 'false'.");
+                    Logger.LogError("Invalid: RTV 'DefaultMapFormat' should be 'true' or 'false'.");
+                    throw new Exception("Invalid: RTV 'DefaultMapFormat' should be 'true' or 'false'.");
                 }
             }
 
             // Map group settings
             if (!float.TryParse(_config.MapGroup.Delay.ToString(), out _))  
             {
+                Logger.LogError("Map group delay must be a number.");
                 throw new Exception("Map group delay must be a number.");
             }
             if (_config.MapGroup.Default == null) 
             {
-                throw new Exception($"Undefined: Default map group can not be empty.");
+                Logger.LogError("Undefined: Default map group can not be empty.");
+                throw new Exception("Undefined: Default map group can not be empty.");
             }
             if (File.Exists(Path.Join(GameDirectory, _config.MapGroup.File)))  
             {
@@ -60,30 +67,36 @@ namespace GameModeManager
             }
             else
             {
+                Logger.LogError($"Cannot find map group file: {_config.MapGroup.File}");
                 throw new Exception($"Cannot find map group file: {_config.MapGroup.File}");
             }
 
             // Game mode settings
              if (_config.GameMode.Rotation != true && _config.GameMode.Rotation != false) 
             {
-                throw new Exception($"Invalid: Game mode rotation should be 'true' or 'false'.");
+                Logger.LogError("Invalid: Game mode rotation should be 'true' or 'false'.");
+                throw new Exception("Invalid: Game mode rotation should be 'true' or 'false'.");
             }
             if (!float.TryParse(_config.GameMode.Delay.ToString(), out _)) 
             {
+                Logger.LogError("Game mode delay must be a number.");
                 throw new Exception("Game mode delay must be a number.");
             }
             if (!int.TryParse(_config.GameMode.Interval.ToString(), out _)) 
             {
+                Logger.LogError("Game mode interval must be a number.");
                 throw new Exception("Game mode interval must be a number.");
             }
             if (_config.GameMode.ListEnabled != true && _config.GameMode.ListEnabled != false) 
             {
+                Logger.LogError("Invalid: Game mode list enabled should be 'true' or 'false'.");
                 throw new Exception("Invalid: Game mode list enabled should be 'true' or 'false'.");
             }
             else if (_config.GameMode.ListEnabled == true)
             {
                 if(_config.GameMode.List == null || _config.GameMode.List.Count == 0)
                 {
+                    Logger.LogError("Undefined: Game mode list cannot be empty.");
                     throw new Exception("Undefined: Game mode list cannot be empty.");
                 }
             }
@@ -91,7 +104,8 @@ namespace GameModeManager
             // Game Settings
              if (_config.Settings.Enabled != true && _config.Settings.Enabled != false) 
             {
-                throw new Exception($"Invalid: Game setting should be 'true' or 'false'.");
+                Logger.LogError("Invalid: Game setting should be 'true' or 'false'.");
+                throw new Exception("Invalid: Game setting should be 'true' or 'false'.");
             }
             if (File.Exists(Path.Join(ConfigDirectory, _config.Settings.Folder)))
             {
@@ -99,26 +113,31 @@ namespace GameModeManager
             }
             else
             {
+                Logger.LogError($"Cannot find 'Settings Folder': {ConfigDirectory}{_config.Settings.Folder}");
                 throw new Exception($"Cannot find 'Settings Folder': {ConfigDirectory}{_config.Settings.Folder}");
             }
 
             // Vote Settings
             if (_config.Votes.Enabled != true && _config.Votes.Enabled != false) 
             {
-                throw new Exception($"Invalid: votes enabled should be 'true' or 'false'.");
+                Logger.LogError("Invalid: votes enabled should be 'true' or 'false'.");
+                throw new Exception("Invalid: votes enabled should be 'true' or 'false'.");
             }
             if (_config.Votes.GameMode != true && _config.Votes.Enabled != false) 
             {
-                throw new Exception($"Invalid: gane nide should be 'true' or 'false'.");
+                Logger.LogError("Invalid: gane nide should be 'true' or 'false'.");
+                throw new Exception("Invalid: gane nide should be 'true' or 'false'.");
             }
             if (_config.Votes.GameSetting != true && _config.Votes.Enabled != false) 
             {
-                throw new Exception($"Invalid: game settings should be 'true' or 'false'.");
+                Logger.LogError("Invalid: game settings should be 'true' or 'false'.");
+                throw new Exception("Invalid: game settings should be 'true' or 'false'.");
             }
 
             // Config version check
             if (_config.Version < 2)
             {
+                Logger.LogError("Your config file is too old, please delete it from addons/counterstrikesharp/configs/plugins/GameModeManager and let the plugin recreate it on load.");
                 throw new Exception("Your config file is too old, please delete it from addons/counterstrikesharp/configs/plugins/GameModeManager and let the plugin recreate it on load.");
             }
 

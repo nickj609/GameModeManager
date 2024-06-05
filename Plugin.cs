@@ -1,5 +1,4 @@
 ﻿// Included libraries
-using CounterStrikeSharp.API;
 using CS2_CustomVotes.Shared;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
@@ -15,7 +14,7 @@ namespace GameModeManager
         public override string ModuleName => "GameModeManager";
         public override string ModuleVersion => "1.0.4";
         public override string ModuleAuthor => "Striker-Nick";
-        public override string ModuleDescription => "A simple plugin/module that dynamically updates any maplist.txt file based on the current mapgroup.";
+        public override string ModuleDescription => "A simple plugin to manage custom game modes and map rotations.";
 
         // Define plugin
         private BasePlugin? _plugin;
@@ -42,7 +41,8 @@ namespace GameModeManager
             {
                 Logger.LogError($"{ex.Message}");
             }
-            // Setup mode admin menu
+
+            // Create mode menu
             try
             {
                 Logger.LogInformation($"Creating game modes...");
@@ -52,7 +52,8 @@ namespace GameModeManager
             {
                 Logger.LogError($"{ex.Message}");
             }
-            // Setup settings admin menu
+
+            // Create settings menu
              try
             {
                 if (Config.Settings.Enabled)
@@ -66,13 +67,14 @@ namespace GameModeManager
             {
                 Logger.LogError($"{ex.Message}");
             }
-            // Enable default map cycle
+
+            // Register EvenGameEnd handler if RTV is not enabled to perform map and game mode rotations
             if(!Config.RTV.Enabled)
             {
                 RegisterEventHandler<EventCsIntermission>(EventGameEnd);
             }
         }
-        // On all plugins loaded, register CS2-CustomVotes plugin if enabled in config
+        // When all plugins are loaded, register the CS2-CustomVotes plugin if it is enabled in the config
         public override void OnAllPluginsLoaded(bool hotReload)
         {
             base.OnAllPluginsLoaded(hotReload);

@@ -2,8 +2,6 @@
 using System.Text;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
-using CounterStrikeSharp.API.Modules.Commands;
-using CounterStrikeSharp.API.Core.Attributes.Registration;
 
 // Copyright (c) 2016 Shravan Rajinikanth
 // https://github.com/shravan2x/Gameloop.Vdf/
@@ -70,7 +68,7 @@ namespace GameModeManager
         public static MapGroup CurrentMapGroup = _defaultMapGroup;
         public static List<MapGroup> MapGroups = new List<MapGroup>();
         
-        // Define function to parse map groups
+        // Construct reusable function to parse map groups
         private void ParseMapGroups()
         {
             try
@@ -95,7 +93,7 @@ namespace GameModeManager
                     {
                         foreach (VProperty _mapGroup in _mapGroups.OfType<VProperty>()) 
                         {  
-                            // Create map group
+                            // Set map group
                             MapGroup _group = new MapGroup(_mapGroup.Key);
 
                             // Create an array of maps
@@ -151,36 +149,6 @@ namespace GameModeManager
             catch (Exception ex)
             {
                 Logger.LogError($"{ex.Message}");
-            }
-        }
-
-        // Construct server map group command handler
-        [ConsoleCommand("css_mapgroup", "Sets the mapgroup for the MapListUpdater plugin.")]
-        [CommandHelper(minArgs: 1, usage: "mg_active", whoCanExecute: CommandUsage.SERVER_ONLY)]
-        public void OnMapGroupCommand(CCSPlayerController? player, CommandInfo command)
-        {
-            if (player == null) 
-            {
-                // Get map group
-                MapGroup? _mapGroup = MapGroups.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
-
-                if (_mapGroup == null || _mapGroup.Name == null || _mapGroup.Maps == null)
-                {
-                    Logger.LogWarning("New map group could not be found. Setting default map group.");
-                    _mapGroup = _defaultMapGroup;
-                }
-                Logger.LogInformation($"Current map group is {CurrentMapGroup.Name}.");
-                Logger.LogInformation($"New map group is {_mapGroup.Name}.");
-
-                // Update map list and map menu
-                try
-                {
-                    UpdateMapList(_mapGroup);
-                }
-                catch(Exception ex)
-                {
-                    Logger.LogError($"{ex.Message}");
-                }
             }
         }
     }
