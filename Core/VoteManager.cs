@@ -117,23 +117,22 @@ namespace GameModeManager
                     // Add options to all game settings vote
                     _settingOptions.Add($"Enable {_setting.Name}", new VoteOption($"Enable {_setting.Name}", new List<string> { $"exec {Config.Settings.Folder}/{_setting.ConfigEnable}" }));
                     _settingOptions.Add($"Disable {_setting.Name}", new VoteOption($"Disable {_setting.Name}", new List<string> { $"exec {Config.Settings.Folder}/{_setting.ConfigDisable}" }));
-
-                   // Register per game setting vote
-                   Plugin.CustomVotesApi.Get()?.AddCustomVote(
-                    _setting.Name, // Command to trigger the vote
-                    new List<string>(), // Aliases for the command (optional)
-                    $"Change {_setting.Name}?", // Description
-                    "No", 
-                    30, // Time to vote
-                    new Dictionary<string, VoteOption> // vote options
-                    {
-                        { "Enable", new VoteOption("{Green}Enable", new List<string> { $"exec {Config.Settings.Folder}/{_setting.ConfigEnable}" })},
-                        { "Disable", new VoteOption("{Red}Disable", new List<string> { $"exec {Config.Settings.Folder}/{_setting.ConfigDisable}" })},
-                    },
-                    "center", // Menu style  - "center" or "chat"
-                    -1 // Minimum percentage of votes required (-1 behaves like 50%)
-                );
                    
+                    var _perSettingOptions = new Dictionary<string, VoteOption>();
+                    _perSettingOptions.Add($"Enable", new VoteOption($"Enable {_setting.Name}", new List<string> { $"exec {Config.Settings.Folder}/{_setting.ConfigEnable}" }));
+                    _perSettingOptions.Add($"Disable", new VoteOption($"Disable {_setting.Name}", new List<string> { $"exec {Config.Settings.Folder}/{_setting.ConfigDisable}" }));
+
+                   // Register per setting vote
+                    Plugin.CustomVotesApi.Get()?.AddCustomVote(
+                        _setting.Name, // Command to trigger the vote
+                        new List<string>(), // Aliases for the command (optional)
+                        $"Change setting {_setting.Name}?", // Description
+                        "Disable", 
+                        30, // Time to vote
+                        _perSettingOptions,
+                        "center", // Menu style  - "center" or "chat"
+                        -1 // Minimum percentage of votes required (-1 behaves like 50%)
+                    ); 
                 }
 
                 // Register all game settings vote
@@ -158,11 +157,49 @@ namespace GameModeManager
         {
             if (_gamemodeVote == true)
             {
+                // Deregister all gamemodes vote
                 Plugin.CustomVotesApi.Get()?.RemoveCustomVote("gamemode");
+
+                // Deregister per gamemode votes
+                if (Config.GameMode.ListEnabled)
+                {
+                    foreach (string _mode in Config.GameMode.List)
+                    {
+                        if(_mode != null)
+                        {
+                            string _vote=_mode.ToLower();
+                            Plugin.CustomVotesApi.Get()?.RemoveCustomVote(_vote);    
+                        }
+                    }
+                }
+                else
+                {    
+                    foreach (MapGroup _mapGroup in MapGroups)
+                    {
+                        // Capitalize game mode name
+                        string[] _nameParts = (_mapGroup.Name ?? _defaultMapGroup.Name).Split('_');
+                        string _tempName = _nameParts[_nameParts.Length - 1]; 
+                        string _mapGroupName = _tempName.Substring(0, 1).ToUpper() + _tempName.Substring(1); 
+
+                        if(_mapGroupName != null)
+                        {  
+                            string _vote=_mapGroupName.ToLower();
+                            Plugin.CustomVotesApi.Get()?.RemoveCustomVote(_vote);
+                        }   
+                    }
+                }
             }
+
             if (_settingVote == true)
             {
+                // Deregister all settings vote
                 Plugin.CustomVotesApi.Get()?.RemoveCustomVote("gamesetting");
+
+                // Deregister per settings votes
+                foreach (Setting _setting in Settings)
+                {
+                    Plugin.CustomVotesApi.Get()?.RemoveCustomVote(_setting.Name);
+                }
             }
         }
     }
