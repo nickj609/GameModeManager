@@ -11,8 +11,8 @@ namespace GameModeManager
         // Define configuration object
         public required Config Config { get; set; }
         public static string GameDirectory = Path.Join(Server.GameDirectory + "/csgo/");
-        public static string ConfigDirectory = Path.Join(GameDirectory + "/cfg/");
-        public static string SettingsDirectory = Path.Join(ConfigDirectory + "/settings/");
+        public static string ConfigDirectory = Path.Join(GameDirectory + "cfg/");
+        public static string SettingsDirectory = Path.Join(ConfigDirectory + "settings/");
 
         // Parse configuration object data and perform error checking
         public void OnConfigParsed(Config _config)
@@ -102,19 +102,22 @@ namespace GameModeManager
             }
 
             // Game Settings
-             if (_config.Settings.Enabled != true && _config.Settings.Enabled != false) 
+            if (_config.Settings.Enabled != true && _config.Settings.Enabled != false) 
             {
                 Logger.LogError("Invalid: Game setting should be 'true' or 'false'.");
                 throw new Exception("Invalid: Game setting should be 'true' or 'false'.");
             }
-            if (File.Exists(Path.Join(ConfigDirectory, _config.Settings.Folder)))
+            else if (_config.Settings.Enabled == true)
             {
-                SettingsDirectory = Path.Join(ConfigDirectory, _config.Settings.Folder);
-            }
-            else
-            {
-                Logger.LogError($"Cannot find 'Settings Folder': {ConfigDirectory}{_config.Settings.Folder}");
-                throw new Exception($"Cannot find 'Settings Folder': {ConfigDirectory}{_config.Settings.Folder}");
+                if (System.IO.Directory.Exists(Path.Combine(ConfigDirectory, _config.Settings.Folder)))
+                {
+                    SettingsDirectory = Path.Join(ConfigDirectory, _config.Settings.Folder);
+                }
+                else
+                {
+                    Logger.LogError($"Cannot find 'Settings Folder': {SettingsDirectory}");
+                    throw new Exception($"Cannot find 'Settings Folder': {SettingsDirectory}");
+                }
             }
 
             // Vote Settings
