@@ -10,34 +10,48 @@ namespace GameModeManager
     // Define setting class
     public class Setting : IEquatable<Setting>
     {
+        // Define setting variables
         public string Name { get; set; }
-        public string ConfigEnable { get; set; }
-        public string ConfigDisable { get; set; }
+        public string Enable { get; set; }
+        public string Disable { get; set; }
+        public string DisplayName { get; set; }
+
+        // Construct reusable function to format settings names
+        private string FormatSettingName(string _settingName)
+        {
+                _settingName = _settingName.Replace("_", " ");
+                return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_settingName); 
+        }
         
-        public Setting(string name)
+        // Construct class instances
+        public Setting(string _name)
         {
-            Name = name;
-            ConfigEnable = "";
-            ConfigDisable = "";
+            Name = _name;
+            Enable = "";
+            Disable = "";
+            DisplayName = FormatSettingName(_name);
         }
-        public Setting(string name, string configEnable, string configDisable)
+        public Setting(string _name, string _enable, string _disable)
         {
-            Name = name;
-            ConfigEnable = configEnable;
-            ConfigDisable = configDisable;
-        }
-
-        public bool Equals(Setting? other) 
-        {
-            if (other == null) return false;  // Handle null 
-            return Name == other.Name && ConfigEnable == other.ConfigEnable && ConfigDisable == other.ConfigDisable;
+            Name = _name;
+            Enable = _enable;
+            Disable = _disable;
+            DisplayName = FormatSettingName(_name);
         }
 
+        // Construct function for comparisons
+        public bool Equals(Setting? _other) 
+        {
+            if (_other == null) return false;  // Handle null 
+            return Name == _other.Name && Enable == _other.Enable && Disable == _other.Disable && DisplayName == _other.DisplayName;
+        }
+
+        // Construct function to clear values
         public void Clear()
         {
             Name = "";
-            ConfigEnable = "";
-            ConfigDisable = "";
+            Enable = "";
+            Disable = "";
         }
     }
 
@@ -46,27 +60,6 @@ namespace GameModeManager
     {
         // Define settings list
         public static List<Setting> Settings = new List<Setting>();
-
-        // Construct reusable function to format settings names
-        private string FormatSettingName(string settingName)
-        {
-            // Get setting name
-            var _name = Path.GetFileNameWithoutExtension(settingName);
-            var _regex = new Regex(@"^(enable_|disable_)(.*)");
-            var _match = _regex.Match(_name);
-
-            // Format setting name
-            if (_match.Success) 
-            {
-                _name = _match.Groups[2].Value;
-                _name = _name.Replace("_", " ");
-                return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_name); 
-            } 
-            else
-            {
-                return null!; 
-            }
-        }
 
         // Constuct reusable function to parse settings
         private void ParseSettings()
@@ -82,35 +75,44 @@ namespace GameModeManager
                     // Process each file
                     foreach (string _file in _cfgFiles)
                     {
-                        string _fileName = FormatSettingName(_file);
-                        string _fileNameFull = Path.GetFileName(_file);
+                        // Get setting name
+                        string _name = Path.GetFileNameWithoutExtension(_file);
+                        string _fileName = Path.GetFileName(_file);
 
-                        if (_fileName != null)
+                        // Format setting name                                  
+                        var _regex = new Regex(@"^(enable_|disable_)");
+                        var _match = _regex.Match(_name);
+
+                        if (_match.Success) 
                         {
+
+                            // Create new setting name
+                            _name = _name.Substring(_match.Length);
+
                             // Find existing setting if it's already in the list
-                            var _setting = Settings.FirstOrDefault(s => s.Name == _fileName);
+                            var _setting = Settings.FirstOrDefault(s => s.Name == _name);
 
                             if (_setting == null)
                             {
                                 // Create a new setting if not found
-                                _setting = new Setting(_fileName);
+                                _setting = new Setting(_name);
                                 Settings.Add(_setting);
                             }
 
                             // Assign config path based on prefix
-                            if (_fileNameFull.StartsWith("enable_")) 
+                            if (_fileName.StartsWith("enable_")) 
                             {
-                                _setting.ConfigEnable = _fileNameFull;
+                                _setting.Enable = _fileName;
                             } 
                             else 
                             {
-                                _setting.ConfigDisable = _fileNameFull;
+                                _setting.Disable = _fileName;
                             }
                             
                         }
                         else
                         {
-                            Logger.LogWarning($"Skipping {_file} because its missing the correct prefix.");
+                            Logger.LogWarning($"Skipping {_fileName} because its missing the correct prefix.");
                         }
                     }
                 }
