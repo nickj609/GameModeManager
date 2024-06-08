@@ -1,5 +1,6 @@
 ﻿// Included libraries
 using CS2_CustomVotes.Shared;
+
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Core.Capabilities;
@@ -60,6 +61,7 @@ namespace GameModeManager
                 {
                     Logger.LogInformation($"Loading settings...");
                     ParseSettings();
+                    Logger.LogInformation($"Creating settings menu...");
                     SetupSettingsMenu();
                 }
             }
@@ -93,6 +95,7 @@ namespace GameModeManager
                     return;
                 }
                 
+                var votes = CustomVotesApi.Get();
                 _isCustomVotesLoaded = true;
                 Logger.LogInformation("Registering custom votes...");
                 RegisterCustomVotes();
