@@ -10,6 +10,8 @@ namespace GameModeManager
     {   
         // Define configuration object
         public required Config Config { get; set; }
+
+        // Define directories (Thanks Kus!)
         public static string GameDirectory = Path.Join(Server.GameDirectory + "/csgo/");
         public static string ConfigDirectory = Path.Join(GameDirectory + "cfg/");
         public static string SettingsDirectory = Path.Join(ConfigDirectory + "settings/");
@@ -179,22 +181,22 @@ namespace GameModeManager
             public float Delay { get; set; } = 5.0f; // Game mode change delay in seconds
             public string Style { get; set; } = "center"; // Changes admin menu type (i.e. "chat" or "center")
             public bool ListEnabled { get; set; } = true; // Enables custom game mode list. If set to false, generated from map groups.
-            public List<string> List { get; set; } = new List<string> // Custom game mode list
+            public Dictionary<string, string> List { get; set; } = new Dictionary<string, string>() // Custom game mode list
             {  
-                "comp", 
-                "1v1",
-                "aim",
-                "awp",
-                "scoutzknivez",
-                "wingman",
-                "gungame",
-                "surf",
-                "dm",
-                "dm-multicfg",
-                "course",
-                "hns",
-                "kz",
-                "minigames"
+                {"comp", "Competitive"}, 
+                {"1v1", "1 vs 1"},
+                {"aim","Aim"},
+                {"awp", "AWP Only"},
+                {"scoutzknivez", "ScoutzKnives"},
+                {"wingman", "Wingman"},
+                {"gungame", "Gun Game"},
+                {"surf", "Surf"},
+                {"dm", "Deathmatch"},
+                {"dm-multicfg", "Deathmatch Multicfg"},
+                {"course", "Course"},
+                {"hns", "Hide N Seek"},
+                {"kz", "Kreedz"},
+                {"minigames", "Mini Games"}
             }; // Default Game Mode List
         }
         public class VoteSettings
