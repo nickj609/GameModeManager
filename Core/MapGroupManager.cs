@@ -16,17 +16,27 @@ namespace GameModeManager
     public class MapGroup : IEquatable<MapGroup>
     {
         public string Name { get; set; }
+        public string DisplayName { get; set; }
         public List<Map> Maps { get; set; }
 
         public MapGroup(string _name) 
         {
             Name = _name;
+            DisplayName = _name;
             Maps = new List<Map>();
         }
 
         public MapGroup(string _name, List<Map> _maps) 
         {
             Name = _name;
+            DisplayName = _name;
+            Maps = _maps; 
+        }
+
+        public MapGroup(string _name, string _displayName, List<Map> _maps) 
+        {
+            Name = _name;
+            DisplayName = _displayName;
             Maps = _maps; 
         }
 
@@ -93,8 +103,19 @@ namespace GameModeManager
                     {
                         foreach (VProperty _mapGroup in _mapGroups.OfType<VProperty>()) 
                         {  
-                            // Set map group
+                            // Set map group name
                             MapGroup _group = new MapGroup(_mapGroup.Key);
+
+                            // Set display name
+                            var _displayName = _mapGroup.Value.OfType<VProperty>()
+                                    .Where(p => p.Key == "displayname")
+                                    .Select(p => p.Value)
+                                    .FirstOrDefault();
+
+                            if (_displayName != null)
+                            {
+                                _group.DisplayName = _displayName.ToString();
+                            }
 
                             // Create an array of maps
                             var _maps = _mapGroup.Value.OfType<VProperty>()
