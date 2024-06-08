@@ -54,7 +54,7 @@ namespace GameModeManager
             }
         }
 
-        // Construct change map command handler
+        // Construct admin change map command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 1, usage: "[map name] optional: [id]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         [ConsoleCommand("css_map", "Changes the map to the map specified in the command argument.")]
@@ -76,7 +76,7 @@ namespace GameModeManager
             }
         }
 
-        // Construct change mode command handler
+        // Construct admin change mode command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 1, usage: "[mode]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         [ConsoleCommand("css_mode", "Changes the game mode to the mode specified in the command argument.")]
@@ -106,7 +106,7 @@ namespace GameModeManager
             }
         }
 
-        // Construct change setting command handler
+        // Construct admin change setting command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(minArgs: 2, usage: "[enable/disable] [setting name]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         [ConsoleCommand("css_setting", "Changes the game setting specified.")]
@@ -129,7 +129,7 @@ namespace GameModeManager
                         Server.PrintToChatAll(Localizer["enable.changesetting.message", player.PlayerName, command.ArgByIndex(2)]);
 
                         // Change game setting
-                        Server.ExecuteCommand($"exec settings/{_option.ConfigDisable}");
+                        Server.ExecuteCommand($"exec {Config.Settings.Folder}/{_option.Enable}");
                     }
                     else if (_status == "disable")
                     {
@@ -137,7 +137,7 @@ namespace GameModeManager
                         Server.PrintToChatAll(Localizer["disable.changesetting.message", player.PlayerName, command.ArgByIndex(2)]);
 
                         // Change game setting
-                        Server.ExecuteCommand($"exec settings/{_option.ConfigDisable}");
+                        Server.ExecuteCommand($"exec {Config.Settings.Folder}/{_option.Disable}");
                     }
                     else
                     {
@@ -151,7 +151,7 @@ namespace GameModeManager
                 }
             }
         }
-   
+
         // Construct admin setting menu command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
@@ -164,6 +164,7 @@ namespace GameModeManager
                 SettingsMenu.Title = Localizer["settings.hud.menu-title"];
                 OpenMenu(SettingsMenu, Config.Settings.Style, player);
             }
+            
         }
     }
 }
