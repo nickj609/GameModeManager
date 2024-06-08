@@ -1,5 +1,6 @@
 // Included libraries
 using CounterStrikeSharp.API.Core;
+using System.Text.RegularExpressions;
 
 // Copyright (c) 2024 imi-tat0r
 // https://github.com/imi-tat0r/CS2-CustomVotes/
@@ -30,28 +31,25 @@ namespace GameModeManager
                     // Add menu option for each game mode in game mode list
                     foreach (KeyValuePair<string, string> _entry in Config.GameMode.List)
                     {
-                        if(_entry.Key != null)
-                        {
-                            // Add mode to all modes vote
-                            string _option=_entry.Key.ToLower();
-                            _modeOptions.Add(_entry.Value, new VoteOption(_entry.Value, new List<string> { $"exec {_option}.cfg" }));
+                        // Add mode to all modes vote
+                        string _option=_entry.Key.ToLower();
+                        _modeOptions.Add(_entry.Value, new VoteOption(_entry.Value, new List<string> { $"exec {_option}.cfg" }));
 
-                            // Create per mode vote
-                            Plugin.CustomVotesApi.Get()?.AddCustomVote(
-                                _option, // Command to trigger the vote
-                                new List<string>(), // Aliases for the command (optional)
-                                $"Change game mode to {_entry.Value}?", // Description
-                                "No", // Default
-                                30, // Time to vote
-                                new Dictionary<string, VoteOption> // vote options
-                                {
-                                    { "Yes", new VoteOption("{Green}Yes", new List<string> { $"exec {_option}.cfg" })},
-                                    { "No", new VoteOption("{Red}No", new List<string>())},
-                                },
-                                "center", // Menu style  - "center" or "chat"
-                                -1 // Minimum percentage of votes required (-1 behaves like 50%)
-                            ); 
-                        }
+                        // Create per mode vote
+                        Plugin.CustomVotesApi.Get()?.AddCustomVote(
+                            _option, // Command to trigger the vote
+                            new List<string>(), // Aliases for the command (optional)
+                            $"Change game mode to {_entry.Value}?", // Description
+                            "No", // Default
+                            30, // Time to vote
+                            new Dictionary<string, VoteOption> // vote options
+                            {
+                                { "Yes", new VoteOption("{Green}Yes", new List<string> { $"exec {_option}.cfg" })},
+                                { "No", new VoteOption("{Red}No", new List<string>())},
+                            },
+                            "center", // Menu style  - "center" or "chat"
+                            -1 // Minimum percentage of votes required (-1 behaves like 50%)
+                        ); 
                     }
                 }
                 else
@@ -59,14 +57,18 @@ namespace GameModeManager
                     // Add menu option for each map group
                     foreach (MapGroup _mapGroup in MapGroups)
                     {
+                        // Add game mode to all game modes vote
+                        var _regex = new Regex(@"^(mg_)");
+                        var _match = _regex.Match(_mapGroup.Name);
 
-                        if(_mapGroup.DisplayName != null)
-                        {  
-                             // Add game mode to all game modes vote
-                            string _option=_mapGroup.Name.ToLower();
+                        if (_match.Success) 
+                        {
+                            // Create new setting name
+                            string _option = _mapGroup.Name.Substring(_match.Length);
+                
                             _modeOptions.Add(_mapGroup.DisplayName, new VoteOption(_mapGroup.DisplayName, new List<string> { $"exec {_option}.cfg" }));
 
-                             // Create per mode vote
+                            // Create per mode vote
                             Plugin.CustomVotesApi.Get()?.AddCustomVote(
                                 _option, // Command to trigger the vote
                                 new List<string>(), // Aliases for the command (optional)
@@ -82,7 +84,6 @@ namespace GameModeManager
                                 -1 // Minimum percentage of votes required (-1 behaves like 50%)
                             ); 
                         }
-
                     }
                 }
                 
