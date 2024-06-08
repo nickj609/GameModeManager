@@ -3,34 +3,6 @@
   "VoteCooldown": 60,
   "ChatPrefix": "[{Green}Server{Default}]",
   "ForceStyle": "none",
-  "CustomVotes": [
-    {
-      "Command": "cheats",
-      "CommandAliases": [],
-      "Description": "Vote to enable sv_cheats",
-      "TimeToVote": 30,
-      "Options": {
-        "Enable": {
-          "Text": "{Green}Enable",
-          "Commands": [
-            "sv_cheats 1"
-          ]
-        },
-        "Disable": {
-          "Text": "{Red}Disable",
-          "Commands": [
-            "sv_cheats 0"
-          ]
-        }
-      },
-      "DefaultOption": "Disable",
-      "Style": "chat",
-      "MinVotePercentage": -1,
-      "Permission": {
-        "RequiresAll": false,
-        "Permissions": ["@css/cheats"]
-      }
-    }
-  ],
+  "CustomVotes": [{}],
   "ConfigVersion": 2
 }
