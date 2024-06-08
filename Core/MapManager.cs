@@ -12,24 +12,24 @@ namespace GameModeManager
         public string Name { get; set; }
         public string WorkshopId { get; set; }
 
-        public Map(string name)
+        public Map(string _name)
         {
-            Name = name;
+            Name = _name;
             WorkshopId = "";
         }
         
-        public Map(string name, string workshopId)
+        public Map(string _name, string _workshopId)
         {
-            Name = name;
-            WorkshopId = workshopId;
+            Name = _name;
+            WorkshopId = _workshopId;
         }
 
-        public bool Equals(Map? other) 
+        public bool Equals(Map? _other) 
         {
-            if (other == null) return false;  // Handle null 
+            if (_other == null) return false;  // Handle null 
 
             // Implement your equality logic, e.g.;
-            return Name == other.Name && WorkshopId == other.WorkshopId;
+            return Name == _other.Name && WorkshopId == _other.WorkshopId;
         }
 
         public void Clear()
