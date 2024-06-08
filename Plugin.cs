@@ -95,7 +95,6 @@ namespace GameModeManager
                     return;
                 }
                 
-                var votes = CustomVotesApi.Get();
                 _isCustomVotesLoaded = true;
                 Logger.LogInformation("Registering custom votes...");
                 RegisterCustomVotes();
