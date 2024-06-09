@@ -61,7 +61,6 @@ namespace GameModeManager
                 {
                     Logger.LogInformation($"Loading settings...");
                     ParseSettings();
-                    Logger.LogInformation($"Creating settings menu...");
                     SetupSettingsMenu();
                 }
             }
@@ -84,6 +83,7 @@ namespace GameModeManager
 
             if (Config.Votes.Enabled)
             {
+                // Ensure CS2-CustomVotes API is loaded
                 try
                 {
                     if (CustomVotesApi.Get() is null)
@@ -96,8 +96,16 @@ namespace GameModeManager
                 }
                 
                 _isCustomVotesLoaded = true;
-                Logger.LogInformation("Registering custom votes...");
-                RegisterCustomVotes();
+
+                // Register custom votes
+                try
+                {
+                    RegisterCustomVotes();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"{ex.Message}");
+                }
             }
         }
         // Constuct unload behavior to deregister votes
@@ -107,8 +115,18 @@ namespace GameModeManager
                 if (_isCustomVotesLoaded)
                 {
                     Logger.LogInformation("Deregistering custom votes...");
-                    DeregisterCustomVotes();
+
+                    // Deregister custom votes
+                    try
+                    {
+                        DeregisterCustomVotes();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"{ex.Message}");
+                    } 
                 }
+                // Unload plugin
                 base.Unload(hotReload);
         }
     }
