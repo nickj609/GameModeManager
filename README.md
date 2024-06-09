@@ -163,8 +163,8 @@ GameModeManager offers the following configuration options within the `GameModeM
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables game settings. Settings are parsed on plugin load.                                                                                | 
-| Folder              | Default settings folder in `csgo` directory. Add custom configuration files with `enable_` and `disable_` prefixes.                       | 
-| Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                     |
+| Folder              | Default settings folder in `csgo/cfg` directory. Add custom configuration files with `enable_` and `disable_` prefixes.                   | 
+| Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      |
 
 ### Map Group Settings
 | Setting             | Description                                                                                                                               |
