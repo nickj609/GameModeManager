@@ -2,8 +2,9 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
 using CounterStrikeSharp.API.Modules.Menu;
-using CS2_CustomVotes.Shared.Models;
+
 // Declare namespace
 namespace GameModeManager
 {
@@ -69,17 +70,19 @@ namespace GameModeManager
         public void SetupSettingsMenu()
         {
             // Assign menus
-            SettingsMenu = AssignMenu(Config.Settings.Style, "Settings Menu");
-            SettingsEnableMenu = AssignMenu(Config.Settings.Style, "Settings Menu");
-            SettingsDisableMenu = AssignMenu(Config.Settings.Style, "Settings Menu");
+            SettingsMenu = AssignMenu(Config.Settings.Style, "Setting Actions");
+            SettingsEnableMenu = AssignMenu(Config.Settings.Style, "Settings List");
+            SettingsDisableMenu = AssignMenu(Config.Settings.Style, "Settings List");
 
             // Add enable menu options
             foreach (Setting _setting in Settings)
             {
                 SettingsEnableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
+                    // Create message
+                    string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + " " + Localizer["enable.changesetting.message", player.PlayerName, option.Text];
                     // Write to chat
-                    Server.PrintToChatAll(Localizer["enable.changesetting.message", player.PlayerName, option.Text]);
+                    Server.PrintToChatAll(_message);
 
                     // Change game setting
                     Server.ExecuteCommand($"exec {Config.Settings.Folder}/{_setting.Enable}");
@@ -94,8 +97,11 @@ namespace GameModeManager
             {
                 SettingsDisableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
+                    // Create message
+                    string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + " " + Localizer["disable.changesetting.message", player.PlayerName, option.Text];
+
                     // Write to chat
-                    Server.PrintToChatAll(Localizer["disable.changesetting.message", player.PlayerName, option.Text]);
+                    Server.PrintToChatAll(_message);
 
                     // Change game setting
                     Server.ExecuteCommand($"exec {Config.Settings.Folder}/{_setting.Disable}");
@@ -106,18 +112,18 @@ namespace GameModeManager
             }
 
             // Add settings menu options
-            SettingsMenu.AddMenuOption("Enable settings", (player, option) =>
+            SettingsMenu.AddMenuOption(Localizer["menu.enable"], (player, option) =>
             {
-                SettingsEnableMenu.Title = Localizer["settings.enable.hud.menu-title"];
+                SettingsEnableMenu.Title = Localizer["settings.menu-title"];
 
                 if(player != null && _plugin != null)
                 {
                     OpenMenu(SettingsEnableMenu, Config.GameMode.Style, player);
                 }
             });
-            SettingsMenu.AddMenuOption("Disable settings", (player, option) =>
+            SettingsMenu.AddMenuOption(Localizer["menu.disable"], (player, option) =>
             {
-                SettingsDisableMenu.Title = Localizer["settings.disable.hud.menu-title"];
+                SettingsDisableMenu.Title = Localizer["settings.menu-title"];
 
                 if(player != null && _plugin != null)
                 {
@@ -126,6 +132,12 @@ namespace GameModeManager
                     
                 }
             });
+
+            // Setup show settings menu
+            if(Config.Votes.GameSetting)
+            {
+                SetupShowSettingsMenu();
+            }
         }
         
         // Define mode menu
@@ -135,7 +147,7 @@ namespace GameModeManager
         private void SetupModeMenu()
         {
             // Assign menu
-            ModeMenu = AssignMenu(Config.GameMode.Style, "Game Mode Menu");
+            ModeMenu = AssignMenu(Config.GameMode.Style, "Game Mode List");
 
             if (Config.GameMode.ListEnabled)
             {
@@ -144,8 +156,11 @@ namespace GameModeManager
                 {
                     ModeMenu.AddMenuOption(_entry.Value, (player, option) =>
                     {
+                        // Create message
+                        string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + " " + Localizer["changemode.message", player.PlayerName, option.Text];
+
                         // Write to chat
-                        Server.PrintToChatAll(Localizer["changemode.message", player.PlayerName, option.Text]);
+                        Server.PrintToChatAll(_message);
 
                         // Change game mode
                         string _option = _entry.Key.ToLower();
@@ -166,8 +181,11 @@ namespace GameModeManager
                     {
                         ModeMenu.AddMenuOption(_mapGroup.DisplayName, (player, option) =>
                         {
+                             // Create message
+                            string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + " " + Localizer["changemode.message", player.PlayerName, option.Text];
+
                             // Write to chat
-                            Server.PrintToChatAll(Localizer["changemode.message", player.PlayerName, option.Text]);
+                            Server.PrintToChatAll(_message);
 
                             // Change game mode
                             string _option = option.Text.ToLower();
@@ -190,8 +208,176 @@ namespace GameModeManager
 
                         ModeMenu.AddMenuOption(_mapGroupName, (player, option) =>
                         {
+                             // Create message
+                            string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + "" + Localizer["changemode.message", player.PlayerName, option.Text];
+
                             // Write to chat
-                            Server.PrintToChatAll(Localizer["changemode.message", player.PlayerName, option.Text]);
+                            Server.PrintToChatAll(_message);
+
+                            // Change game mode
+                            string _option = option.Text.ToLower();
+                            AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
+
+                            // Close menu
+                            MenuManager.CloseActiveMenu(player);
+                        });
+
+                    }
+                }
+            }
+
+            // Setup show modes menu
+            if(Config.Votes.GameMode)
+            {
+                SetupShowModesMenu();
+            }
+        }
+
+        // Define map menu
+        public static BaseMenu? MapMenu;
+
+        // Construct reusable function to update the map menu
+        private void UpdateMapMenu(MapGroup _mapGroup)
+        {
+            // Assign menu
+            MapMenu = AssignMenu(Config.GameMode.Style, "Map List");
+
+            // Add menu options for each map in the new map list
+            foreach (Map _map in _mapGroup.Maps)
+            {
+                MapMenu.AddMenuOption(_map.Name, (player, option) =>
+                {
+                    Map? _nextMap = _map;
+
+                    if (_nextMap == null)
+                    {
+                        Logger.LogWarning("Map not found when updating map menu. Using de_dust2 for next map."); 
+                        _nextMap = new Map("de_dust2");
+                    }
+
+                    // Create message
+                    string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + " " + Localizer["changemap.message", player.PlayerName, _nextMap.Name];
+
+                    // Write to chat
+                    Server.PrintToChatAll(_message);
+
+                    // Change map
+                    AddTimer(Config.MapGroup.Delay, () => ChangeMap(_nextMap));
+
+                    // Close menu
+                    MenuManager.CloseActiveMenu(player);
+                });
+            }
+
+            // Update show maps menu with new map list
+            if(Config.Votes.Map)
+            {
+                UpdateShowMapsMenu();
+            }
+        }
+
+        // Define show map menu
+        public static BaseMenu? ShowMapsMenu;
+
+        // Construct resuable function to set up show maps menu
+        private void UpdateShowMapsMenu()
+        {
+            // Assign menu
+            ShowMapsMenu =  AssignMenu(Config.GameMode.Style, "Map List");
+
+            foreach (Map _map in CurrentMapGroup.Maps)
+            {
+                // Add menu option
+                ShowMapsMenu.AddMenuOption(_map.Name, (player, option) =>
+                {
+                    // Create message
+                    string _message = Localizer["maps.show.menu-response", _map.Name];
+
+                    // Write to chat
+                    player.PrintToChat(_message);
+
+                    // Close menu
+                    MenuManager.CloseActiveMenu(player);
+                });
+            }
+        }
+
+        // Define show map menu
+        public static BaseMenu? ShowModesMenu;
+
+        // Construct resuable function to set up show maps menu
+        private void SetupShowModesMenu()
+        {
+            // Assign menu
+            ShowModesMenu = AssignMenu(Config.GameMode.Style, "Game Mode List");
+
+            if (Config.GameMode.ListEnabled)
+            {
+                foreach (KeyValuePair<string, string> _entry in Config.GameMode.List)
+                {
+                    // Add menu option
+                    ShowModesMenu.AddMenuOption(_entry.Value, (player, option) =>
+                    {
+                        // Create message
+                        string _message = Localizer["mode.show.menu-response", _entry.Key];
+
+                        // Write to chat
+                        Server.PrintToChatAll(_message);
+
+                        // Close menu
+                        MenuManager.CloseActiveMenu(player);
+                    });
+                }
+            }
+            else
+            {
+                foreach (MapGroup _mapGroup in MapGroups)
+                {
+                    if(_mapGroup.Name != null)
+                    {
+
+                        // Remove mode prefix
+                        var _regex = new Regex(@"^(mg_)");
+                        var _match = _regex.Match(_mapGroup.Name);
+                        string _mode = _mapGroup.Name;
+
+                        if (_match.Success) 
+                        {
+                            // Create new mode name
+                            _mode = _mapGroup.Name.Substring(_match.Length);
+                        }
+
+                        // Add menu option
+                        ShowModesMenu.AddMenuOption(_mapGroup.DisplayName, (player, option) =>
+                        {
+                            // Create message
+                            string _message = Localizer["mode.show.menu-response", _mode];
+
+                            // Write to chat
+                            Server.PrintToChatAll(_message);
+
+                            // Close menu
+                            MenuManager.CloseActiveMenu(player);
+                        });
+                    }
+                    else
+                    {
+                        // Split the string into parts by the underscore
+                        string[] _nameParts = (_mapGroup.Name ?? _defaultMapGroup.Name).Split('_');
+
+                        // Get the last part (the actual map group name)
+                        string _tempName = _nameParts[_nameParts.Length - 1]; 
+                        
+                        // Combine the capitalized first letter with the rest
+                        string _mapGroupName = _tempName.Substring(0, 1).ToUpper() + _tempName.Substring(1); 
+
+                        ShowModesMenu.AddMenuOption(_mapGroupName, (player, option) =>
+                        {
+                             // Create message
+                            string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + "" + Localizer["changemode.message", player.PlayerName, option.Text];
+
+                            // Write to chat
+                            Server.PrintToChatAll(_message);
 
                             // Change game mode
                             string _option = option.Text.ToLower();
@@ -206,36 +392,31 @@ namespace GameModeManager
             }
         }
 
-        // Define map menu
-        public static BaseMenu? MapMenu;
+        // Define show map menu
+        public static BaseMenu? ShowSettingsMenu;
 
-        // Construct reusable function to update the map menu
-        private void UpdateMapMenu(MapGroup _mapGroup)
+        // Construct resuable function to set up show maps menu
+        private void SetupShowSettingsMenu()
         {
-            MapMenu = new CenterHtmlMenu("Map List");
-
-            // Add menu options for each map in the new map list
-            foreach (Map _map in _mapGroup.Maps)
+            // Assign menu
+            ShowSettingsMenu =  AssignMenu(Config.Settings.Style, "Setting List");
+            
+            foreach (Setting _setting in Settings)
             {
-                MapMenu.AddMenuOption(_map.Name, (player, option) =>
+                // Add menu option
+                ShowSettingsMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
-                    Map? _nextMap = _map;
+                    // Create message
+                    string _message = Localizer["setting.show.menu-response", _setting.Name];
 
-                    if (_nextMap == null)
-                    {
-                        Logger.LogWarning("Map not found when updating map menu. Using de_dust2 for next map."); 
-                        _nextMap = new Map("de_dust2");
-                    }
                     // Write to chat
-                    Server.PrintToChatAll(Localizer["changemap.message", player.PlayerName, _nextMap.Name]);
-
-                    // Change map
-                    AddTimer(Config.MapGroup.Delay, () => ChangeMap(_nextMap));
+                    player.PrintToChat(_message);
 
                     // Close menu
                     MenuManager.CloseActiveMenu(player);
                 });
             }
+            
         }
     }
 }
