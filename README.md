@@ -187,8 +187,8 @@ GameModeManager offers the following configuration options within the `GameModeM
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables voting. Votes are registered when all plugins have been loaded.                                                                   | 
-| Map                 | Enabled map vote.                                                                                                                         | 
-| GameMode            | Enabled game mode votes (all modes and per mode votes)                                                                                    |
+| Map                 | Enables map vote.                                                                                                                         | 
+| GameMode            | Enables game mode votes (all modes and per mode votes)                                                                                    |
 | GameSetting         | Enables game setting votes (per mode votes only)                                                                                          |
 | Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
 
