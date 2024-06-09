@@ -8,9 +8,12 @@ Inspired by [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modd
 ## Description
 GameModeManager streamlines server administration with these features:
 
-- **Admin Game Mode Menu:** Effortlessly switch between game modes.
-- **Admin Map List Menu:** Effortlessly switch between maps within the current game mode.
+- **Admin Game Mode Menu:** Switch between game modes.
+- **Admin Setting Menu:** Enable or disable custom settings.
+- **Admin Map List Menu:** Switch between maps within the current game mode.
+- **Player Voting:** Voting for custom game modes, game settings, and maps.
 - **Default Map Cycles:** Automatically changes the map to a random map within the current map group.
+- **Game Mode Rotations:** Specify how often you want the game mode to change.
 - **RTV Compatibility:** Works seamlessly with your chosen RTV plugin, ensuring smooth rock-the-vote functionality.
 
 ## Credits
@@ -58,7 +61,7 @@ The below commands require the ***@css/changemap*** role.
 
   ![Screenshot 2024-06-08 212046](https://github.com/nickj609/GameModeManager/assets/32173425/34206829-f570-4b00-a025-795d8431057c)
 
-## User Commands
+## Player Commands
 The below commands require the ***@css/cvar*** role. 
 
 ## Vote settings
@@ -91,9 +94,6 @@ The below commands require the ***@css/cvar*** role.
   ![Screenshot 2024-06-08 212923](https://github.com/nickj609/GameModeManager/assets/32173425/eb6a198a-a2cf-477b-ba02-ca6469bd38fc)
 
   ![Screenshot 2024-06-08 213358](https://github.com/nickj609/GameModeManager/assets/32173425/0e188f9d-3c50-47bf-9f48-57ff0cb286e0)
-
-
-
 
 ## RTV Plugin Compatibility
 
@@ -162,9 +162,9 @@ GameModeManager offers the following configuration options within the `GameModeM
 ### Game Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| Enabled             | Enables game settings.                                                                                                                    | 
-| Folder              | Default settings folder.                                                                                                                  | 
-| Style               | Changes setting menus type (i.e. "chat" or "center")                                                                                      |
+| Enabled             | Enables game settings. Settings are parsed on plugin load.                                                                                | 
+| Folder              | Default settings folder in `csgo` directory. Add custom configuration files with `enable_` and `disable_` prefixes.                       | 
+| Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                     |
 
 ### Map Group Settings
 | Setting             | Description                                                                                                                               |
@@ -179,23 +179,25 @@ GameModeManager offers the following configuration options within the `GameModeM
 | Rotation            | Enables game mode rotation.                                                                                                               |  
 | Interval            | Changes game mode every x map rotations.                                                                                                  | 
 | Delay               | Delay for changing game modes in seconds.                                                                                                 | 
-| Style               | Changes setting menus type (i.e. "chat" or "center")                                                                                      |
+| Style               | Changes setting menus type (i.e. "chat" or "center").                                                                                     |
 | ListEnabled         | Uses the game mode list specified. Otherwise, the list will be generated based on the map groups discovered.                              |
 | List                | A customizable list of game modes for your server with friendly names.                                                                    |  
 
 ### Vote Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| Enabled             | Enables game                                                                                               | 
-| Folder              | Default settings folder.                                                                                                                  | 
-| Style               | Changes setting menus type (i.e. "chat" or "center")                                                                                      |
+| Enabled             | Enables voting. Votes are registered when all plugins have been loaded.                                                                   | 
+| Map                 | Enabled map vote.                                                                                                                         | 
+| GameMode            | Enabled game mode votes (all modes and per mode votes)                                                                                    |
+| GameSetting         | Enables game setting votes (per mode votes only)                                                                                          |
+| Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
 
 > [!NOTE]
 > - All game mode configuration files must be in the `csgo/cfg` directory and include `css_mapgroup` to specify the current map group.
+> - All game setting configuration files must be in the `csgo/` directory and include `css_mapgroup` to specify the current map group.
 > - If `ListEnabled` is set to `false`, the game mode list will be created based on the discovered map groups. For example, `mg_surf` would display as `Surf` and the `surf.cfg` would be executed. 
 
 ### Default Values
-
 ```
 // This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2024/06/08 09:52:11
 {
@@ -277,7 +279,6 @@ This plugin will display all in-game menus and messaging based on the player's p
   "settings.menu-actions": "Setting Actions",
   "settings.menu-title": "Setting List"
 }
-
 ```
 
 ## Logging
@@ -301,9 +302,9 @@ This plugin will display all in-game menus and messaging based on the player's p
 ```
 
 ### Common Error Messages
-| Error/Warning Message                                          | Description                                                                                                              |
-| ---------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------------ | 
-| `Cannot Find`                                                  | Unable to locate the file specified from `GameModeManager.json` config.                                                  | 
-| `Incomplete VDF data`                                          | Your `gamemodes_server.txt` file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
-| `The mapgroup property doesn't exist`                          | The "mapgroup" property cannot be found in your `gamemodes_server.txt` file.                                             | 
-| `Mapgroup found, but the 'maps' property is missing or incomplete` | The "maps" property cannot be found in your `gamemodes_server.txt` file for one of your map groups.                  | 
+| Error/Warning Message                                              | Description                                                                                                              |
+| -------------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------------ | 
+| `Cannot Find`                                                      | Unable to locate the file specified from `GameModeManager.json` config.                                                  | 
+| `Incomplete VDF data`                                              | Your `gamemodes_server.txt` file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
+| `The mapgroup property doesn't exist`                              | The "mapgroup" property cannot be found in your `gamemodes_server.txt` file.                                             | 
+| `Mapgroup found, but the 'maps' property is missing or incomplete` | The "maps" property cannot be found in your `gamemodes_server.txt` file for one of your map groups.                      | 
