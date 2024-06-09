@@ -306,5 +306,6 @@ This plugin will display all in-game menus and messaging based on the player's p
 | -------------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------------ | 
 | `Cannot Find`                                                      | Unable to locate the file specified from `GameModeManager.json` config.                                                  | 
 | `Incomplete VDF data`                                              | Your `gamemodes_server.txt` file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
+| `Your config file is too old`                                      | Please delete it from `addons/counterstrikesharp/configs/plugins/GameModeManager` and let the plugin recreate it on load.|
 | `The mapgroup property doesn't exist`                              | The "mapgroup" property cannot be found in your `gamemodes_server.txt` file.                                             | 
 | `Mapgroup found, but the 'maps' property is missing or incomplete` | The "maps" property cannot be found in your `gamemodes_server.txt` file for one of your map groups.                      | 
