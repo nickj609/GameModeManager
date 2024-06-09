@@ -33,8 +33,8 @@ namespace GameModeManager
                 }
                 else
                 {
-                    Logger.LogError($"Cannot find RTV 'Plugin': {_config.RTV.Plugin}");
-                    throw new Exception($"Cannot find RTV 'Plugin': {_config.RTV.Plugin}");
+                    Logger.LogError($"Cannot find RTV 'Plugin': {Path.Join(GameDirectory, _config.RTV.Plugin)}");
+                    throw new Exception($"Cannot find RTV 'Plugin': {Path.Join(GameDirectory, _config.RTV.Plugin)}");
                 }
                 if (File.Exists(Path.Join(GameDirectory, _config.RTV.MapListFile))) 
                 {
