@@ -128,15 +128,21 @@ namespace GameModeManager
                 Logger.LogError("Invalid: votes enabled should be 'true' or 'false'.");
                 throw new Exception("Invalid: votes enabled should be 'true' or 'false'.");
             }
-            if (_config.Votes.GameMode != true && _config.Votes.Enabled != false) 
+            if (_config.Votes.GameMode != true &&_config.Votes.GameMode != false) 
             {
-                Logger.LogError("Invalid: gane nide should be 'true' or 'false'.");
-                throw new Exception("Invalid: gane nide should be 'true' or 'false'.");
+                Logger.LogError("Invalid: game mode votes should be 'true' or 'false'.");
+                throw new Exception("Invalid: game mode vote should be 'true' or 'false'.");
             }
-            if (_config.Votes.GameSetting != true && _config.Votes.Enabled != false) 
+            if (_config.Votes.GameSetting != true && _config.Votes.GameSetting != false) 
             {
-                Logger.LogError("Invalid: game settings should be 'true' or 'false'.");
-                throw new Exception("Invalid: game settings should be 'true' or 'false'.");
+                Logger.LogError("Invalid: game setting votes should be 'true' or 'false'.");
+                throw new Exception("Invalid: game setting vote should be 'true' or 'false'.");
+            }
+
+            if (_config.Votes.Map != true && _config.Votes.Map != false) 
+            {
+                Logger.LogError("Invalid: map vote should be 'true' or 'false'.");
+                throw new Exception("Invalid: map vote should be 'true' or 'false'.");
             }
 
             // Config version check
@@ -202,6 +208,7 @@ namespace GameModeManager
         public class VoteSettings
         {
             public bool Enabled { get; set; } = false; // Enables CS2-CustomVotes compatibility
+            public bool Map { get; set; } = false; // Enables vote to change game to a specific map
             public bool GameMode { get; set; } = false; // Enables vote to change game mode
             public bool GameSetting { get; set; } = false; // Enables vote to change game setting
             public string Style { get; set; } = "center"; // Changes vote menu type (i.e. "chat" or "center")
