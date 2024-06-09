@@ -15,6 +15,12 @@ GameModeManager streamlines server administration with these features:
 - **Default Map Cycles:** Automatically changes the map to a random map within the current map group.
 - **Game Mode Rotations:** Specify how often you want the game mode to change.
 - **RTV Compatibility:** Works seamlessly with your chosen RTV plugin, ensuring smooth rock-the-vote functionality.
+  
+## Enjoying the plugin?
+Please drop a ⭐ star in the repository
+
+![image](https://github.com/nickj609/GameModeManager/assets/32173425/4c1bef1e-ef13-4a30-b2eb-b02060535bcb)
+
 
 ## Credits
 This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gameloop.Vdf/) (licensed under the [MIT License](https://github.com/shravan2x/Gameloop.Vdf/blob/master/LICENSE)) for parsing the `gamemodes_server.txt` file, which is in [Valve Data Format](https://developer.valvesoftware.com/wiki/VDF).
