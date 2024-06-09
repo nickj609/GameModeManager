@@ -31,6 +31,11 @@ For creating custom votes, this plugin utilizes the [CS2-CustomVotes](https://gi
 - [Metamod:Source](https://github.com/alliedmodders/metamod-source/) (v1282+)
 - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) (v.197+)
 
+## RTV Plugin Compatibility
+This plugin is compatible with any RTV plugin using a maplist.txt file.
+
+![Screenshot 2024-03-21 161846](https://github.com/nickj609/GameModeManager/assets/32173425/1e291efb-fe7f-4f0d-bb2c-e21d042bd153)
+
 ## Server Commands
 - `css_mapgroup <mg_name>` - Sets the map group and updates the map list and menus.
 
@@ -76,15 +81,11 @@ The below commands require the ***@css/cvar*** role.
 
    ![Screenshot 2024-06-08 213033](https://github.com/nickj609/GameModeManager/assets/32173425/4b252eb5-69ef-4973-89b8-b48c2f6f7019)
 
-   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/9e5ccb36-ff93-424d-887e-309fcc3b9012)
-
 - `!showsettings` - Menu to display all per setting votes that can be created.
 
    ![Screenshot 2024-06-08 212803](https://github.com/nickj609/GameModeManager/assets/32173425/16a907d1-3bd9-4416-bda6-4d6cc4c55030)
    
    ![Screenshot 2024-06-08 213008](https://github.com/nickj609/GameModeManager/assets/32173425/b6a34ec1-277f-4361-bd1c-0e405b20834f)
-
-   ![Screenshot 2024-06-08 213124](https://github.com/nickj609/GameModeManager/assets/32173425/3c704378-5c89-4e49-9fcc-750f7e61d628)
 
 - `!showmaps` - Menu to display all per map votes that can be created. This only shows maps from the current map group/game mode. 
 
@@ -92,49 +93,35 @@ The below commands require the ***@css/cvar*** role.
 
   ![Screenshot 2024-06-08 212923](https://github.com/nickj609/GameModeManager/assets/32173425/eb6a198a-a2cf-477b-ba02-ca6469bd38fc)
 
-  ![Screenshot 2024-06-08 213358](https://github.com/nickj609/GameModeManager/assets/32173425/0e188f9d-3c50-47bf-9f48-57ff0cb286e0)
-
-## RTV Plugin Compatibility
-This plugin is compatible with any RTV plugin using a maplist.txt file.
-
-![Screenshot 2024-03-21 161846](https://github.com/nickj609/GameModeManager/assets/32173425/1e291efb-fe7f-4f0d-bb2c-e21d042bd153)
-
 ## Installation
 1. Install Metamod:Source and Counter Strike Sharp.
 2. Copy `addons` and `cfg` folders to `/csgo/`.
 3. Make sure your `gamemodes_server.txt` or custom map group file is in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and contains a list of map groups.
-4. If you are not using the JSON configuration file for specifying game modes, include the "displayname" property within your `gamemodes_server.txt` or custom map group file for each map group.
 
-   Example:
+   If you are not using the JSON configuration file for specifying game modes, include the "displayname" property within your `gamemodes_server.txt` or custom map group file for each map group.
+
+   
+   ### Example
    ```
    "mg_dm"
+	{
+		"imagename"				"mapgroup-bomb"
+		"displayname"				"Deathmatch"
+		"nameID"				"#SFUI_Mapgroup_allclassic"
+		"tooltipID"				"#SFUI_MapGroup_Tooltip_Desc_DeathMatch"
+		"name"					"mg_dm"
+		"icon_image_path"			"map_icons/mapgroup_icon_deathmatch"
+		"maps"
 		{
-			"imagename"				"mapgroup-bomb"
-			"displayname"			"Deathmatch"
-			"nameID"				"#SFUI_Mapgroup_allclassic"
-			"tooltipID"				"#SFUI_MapGroup_Tooltip_Desc_DeathMatch"
-			"name"					"mg_dm"
-			"icon_image_path"		"map_icons/mapgroup_icon_deathmatch"
-			"maps"
-			{
-				"ar_shoots"												""
-				"ar_baggage"											""
-				"workshop/3070550406/de_safehouse"						""
-				"workshop/3070563536/de_lake"							""
-				"workshop/3070581293/de_bank"							""
-				"workshop/3070923343/fy_pool_day"						""
-				"workshop/3070238628/fy_iceworld"						""
-				"workshop/3070291913/ar_churches_s2r"					""
-				"workshop/3082113929/aim_ag_texture_city_advanced"		""
-				"workshop/3074961197/aim_ag_texture2"					""
-				"workshop/3095778105/aim_ag_texture_jungle"				""
-				"workshop/3109232789/gg_simpsons_vs_flanders_v2"		""
-				"workshop/3086555291/shipment_version_1_0"				""
-				"workshop/3131645522/de_rust"							""
-				"workshop/3133577140/nuketown"							""
-				"workshop/3080114822/mansion"							""
-			}
+			"ar_shoots"						""
+			"ar_baggage"						""
+			"workshop/3070550406/de_safehouse"			""
+			"workshop/3070563536/de_lake"				""
+			"workshop/3070581293/de_bank"				""
+			"workshop/3070923343/fy_pool_day"			""
+			"workshop/3070238628/fy_iceworld"			""
 		}
+	}
    ```
   
 5. If needed, update each game mode configuration file (i.e. comp.cfg) to include `css_mapgroup <map group>`.
@@ -147,7 +134,7 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 ### RTV Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| Enabled             | Enables RTV Compatibility. The RTV plugin specified will be reloaded after updating the maplist.txt file.                                 | 
+| Enabled             | Enables RTV Compatibility.                                                                                                                | 
 | Plugin              | Default path for the desired RTV plugin.                                                                                                  | 
 | MapListFile         | Default path for the maplist.txt file to update when the map group or game mode changes.                                                  | 
 | DefaultMapFormat    | Enables the default format for adding maps to the map list file: `ws:{workshopid}`. When disabled: `{mapname}:{workshopid}`.              |
@@ -155,8 +142,8 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 ### Game Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| Enabled             | Enables game settings. Settings are parsed on plugin load.                                                                                | 
-| Folder              | Default settings folder in the `/csgo/cfg/` directory. Add custom configuration files with `enable_` and `disable_` prefixes.             | 
+| Enabled             | Enables custom game settings.                                                                                                             | 
+| Folder              | Default settings folder within `/csgo/cfg/`.                                                                                                  | 
 | Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      |
 
 ### Map Group Settings
@@ -164,7 +151,7 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Delay               | Map change change delay in seconds.                                                                                                       | 
 | Default             | Default map group on server start (i.e. mg_active).                                                                                       | 
-| File                | Map groups file name. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and within the `csgo` directory.     |     
+| File                | Map groups file name. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and WITHINin `/csgo/`.               |     
 
 ### Game Mode Settings
 | Setting             | Description                                                                                                                               |
@@ -172,22 +159,22 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 | Rotation            | Enables game mode rotation.                                                                                                               |  
 | Interval            | Changes game mode every x map rotations.                                                                                                  | 
 | Delay               | Delay for changing game modes in seconds.                                                                                                 | 
-| Style               | Changes setting menus type (i.e. "chat" or "center").                                                                                     |
-| ListEnabled         | Uses the game mode list specified. Otherwise, the list will be generated based on the map groups discovered.                              |
-| List                | A customizable list of game modes for your server with friendly names.                                                                    |  
+| Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      |
+| ListEnabled         | Uses the game mode list in the config. Otherwise, the list is generated from map groups.                                                  |
+| List                | A customizable list of game modes for your server with friendly names for menus.                                                                    |  
 
 ### Vote Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| Enabled             | Enables voting. Votes are registered when all plugins have been loaded.                                                                   | 
+| Enabled             | Enables voting.                                                                                                                           | 
 | Map                 | Enables map vote.                                                                                                                         | 
-| GameMode            | Enables game mode votes (all modes and per mode votes)                                                                                    |
-| GameSetting         | Enables game setting votes (per mode votes only)                                                                                          |
+| GameMode            | Enables game mode votes.                                                                                                                  |
+| GameSetting         | Enables game setting votes.                                                                                                               |
 | Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
 
 > [!CAUTION]
-> - All game mode configuration files must be in the `/csgo/cfg/` directory and include `css_mapgroup` to change the current map group.
-> - If `ListEnabled` is set to `false`, the game mode list will be created based on the discovered map groups. For example, `mg_surf` would display as `surf` and the `surf.cfg` would be executed. You can also use 'friendly' names by adding a "displayname" property to each map group in your map group file. 
+> - All configuration files must be within `/csgo/cfg/`.
+> - Your mapgroup file must use `css_mapgroup` to cycle the current map group.
 
 ### Default Values
 ```
