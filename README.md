@@ -96,10 +96,6 @@ The below commands require the ***@css/cvar*** role.
   ![Screenshot 2024-06-08 213358](https://github.com/nickj609/GameModeManager/assets/32173425/0e188f9d-3c50-47bf-9f48-57ff0cb286e0)
 
 ## RTV Plugin Compatibility
-
-> [!IMPORTANT]
-> After the first load, enable RTV Plugin Compatibility within the configuration file.
-
 This plugin is compatible with any RTV plugin using a maplist.txt file.
 
 ![Screenshot 2024-03-21 161846](https://github.com/nickj609/GameModeManager/assets/32173425/1e291efb-fe7f-4f0d-bb2c-e21d042bd153)
@@ -149,9 +145,9 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 > [!IMPORTANT]
 > On the first load, a configuration file will be created in `csgo/addons/counterstrikesharp/configs/plugins/GameModeManager/GameModeManager.json`.
 
-GameModeManager offers the following configuration options within the `GameModeManager.json` file:
-
 ### RTV Settings
+> After the first load, enable RTV Plugin Compatibility within the configuration file. It is disabled by default.
+
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables RTV Compatibility. The RTV plugin specified will be reloaded after updating the maplist.txt file.                                 | 
@@ -184,6 +180,8 @@ GameModeManager offers the following configuration options within the `GameModeM
 | List                | A customizable list of game modes for your server with friendly names.                                                                    |  
 
 ### Vote Settings
+> After the first load, enable voting within the configuration file. It is disabled by default.
+
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables voting. Votes are registered when all plugins have been loaded.                                                                   | 
@@ -193,9 +191,9 @@ GameModeManager offers the following configuration options within the `GameModeM
 | Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
 
 > [!NOTE]
-> - All game mode configuration files must be in the `csgo/cfg` directory and include `css_mapgroup` to specify the current map group.
-> - All game setting configuration files must be in the `csgo/` directory and include `css_mapgroup` to specify the current map group.
-> - If `ListEnabled` is set to `false`, the game mode list will be created based on the discovered map groups. For example, `mg_surf` would display as `Surf` and the `surf.cfg` would be executed. 
+> - All game mode configuration files must be in the `/csgo/cfg` directory and include `css_mapgroup` to specify the current map group.
+> - All game setting configuration files must be in the `/csgo/cfg/` directory. You can specify a custom settings folder within that directory. 
+> - If `ListEnabled` is set to `false`, the game mode list will be created based on the discovered map groups. For example, `mg_surf` would display as `surf` and the `surf.cfg` would be executed. You can also use 'friendly' names by adding a "displayname" property to each map group in your map group file. 
 
 ### Default Values
 ```
