@@ -21,7 +21,6 @@ Please drop a ⭐ star in the repository
 
 ![image](https://github.com/nickj609/GameModeManager/assets/32173425/4c1bef1e-ef13-4a30-b2eb-b02060535bcb)
 
-
 ## Credits
 This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gameloop.Vdf/) (licensed under the [MIT License](https://github.com/shravan2x/Gameloop.Vdf/blob/master/LICENSE)) for parsing the `gamemodes_server.txt` file, which is in [Valve Data Format](https://developer.valvesoftware.com/wiki/VDF).
 
@@ -41,21 +40,23 @@ The below commands require the ***@css/changemap*** role.
 ### Maps
 - `!map <map name> <id>` - Changes the map to the map specified.
   
-  > The map ID is *optional* and only required for maps that aren't explicitly set in `gamemodes_server.txt` for a given map group.
+  > _The map ID is *optional* and only required for maps that aren't explicitly set for a given map group._
 
-- `!maps (css_maps)` - Displays an admin menu for changing the map. It only shows maps for the current game mode/map group.
+- `!maps (css_maps)` - Displays an admin menu for changing the map. 
 
+   > _It only shows maps for the current game mode/map group._
+   
 ### Game Modes
 - `!mode <mode name> (css_mode)` - Changes the game mode to the mode specified.
   
-  > For example, for **mg_surf** you would do **!mode surf**. 
+  > _For example, for **mg_surf** you would do **!mode surf**._ 
   
 - `!modes (css_modes)` - Displays an admin menu for changing the game mode.
 
 ## Game Settings
 - `!setting <enable|disable> <setting name> (css_setting)` - Enables or disables a custom game setting.
   
-  > For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**. 
+  > _For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**._ 
   
 - `!settings (css_settings)` - Displays an admin menu for enabling or disabling custom game settings.
 
@@ -144,12 +145,10 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 > On the first load, a configuration file will be created in `csgo/addons/counterstrikesharp/configs/plugins/GameModeManager/GameModeManager.json`.
 
 ### RTV Settings
-> After the first load, enable RTV Plugin Compatibility within the configuration file. It is disabled by default.
-
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables RTV Compatibility. The RTV plugin specified will be reloaded after updating the maplist.txt file.                                 | 
-| Plugin              | Default path for the desired RTV plugin. This can also be the module name.                                                                | 
+| Plugin              | Default path for the desired RTV plugin.                                                                                                  | 
 | MapListFile         | Default path for the maplist.txt file to update when the map group or game mode changes.                                                  | 
 | DefaultMapFormat    | Enables the default format for adding maps to the map list file: `ws:{workshopid}`. When disabled: `{mapname}:{workshopid}`.              |
 
@@ -157,7 +156,7 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables game settings. Settings are parsed on plugin load.                                                                                | 
-| Folder              | Default settings folder in `csgo/cfg` directory. Add custom configuration files with `enable_` and `disable_` prefixes.                   | 
+| Folder              | Default settings folder in the `/csgo/cfg/` directory. Add custom configuration files with `enable_` and `disable_` prefixes.             | 
 | Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      |
 
 ### Map Group Settings
@@ -178,8 +177,6 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 | List                | A customizable list of game modes for your server with friendly names.                                                                    |  
 
 ### Vote Settings
-> After the first load, enable voting within the configuration file. It is disabled by default.
-
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables voting. Votes are registered when all plugins have been loaded.                                                                   | 
@@ -188,9 +185,8 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 | GameSetting         | Enables game setting votes (per mode votes only)                                                                                          |
 | Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
 
-> [!NOTE]
-> - All game mode configuration files must be in the `/csgo/cfg` directory and include `css_mapgroup` to specify the current map group.
-> - All game setting configuration files must be in the `/csgo/cfg/` directory. You can specify a custom settings folder within that directory. 
+> [!CAUTION]
+> - All game mode configuration files must be in the `/csgo/cfg/` directory and include `css_mapgroup` to change the current map group.
 > - If `ListEnabled` is set to `false`, the game mode list will be created based on the discovered map groups. For example, `mg_surf` would display as `surf` and the `surf.cfg` would be executed. You can also use 'friendly' names by adding a "displayname" property to each map group in your map group file. 
 
 ### Default Values
