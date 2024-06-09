@@ -1,12 +1,22 @@
 {
   "plugin.prefix": "[{GREEN}Server{DEFAULT}]",
-  "changemap.message": "Admin {LIGHTRED}{0}{DEFAULT} heeft de map veranderd naar {LIGHTRED}{1}{DEFAULT}.",
-  "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} heeft de spelmodus veranderd naar {LIGHTRED}{1}{DEFAULT}.",
-  "enable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} heeft de instelling {LIGHTRED}{1}{DEFAULT} {LIGHTRED}ingeschakeld{DEFAULT}.",
-  "disable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} heeft de instelling {LIGHTRED}{1}{DEFAULT} {LIGHTRED}uitgeschakeld{DEFAULT}.",
-  "setting.hud.menu-title": "Instellingenlijst",
-  "mode.hud.menu-title": "Spelmoduslijst",
-  "maps.hud.menu-title": "Kaartenlijst",
-  "settings.enable.hud.menu-title": "Instellingen inschakelen",
-  "settings.disable.hud.menu-title": "Instellingen uitschakelen"
-}
+  "changemap.message": "{LIGHTRED}{0}{DEFAULT} heeft de kaart gewijzigd naar {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} heeft de spelmodus gewijzigd naar {LIGHTRED}{1}{DEFAULT}.",
+  "enable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} heeft de instelling {LIGHTRED}{1}{DEFAULT} {LIGHTRED}Ingeschakeld{DEFAULT}.",
+  "disable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} heeft de instelling {LIGHTRED}{1}{DEFAULT} {LIGHTRED}Uitgeschakeld{DEFAULT}.",
+  "menu.yes": "Ja",
+  "menu.no": "Nee",
+  "menu.enable": "Inschakelen",
+  "menu.disable": "Uitschakelen",
+  "mode.show.menu-response": "Zeg {GREEN}!{0}{DEFAULT} om een stemming te creëren.",
+  "mode.vote.menu-title": "Spelmodus wijzigen naar {GOLD}{0}{DEFAULT}?",
+  "modes.menu-title": "Lijst met spelmodi",
+  "modes.vote.menu-title": "Spelmodus wijzigen?",
+  "map.vote.menu-title": "Kaart wijzigen naar {0}?",
+  "maps.menu-title": "Lijst met kaarten",
+  "maps.show.menu-response": "Zeg {GREEN}!{0}{DEFAULT} om een stemming te creëren.",
+  "setting.vote.menu-title": "Instelling {GOLD}{0}{DEFAULT} wijzigen?",
+  "setting.show.menu-response": "Zeg {GREEN}!{0}{DEFAULT} om een stemming te creëren.",
+  "settings.menu-actions": "Instellingsacties",
+  "settings.menu-title": "Lijst met instellingen"
+  }
