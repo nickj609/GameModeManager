@@ -1,164 +1,311 @@
 ![Copyright Nickj609l](https://img.shields.io/badge/Copyright-Nickj609-red) ![GitHub License](https://img.shields.io/github/license/nickj609/GameModeManager) ![Issues](https://img.shields.io/github/issues/nickj609/GameModeManager) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/nickj609/GameModeManager/total) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/nickj609/GameModeManager/latest)
 
 # GameModeManager
-A Counter-Strike 2 server plugin inspired by the [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modded-server) and the [CS2 Rock The Vote plugin by Abnerfs](https://github.com/abnerfs/cs2-rockthevote).
+A Counter-Strike 2 server plugin to help administrators manage custom game modes, settings, and map rotations. 
+
+Inspired by [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modded-server) and the [CS2 Rock The Vote plugin by Abnerfs](https://github.com/abnerfs/cs2-rockthevote).
 
 ## Description
-GameModeManager streamlines your Counter-Strike 2 server administration with these features:
+GameModeManager streamlines server administration with these features:
 
-- **Admin Game Mode Menu:** Effortlessly switch between game modes.
-- **Admin Map List Menu:** Effortlessly switch between maps within the current game mode.
+- **Admin Game Mode Menu:** Switch between game modes.
+- **Admin Setting Menu:** Enable or disable custom settings.
+- **Admin Map List Menu:** Switch between maps within the current game mode.
+- **Player Voting:** Voting for custom game modes, game settings, and maps.
 - **Default Map Cycles:** Automatically changes the map to a random map within the current map group.
+- **Game Mode Rotations:** Specify how often you want the game mode to change.
 - **RTV Compatibility:** Works seamlessly with your chosen RTV plugin, ensuring smooth rock-the-vote functionality.
 
 ## Credits
 This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gameloop.Vdf/) (licensed under the [MIT License](https://github.com/shravan2x/Gameloop.Vdf/blob/master/LICENSE)) for parsing the `gamemodes_server.txt` file, which is in [Valve Data Format](https://developer.valvesoftware.com/wiki/VDF).
+
+For creating custom votes, this plugin utilizes the [CS2-CustomVotes](https://github.com/imi-tat0r/CS2-CustomVotes) shared plugin API (licensed under the [MIT License](https://github.com/imi-tat0r/CS2-CustomVotes?tab=MIT-1-ov-file)). 
 
 ## Requirements
 - [Counter-Strike 2](https://www.counter-strike.net/cs2)
 - [Metamod:Source](https://github.com/alliedmodders/metamod-source/) (v1282+)
 - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) (v.197+)
 
-> [!NOTE]
-> If you are using the [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modded-server) you should remove the [Ultimate Map Chooser](https://github.com/kus/cs2-modded-server/tree/master/game/csgo/addons/counterstrikesharp/plugins/CS2-Ultimate-Mapchooser) plugin until the pull request is approved/finalized.
+## Server Commands
+- `css_mapgroup <mg_name>` - Sets the map group and updates the map list and menus.
 
-## Commands
+## Admin Commands
+The below commands require the ***@css/changemap*** role.
 
-Server Only
-- `css_mapgroup <mg_name>` - Sets the map group and updates the map list.
-
-Client Only
+### Maps
 - `!map <map name> <id>` - Changes the map to the map specified.
   
-  > The map id is optional and only required if not already specified in an existing map group.
+  > The map ID is *optional* and only required for maps that aren't explicitly set in `gamemodes_server.txt` for a given map group.
 
-- `!mode (css_mode)` - Changes the game mode to the mode specified.
+- `!maps (css_maps)` - Displays an admin menu for changing the map. It only shows maps for the current game mode/map group.
+
+  ![Screenshot 2024-06-08 212858](https://github.com/nickj609/GameModeManager/assets/32173425/e3f4dfa8-a151-48b3-8c70-c866274a11cd)
+
+### Game Modes
+- `!mode <mode name> (css_mode)` - Changes the game mode to the mode specified.
   
-  > Only the mode name is required. For example, for mg_surf you would do !mode surf. 
+  > Only the mode name is required. For example, for **mg_surf** you would do **!mode surf**. 
   
-- `!modes (css_modes)` - Displays an admin menu with game mode options.
+- `!modes (css_modes)` - Displays an admin menu for changing the game mode.
 
-  ![Screenshot 2024-03-21 161458](https://github.com/nickj609/GameModeManager/assets/32173425/db33fe48-21f3-455c-9987-5406fca99c4f)
+  ![Screenshot 2024-06-08 211937](https://github.com/nickj609/GameModeManager/assets/32173425/7f9c46f1-4ed3-47a9-b135-3a0d1e5cabed)
 
-- `!maps (css_maps)` - Displays an admin menu with maps for the current game mode/map group.
+## Game Settings
+- `!setting <enable|disable> <setting name> (css_setting)` - Enables or disables a custom game setting.
+  
+  > Only the setting name is required. For example, **enable_movement_unlock.cfg** would be **!setting movement_unlock**. 
+  
+- `!settings (css_settings)` - Displays an admin menu for enabling or disabling custom game settings.
 
-  ![Screenshot 2024-03-21 161416](https://github.com/nickj609/GameModeManager/assets/32173425/f9c193b0-2ad3-4fa1-8a83-eaac812d2f21)
+  ![Screenshot 2024-06-08 212010](https://github.com/nickj609/GameModeManager/assets/32173425/75fb865f-63ec-498c-84f8-b451d1edea45)
+
+  ![Screenshot 2024-06-08 212046](https://github.com/nickj609/GameModeManager/assets/32173425/34206829-f570-4b00-a025-795d8431057c)
+
+## Player Commands
+The below commands require the ***@css/cvar*** role. 
+
+## Vote settings
+- `!changemode` - Creates a vote to change the game mode (all modes).
+
+   ![Screenshot 2024-06-08 212539](https://github.com/nickj609/GameModeManager/assets/32173425/f5e3d915-4c01-45d5-95a2-a40b693e17bb)
+
+   ![Screenshot 2024-06-08 212613](https://github.com/nickj609/GameModeManager/assets/32173425/fa6473c6-5372-4c4b-afb6-2ef5087ea550)
+
+- `!showmodes` - Menu to display all per mode votes that can be created.
+
+   ![Screenshot 2024-06-08 212831](https://github.com/nickj609/GameModeManager/assets/32173425/8fd7e73f-c2e9-459d-bf33-9878de227f55)
+
+   ![Screenshot 2024-06-08 213033](https://github.com/nickj609/GameModeManager/assets/32173425/4b252eb5-69ef-4973-89b8-b48c2f6f7019)
+
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/9e5ccb36-ff93-424d-887e-309fcc3b9012)
+
+- `!showsettings` - Menu to display all per setting votes that can be created.
+
+   ![Screenshot 2024-06-08 212803](https://github.com/nickj609/GameModeManager/assets/32173425/16a907d1-3bd9-4416-bda6-4d6cc4c55030)
+   
+   ![Screenshot 2024-06-08 213008](https://github.com/nickj609/GameModeManager/assets/32173425/b6a34ec1-277f-4361-bd1c-0e405b20834f)
+
+   ![Screenshot 2024-06-08 213124](https://github.com/nickj609/GameModeManager/assets/32173425/3c704378-5c89-4e49-9fcc-750f7e61d628)
+
+- `!showmaps` - Menu to display all per map votes that can be created. This only shows maps from the current map group/game mode. 
+
+  ![Screenshot 2024-06-08 212858](https://github.com/nickj609/GameModeManager/assets/32173425/1ba2a65a-8867-420c-9576-5549fa5e5469)
+
+  ![Screenshot 2024-06-08 212923](https://github.com/nickj609/GameModeManager/assets/32173425/eb6a198a-a2cf-477b-ba02-ca6469bd38fc)
+
+  ![Screenshot 2024-06-08 213358](https://github.com/nickj609/GameModeManager/assets/32173425/0e188f9d-3c50-47bf-9f48-57ff0cb286e0)
 
 ## RTV Plugin Compatibility
 
 > [!IMPORTANT]
-> You will need to manually enable RTV Plugin Compatibility within the configuration file after the first load.
+> After the first load, enable RTV Plugin Compatibility within the configuration file.
 
-This plugin is compatible with any RTV plugin as long as it uses a maplist.txt file.
+This plugin is compatible with any RTV plugin using a maplist.txt file.
 
 ![Screenshot 2024-03-21 161846](https://github.com/nickj609/GameModeManager/assets/32173425/1e291efb-fe7f-4f0d-bb2c-e21d042bd153)
 
 ## Installation
 1. Install Metamod:Source and Counter Strike Sharp.
 2. Copy DLLs to `csgo/addons/counterstrikesharp/plugins/GameModeManager`.
-3. Make sure your `gamemodes_server.txt` file is in VDF format and contains a list of map groups.
-4. If needed, update your custom configuration files for each game mode to include `css_mapgroup <map group>`.
-5. After the first run, update the configuration file `GameModeManager.json` as detailed below.
+3. Make sure your `gamemodes_server.txt` or custom map group file is in[VDF Format](https://developer.valvesoftware.com/wiki/VDF) and contains a list of map groups.
+4. If you are not using the JSON configuration file for specifying game modes, include the "displayname" property within your `gamemodes_server.txt` or custom map group file for each map group.
+
+   Example:
+   ```
+   "mg_dm"
+		{
+			"imagename"				"mapgroup-bomb"
+			"displayname"			"Deathmatch"
+			"nameID"				"#SFUI_Mapgroup_allclassic"
+			"tooltipID"				"#SFUI_MapGroup_Tooltip_Desc_DeathMatch"
+			"name"					"mg_dm"
+			"icon_image_path"		"map_icons/mapgroup_icon_deathmatch"
+			"maps"
+			{
+				"ar_shoots"												""
+				"ar_baggage"											""
+				"workshop/3070550406/de_safehouse"						""
+				"workshop/3070563536/de_lake"							""
+				"workshop/3070581293/de_bank"							""
+				"workshop/3070923343/fy_pool_day"						""
+				"workshop/3070238628/fy_iceworld"						""
+				"workshop/3070291913/ar_churches_s2r"					""
+				"workshop/3082113929/aim_ag_texture_city_advanced"		""
+				"workshop/3074961197/aim_ag_texture2"					""
+				"workshop/3095778105/aim_ag_texture_jungle"				""
+				"workshop/3109232789/gg_simpsons_vs_flanders_v2"		""
+				"workshop/3086555291/shipment_version_1_0"				""
+				"workshop/3131645522/de_rust"							""
+				"workshop/3133577140/nuketown"							""
+				"workshop/3080114822/mansion"							""
+			}
+		}
+   ```
+  
+5. If needed, update each game mode configuration file (i.e. comp.cfg) to include `css_mapgroup <map group>`.
+6. After the first run, update the configuration file `GameModeManager.json` as detailed below.
 
 ## Configuration
 > [!IMPORTANT]
 > On the first load, a configuration file will be created in `csgo/addons/counterstrikesharp/configs/plugins/GameModeManager/GameModeManager.json`.
 
-GameModeManager offers flexible configuration options. See below for details and customization instructions.
+GameModeManager offers the following configuration options within the `GameModeManager.json` file:
 
 ### RTV Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| Enabled             | When enabled, the RTV plugin specified will be reloaded after updating the maplist.txt file.                                              | 
-| Plugin              | This is the default path to the RTV Plugin you are using. This can also just be the module name.                                          | 
-| MapListFile         | This is the default path for the maplist.txt file that will be updated when the map group or game mode changes.                           | 
-| DefaultMapFormat    | When enabled, the format for adding maps to the maplist.txt file will be `ws:{workshopid}` instead of `{mapname}:{workshopid}`.           |
+| Enabled             | Enables RTV Compatibility. The RTV plugin specified will be reloaded after updating the maplist.txt file.                                 | 
+| Plugin              | Default path for the desired RTV plugin. This can also be the module name.                                                                | 
+| MapListFile         | Default path for the maplist.txt file to update when the map group or game mode changes.                                                  | 
+| DefaultMapFormat    | Enables the default format for adding maps to the map list file: `ws:{workshopid}`. When disabled: `{mapname}:{workshopid}`.              |
+
+### Game Settings
+| Setting             | Description                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
+| Enabled             | Enables game settings. Settings are parsed on plugin load.                                                                                | 
+| Folder              | Default settings folder in `csgo` directory. Add custom configuration files with `enable_` and `disable_` prefixes.                       | 
+| Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                     |
 
 ### Map Group Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Default             | Default map group on server start (i.e. mg_active).                                                                                        | 
-| File                | Default path for the gamemodes_server.txt file used to specify game modes and map groups.                                                 |     
+| Delay               | Map change change delay in seconds.                                                                                                       | 
+| Default             | Default map group on server start (i.e. mg_active).                                                                                       | 
+| File                | Map groups file name. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and within the `csgo` directory.     |     
 
 ### Game Mode Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| ListEnabled         | When enabled, the game mode list specified will be used. Otherwise, the list will be generated based on the map groups discovered.        |
-| List                | A list of game modes for your server.                                                                                                     |     
+| Rotation            | Enables game mode rotation.                                                                                                               |  
+| Interval            | Changes game mode every x map rotations.                                                                                                  | 
+| Delay               | Delay for changing game modes in seconds.                                                                                                 | 
+| Style               | Changes setting menus type (i.e. "chat" or "center").                                                                                     |
+| ListEnabled         | Uses the game mode list specified. Otherwise, the list will be generated based on the map groups discovered.                              |
+| List                | A customizable list of game modes for your server with friendly names.                                                                    |  
+
+### Vote Settings
+| Setting             | Description                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
+| Enabled             | Enables voting. Votes are registered when all plugins have been loaded.                                                                   | 
+| Map                 | Enabled map vote.                                                                                                                         | 
+| GameMode            | Enabled game mode votes (all modes and per mode votes)                                                                                    |
+| GameSetting         | Enables game setting votes (per mode votes only)                                                                                          |
+| Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
 
 > [!NOTE]
-> - All game mode configuration files must be located in the `csgo/cfg` directory and include `css_mapgroup` to set the current map group.
-> - If `ListEnabled` is set to `false`, the Game Mode List will be created based on the discovered map groups. For example, `mg_surf` would display as `surf` and the `surf.cfg` would be executed. 
+> - All game mode configuration files must be in the `csgo/cfg` directory and include `css_mapgroup` to specify the current map group.
+> - All game setting configuration files must be in the `csgo/` directory and include `css_mapgroup` to specify the current map group.
+> - If `ListEnabled` is set to `false`, the game mode list will be created based on the discovered map groups. For example, `mg_surf` would display as `Surf` and the `surf.cfg` would be executed. 
 
 ### Default Values
-
 ```
-// This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2024/04/01 04:22:02
+// This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2024/06/08 09:52:11
 {
+  "Version": 2,
   "RTV": {
     "Enabled": false,
-    "Plugin": "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll",
-    "MapListFile": "/home/steam/cs2/game/csgo/addons/counterstrikesharp/plugins/RockTheVote/maplist.txt",
+    "Plugin": "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll",
+    "MapListFile": "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt",
     "DefaultMapFormat": false
   },
   "MapGroup": {
+    "Delay": 5,
     "Default": "mg_active",
-    "File": "/home/steam/cs2/game/csgo/gamemodes_server.txt"
+    "File": "gamemodes_server.txt"
+  },
+  "Settings": {
+    "Enabled": true,
+    "Folder": "settings",
+    "Style": "center"
   },
   "GameMode": {
+    "Rotation": true,
+    "Interval": 4,
+    "Delay": 5,
+    "Style": "center",
     "ListEnabled": true,
-    "List": [
-      "comp",
-      "1v1",
-      "aim",
-      "awp",
-      "scoutzknivez",
-      "wingman",
-      "gungame",
-      "surf",
-      "dm",
-      "dm-multicfg",
-      "course",
-      "hns",
-      "kz",
-      "minigames"
-    ]
+    "List": {
+      "comp": "Competitive",
+      "1v1": "1 vs 1",
+      "aim": "Aim",
+      "awp": "AWP Only",
+      "scoutzknivez": "ScoutzKnives",
+      "wingman": "Wingman",
+      "gungame": "Gun Game",
+      "surf": "Surf",
+      "dm": "Deathmatch",
+      "dm-multicfg": "Deathmatch Multicfg",
+      "course": "Course",
+      "hns": "Hide N Seek",
+      "kz": "Kreedz",
+      "minigames": "Mini Games"
+    }
   },
-  "ConfigVersion": 1
+  "Votes": {
+    "Enabled": false,
+    "Map": false,
+    "GameMode": false,
+    "GameSetting": false,
+    "Style": "center"
+  },
+  "ConfigVersion": 2
 }
 ```
 
 ### Languages
-This plugin will display all in-game menus and messaging within the language of the player. Below is an example language configuration you can customize to your liking.
+This plugin will display all in-game menus and messaging based on the player's preferred language. Below is an example language configuration file you can customize to your liking. The [CS2-CustomVotes](https://github.com/imi-tat0r/CS2-CustomVotes) plugin also has additional language files you can configure. 
 
 /lang/en.json
 ```
 {
   "plugin.prefix": "[{GREEN}Server{DEFAULT}]",
-  "changemap.message": "Admin {LIGHTRED}{0}{DEFAULT} has changed the map to {LIGHTRED}{1}{DEFAULT}.",
+  "changemap.message": "{LIGHTRED}{0}{DEFAULT} has changed the map to {LIGHTRED}{1}{DEFAULT}.",
   "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} has changed the game mode to {LIGHTRED}{1}{DEFAULT}.",
-  "mode.hud.menu-title": "Game Mode List",
-  "maps.hud.menu-title": "Map List"
+  "enable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} has {LIGHTRED}Enabled{DEFAULT} setting {LIGHTRED}{1}{DEFAULT}.",
+  "disable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} has {LIGHTRED}Disabled{DEFAULT} setting {LIGHTRED}{1}{DEFAULT}.",
+  "menu.yes": "Yes",
+  "menu.no": "No",
+  "menu.enable": "Enable",
+  "menu.disable": "Disable",
+  "mode.show.menu-response": "Say {GREEN}!{0}{DEFAULT} to create a vote.",
+  "mode.vote.menu-title": "Change game mode to {GOLD}{0}{DEFAULT}?",
+  "modes.menu-title": "Game Mode List",
+  "modes.vote.menu-title": "Change game mode?",
+  "map.vote.menu-title": "Change map to {0}?",
+  "maps.menu-title": "Map List",
+  "maps.show.menu-response": "Say {GREEN}!{0}{DEFAULT} to create a vote.",
+  "setting.vote.menu-title": "Change setting {GOLD}{0}{DEFAULT}?",
+  "setting.show.menu-response": "Say {GREEN}!{0}{DEFAULT} to create a vote.",
+  "settings.menu-actions": "Setting Actions",
+  "settings.menu-title": "Setting List"
 }
 ```
 
 ## Logging
 >[!WARNING]
-> Due to the heavy use of the above configuration file to specify paths to files and plugins, you may run into several issues upon the initial deployment. All logs associated with this plugin can be found in the below location.
+> Due to the need to parse map groups and settings, you may have difficulties initially configuring the plugin, especially if your gamemodes_server.txt is not configured properly. All logs associated with this plugin can be found in the below location.
 > 
 > `csgo/addons/counterstrikesharp/logs`
 
 ### Example
 ```
-2024-04-01 03:26:13.249 +00:00 [INFO] plugin:GameModeManager Loading map groups...
-2024-04-01 03:26:13.264 +00:00 [INFO] plugin:GameModeManager Creating game modes...
+2024-06-08 02:01:09.232 +00:00 [INFO] plugin:GameModeManager Loading map groups...
+2024-06-08 02:01:09.245 +00:00 [INFO] plugin:GameModeManager Creating game modes...
+2024-06-08 02:01:09.246 +00:00 [INFO] plugin:GameModeManager Loading settings...
+2024-06-08 02:01:09.247 +00:00 [WARN] plugin:GameModeManager Skipping allow_drop_knife.cfg because its missing the correct prefix.
+2024-06-08 02:01:09.250 +00:00 [INFO] plugin:GameModeManager Creating settings menu...
+2024-06-08 02:01:09.251 +00:00 [INFO] plugin:GameModeManager Enabling game mode and map rotations...
+2024-06-08 02:01:09.252 +00:00 [INFO] plugin:GameModeManager Registering custom votes...
 2024-04-01 03:27:20.767 +00:00 [INFO] plugin:GameModeManager Current map group is mg_active.
 2024-04-01 03:27:20.768 +00:00 [INFO] plugin:GameModeManager New map group is mg_aim.
+2024-06-08 02:04:44.973 +00:00 [INFO] plugin:GameModeManager Deregistering custom votes...
 ```
 
 ### Common Error Messages
-| Error Message                                                  | Description                                                                                                              |
-| ---------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------------ | 
-| `Cannot Find`                                                  | Unable to locate the file specified from `GameModeManager.json` config.                                                  | 
-| `Incomplete VDF data`                                          | Your `gamemodes_server.txt` file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
-| `The mapgroup property doesn't exist`                          | The "mapgroup" property cannot be found in your `gamemodes_server.txt` file.                                             | 
+| Error/Warning Message                                              | Description                                                                                                              |
+| -------------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------------ | 
+| `Cannot Find`                                                      | Unable to locate the file specified from `GameModeManager.json` config.                                                  | 
+| `Incomplete VDF data`                                              | Your `gamemodes_server.txt` file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
+| `Your config file is too old`                                      | Please delete it from `addons/counterstrikesharp/configs/plugins/GameModeManager` and let the plugin recreate it on load.|
+| `The mapgroup property doesn't exist`                              | The "mapgroup" property cannot be found in your `gamemodes_server.txt` file.                                             | 
+| `Mapgroup found, but the 'maps' property is missing or incomplete` | The "maps" property cannot be found in your `gamemodes_server.txt` file for one of your map groups.                      | 
