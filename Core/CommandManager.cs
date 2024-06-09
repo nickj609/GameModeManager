@@ -18,9 +18,6 @@ namespace GameModeManager
         {
             if (player == null) 
             {
-                // Deregister map votes
-                DeregisterMapVotes();
-
                 // Get map group
                 MapGroup? _mapGroup = MapGroups.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
 
@@ -42,7 +39,13 @@ namespace GameModeManager
                     Logger.LogError($"{ex.Message}");
                 }
 
-                // Register map votes
+                // Deregister map votes from old map group
+                DeregisterMapVotes();
+
+                // Set new map group
+                CurrentMapGroup = _mapGroup;
+
+                // Register map votes for new map group
                 RegisterMapVotes();
             }
         }

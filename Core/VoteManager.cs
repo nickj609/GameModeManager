@@ -174,11 +174,15 @@ namespace GameModeManager
         {
             if (_mapVote == true)
             {
+                // Get maps from current map group
+                List<Map> _maps = CurrentMapGroup.Maps;
+
                 // Deregister per map vote
-                foreach (Map _map in Maps)
+                foreach (Map _map in _maps)
                 {
                     Plugin.CustomVotesApi.Get()?.RemoveCustomVote(_map.Name);
                 }
+                
                 // Set map vote flag
                 _mapVote = false;
             }
