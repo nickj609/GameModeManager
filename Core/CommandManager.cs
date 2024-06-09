@@ -18,6 +18,9 @@ namespace GameModeManager
         {
             if (player == null) 
             {
+                // Deregister map votes
+                DeregisterMapVotes();
+
                 // Get map group
                 MapGroup? _mapGroup = MapGroups.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
 
@@ -38,6 +41,9 @@ namespace GameModeManager
                 {
                     Logger.LogError($"{ex.Message}");
                 }
+
+                // Register map votes
+                RegisterMapVotes();
             }
         }
 
@@ -49,7 +55,7 @@ namespace GameModeManager
         {
             if(player != null && _plugin != null && MapMenu != null)
             {
-                MapMenu.Title = Localizer["maps.hud.menu-title"];
+                MapMenu.Title = Localizer["maps.menu-title"];
                 OpenMenu(MapMenu, Config.GameMode.Style, player);
             }
         }
@@ -101,13 +107,13 @@ namespace GameModeManager
         {
             if(player != null && _plugin != null && ModeMenu != null)
             {
-                ModeMenu.Title = Localizer["mode.hud.menu-title"];
+                ModeMenu.Title = Localizer["modes.menu-title"];
                 OpenMenu(ModeMenu, Config.GameMode.Style, player);
             }
         }
 
         // Construct admin change setting command handler
-        [RequiresPermissions("@css/cvar")]
+        [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 2, usage: "[enable/disable] [setting name]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         [ConsoleCommand("css_setting", "Changes the game setting specified.")]
         public void OnSettingCommand(CCSPlayerController? player, CommandInfo command)
@@ -153,7 +159,7 @@ namespace GameModeManager
         }
 
         // Construct admin setting menu command handler
-        [RequiresPermissions("@css/cvar")]
+        [RequiresPermissions("@css/changemap")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         [ConsoleCommand("css_settings", "Provides a list of game settings.")]
         public void OnSettingsCommand(CCSPlayerController? player, CommandInfo command)
@@ -161,8 +167,51 @@ namespace GameModeManager
             if(player != null && _plugin != null && SettingsMenu != null)
             {
                 // Open menu
-                SettingsMenu.Title = Localizer["settings.hud.menu-title"];
+                SettingsMenu.Title = Localizer["settings.menu-actions"];
                 OpenMenu(SettingsMenu, Config.Settings.Style, player);
+            }
+            
+        }
+
+        // Construct show maps menu command handler
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [ConsoleCommand("css_showmaps", "Provides a list of maps from current mode.")]
+        public void OnShowMapsCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if(player != null && _plugin != null && ShowMapsMenu != null)
+            {
+                // Open menu
+                ShowMapsMenu.Title = Localizer["maps.menu-title"];
+                OpenMenu(ShowMapsMenu, Config.GameMode.Style, player);
+            }
+            
+        }
+        // Construct show maps menu command handler
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [ConsoleCommand("css_showmodes", "Provides a list of game modes.")]
+        public void OnShowModesCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if(player != null && _plugin != null && ShowModesMenu != null)
+            {
+                // Open menu
+                ShowModesMenu.Title = Localizer["modes.menu-title"];
+                OpenMenu(ShowModesMenu, Config.GameMode.Style, player);
+            }
+            
+        }
+        // Construct show maps menu command handler
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [ConsoleCommand("css_showsettings", "Provides a list of game settings.")]
+        public void OnShowSettingsCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if(player != null && _plugin != null && ShowSettingsMenu != null)
+            {
+                // Open menu
+                ShowSettingsMenu.Title = Localizer["settings.menu-title"];
+                OpenMenu(ShowSettingsMenu, Config.Settings.Style, player);
             }
             
         }
