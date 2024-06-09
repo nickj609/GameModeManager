@@ -41,7 +41,7 @@ namespace GameModeManager
                         Plugin.CustomVotesApi.Get()?.AddCustomVote(
                             _option, // Command to trigger the vote
                             new List<string>(), // Aliases for the command (optional)
-                            Localizer["modes.vote.menu-title", _entry.Value], // Description
+                            Localizer["mode.vote.menu-title", _entry.Value], // Description
                             "No", // Default
                             30, // Time to vote
                             new Dictionary<string, VoteOption> // vote options
