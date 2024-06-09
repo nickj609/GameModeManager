@@ -106,7 +106,7 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 
 ## Installation
 1. Install Metamod:Source and Counter Strike Sharp.
-2. Copy DLLs to `csgo/addons/counterstrikesharp/plugins/GameModeManager`.
+2. Copy `addons` and `cfg` folders to `/csgo/`.
 3. Make sure your `gamemodes_server.txt` or custom map group file is in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and contains a list of map groups.
 4. If you are not using the JSON configuration file for specifying game modes, include the "displayname" property within your `gamemodes_server.txt` or custom map group file for each map group.
 
