@@ -42,7 +42,7 @@ namespace GameModeManager
                 // Deregister map votes from old map group
                 try
                 {
-                    DeregisterCustomVotes();
+                    DeregisterMapVotes();
                 }
                 catch (Exception ex)
                 {
@@ -55,7 +55,7 @@ namespace GameModeManager
                 // Register map votes for new map group
                 try
                 {
-                    RegisterCustomVotes();
+                    RegisterMapVotes();
                 }
                 catch (Exception ex)
                 {
