@@ -148,8 +148,8 @@ namespace GameModeManager
             // Config version check
             if (_config.Version < 2)
             {
-                Logger.LogError("Your config file is too old, please delete it from addons/counterstrikesharp/configs/plugins/GameModeManager and let the plugin recreate it on load.");
-                throw new Exception("Your config file is too old, please delete it from addons/counterstrikesharp/configs/plugins/GameModeManager and let the plugin recreate it on load.");
+                Logger.LogError("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it.");
+                throw new Exception("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it");
             }
 
             // Set config
@@ -171,7 +171,7 @@ namespace GameModeManager
         {
             
             public bool Enabled { get; set; } = true; // Enable game settings
-            public string Folder { get; set; } = "settings"; // Default settings folder path
+            public string Folder { get; set; } = "settings"; // Default settings folder
             public string Style { get; set; } = "center"; // Changes admin menu type (i.e. "chat" or "center")
         }
         public class MapGroupSettings
