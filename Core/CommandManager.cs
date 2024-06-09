@@ -40,13 +40,27 @@ namespace GameModeManager
                 }
 
                 // Deregister map votes from old map group
-                DeregisterMapVotes();
+                try
+                {
+                    DeregisterMapVotes();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"{ex.Message}");
+                } 
 
                 // Set new map group
                 CurrentMapGroup = _mapGroup;
 
                 // Register map votes for new map group
-                RegisterMapVotes();
+                try
+                {
+                    RegisterMapVotes();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"{ex.Message}");
+                } 
             }
         }
 
