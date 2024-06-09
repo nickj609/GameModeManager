@@ -6,21 +6,23 @@ labels: ''
 assignees: ''
 ---
 
-**Describe the bug**
+### Describe the bug
+
 A clear and concise description of what the bug is.
 
-**To Reproduce**
+### To Reproduce
+
 Steps to reproduce the behavior:
 1. Change map group
 2. Initiate a vote
 
-**Expected behavior**
+### Expected behavior
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
+### Screenshots
 If applicable, add screenshots to help explain your problem.
 
-**Logging**
+### Logging
 Please provide a copy of the log from `/csgo/counterstrikesharp/logs/`
 
 Example
@@ -32,5 +34,5 @@ Example
 2024-06-07 21:31:26.895 +00:00 [INFO] plugin:GameModeManager Enabling game mode and map rotations...
 ```
 
-**Additional context**
+### Additional context
 Add any other context about the problem here.
