@@ -39,8 +39,6 @@ The below commands require the ***@css/changemap*** role.
 
 - `!maps (css_maps)` - Displays an admin menu for changing the map. It only shows maps for the current game mode/map group.
 
-  ![Screenshot 2024-06-08 212858](https://github.com/nickj609/GameModeManager/assets/32173425/e3f4dfa8-a151-48b3-8c70-c866274a11cd)
-
 ### Game Modes
 - `!mode <mode name> (css_mode)` - Changes the game mode to the mode specified.
   
@@ -48,18 +46,12 @@ The below commands require the ***@css/changemap*** role.
   
 - `!modes (css_modes)` - Displays an admin menu for changing the game mode.
 
-  ![Screenshot 2024-06-08 211937](https://github.com/nickj609/GameModeManager/assets/32173425/7f9c46f1-4ed3-47a9-b135-3a0d1e5cabed)
-
 ## Game Settings
 - `!setting <enable|disable> <setting name> (css_setting)` - Enables or disables a custom game setting.
   
   > Only the setting name is required. For example, **enable_movement_unlock.cfg** would be **!setting movement_unlock**. 
   
 - `!settings (css_settings)` - Displays an admin menu for enabling or disabling custom game settings.
-
-  ![Screenshot 2024-06-08 212010](https://github.com/nickj609/GameModeManager/assets/32173425/75fb865f-63ec-498c-84f8-b451d1edea45)
-
-  ![Screenshot 2024-06-08 212046](https://github.com/nickj609/GameModeManager/assets/32173425/34206829-f570-4b00-a025-795d8431057c)
 
 ## Player Commands
 The below commands require the ***@css/cvar*** role. 
