@@ -184,7 +184,7 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 
 > [!CAUTION]
 > - All configuration files must be within `/csgo/cfg/`.
-> - Your mapgroup file must use `css_mapgroup` to cycle the current map group.
+> - Your mode config files must use `css_mapgroup` to cycle the current map group.
 
 <details>
 <summary><b>Click to see Default Values</b></summary>
