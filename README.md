@@ -247,6 +247,37 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 ### Languages
 This plugin will display all in-game menus and messaging based on the player's preferred language. Below is an example language configuration file you can customize to your liking. The [CS2-CustomVotes](https://github.com/imi-tat0r/CS2-CustomVotes) plugin also has additional language files you can configure. 
 
+<details>
+<summary>Example Lang</summary>
+	
+```
+{
+  "plugin.prefix": "[{GREEN}Server{DEFAULT}]",
+  "changemap.message": "{LIGHTRED}{0}{DEFAULT} has changed the map to {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} has changed the game mode to {LIGHTRED}{1}{DEFAULT}.",
+  "enable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} has {LIGHTRED}Enabled{DEFAULT} setting {LIGHTRED}{1}{DEFAULT}.",
+  "disable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} has {LIGHTRED}Disabled{DEFAULT} setting {LIGHTRED}{1}{DEFAULT}.",
+  "menu.yes": "Yes",
+  "menu.no": "No",
+  "menu.enable": "Enable",
+  "menu.disable": "Disable",
+  "mode.show.menu-response": "Say {GREEN}!{0}{DEFAULT} to create a vote.",
+  "mode.vote.menu-title": "Change game mode to {GOLD}{0}{DEFAULT}?",
+  "modes.menu-title": "Game Mode List",
+  "modes.vote.menu-title": "Change game mode?",
+  "map.vote.menu-title": "Change map to {0}?",
+  "maps.menu-title": "Map List",
+  "maps.show.menu-response": "Say {GREEN}!{0}{DEFAULT} to create a vote.",
+  "setting.vote.menu-title": "Change setting {GOLD}{0}{DEFAULT}?",
+  "setting.show.menu-response": "Say {GREEN}!{0}{DEFAULT} to create a vote.",
+  "settings.menu-actions": "Setting Actions",
+  "settings.menu-title": "Setting List"
+}
+```
+
+</details>
+
+
 ## Logging
 >[!WARNING]
 > Due to the need to parse map groups and settings, you may have difficulties initially configuring the plugin, especially if your gamemodes_server.txt is not configured properly. All logs associated with this plugin can be found in the below location.
