@@ -335,26 +335,18 @@ namespace GameModeManager
                 {
                     if(_mapGroup.Name != null)
                     {
-
                         // Remove mode prefix
-                        var _regex = new Regex(@"^(mg_)");
-                        var _match = _regex.Match(_mapGroup.Name);
-                        string _mode = _mapGroup.Name;
-
-                        if (_match.Success) 
+                        if (new Regex(@"^(mg_)").Match(_mapGroup.Name).Success) 
                         {
                             // Create new mode name
-                            _mode = _mapGroup.Name.Substring(_match.Length);
+                            _mapGroup.Name = _mapGroup.Name.Substring(new Regex(@"^(mg_)").Match(_mapGroup.Name).Length);
                         }
 
                         // Add menu option
-                        ShowModesMenu.AddMenuOption(_mapGroup.DisplayName, (player, option) =>
+                        _ = ShowModesMenu.AddMenuOption(_mapGroup.DisplayName, (player, option) =>
                         {
-                            // Create message
-                            string _message = Localizer["mode.show.menu-response", _mode];
-
                             // Write to chat
-                            Server.PrintToChatAll(_message);
+                            Server.PrintToChatAll((string)Localizer["mode.show.menu-response", _mapGroup.Name]);
 
                             // Close menu
                             MenuManager.CloseActiveMenu(player);
@@ -363,7 +355,7 @@ namespace GameModeManager
                     else
                     {
                         // Split the string into parts by the underscore
-                        string[] _nameParts = (_mapGroup.Name ?? _defaultMapGroup.Name).Split('_');
+                        var _nameParts = (_mapGroup.Name ?? _defaultMapGroup.Name).Split('_');
 
                         // Get the last part (the actual map group name)
                         string _tempName = _nameParts[_nameParts.Length - 1]; 
