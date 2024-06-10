@@ -321,5 +321,97 @@ This plugin will display all in-game menus and messaging based on the player's p
 <details>
 <summary>How do I add custom settings?</summary>
 <br>
-To add custom settings, create two configuration files with the enable_ and disable_ prefix (i.e. enable_autobhop.cfg, disable_autobhop.cfg). Then, put those files in the `/csgo/cfg/settings/` folder. This is the default settings folder. You can change this folder in the configuration settings.
+
+To add custom settings, create two configuration files with the `enable_` and `disable_ prefix` (i.e. **enable_autobhop.cfg**, **disable_autobhop.cfg**). Then, put those files in the `/csgo/cfg/settings/` folder. This is the default settings folder. You can change this folder in the configuration settings.
+
+</details>
+
+<details>
+<summary>How do I add game modes?</summary>
+<br>
+
+To add game modes, update the JSON key pairs in the configuration file (`csgo/addons/counterstrikesharp/configs/plugins/GameModeManager/GameModeManager.json`). The first value is the name of the configuration file to be executed (i.e. `comp` for `comp.cfg`)
+
+```
+"GameMode": {
+    "Rotation": true,
+    "Interval": 4,
+    "Delay": 5,
+    "Style": "center",
+    "ListEnabled": true,
+    "List": {
+      "comp": "Competitive",
+      "1v1": "1 vs 1",
+      "aim": "Aim",
+      "awp": "AWP Only",
+      "scoutzknivez": "ScoutzKnives",
+      "wingman": "Wingman",
+      "gungame": "Gun Game",
+      "surf": "Surf",
+      "dm": "Deathmatch",
+      "dm-multicfg": "Deathmatch Multicfg",
+      "course": "Course",
+      "hns": "Hide N Seek",
+      "kz": "Kreedz",
+      "minigames": "Mini Games"
+    }
+```
+
+If you have `ListEnabled` set to `false`, game modes are generated based on the map groups in your map group file (default is `gamemodes_server.txt`).
+
+</details>
+
+<details>
+<summary> Why are friendly names not working?</summary>
+<br>
+
+Friendly names may not be working if you are not using the game mode list in the configuration file. This is because you need to add the `displayname` property to each map group in your map group file (default is `gamemodes_server.txt`).
+
+```
+  "mg_dm"
+	{
+		"imagename"				"mapgroup-bomb"
+		"displayname"				"Deathmatch"
+		"nameID"				"#SFUI_Mapgroup_allclassic"
+		"tooltipID"				"#SFUI_MapGroup_Tooltip_Desc_DeathMatch"
+		"name"					"mg_dm"
+		"icon_image_path"			"map_icons/mapgroup_icon_deathmatch"
+		"maps"
+		{
+			"ar_shoots"						""
+			"ar_baggage"						""
+			"workshop/3070550406/de_safehouse"			""
+			"workshop/3070563536/de_lake"				""
+			"workshop/3070581293/de_bank"				""
+			"workshop/3070923343/fy_pool_day"			""
+			"workshop/3070238628/fy_iceworld"			""
+		}
+	}
+```
+
+</details>
+
+<details>
+<summary>What are game mode and map rotations not working?</summary>
+<br>
+
+Game mode and map rotations do not work if RTV compatibility is enabled. Game mode and map rotations are only counted when handled by the plugins game event handler. 
+
+</details>
+
+<details>
+<summary>Why is RTV not working? </summary>
+<br>
+
+You need to install your own supported RTV plugin and update the JSON configuration file. Any RTV plugin with a `maplist.txt` file is supported. 
+
+```
+  "RTV": {
+    "Enabled": false,
+    "Plugin": "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll",
+    "MapListFile": "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt",
+    "DefaultMapFormat": false
+  },
+``` 
+
 </details>
