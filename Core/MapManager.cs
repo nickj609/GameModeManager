@@ -126,7 +126,7 @@ namespace GameModeManager
             Server.PrintToChatAll(Localizer["plugin.prefix"] + " Game has ended. Changing map...");
 
             // Check if RTV is disabled in config and if so enable randomization
-            if(!Config.RTV.Enabled)
+            if(!_RTV)
             {
                 if(CurrentMapGroup == null)
                 {

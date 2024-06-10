@@ -27,6 +27,10 @@ namespace GameModeManager
             }
             else if(_config.RTV.Enabled == true) 
             {
+                // Set RTV flag
+                _RTV = _config.RTV.Enabled;
+
+                // Check if plugin DLL exists
                 if (File.Exists(Path.Join(GameDirectory, _config.RTV.Plugin)))
                 {
                     _config.RTV.Plugin = Path.Join(GameDirectory, _config.RTV.Plugin);
@@ -36,6 +40,8 @@ namespace GameModeManager
                     Logger.LogError($"Cannot find RTV 'Plugin': {Path.Join(GameDirectory, _config.RTV.Plugin)}");
                     throw new Exception($"Cannot find RTV 'Plugin': {Path.Join(GameDirectory, _config.RTV.Plugin)}");
                 }
+
+                // Check if maplist exists
                 if (File.Exists(Path.Join(GameDirectory, _config.RTV.MapListFile))) 
                 {
                     _config.RTV.MapListFile = Path.Join(GameDirectory, _config.RTV.MapListFile);
@@ -45,6 +51,8 @@ namespace GameModeManager
                     Logger.LogError($"Cannot find RTV 'MapListFile': {_config.RTV.MapListFile}");
                     throw new Exception($"Cannot find RTV 'MapListFile': {_config.RTV.MapListFile}");
                 }
+
+                // Check if DefaultMapFormat is true or false
                 if (_config.RTV.DefaultMapFormat != true && _config.RTV.DefaultMapFormat != false)
                 {
                     Logger.LogError("Invalid: RTV 'DefaultMapFormat' should be 'true' or 'false'.");

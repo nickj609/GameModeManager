@@ -23,6 +23,8 @@ namespace GameModeManager
         // Define custom vote API and signal
         public static PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
         private bool _isCustomVotesLoaded = false;
+        private bool _RTV = false;
+
 
         // Construct On Load behavior
         public override void Load(bool hotReload)
@@ -69,11 +71,17 @@ namespace GameModeManager
                 Logger.LogError($"{ex.Message}");
             }
 
-            // Register EvenGameEnd handler if RTV is not enabled to perform map and game mode rotations
-            if(!Config.RTV.Enabled)
+
+            // Register event handler
+            try
             {
-                Logger.LogInformation($"Enabling game mode and map rotations...");
+                _RTV = Config.RTV.Enabled;
+                Logger.LogInformation($"Registering event handlers...");
                 RegisterEventHandler<EventCsIntermission>(EventGameEnd);
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError($"{ex.Message}");
             }
         }
         // When all plugins are loaded, register the CS2-CustomVotes plugin if it is enabled in the config

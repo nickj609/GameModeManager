@@ -64,6 +64,33 @@ namespace GameModeManager
             }
         }
 
+        // Construct server rtv command handler
+        [ConsoleCommand("css_rtv", "Enables RTV")]
+        [CommandHelper(minArgs: 1, usage: "true|false", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnRTVCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null) 
+            {
+               if (command.ArgByIndex(1) == "true" && _RTV == false)
+               {
+                    Logger.LogInformation($"Enabling RTV...");
+                    Server.ExecuteCommand($"css_plugins load {Config.RTV.Plugin}");
+
+                    Logger.LogInformation($"Disabling game mode and map rotations...");
+                    _RTV = true;
+               }
+               else if (command.ArgByIndex(1) == "false" && _RTV == true)
+               {
+                
+                    Logger.LogInformation($"Disabling RTV...");
+                    Server.ExecuteCommand($"css_plugins unload {Config.RTV.Plugin}");
+
+                    Logger.LogInformation($"Enabling game mode and map rotations...");
+                    _RTV = false;
+               }
+            }
+        }
+
         // Construct admin map menu command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
