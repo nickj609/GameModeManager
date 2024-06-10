@@ -7,23 +7,21 @@ assignees: ''
 ---
 
 ### Describe the bug
-A clear and concise description of what the bug is.
+_A clear and concise description of what the bug is._
 
 ### To Reproduce
-Steps to reproduce the behavior:
-1. Change map group
-2. Initiate a vote
+_Steps to reproduce the behavior_
 
 ### Expected behavior
-A clear and concise description of what you expected to happen.
+_A clear and concise description of what you expected to happen._
 
 ### Screenshots
-If applicable, add screenshots to help explain your problem.
+_If applicable, add screenshots to help explain your problem._
 
 ### Logging
-Please provide a copy of the log from `/csgo/counterstrikesharp/logs/`
+_Please provide a copy of the log from `/csgo/counterstrikesharp/logs/`_
 
-Example
+_Example_
 ```
 2024-06-07 21:31:26.872 +00:00 [INFO] plugin:GameModeManager Loading map groups...
 2024-06-07 21:31:26.888 +00:00 [INFO] plugin:GameModeManager Creating game modes...
@@ -33,4 +31,4 @@ Example
 ```
 
 ### Additional context
-Add any other context about the problem here.
+_Add any other context about the problem here._
