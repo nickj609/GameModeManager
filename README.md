@@ -6,15 +6,18 @@ A Counter-Strike 2 server plugin to help administrators manage custom game modes
 Inspired by [CS2 Modded Dedicated Server by Kus](https://github.com/kus/cs2-modded-server) and the [CS2 Rock The Vote plugin by Abnerfs](https://github.com/abnerfs/cs2-rockthevote).
 
 ## Description
-GameModeManager streamlines server administration with these features:
+Tired of manually managing game modes, settings, and maps?
 
-- **Admin Game Mode Menu:** Switch between game modes.
-- **Admin Setting Menu:** Enable or disable custom settings.
-- **Admin Map List Menu:** Switch between maps within the current game mode.
-- **Player Voting:** Voting for custom game modes, game settings, and maps.
-- **Default Map Cycles:** Automatically changes the map to a random map within the current map group.
-- **Game Mode Rotations:** Specify how often you want the game mode to change.
-- **RTV Compatibility:** Works seamlessly with your chosen RTV plugin, ensuring smooth rock-the-vote functionality.
+GameModeManager simplifies server administration for Counter-Strike 2 by providing:
+
+- **Admin menus** for modes, maps, and settings.
+- **Automatic rotation** for maps and game modes.
+- **Player voting** for maps, settings, and game modes.
+- **Dynamic map list and menu updates** based on the current game mode.
+- **Seamless integration** with your existing Rock the Vote (RTV) plugin.
+- **Customization options** for settings folders, voting styles, and languages.
+
+This plugin is perfect for servers with a variety of custom content or those that want to give players more control over their experience.
   
 ## Enjoying the plugin?
 Please drop a ⭐ star in the repository
@@ -32,7 +35,7 @@ For creating custom votes, this plugin utilizes the [CS2-CustomVotes](https://gi
 - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) (v.197+)
 
 ## RTV Plugin Compatibility
-This plugin is compatible with any RTV plugin using a maplist.txt file.
+This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 ![Screenshot 2024-03-21 161846](https://github.com/nickj609/GameModeManager/assets/32173425/1e291efb-fe7f-4f0d-bb2c-e21d042bd153)
 
@@ -161,7 +164,7 @@ This plugin is compatible with any RTV plugin using a maplist.txt file.
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Delay               | Map change change delay in seconds.                                                                                                       | 
 | Default             | Default map group on server start (i.e. mg_active).                                                                                       | 
-| File                | Map groups file name. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and WITHINin `/csgo/`.               |     
+| File                | Map groups file name in `/csgo/`. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).                         |     
 
 ### Game Mode Settings
 | Setting             | Description                                                                                                                               |
@@ -280,7 +283,7 @@ This plugin will display all in-game menus and messaging based on the player's p
 
 ## Logging
 >[!WARNING]
-> Due to the need to parse map groups and settings, you may have difficulties initially configuring the plugin, especially if your gamemodes_server.txt is not configured properly. All logs associated with this plugin can be found in the below location.
+> Due to the need to parse map groups and settings, you may have difficulties initially configuring the plugin, especially if your **map group file** is not configured properly. All logs associated with this plugin can be found in the below location.
 > 
 > `csgo/addons/counterstrikesharp/logs`
 
