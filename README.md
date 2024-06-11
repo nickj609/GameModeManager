@@ -43,9 +43,9 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 <details>
 <summary>Server Commands</summary>
 
-- `css_rtv <true|false>` - Enables or disables RTV. (_Comming Soon_)
+- `css_rtv <true|false>` - Enables or disables RTV.
 
-- `css_mapgroup <mg_name>` - Sets the map group and updates the map list and menus.
+- `css_mapgroup <mg_name>` - Sets the current map group.
 
 </details>
 	
