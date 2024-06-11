@@ -83,19 +83,19 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
    ![Screenshot 2024-06-08 212613](https://github.com/nickj609/GameModeManager/assets/32173425/fa6473c6-5372-4c4b-afb6-2ef5087ea550)
 
-- `!showmodes` - Menu to display all per mode votes that can be created.
+- `!showmodes` - Displays a menu of all per-mode votes that can be created.
 
    ![Screenshot 2024-06-08 212831](https://github.com/nickj609/GameModeManager/assets/32173425/8fd7e73f-c2e9-459d-bf33-9878de227f55)
 
    ![Screenshot 2024-06-08 213033](https://github.com/nickj609/GameModeManager/assets/32173425/4b252eb5-69ef-4973-89b8-b48c2f6f7019)
 
-- `!showsettings` - Menu to display all per setting votes that can be created.
+- `!showsettings` - Displays a menu of all per-setting votes that can be created.
 
    ![Screenshot 2024-06-08 212803](https://github.com/nickj609/GameModeManager/assets/32173425/16a907d1-3bd9-4416-bda6-4d6cc4c55030)
    
    ![Screenshot 2024-06-08 213008](https://github.com/nickj609/GameModeManager/assets/32173425/b6a34ec1-277f-4361-bd1c-0e405b20834f)
 
-- `!showmaps` - Menu to display all per map votes that can be created. This only shows maps from the current map group/game mode. 
+- `!showmaps` - Displays a menu of all per-map votes that can be created in the current game mode/map group. 
 
   ![Screenshot 2024-06-08 212858](https://github.com/nickj609/GameModeManager/assets/32173425/1ba2a65a-8867-420c-9576-5549fa5e5469)
 
