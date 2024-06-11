@@ -13,8 +13,8 @@ GameModeManager simplifies server administration for Counter-Strike 2 by providi
 - **Admin menus** for modes, maps, and settings.
 - **Automatic rotation** for maps and game modes.
 - **Player voting** for maps, settings, and game modes.
-- **Dynamic map list and menu updates** based on the current game mode.
 - **Seamless integration** with your existing Rock the Vote (RTV) plugin.
+- **Dynamic map list and menu updates** based on the current game mode.
 - **Customization options** for settings folders, voting styles, and languages.
 
 This plugin is perfect for servers with a variety of custom content or those that want to give players more control over their experience.
