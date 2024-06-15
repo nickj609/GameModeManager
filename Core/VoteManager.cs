@@ -23,6 +23,10 @@ namespace GameModeManager
             // Check if game mode votes are enable
             if(Config.Votes.GameMode)
             {
+                // Add votes to command list
+                Commands.Add("!gamemodes");
+                Commands.Add("!showmodes");
+
                 // Define mode options
                 var _modeOptions = new Dictionary<string, VoteOption>();
                 _modeOptions.Add("No", new VoteOption(Localizer["menu.no"], new List<string>()));
@@ -89,6 +93,9 @@ namespace GameModeManager
                             ); 
                         }
                     }
+
+                    // Update game commands menu
+                    UpdateGameMenu();
                 }
                 
                 // Register game modes vote
@@ -138,6 +145,9 @@ namespace GameModeManager
                     ); 
                 }
 
+                // Add vote to command list
+                Commands.Add("!showsettings");
+
                 // Set game setting vote flag
                 _settingVote = true;
             }
@@ -166,6 +176,10 @@ namespace GameModeManager
                     -1 // Minimum percentage of votes required (-1 behaves like 50%)
                 ); 
             }
+
+            // Add vote to command list
+            Commands.Add("!showmaps");
+
             // Set map vote flag
             _mapVote = true;
         }
@@ -183,6 +197,12 @@ namespace GameModeManager
                     Plugin.CustomVotesApi.Get()?.RemoveCustomVote(_map.Name);
                 }
                 
+                // Remove vote from command list
+                Commands.Remove("!showmaps");
+
+                // Update game menu
+                UpdateGameMenu();
+
                 // Set map vote flag
                 _mapVote = false;
             }
