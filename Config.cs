@@ -184,7 +184,7 @@ namespace GameModeManager
         }
         public class MapGroupSettings
         {
-            public float Delay { get; set; } = 5.0f; // Map change delay in seconds
+            public float Delay { get; set; } = 2.0f; // Map change delay in seconds
             public string Default { get; set; } = "mg_active"; // Default map group on server start
             public string File { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
         }
@@ -192,7 +192,7 @@ namespace GameModeManager
         {
             public bool Rotation { get; set; } = true; // Enables game mode rotation
             public int Interval { get; set; } = 4; // Changes game mode every x map rotations
-            public float Delay { get; set; } = 5.0f; // Game mode change delay in seconds
+            public float Delay { get; set; } = 2.0f; // Game mode change delay in seconds
             public string Style { get; set; } = "center"; // Changes admin menu type (i.e. "chat" or "center")
             public bool ListEnabled { get; set; } = true; // Enables custom game mode list. If set to false, generated from map groups.
             public Dictionary<string, string> List { get; set; } = new Dictionary<string, string>() // Custom game mode list
