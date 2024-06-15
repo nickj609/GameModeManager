@@ -291,7 +291,7 @@ namespace GameModeManager
                 ShowMapsMenu.AddMenuOption(_map.Name, (player, option) =>
                 {
                     // Create message
-                    string _message = Localizer["plugin.prefix"] + " " + Localizer["maps.show.menu-response", _map.Name];
+                    string _message = Localizer["maps.show.menu-response", _map.Name];
 
                     // Write to chat
                     player.PrintToChat(_message);
@@ -319,7 +319,7 @@ namespace GameModeManager
                     ShowModesMenu.AddMenuOption(_entry.Value, (player, option) =>
                     {
                         // Create message
-                        string _message = Localizer["plugin.prefix"] + " " + Localizer["mode.show.menu-response", _entry.Key];
+                        string _message = Localizer["mode.show.menu-response", _entry.Key];
 
                         // Write to chat
                         player.PrintToChat(_message);
@@ -399,7 +399,7 @@ namespace GameModeManager
                 ShowSettingsMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
                     // Create message
-                    string _message = Localizer["plugin.prefix"] + " " + Localizer["setting.show.menu-response", _setting.Name];
+                    string _message = Localizer["setting.show.menu-response", _setting.Name];
 
                     // Write to chat
                     player.PrintToChat(_message);
