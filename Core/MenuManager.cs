@@ -118,7 +118,7 @@ namespace GameModeManager
 
                 if(player != null && _plugin != null)
                 {
-                    OpenMenu(SettingsEnableMenu, Config.GameMode.Style, player);
+                    OpenMenu(SettingsEnableMenu, Config.Settings.Style, player);
                 }
             });
             SettingsMenu.AddMenuOption(Localizer["menu.disable"], (player, option) =>
@@ -128,7 +128,7 @@ namespace GameModeManager
                 if(player != null && _plugin != null)
                 {
                     // Open sub menu
-                    OpenMenu(SettingsDisableMenu, Config.GameMode.Style, player);
+                    OpenMenu(SettingsDisableMenu, Config.Settings.Style, player);
                     
                 }
             });
@@ -162,12 +162,15 @@ namespace GameModeManager
                         // Write to chat
                         Server.PrintToChatAll(_message);
 
-                        // Change game mode
-                        string _option = _entry.Key.ToLower();
-                        AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
-
                         // Close menu
                         MenuManager.CloseActiveMenu(player);
+
+                        // Change game mode
+                        string _option = _entry.Key.ToLower();
+                        AddTimer(Config.GameMode.Delay, () => 
+                        {
+                            Server.ExecuteCommand($"exec {_option}.cfg");
+                        }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     });
                 }
             }
@@ -187,12 +190,15 @@ namespace GameModeManager
                             // Write to chat
                             Server.PrintToChatAll(_message);
 
-                            // Change game mode
-                            string _option = option.Text.ToLower();
-                            AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
-
                             // Close menu
                             MenuManager.CloseActiveMenu(player);
+
+                            // Change game mode
+                            string _option = option.Text.ToLower();
+                            AddTimer(Config.GameMode.Delay, () => 
+                            {
+                                Server.ExecuteCommand($"exec {_option}.cfg");
+                            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                         });
                     }
                     else
@@ -214,12 +220,15 @@ namespace GameModeManager
                             // Write to chat
                             Server.PrintToChatAll(_message);
 
-                            // Change game mode
-                            string _option = option.Text.ToLower();
-                            AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
-
                             // Close menu
                             MenuManager.CloseActiveMenu(player);
+
+                            // Change game mode
+                            string _option = option.Text.ToLower();
+                            AddTimer(Config.GameMode.Delay, () => 
+                            {
+                                Server.ExecuteCommand($"exec {_option}.cfg");
+                            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                         });
 
                     }
@@ -240,12 +249,12 @@ namespace GameModeManager
         private void UpdateMapMenu(MapGroup _mapGroup)
         {
             // Assign menu
-            MapMenu = AssignMenu(Config.GameMode.Style, "Map List");
+            MapMenu = AssignMenu(Config.MapGroup.Style, "Map List");
 
             // Add menu options for each map in the new map list
             foreach (Map _map in _mapGroup.Maps)
             {
-                MapMenu.AddMenuOption(_map.Name, (player, option) =>
+                MapMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                 {
                     Map? _nextMap = _map;
 
@@ -261,11 +270,14 @@ namespace GameModeManager
                     // Write to chat
                     Server.PrintToChatAll(_message);
 
-                    // Change map
-                    AddTimer(Config.MapGroup.Delay, () => ChangeMap(_nextMap));
-
-                    // Close menu
+;                   // Close menu
                     MenuManager.CloseActiveMenu(player);
+
+                    // Change map
+                    AddTimer(Config.MapGroup.Delay, () => 
+                    {
+                        ChangeMap(_nextMap);
+                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 });
             }
 
@@ -276,6 +288,84 @@ namespace GameModeManager
             }
         }
 
+        // Define map menu
+        public static BaseMenu? GameMenu;
+
+        // Construct reusable function to update the game command menu
+        private void UpdateGameMenu()
+        {
+            // Assign menu
+            GameMenu = AssignMenu(Config.Settings.Style, "Game Commands");
+
+            // Add menu options for each map in the new map list
+            foreach (string _command in Commands)
+            {
+                GameMenu.AddMenuOption(_command, (player, option) =>
+                {
+                    // Close menu
+                    MenuManager.CloseActiveMenu(player);
+
+                    switch(option.Text)
+                    {
+                        case "!gamemodes":
+                        if (player != null && ShowMapsMenu != null && Config.Votes.Enabled == true && Config.Votes.GameMode == true)
+                        {
+                            // Create message
+                            string _message = Localizer["mode.show.menu-response", "gamemodes"];
+                            player.PrintToChat(_message);
+                        }
+                        break;
+                        case "!showmaps":
+                        if (player != null && ShowMapsMenu != null && Config.Votes.Enabled == true && Config.Votes.Map == true)
+                        {
+                            OpenMenu(ShowMapsMenu, Config.MapGroup.Style, player);
+                        }
+                        break;
+                        case "!showmodes":
+                        if (player != null && ShowModesMenu != null && Config.Votes.Enabled == true && Config.Votes.GameMode == true)
+                        {
+                            OpenMenu(ShowModesMenu, Config.GameMode.Style, player);
+                        }
+                        break;
+                        case "!showsettings":
+                        if (player != null && ShowSettingsMenu != null && Config.Votes.Enabled == true && Config.Votes.GameSetting == true)
+                        {
+                            OpenMenu(ShowSettingsMenu, Config.Settings.Style, player);
+                        }
+                        break;
+                        case "!currentmode":
+                        if (player != null && CurrentMapGroup != null)
+                        {
+                            // Create message
+                            string _message = Localizer["currentmode.message", CurrentMapGroup.DisplayName];
+
+                            // Write to chat
+                            player.PrintToChat(_message);
+                        }
+                        else if (player != null && CurrentMap == null)
+                        {
+                            player.PrintToChat("Current map group not set.");   
+                        }
+                        break;
+                        case "!currentmap":
+                        if (player != null && CurrentMap != null)
+                        {
+                            // Create message
+                            string _message = Localizer["currentmap.message", CurrentMap.Name];
+
+                            // Write to chat
+                            player.PrintToChat(_message);
+                        }
+                        else if (player != null && CurrentMap == null)
+                        {
+                            player.PrintToChat("Current map is not set.");
+                        }
+                        break;
+                    }
+                });
+            }
+        }
+
         // Define show map menu
         public static BaseMenu? ShowMapsMenu;
 
@@ -283,12 +373,12 @@ namespace GameModeManager
         private void UpdateShowMapsMenu()
         {
             // Assign menu
-            ShowMapsMenu =  AssignMenu(Config.GameMode.Style, "Map List");
+            ShowMapsMenu =  AssignMenu(Config.MapGroup.Style, "Map List");
 
             foreach (Map _map in CurrentMapGroup.Maps)
             {
                 // Add menu option
-                ShowMapsMenu.AddMenuOption(_map.Name, (player, option) =>
+                ShowMapsMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                 {
                     // Create message
                     string _message = Localizer["maps.show.menu-response", _map.Name];
@@ -371,12 +461,15 @@ namespace GameModeManager
                             // Write to chat
                             Server.PrintToChatAll(_message);
 
-                            // Change game mode
-                            string _option = option.Text.ToLower();
-                            AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
-
                             // Close menu
                             MenuManager.CloseActiveMenu(player);
+
+                            // Change game mode
+                            string _option = option.Text.ToLower();
+                            AddTimer(Config.GameMode.Delay, () => 
+                            {
+                                Server.ExecuteCommand($"exec {_option}.cfg");
+                            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                         });
 
                     }

@@ -61,9 +61,11 @@ namespace GameModeManager
     // Define plugin class
     public partial class Plugin : BasePlugin
     {
-        // Define default map group and default maps
+        // Define default map group, map, and map list
+        private static Map _defaultMap = new Map("de_dust2");
         private static List<Map> _defaultMaps = new List<Map>()
         {
+            new Map("de_dust2"),
             new Map("de_ancient"),
             new Map("de_anubis"),
             new Map("de_inferno"),
@@ -129,19 +131,37 @@ namespace GameModeManager
                                 foreach (VProperty _map in _maps)
                                 {
                                     string _mapName = _map.Key;
+                                    string _mapDisplayName = _map.Value.ToString();
 
                                     if (_mapName.StartsWith("workshop/"))
                                     {
                                         string[] parts = _mapName.Split('/');
                                         string _mapNameFormatted = parts[parts.Length - 1];
                                         string _mapWorkshopId = parts[1]; 
-                                        _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
-                                        Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
+
+                                        if (_mapDisplayName.Count() > 0)
+                                        {
+                                            _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
+                                            Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
+                                        }
+                                        else
+                                        {
+                                            _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
+                                            Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
+                                        }
                                     }
                                     else
                                     {
-                                        _group.Maps.Add(new Map(_mapName));
-                                        Maps.Add(new Map(_mapName));
+                                        if (_mapDisplayName.Count() > 0)
+                                        {
+                                            _group.Maps.Add(new Map(_mapName, "", _mapDisplayName));
+                                            Maps.Add(new Map(_mapName));
+                                        }
+                                        else
+                                        {
+                                            _group.Maps.Add(new Map(_mapName));
+                                            Maps.Add(new Map(_mapName));
+                                        }
                                     }
                                 }
                             }
@@ -161,8 +181,11 @@ namespace GameModeManager
                     }
                 }
                 // Set default map group from configuration file. If not found, use plugin default.
-                _defaultMapGroup = MapGroups.FirstOrDefault(g => g.Name == $"{Config.MapGroup}") ?? new MapGroup("mg_active", _defaultMaps);
+                _defaultMapGroup = MapGroups.FirstOrDefault(g => g.Name == $"{Config.MapGroup.Default}") ?? _defaultMapGroup;
                 CurrentMapGroup = _defaultMapGroup;
+
+                _defaultMap = Maps.FirstOrDefault(m => m.Name == $"{Config.MapGroup.DefaultMap}") ?? _defaultMap;
+                CurrentMap = _defaultMap;
 
                 // Update map list
                 UpdateMapList(_defaultMapGroup);

@@ -1,4 +1,5 @@
 // Included libraries
+using System.ComponentModel;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
@@ -10,17 +11,26 @@ namespace GameModeManager
     public class Map : IEquatable<Map>
     {
         public string Name { get; set; }
+        public string DisplayName { get; set; }
         public string WorkshopId { get; set; }
 
         public Map(string _name)
         {
             Name = _name;
+            DisplayName = _name; 
             WorkshopId = "";
         }
         
         public Map(string _name, string _workshopId)
         {
             Name = _name;
+            DisplayName = _name;
+            WorkshopId = _workshopId;
+        }
+        public Map(string _name, string _workshopId, string _displayName)
+        {
+            Name = _name;
+            DisplayName = _displayName;
             WorkshopId = _workshopId;
         }
 
@@ -29,7 +39,7 @@ namespace GameModeManager
             if (_other == null) return false;  // Handle null 
 
             // Implement your equality logic, e.g.;
-            return Name == _other.Name && WorkshopId == _other.WorkshopId;
+            return Name == _other.Name && WorkshopId == _other.WorkshopId && DisplayName == _other.DisplayName;
         }
 
         public void Clear()
@@ -113,9 +123,6 @@ namespace GameModeManager
             {
                 Server.ExecuteCommand($"ds_workshop_changelevel \"{_nextMap.Name}\"");
             }
-
-            // Set current map
-            CurrentMap = _nextMap;
         }
 
         // Construct EventGameEnd Handler to automatically change map at game end
@@ -156,6 +163,16 @@ namespace GameModeManager
                 }
             }
             _counter++;
+            return HookResult.Continue;
+        }
+
+        
+        // Construct EventMapTransition Handler to automatically change map at game end
+        private HookResult EventMapChange(EventMapTransition @event, GameEventInfo info)
+        {
+            Map _map = Maps.FirstOrDefault(m => m.Name == Server.MapName) ?? new Map(Server.MapName);
+            CurrentMap = _map;
+
             return HookResult.Continue;
         }
     }
