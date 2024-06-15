@@ -108,6 +108,10 @@ namespace GameModeManager
                 MapMenu.Title = Localizer["maps.menu-title"];
                 OpenMenu(MapMenu, Config.GameMode.Style, player);
             }
+            else
+            {
+                Console.Error.WriteLine("css_maps is a client only command.");
+            }
         }
 
         // Construct admin change map command handler
@@ -133,7 +137,10 @@ namespace GameModeManager
 
                 // Change map
                 AddTimer(Config.MapGroup.Delay, () => ChangeMap(_newMap));
-                
+            }
+            else
+            {
+                Console.Error.WriteLine("css_map is a client only command.");
             }
         }
 
@@ -144,34 +151,50 @@ namespace GameModeManager
         public void OnModeCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(player != null && _plugin != null)
-            {   
-                MapGroup? _mode;
+            {
+                string? _option = null;
+                MapGroup? _mapGroup = MapGroups?.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
+                KeyValuePair<string, string>? _mode = Config.GameMode.List?.FirstOrDefault(m => m.Key == $"{command.ArgByIndex(1)}");
+
                 if (Config.GameMode.ListEnabled != true)
                 {
-                    _mode = MapGroups.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
+                    _mapGroup = MapGroups?.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
+
+                    if (_mapGroup != null && _mapGroup.Name != null)
+                    {
+                        _option = _mapGroup.Name;
+                    }
                 }
                 else
                 {
-                    KeyValuePair<string, string> _gameMode = Config.GameMode.List.FirstOrDefault(m => m.Key == $"{command.ArgByIndex(1)}");
-                    _mode = new MapGroup(_gameMode.Key);
+                    _mode = Config.GameMode.List?.FirstOrDefault(m => m.Key == $"{command.ArgByIndex(1)}");
+
+                    if (_mode != null && _mode is KeyValuePair<string, string> kvp)
+                    {
+                        _option = kvp.Key;
+                    }
                 }
-                
-                if(_mode != null)
+
+                // Create message
+                string _message = Localizer["plugin.prefix"] + " " + Localizer["changemode.message", player.PlayerName, command.ArgByIndex(1)];
+
+                // Write to chat
+                Server.PrintToChatAll(_message);
+
+                // Change game mode
+                if (_option != null)
                 {
-                    // Create message
-                    string _message = Localizer["plugin.prefix"] + " " + Localizer["changemode.message", player.PlayerName, command.ArgByIndex(1)];
-
-                    // Write to chat
-                    Server.PrintToChatAll(_message);
-
-                    // Change game mode
-                    string _option = $"{command.ArgByIndex(1)}".ToLower();
+                    _option = _option.ToLower();
                     AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
                 }
                 else
                 {
-                    command.ReplyToCommand($"Can't find game mode: {command.ArgByIndex(1)}");
+                    command.ReplyToCommand($"Can't find mode: {command.ArgByIndex(1)}");
                 }
+            }
+            else
+            {
+                Console.Error.WriteLine("css_mode is a client only command.");
             }
         }
 
@@ -185,6 +208,10 @@ namespace GameModeManager
             {
                 ModeMenu.Title = Localizer["modes.menu-title"];
                 OpenMenu(ModeMenu, Config.GameMode.Style, player);
+            }
+            else
+            {
+                Console.Error.WriteLine("css_modes is a client only command.");
             }
         }
 
@@ -229,7 +256,6 @@ namespace GameModeManager
                     }
                     else
                     {
-                        
                         command.ReplyToCommand($"Unexpected argument: {_status}");
                     }  
                 }
@@ -237,6 +263,10 @@ namespace GameModeManager
                 {
                     command.ReplyToCommand($"Can't find setting: {_settingName}");
                 }
+            }
+            else
+            {
+                Console.Error.WriteLine("css_settings is a client only command.");
             }
         }
 
@@ -252,7 +282,10 @@ namespace GameModeManager
                 SettingsMenu.Title = Localizer["settings.menu-actions"];
                 OpenMenu(SettingsMenu, Config.Settings.Style, player);
             }
-            
+            else
+            {
+                Console.Error.WriteLine("css_settings is a client only command.");
+            }
         }
 
         // Construct show maps menu command handler
@@ -267,8 +300,13 @@ namespace GameModeManager
                 ShowMapsMenu.Title = Localizer["maps.menu-title"];
                 OpenMenu(ShowMapsMenu, Config.GameMode.Style, player);
             }
+            else
+            {
+                Console.Error.WriteLine("css_showmaps is a client only command.");
+            }
             
         }
+
         // Construct show maps menu command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
@@ -281,8 +319,12 @@ namespace GameModeManager
                 ShowModesMenu.Title = Localizer["modes.menu-title"];
                 OpenMenu(ShowModesMenu, Config.GameMode.Style, player);
             }
-            
+            else
+            {
+                Console.Error.WriteLine("css_showmodes is a client only command.");
+            }  
         }
+
         // Construct show maps menu command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
@@ -295,7 +337,10 @@ namespace GameModeManager
                 ShowSettingsMenu.Title = Localizer["settings.menu-title"];
                 OpenMenu(ShowSettingsMenu, Config.Settings.Style, player);
             }
-            
+            else
+            {
+                Console.Error.WriteLine("css_showsettings is a client only command.");
+            }
         }
     }
 }
