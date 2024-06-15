@@ -80,7 +80,7 @@ namespace GameModeManager
                 SettingsEnableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
                     // Create message
-                    string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + " " + Localizer["enable.changesetting.message", player.PlayerName, option.Text];
+                    string _message = Localizer["plugin.prefix"] + " " + Localizer["enable.changesetting.message", player.PlayerName, option.Text];
                     // Write to chat
                     Server.PrintToChatAll(_message);
 
@@ -98,7 +98,7 @@ namespace GameModeManager
                 SettingsDisableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
                     // Create message
-                    string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + " " + Localizer["disable.changesetting.message", player.PlayerName, option.Text];
+                    string _message = Localizer["plugin.prefix"] + " " + Localizer["disable.changesetting.message", player.PlayerName, option.Text];
 
                     // Write to chat
                     Server.PrintToChatAll(_message);
@@ -157,7 +157,7 @@ namespace GameModeManager
                     ModeMenu.AddMenuOption(_entry.Value, (player, option) =>
                     {
                         // Create message
-                        string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + " " + Localizer["changemode.message", player.PlayerName, option.Text];
+                        string _message = Localizer["plugin.prefix"] + " " + Localizer["changemode.message", player.PlayerName, option.Text];
 
                         // Write to chat
                         Server.PrintToChatAll(_message);
@@ -182,7 +182,7 @@ namespace GameModeManager
                         ModeMenu.AddMenuOption(_mapGroup.DisplayName, (player, option) =>
                         {
                              // Create message
-                            string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + " " + Localizer["changemode.message", player.PlayerName, option.Text];
+                            string _message = Localizer["plugin.prefix"] + " " + Localizer["changemode.message", player.PlayerName, option.Text];
 
                             // Write to chat
                             Server.PrintToChatAll(_message);
@@ -209,7 +209,7 @@ namespace GameModeManager
                         ModeMenu.AddMenuOption(_mapGroupName, (player, option) =>
                         {
                              // Create message
-                            string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + "" + Localizer["changemode.message", player.PlayerName, option.Text];
+                            string _message = Localizer["plugin.prefix"] + "" + Localizer["changemode.message", player.PlayerName, option.Text];
 
                             // Write to chat
                             Server.PrintToChatAll(_message);
@@ -256,7 +256,7 @@ namespace GameModeManager
                     }
 
                     // Create message
-                    string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + " " + Localizer["changemap.message", player.PlayerName, _nextMap.Name];
+                    string _message = Localizer["plugin.prefix"] + " " + Localizer["changemap.message", player.PlayerName, _nextMap.Name];
 
                     // Write to chat
                     Server.PrintToChatAll(_message);
@@ -291,7 +291,7 @@ namespace GameModeManager
                 ShowMapsMenu.AddMenuOption(_map.Name, (player, option) =>
                 {
                     // Create message
-                    string _message = Localizer["maps.show.menu-response", _map.Name];
+                    string _message = Localizer["plugin.prefix"] + " " + Localizer["maps.show.menu-response", _map.Name];
 
                     // Write to chat
                     player.PrintToChat(_message);
@@ -319,10 +319,10 @@ namespace GameModeManager
                     ShowModesMenu.AddMenuOption(_entry.Value, (player, option) =>
                     {
                         // Create message
-                        string _message = Localizer["mode.show.menu-response", _entry.Key];
+                        string _message = Localizer["plugin.prefix"] + " " + Localizer["mode.show.menu-response", _entry.Key];
 
                         // Write to chat
-                        Server.PrintToChatAll(_message);
+                        player.PrintToChat(_message);
 
                         // Close menu
                         MenuManager.CloseActiveMenu(player);
@@ -345,8 +345,8 @@ namespace GameModeManager
                         // Add menu option
                         _ = ShowModesMenu.AddMenuOption(_mapGroup.DisplayName, (player, option) =>
                         {
-                            // Write to chat
-                            Server.PrintToChatAll((string)Localizer["mode.show.menu-response", _mapGroup.Name]);
+                            // Write to player
+                            player.PrintToChat((string)Localizer["mode.show.menu-response", _mapGroup.Name]);
 
                             // Close menu
                             MenuManager.CloseActiveMenu(player);
@@ -366,7 +366,7 @@ namespace GameModeManager
                         ShowModesMenu.AddMenuOption(_mapGroupName, (player, option) =>
                         {
                              // Create message
-                            string _message = Localizer["plugin.prefix", player.PlayerName, option.Text] + "" + Localizer["changemode.message", player.PlayerName, option.Text];
+                            string _message = Localizer["plugin.prefix"] + " " + Localizer["changemode.message", player.PlayerName, option.Text];
 
                             // Write to chat
                             Server.PrintToChatAll(_message);
@@ -391,7 +391,7 @@ namespace GameModeManager
         private void SetupShowSettingsMenu()
         {
             // Assign menu
-            ShowSettingsMenu =  AssignMenu(Config.Settings.Style, "Setting List");
+            ShowSettingsMenu = AssignMenu(Config.Settings.Style, "Setting List");
             
             foreach (Setting _setting in Settings)
             {
@@ -399,7 +399,7 @@ namespace GameModeManager
                 ShowSettingsMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
                     // Create message
-                    string _message = Localizer["setting.show.menu-response", _setting.Name];
+                    string _message = Localizer["plugin.prefix"] + " " + Localizer["setting.show.menu-response", _setting.Name];
 
                     // Write to chat
                     player.PrintToChat(_message);
