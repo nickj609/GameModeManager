@@ -71,6 +71,15 @@ namespace GameModeManager
                 Logger.LogError($"{ex.Message}");
             }
 
+            // Create game command menu
+             try
+            {
+                UpdateGameMenu();
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError($"{ex.Message}");
+            }
 
             // Register event handler
             try
@@ -78,6 +87,7 @@ namespace GameModeManager
                 _RTV = Config.RTV.Enabled;
                 Logger.LogInformation($"Registering event handlers...");
                 RegisterEventHandler<EventCsIntermission>(EventGameEnd);
+                RegisterEventHandler<EventMapTransition>(EventMapChange);
             }
             catch(Exception ex)
             {
