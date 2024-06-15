@@ -65,7 +65,7 @@ namespace GameModeManager
         }
 
         // Construct server rtv command handler
-        [ConsoleCommand("css_rtv", "Enables RTV")]
+        [ConsoleCommand("css_rtv_enabled", "Enables or disables RTV.")]
         [CommandHelper(minArgs: 1, usage: "true|false", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -120,9 +120,9 @@ namespace GameModeManager
                     _newMap = _foundMap; 
                 }
                 // Write to chat
-                Server.PrintToChatAll(Localizer["changemap.message", player.PlayerName, _newMap.Name]);
+                Server.PrintToChatAll(Localizer["plugin.prefix"] + " " + Localizer["changemap.message", player.PlayerName, _newMap.Name]);
                 // Change map
-                AddTimer(5.0f, () => ChangeMap(_newMap));
+                AddTimer(Config.MapGroup.Delay, () => ChangeMap(_newMap));
             }
         }
 
@@ -134,8 +134,11 @@ namespace GameModeManager
         {
             if(player != null && _plugin != null)
             {
+                // Create message
+                string _message = Localizer["plugin.prefix"] + " " + Localizer["changemode.message", player.PlayerName, command.ArgByIndex(1)];
+
                 // Write to chat
-                Server.PrintToChatAll(Localizer["changemode.message", player.PlayerName, command.ArgByIndex(1)]);
+                Server.PrintToChatAll(_message);
 
                 // Change game mode
                 string _option = $"{command.ArgByIndex(1)}".ToLower();
@@ -175,16 +178,22 @@ namespace GameModeManager
                 {
                     if (_status == "enable")
                     {
+                        // Create message
+                        string _message = Localizer["plugin.prefix"] + " " + Localizer["enable.changesetting.message", player.PlayerName, _settingName];
+
                         // Write to chat
-                        Server.PrintToChatAll(Localizer["enable.changesetting.message", player.PlayerName, command.ArgByIndex(2)]);
+                        Server.PrintToChatAll(_message);
 
                         // Change game setting
                         Server.ExecuteCommand($"exec {Config.Settings.Folder}/{_option.Enable}");
                     }
                     else if (_status == "disable")
                     {
+                        // Create message
+                        string _message = Localizer["plugin.prefix"] + " " + Localizer["disable.changesetting.message", player.PlayerName, _settingName];
+
                         // Write to chat
-                        Server.PrintToChatAll(Localizer["disable.changesetting.message", player.PlayerName, command.ArgByIndex(2)]);
+                        Server.PrintToChatAll(_message);
 
                         // Change game setting
                         Server.ExecuteCommand($"exec {Config.Settings.Folder}/{_option.Disable}");
@@ -192,12 +201,12 @@ namespace GameModeManager
                     else
                     {
                         
-                        command.ReplyToCommand($"Unexpected argument: {command.ArgByIndex(1)}");
+                        command.ReplyToCommand($"Unexpected argument: {_status}");
                     }  
                 }
                 else
                 {
-                    command.ReplyToCommand($"Can't find setting: {command.ArgByIndex(2)}");
+                    command.ReplyToCommand($"Can't find setting: {_settingName}");
                 }
             }
         }
