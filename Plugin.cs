@@ -71,16 +71,6 @@ namespace GameModeManager
                 Logger.LogError($"{ex.Message}");
             }
 
-            // Create game command menu
-             try
-            {
-                UpdateGameMenu();
-            }
-            catch(Exception ex)
-            {
-                Logger.LogError($"{ex.Message}");
-            }
-
             // Register event handler
             try
             {
@@ -124,6 +114,16 @@ namespace GameModeManager
                 {
                     Logger.LogError($"{ex.Message}");
                 }
+            }
+
+            // Create game command menu
+             try
+            {
+                UpdateGameMenu(); 
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError($"{ex.Message}");
             }
         }
         // Constuct unload behavior to deregister votes
