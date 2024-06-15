@@ -12,7 +12,7 @@ namespace GameModeManager
     public partial class Plugin : BasePlugin
     {
         // Construct server map group command handler
-        [ConsoleCommand("css_mapgroup", "Sets the mapgroup for the MapListUpdater plugin.")]
+        [ConsoleCommand("css_mapgroup", "Sets the current mapgroup.")]
         [CommandHelper(minArgs: 1, usage: "mg_active", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnMapGroupCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -23,44 +23,46 @@ namespace GameModeManager
 
                 if (_mapGroup == null || _mapGroup.Name == null || _mapGroup.Maps == null)
                 {
-                    Logger.LogWarning("New map group could not be found. Setting default map group.");
-                    _mapGroup = _defaultMapGroup;
+                    command.ReplyToCommand($"Cannot find map group: {command.ArgByIndex(1)}");
                 }
-                Logger.LogInformation($"Current map group is {CurrentMapGroup.Name}.");
-                Logger.LogInformation($"New map group is {_mapGroup.Name}.");
+                else
+                {
+                    Logger.LogInformation($"Current map group is {CurrentMapGroup.Name}.");
+                    Logger.LogInformation($"New map group is {_mapGroup.Name}.");
 
-                // Update map list and map menu
-                try
-                {
-                    UpdateMapList(_mapGroup);
-                }
-                catch(Exception ex)
-                {
-                    Logger.LogError($"{ex.Message}");
-                }
+                    // Update map list and map menu
+                    try
+                    {
+                        UpdateMapList(_mapGroup);
+                    }
+                    catch(Exception ex)
+                    {
+                        Logger.LogError($"{ex.Message}");
+                    }
 
-                // Deregister map votes from old map group
-                try
-                {
-                    DeregisterMapVotes();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError($"{ex.Message}");
-                } 
+                    // Deregister map votes from old map group
+                    try
+                    {
+                        DeregisterMapVotes();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"{ex.Message}");
+                    } 
 
-                // Set new map group
-                CurrentMapGroup = _mapGroup;
+                    // Set new map group
+                    CurrentMapGroup = _mapGroup;
 
-                // Register map votes for new map group
-                try
-                {
-                    RegisterMapVotes();
+                    // Register map votes for new map group
+                    try
+                    {
+                        RegisterMapVotes();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"{ex.Message}");
+                    } 
                 }
-                catch (Exception ex)
-                {
-                    Logger.LogError($"{ex.Message}");
-                } 
             }
         }
 
@@ -71,7 +73,7 @@ namespace GameModeManager
         {
             if (player == null) 
             {
-               if (command.ArgByIndex(1) == "true" && _RTV == false)
+               if (command.ArgByIndex(1).ToLower() == "true" && _RTV == false)
                {
                     Logger.LogInformation($"Enabling RTV...");
                     Server.ExecuteCommand($"css_plugins load {Config.RTV.Plugin}");
@@ -79,7 +81,7 @@ namespace GameModeManager
                     Logger.LogInformation($"Disabling game mode and map rotations...");
                     _RTV = true;
                }
-               else if (command.ArgByIndex(1) == "false" && _RTV == true)
+               else if (command.ArgByIndex(1).ToLower() == "false" && _RTV == true)
                {
                 
                     Logger.LogInformation($"Disabling RTV...");
@@ -88,13 +90,17 @@ namespace GameModeManager
                     Logger.LogInformation($"Enabling game mode and map rotations...");
                     _RTV = false;
                }
+               else
+               {
+                    command.ReplyToCommand($"Unexpected argument: {command.ArgByIndex(1)}");
+               }
             }
         }
 
         // Construct admin map menu command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_maps", "Provides a list of maps for the current game mode.")]
+        [ConsoleCommand("css_maps", "Provides a list of maps from the current game mode.")]
         public void OnMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(player != null && _plugin != null && MapMenu != null)
@@ -112,17 +118,26 @@ namespace GameModeManager
         {
             if(player != null && _plugin != null)
             {
+                // Find map
                 Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
                 Map? _foundMap = Maps.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
 
                 if (_foundMap != null)
                 {
+                    // Assign map
                     _newMap = _foundMap; 
+
+                    // Write to chat
+                    Server.PrintToChatAll(Localizer["plugin.prefix"] + " " + Localizer["changemap.message", player.PlayerName, _newMap.Name]);
+
+                    // Change map
+                    AddTimer(Config.MapGroup.Delay, () => ChangeMap(_newMap));
                 }
-                // Write to chat
-                Server.PrintToChatAll(Localizer["plugin.prefix"] + " " + Localizer["changemap.message", player.PlayerName, _newMap.Name]);
-                // Change map
-                AddTimer(Config.MapGroup.Delay, () => ChangeMap(_newMap));
+                else
+                {
+                    command.ReplyToCommand($"Cannot find map: {command.ArgByIndex(1)}:{command.ArgByIndex(2)}");
+                }
+                
             }
         }
 
@@ -142,7 +157,7 @@ namespace GameModeManager
 
                 // Change game mode
                 string _option = $"{command.ArgByIndex(1)}".ToLower();
-                AddTimer(5.0f, () => Server.ExecuteCommand($"exec {_option}.cfg"));
+                AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
             }
         }
 
