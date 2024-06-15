@@ -144,16 +144,34 @@ namespace GameModeManager
         public void OnModeCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(player != null && _plugin != null)
-            {
-                // Create message
-                string _message = Localizer["plugin.prefix"] + " " + Localizer["changemode.message", player.PlayerName, command.ArgByIndex(1)];
+            {   
+                MapGroup? _mode;
+                if (Config.GameMode.ListEnabled != true)
+                {
+                    _mode = MapGroups.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
+                }
+                else
+                {
+                    KeyValuePair<string, string> _gameMode = Config.GameMode.List.FirstOrDefault(m => m.Key == $"{command.ArgByIndex(1)}");
+                    _mode = new MapGroup(_gameMode.Key);
+                }
+                
+                if(_mode != null)
+                {
+                    // Create message
+                    string _message = Localizer["plugin.prefix"] + " " + Localizer["changemode.message", player.PlayerName, command.ArgByIndex(1)];
 
-                // Write to chat
-                Server.PrintToChatAll(_message);
+                    // Write to chat
+                    Server.PrintToChatAll(_message);
 
-                // Change game mode
-                string _option = $"{command.ArgByIndex(1)}".ToLower();
-                AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
+                    // Change game mode
+                    string _option = $"{command.ArgByIndex(1)}".ToLower();
+                    AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
+                }
+                else
+                {
+                    command.ReplyToCommand($"Can't find game mode: {command.ArgByIndex(1)}");
+                }
             }
         }
 
