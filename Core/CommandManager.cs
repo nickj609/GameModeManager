@@ -152,10 +152,12 @@ namespace GameModeManager
         {
             if(player != null && _plugin != null)
             {
+                // Define variables
                 string? _option = null;
                 MapGroup? _mapGroup = MapGroups?.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
                 KeyValuePair<string, string>? _mode = Config.GameMode.List?.FirstOrDefault(m => m.Key == $"{command.ArgByIndex(1)}");
 
+                // Check if using mode list or map groups
                 if (Config.GameMode.ListEnabled != true)
                 {
                     _mapGroup = MapGroups?.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
@@ -175,20 +177,22 @@ namespace GameModeManager
                     }
                 }
 
-                // Create message
-                string _message = Localizer["plugin.prefix"] + " " + Localizer["changemode.message", player.PlayerName, command.ArgByIndex(1)];
-
-                // Write to chat
-                Server.PrintToChatAll(_message);
-
-                // Change game mode
+                // Check if mode or mapgroup is found
                 if (_option != null)
                 {
+                    // Create mode message
+                    string _message = Localizer["plugin.prefix"] + " " + Localizer["changemode.message", player.PlayerName, command.ArgByIndex(1)];
+
+                    // Write to chat
+                    Server.PrintToChatAll(_message);
+
+                    // Change mode
                     _option = _option.ToLower();
                     AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
                 }
                 else
                 {
+                    // Reply with not found message
                     command.ReplyToCommand($"Can't find mode: {command.ArgByIndex(1)}");
                 }
             }
