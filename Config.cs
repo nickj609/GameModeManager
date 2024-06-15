@@ -154,7 +154,7 @@ namespace GameModeManager
             }
 
             // Config version check
-            if (_config.Version < 2)
+            if (_config.Version < 3)
             {
                 Logger.LogError("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it.");
                 throw new Exception("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it");
@@ -177,15 +177,16 @@ namespace GameModeManager
         }
         public class GameSettings
         {
-            
             public bool Enabled { get; set; } = true; // Enable game settings
             public string Folder { get; set; } = "settings"; // Default settings folder
-            public string Style { get; set; } = "center"; // Changes admin menu type (i.e. "chat" or "center")
+            public string Style { get; set; } = "center"; // Changes settings menu type (i.e. "chat" or "center")
         }
         public class MapGroupSettings
         {
             public float Delay { get; set; } = 2.0f; // Map change delay in seconds
             public string Default { get; set; } = "mg_active"; // Default map group on server start
+            public string DefaultMap { get; set; } =  "de_dust2"; // Default map on server start
+            public string Style { get; set; } = "center"; // Changes map menu type (i.e. "chat" or "center")
             public string File { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
         }
         public class GameModeSettings
@@ -193,7 +194,7 @@ namespace GameModeManager
             public bool Rotation { get; set; } = true; // Enables game mode rotation
             public int Interval { get; set; } = 4; // Changes game mode every x map rotations
             public float Delay { get; set; } = 2.0f; // Game mode change delay in seconds
-            public string Style { get; set; } = "center"; // Changes admin menu type (i.e. "chat" or "center")
+            public string Style { get; set; } = "center"; // Changes mode menu type (i.e. "chat" or "center")
             public bool ListEnabled { get; set; } = true; // Enables custom game mode list. If set to false, generated from map groups.
             public Dictionary<string, string> List { get; set; } = new Dictionary<string, string>() // Custom game mode list
             {  
@@ -224,7 +225,7 @@ namespace GameModeManager
         }
 
         // Create config from classes
-         public override int Version { get; set; } = 2;
+         public override int Version { get; set; } = 3;
          public RTVSettings RTV { get; set; } = new RTVSettings();
          public MapGroupSettings MapGroup { get; set; } = new MapGroupSettings();
          public GameSettings Settings { get; set; } = new GameSettings();
