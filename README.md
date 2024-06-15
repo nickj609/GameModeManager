@@ -76,7 +76,25 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 <details>
 <summary>Player Commands</summary>
-	
+
+- `!game` - Displays a **dynamic** menu of all game mode manager commands.
+
+   
+
+- `!currentmap` - Displays the current map. 
+
+   
+
+- `!showmaps` - Displays a **dynamic** menu of all per-map votes that can be created.
+
+   ![Screenshot 2024-06-08 212858](https://github.com/nickj609/GameModeManager/assets/32173425/1ba2a65a-8867-420c-9576-5549fa5e5469)
+
+   ![Screenshot 2024-06-08 212923](https://github.com/nickj609/GameModeManager/assets/32173425/eb6a198a-a2cf-477b-ba02-ca6469bd38fc)
+
+- `!currentmode` - Displays the current game mode.
+
+   
+
 - `!changemode` - Creates a vote to change the game mode (all modes).
 
    ![Screenshot 2024-06-08 212539](https://github.com/nickj609/GameModeManager/assets/32173425/f5e3d915-4c01-45d5-95a2-a40b693e17bb)
@@ -95,11 +113,6 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
    
    ![Screenshot 2024-06-08 213008](https://github.com/nickj609/GameModeManager/assets/32173425/b6a34ec1-277f-4361-bd1c-0e405b20834f)
 
-- `!showmaps` - Displays a **dynamic** menu of all per-map votes that can be created.
-
-   ![Screenshot 2024-06-08 212858](https://github.com/nickj609/GameModeManager/assets/32173425/1ba2a65a-8867-420c-9576-5549fa5e5469)
-
-   ![Screenshot 2024-06-08 212923](https://github.com/nickj609/GameModeManager/assets/32173425/eb6a198a-a2cf-477b-ba02-ca6469bd38fc)
   
 </details>
 
