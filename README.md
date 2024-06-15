@@ -108,31 +108,31 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 2. Copy `addons` and `cfg` folders to `/csgo/`.
 3. Make sure your `gamemodes_server.txt` or custom map group file is in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and contains a list of map groups.
 
-   If you are not using the JSON configuration file for specifying game modes, include the "displayname" property within your `gamemodes_server.txt` or custom map group file for each map group.
-
+   If you want to use friendly names, include the "displayname" property within your `gamemodes_server.txt` or custom map group file for each map group. You also need to add a friendly name for maps.
+  
    <details>
    <summary>Example</summary>
    
    ```
    "mg_dm"
-	{
-		"imagename"				"mapgroup-bomb"
-		"displayname"				"Deathmatch"
-		"nameID"				"#SFUI_Mapgroup_allclassic"
-		"tooltipID"				"#SFUI_MapGroup_Tooltip_Desc_DeathMatch"
-		"name"					"mg_dm"
-		"icon_image_path"			"map_icons/mapgroup_icon_deathmatch"
-		"maps"
-		{
-			"ar_shoots"						""
-			"ar_baggage"						""
-			"workshop/3070550406/de_safehouse"			""
-			"workshop/3070563536/de_lake"				""
-			"workshop/3070581293/de_bank"				""
-			"workshop/3070923343/fy_pool_day"			""
-			"workshop/3070238628/fy_iceworld"			""
-		}
-	}
+   {
+     "imagename"				    "mapgroup-bomb"
+     "displayname"				  "Deathmatch"
+     "nameID"				      "#SFUI_Mapgroup_allclassic"
+     "tooltipID"				    "#SFUI_MapGroup_Tooltip_Desc_DeathMatch"
+     "name"					      "mg_dm"
+     "icon_image_path"			"map_icons/mapgroup_icon_deathmatch"
+     "maps"
+     {
+       "ar_shoots"						                  "Shoots"
+       "ar_baggage"						                "Baggage"
+       "workshop/3070550406/de_safehouse"			"Safehouse"
+       "workshop/3070563536/de_lake"				    "Lake"
+       "workshop/3070581293/de_bank"				    "Bank"
+       "workshop/3070923343/fy_pool_day"			  "Pool Day"
+       "workshop/3070238628/fy_iceworld"			  "Iceworld"
+     }
+   }
    ```
    
    </details>
@@ -369,26 +369,26 @@ If you have `ListEnabled` set to `false`, game modes are generated based on the 
 <summary> Why are friendly names not working?</summary>
 <br>
 
-Friendly names may not be working if you are not using the game mode list in the configuration file. This is because you need to add the `displayname` property to each map group in your map group file (default is `gamemodes_server.txt`).
+Friendly names may not be working if you do not update your map group file. This is because you need to add the `displayname` property to each map group in your map group file (default is `gamemodes_server.txt`). You may also need to add friendly names to your maps.
 
 ```
 "mg_dm"
 {
-  "imagename"				"mapgroup-bomb"
-  "displayname"				"Deathmatch"
-  "nameID"				"#SFUI_Mapgroup_allclassic"
-  "tooltipID"				"#SFUI_MapGroup_Tooltip_Desc_DeathMatch"
-  "name"					"mg_dm"
+  "imagename"				    "mapgroup-bomb"
+  "displayname"				  "Deathmatch"
+  "nameID"				      "#SFUI_Mapgroup_allclassic"
+  "tooltipID"				    "#SFUI_MapGroup_Tooltip_Desc_DeathMatch"
+  "name"					      "mg_dm"
   "icon_image_path"			"map_icons/mapgroup_icon_deathmatch"
   "maps"
   {
-    "ar_shoots"						""
-    "ar_baggage"						""
-    "workshop/3070550406/de_safehouse"			""
-    "workshop/3070563536/de_lake"				""
-    "workshop/3070581293/de_bank"				""
-    "workshop/3070923343/fy_pool_day"			""
-    "workshop/3070238628/fy_iceworld"			""
+    "ar_shoots"						                  "Shoots"
+    "ar_baggage"						                "Baggage"
+    "workshop/3070550406/de_safehouse"			"Safehouse"
+    "workshop/3070563536/de_lake"				    "Lake"
+    "workshop/3070581293/de_bank"				    "Bank"
+    "workshop/3070923343/fy_pool_day"			  "Pool Day"
+    "workshop/3070238628/fy_iceworld"			  "Iceworld"
   }
 }
 ```
