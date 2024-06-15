@@ -126,17 +126,13 @@ namespace GameModeManager
                 {
                     // Assign map
                     _newMap = _foundMap; 
-
-                    // Write to chat
-                    Server.PrintToChatAll(Localizer["plugin.prefix"] + " " + Localizer["changemap.message", player.PlayerName, _newMap.Name]);
-
-                    // Change map
-                    AddTimer(Config.MapGroup.Delay, () => ChangeMap(_newMap));
                 }
-                else
-                {
-                    command.ReplyToCommand($"Cannot find map: {command.ArgByIndex(1)}:{command.ArgByIndex(2)}");
-                }
+
+                // Write to chat
+                Server.PrintToChatAll(Localizer["plugin.prefix"] + " " + Localizer["changemap.message", player.PlayerName, _newMap.Name]);
+
+                // Change map
+                AddTimer(Config.MapGroup.Delay, () => ChangeMap(_newMap));
                 
             }
         }
