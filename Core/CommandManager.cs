@@ -11,9 +11,16 @@ namespace GameModeManager
 {
     public partial class Plugin : BasePlugin
     {
+        // Define default commands
+        public static List<string> Commands = new List<string>()
+        {
+            "!currentmode",
+            "!currentmap"
+        };
+
         // Construct server map group command handler
         [ConsoleCommand("css_mapgroup", "Sets the current mapgroup.")]
-        [CommandHelper(minArgs: 1, usage: "mg_active", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "<mg_active>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnMapGroupCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player == null) 
@@ -50,8 +57,9 @@ namespace GameModeManager
                         Logger.LogError($"{ex.Message}");
                     } 
 
-                    // Set new map group
+                    // Set new map group and map
                     CurrentMapGroup = _mapGroup;
+                    CurrentMap = _mapGroup.Maps.FirstOrDefault();
 
                     // Register map votes for new map group
                     try
@@ -68,7 +76,7 @@ namespace GameModeManager
 
         // Construct server rtv command handler
         [ConsoleCommand("css_rtv_enabled", "Enables or disables RTV.")]
-        [CommandHelper(minArgs: 1, usage: "true|false", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "<true|false>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player == null) 
@@ -116,7 +124,7 @@ namespace GameModeManager
 
         // Construct admin change map command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 1, usage: "[map name] optional: [id]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "<map_name> optional: <workshop id>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         [ConsoleCommand("css_map", "Changes the map to the map specified in the command argument.")]
         public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -136,7 +144,10 @@ namespace GameModeManager
                 Server.PrintToChatAll(Localizer["plugin.prefix"] + " " + Localizer["changemap.message", player.PlayerName, _newMap.Name]);
 
                 // Change map
-                AddTimer(Config.MapGroup.Delay, () => ChangeMap(_newMap));
+                AddTimer(Config.MapGroup.Delay, () => 
+                {
+                    ChangeMap(_newMap);
+                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
             else
             {
@@ -146,7 +157,7 @@ namespace GameModeManager
 
         // Construct admin change mode command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 1, usage: "[mode]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "<mode>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         [ConsoleCommand("css_mode", "Changes the game mode to the mode specified in the command argument.")]
         public void OnModeCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -188,7 +199,10 @@ namespace GameModeManager
 
                     // Change mode
                     _option = _option.ToLower();
-                    AddTimer(Config.GameMode.Delay, () => Server.ExecuteCommand($"exec {_option}.cfg"));
+                    AddTimer(Config.GameMode.Delay, () => 
+                    {
+                        Server.ExecuteCommand($"exec {_option}.cfg");
+                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 }
                 else
                 {
@@ -210,10 +224,11 @@ namespace GameModeManager
         {
             if(player != null && _plugin != null && ModeMenu != null)
             {
+                // Open menu
                 ModeMenu.Title = Localizer["modes.menu-title"];
                 OpenMenu(ModeMenu, Config.GameMode.Style, player);
             }
-            else
+            else if (player == null)
             {
                 Console.Error.WriteLine("css_modes is a client only command.");
             }
@@ -221,7 +236,7 @@ namespace GameModeManager
 
         // Construct admin change setting command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 2, usage: "[enable/disable] [setting name]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [CommandHelper(minArgs: 2, usage: "<enable|disable> <setting name>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         [ConsoleCommand("css_setting", "Changes the game setting specified.")]
         public void OnSettingCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -268,7 +283,7 @@ namespace GameModeManager
                     command.ReplyToCommand($"Can't find setting: {_settingName}");
                 }
             }
-            else
+            else if (player == null)
             {
                 Console.Error.WriteLine("css_settings is a client only command.");
             }
@@ -286,7 +301,7 @@ namespace GameModeManager
                 SettingsMenu.Title = Localizer["settings.menu-actions"];
                 OpenMenu(SettingsMenu, Config.Settings.Style, player);
             }
-            else
+            else if (player == null)
             {
                 Console.Error.WriteLine("css_settings is a client only command.");
             }
@@ -298,15 +313,18 @@ namespace GameModeManager
         [ConsoleCommand("css_showmaps", "Provides a list of maps from current mode.")]
         public void OnShowMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _plugin != null && ShowMapsMenu != null)
+            if(Config.Votes.Enabled == true && Config.Votes.Map == true)
             {
-                // Open menu
-                ShowMapsMenu.Title = Localizer["maps.menu-title"];
-                OpenMenu(ShowMapsMenu, Config.GameMode.Style, player);
-            }
-            else
-            {
-                Console.Error.WriteLine("css_showmaps is a client only command.");
+                if(player != null && _plugin != null && ShowMapsMenu != null)
+                {
+                    // Open menu
+                    ShowMapsMenu.Title = Localizer["maps.menu-title"];
+                    OpenMenu(ShowMapsMenu, Config.GameMode.Style, player);
+                }
+                else if (player == null)
+                {
+                    Console.Error.WriteLine("css_showmaps is a client only command.");
+                }
             }
             
         }
@@ -317,16 +335,19 @@ namespace GameModeManager
         [ConsoleCommand("css_showmodes", "Provides a list of game modes.")]
         public void OnShowModesCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _plugin != null && ShowModesMenu != null)
+            if(Config.Votes.Enabled == true && Config.Votes.GameMode == true)
             {
-                // Open menu
-                ShowModesMenu.Title = Localizer["modes.menu-title"];
-                OpenMenu(ShowModesMenu, Config.GameMode.Style, player);
+                if(player != null && _plugin != null && ShowModesMenu != null)
+                {
+                    // Open menu
+                    ShowModesMenu.Title = Localizer["modes.menu-title"];
+                    OpenMenu(ShowModesMenu, Config.GameMode.Style, player);
+                }
+                else if (player == null)
+                {
+                    Console.Error.WriteLine("css_showmodes is a client only command.");
+                }  
             }
-            else
-            {
-                Console.Error.WriteLine("css_showmodes is a client only command.");
-            }  
         }
 
         // Construct show maps menu command handler
@@ -335,15 +356,85 @@ namespace GameModeManager
         [ConsoleCommand("css_showsettings", "Provides a list of game settings.")]
         public void OnShowSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _plugin != null && ShowSettingsMenu != null)
+            if(Config.Votes.Enabled == true && Config.Votes.GameSetting == true)
+            {
+                if(player != null && _plugin != null && ShowSettingsMenu != null)
+                {
+                    // Open menu
+                    ShowSettingsMenu.Title = Localizer["settings.menu-title"];
+                    OpenMenu(ShowSettingsMenu, Config.Settings.Style, player);
+                }
+                else if (player == null)
+                {
+                    Console.Error.WriteLine("css_showsettings is a client only command.");
+                }
+            }
+            
+        }
+
+        // Construct game menu command handler
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [ConsoleCommand("css_game", "Provides a list of game commands.")]
+        public void OnGameCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if(player != null && _plugin != null && GameMenu != null)
             {
                 // Open menu
-                ShowSettingsMenu.Title = Localizer["settings.menu-title"];
-                OpenMenu(ShowSettingsMenu, Config.Settings.Style, player);
+                GameMenu.Title = Localizer["game.menu-title"];
+                OpenMenu(GameMenu, Config.Settings.Style, player);
             }
-            else
+            else if (player == null)
             {
-                Console.Error.WriteLine("css_showsettings is a client only command.");
+                Console.Error.WriteLine("css_game is a client only command.");
+            }
+        }
+
+        // Construct current map command handler
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [ConsoleCommand("css_currentmap", "Displays current map.")]
+        public void OnCurrentMapCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player != null && CurrentMap != null)
+            {
+                // Create message
+                string _message = Localizer["currentmap.message", CurrentMap.DisplayName];
+
+                // Write to chat
+                player.PrintToChat(_message);
+            }
+            else if (player != null && CurrentMap == null)
+            {
+                player.PrintToChat("Current map is not set.");
+            }
+            else if (player == null)
+            {
+                Console.Error.WriteLine("css_game is a client only command.");
+            }
+        }
+
+        // Construct current map command handler
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [ConsoleCommand("css_currentmode", "Displays current map.")]
+        public void OnCurrentModeCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player != null && CurrentMapGroup != null)
+            {
+                // Create message
+                string _message = Localizer["currentmode.message", CurrentMapGroup.DisplayName];
+
+                // Write to chat
+                player.PrintToChat(_message);
+            }
+            else if (player != null && CurrentMapGroup == null)
+            {
+                player.PrintToChat("Current map group not set.");   
+            }
+            else if (player == null)
+            {
+                Console.Error.WriteLine("css_game is a client only command.");
             }
         }
     }
