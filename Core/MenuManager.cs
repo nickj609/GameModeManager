@@ -311,7 +311,7 @@ namespace GameModeManager
                         if (player != null && ShowMapsMenu != null && Config.Votes.Enabled == true && Config.Votes.GameMode == true)
                         {
                             // Create message
-                            string _message = Localizer["mode.show.menu-response", "gamemodes"];
+                            string _message = Localizer["mode.show.menu-response", "changemode"];
                             player.PrintToChat(_message);
                         }
                         break;
