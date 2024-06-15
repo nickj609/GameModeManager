@@ -307,7 +307,7 @@ namespace GameModeManager
 
                     switch(option.Text)
                     {
-                        case "!gamemodes":
+                        case "!changemode":
                         if (player != null && ShowMapsMenu != null && Config.Votes.Enabled == true && Config.Votes.GameMode == true)
                         {
                             // Create message

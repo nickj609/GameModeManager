@@ -24,7 +24,7 @@ namespace GameModeManager
             if(Config.Votes.GameMode)
             {
                 // Add votes to command list
-                Commands.Add("!gamemodes");
+                Commands.Add("!changemode");
                 Commands.Add("!showmodes");
 
                 // Define mode options
