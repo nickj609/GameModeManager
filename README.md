@@ -55,22 +55,33 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 - `!maps` - Displays an admin menu for changing the map. 
 
    > _It only shows maps for the current game mode/map group._
-   
+
+   ![Screenshot 2024-06-15 214126](https://github.com/nickj609/GameModeManager/assets/32173425/6da6d946-c876-4182-b7d2-8bb4e8d7341f)
+  
+   ![Screenshot 2024-06-15 215052](https://github.com/nickj609/GameModeManager/assets/32173425/a3d701c6-bba5-446f-90b4-fe849b901a84)
+
 - `!map <map name> <workshop id>` - Changes the map to the map specified.
   
    > _The worksop ID is *optional* and only required for maps that aren't explicitly set for a given map group._
-
+   
 - `!modes` - Displays an admin menu for changing the game mode.
+
+   ![Screenshot 2024-06-15 214427](https://github.com/nickj609/GameModeManager/assets/32173425/2c6448e7-b101-423b-a5d0-f93d7775e71f)
+  
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/3f517755-d3cf-48fd-a331-d0332cfd48b3)
 
 - `!mode <mode name>` - Changes the game mode to the mode specified.
   
-   > _For example, for **mg_surf** you would do **!mode surf**._ 
+   > _For example, for **mg_surf** you would do **!mode surf**._
 
 - `!settings` - Displays an admin menu for enabling or disabling custom game settings.
 
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/d0481582-2eb5-4cc9-99cf-51c0dcec2acf)
+   ![Screenshot 2024-06-15 215321](https://github.com/nickj609/GameModeManager/assets/32173425/882da0f6-36f4-4bc1-b70b-096535526a78)
+
 - `!setting <enable|disable> <setting name>` - Enables or disables a custom game setting.
   
-   > _For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**._   
+   > _For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**._
 
 </details>
 
