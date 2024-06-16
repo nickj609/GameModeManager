@@ -52,25 +52,25 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 <details>
 <summary>Admin Commands</summary>
 
-- `!map <map name> <id>` - Changes the map to the map specified.
-  
-   > _The map ID is *optional* and only required for maps that aren't explicitly set for a given map group._
-
-- `!maps (css_maps)` - Displays a **dynamic** admin menu for changing the map. 
+- `!maps` - Displays an admin menu for changing the map. 
 
    > _It only shows maps for the current game mode/map group._
    
-- `!mode <mode name> (css_mode)` - Changes the game mode to the mode specified.
+- `!map <map name> <workshop id>` - Changes the map to the map specified.
+  
+   > _The worksop ID is *optional* and only required for maps that aren't explicitly set for a given map group._
+
+- `!modes` - Displays an admin menu for changing the game mode.
+
+- `!mode <mode name>` - Changes the game mode to the mode specified.
   
    > _For example, for **mg_surf** you would do **!mode surf**._ 
-  
-- `!modes (css_modes)` - Displays an admin menu for changing the game mode.
 
-- `!setting <enable|disable> <setting name> (css_setting)` - Enables or disables a custom game setting.
+- `!settings` - Displays an admin menu for enabling or disabling custom game settings.
+
+- `!setting <enable|disable> <setting name>` - Enables or disables a custom game setting.
   
-   > _For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**._ 
-  
-- `!settings (css_settings)` - Displays an admin menu for enabling or disabling custom game settings.
+   > _For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**._   
 
 </details>
 
