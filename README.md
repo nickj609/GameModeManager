@@ -79,33 +79,33 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!game` - Displays a **dynamic** menu of all game mode manager commands.
 
-   
+   ![Screenshot 2024-06-15 202045](https://github.com/nickj609/GameModeManager/assets/32173425/51451ff1-df41-4b51-881a-a8727d5cbffd)
 
 - `!currentmap` - Displays the current map. 
 
-   
+   ![Screenshot 2024-06-15 202240](https://github.com/nickj609/GameModeManager/assets/32173425/1d9f9e12-2320-4ab8-a021-c4a5477e533a)
 
 - `!showmaps` - Displays a **dynamic** menu of all per-map votes that can be created.
 
-   ![Screenshot 2024-06-08 212858](https://github.com/nickj609/GameModeManager/assets/32173425/1ba2a65a-8867-420c-9576-5549fa5e5469)
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/1fe0914e-0a48-477c-b5a7-6f57abc391ba)
 
-   ![Screenshot 2024-06-08 212923](https://github.com/nickj609/GameModeManager/assets/32173425/eb6a198a-a2cf-477b-ba02-ca6469bd38fc)
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/793e6d64-2b89-4875-8410-cef3982ee8aa)
 
 - `!currentmode` - Displays the current game mode.
 
-   
+   ![Screenshot 2024-06-15 202302](https://github.com/nickj609/GameModeManager/assets/32173425/b546851b-6e2d-4e3a-a012-be8b4223a8cb)
 
 - `!changemode` - Creates a vote to change the game mode (all modes).
 
    ![Screenshot 2024-06-08 212539](https://github.com/nickj609/GameModeManager/assets/32173425/f5e3d915-4c01-45d5-95a2-a40b693e17bb)
 
-   ![Screenshot 2024-06-08 212613](https://github.com/nickj609/GameModeManager/assets/32173425/fa6473c6-5372-4c4b-afb6-2ef5087ea550)
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/d516adef-5ead-445e-9fa3-30a275d80e17)
 
 - `!showmodes` - Displays a menu of all per-mode votes that can be created.
 
    ![Screenshot 2024-06-08 212831](https://github.com/nickj609/GameModeManager/assets/32173425/8fd7e73f-c2e9-459d-bf33-9878de227f55)
 
-   ![Screenshot 2024-06-08 213033](https://github.com/nickj609/GameModeManager/assets/32173425/4b252eb5-69ef-4973-89b8-b48c2f6f7019)
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/bbca59d5-7ac8-4f16-bcb9-b42941899546)
 
 - `!showsettings` - Displays a menu of all per-setting votes that can be created.
 
@@ -269,6 +269,9 @@ This plugin will display all in-game menus and messaging based on the player's p
 ```
 {
   "plugin.prefix": "[{GREEN}Server{DEFAULT}]",
+  "game.menu-title": "Game Commands",
+  "currentmap.message": "{RED}[Current Map]{DEFAULT} {0}",
+  "currentmode.message": "{GREEN}[Current Mode]{DEFAULT} {0}",
   "changemap.message": "{LIGHTRED}{0}{DEFAULT} has changed the map to {LIGHTRED}{1}{DEFAULT}.",
   "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} has changed the game mode to {LIGHTRED}{1}{DEFAULT}.",
   "enable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} has {LIGHTRED}Enabled{DEFAULT} setting {LIGHTRED}{1}{DEFAULT}.",
