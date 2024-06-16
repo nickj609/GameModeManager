@@ -93,9 +93,6 @@ namespace GameModeManager
                             ); 
                         }
                     }
-
-                    // Update game commands menu
-                    UpdateGameMenu();
                 }
                 
                 // Register game modes vote
@@ -179,6 +176,9 @@ namespace GameModeManager
 
             // Add vote to command list
             Commands.Add("!showmaps");
+
+            // Update game menu
+            UpdateGameMenu();
 
             // Set map vote flag
             _mapVote = true;

@@ -284,7 +284,7 @@ namespace GameModeManager
             // Update show maps menu with new map list
             if(Config.Votes.Map)
             {
-                UpdateShowMapsMenu();
+                UpdateShowMapsMenu(_mapGroup);
             }
         }
 
@@ -370,12 +370,12 @@ namespace GameModeManager
         public static BaseMenu? ShowMapsMenu;
 
         // Construct resuable function to set up show maps menu
-        private void UpdateShowMapsMenu()
+        private void UpdateShowMapsMenu(MapGroup _mapGroup)
         {
             // Assign menu
-            ShowMapsMenu =  AssignMenu(Config.MapGroup.Style, "Map List");
+            ShowMapsMenu = AssignMenu(Config.MapGroup.Style, "Map List");
 
-            foreach (Map _map in CurrentMapGroup.Maps)
+            foreach (Map _map in _mapGroup.Maps)
             {
                 // Add menu option
                 ShowMapsMenu.AddMenuOption(_map.DisplayName, (player, option) =>
