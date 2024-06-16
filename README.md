@@ -52,25 +52,36 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 <details>
 <summary>Admin Commands</summary>
 
-- `!map <map name> <id>` - Changes the map to the map specified.
-  
-   > _The map ID is *optional* and only required for maps that aren't explicitly set for a given map group._
-
-- `!maps (css_maps)` - Displays a **dynamic** admin menu for changing the map. 
+- `!maps` - Displays an admin menu for changing the map. 
 
    > _It only shows maps for the current game mode/map group._
-   
-- `!mode <mode name> (css_mode)` - Changes the game mode to the mode specified.
-  
-   > _For example, for **mg_surf** you would do **!mode surf**._ 
-  
-- `!modes (css_modes)` - Displays an admin menu for changing the game mode.
 
-- `!setting <enable|disable> <setting name> (css_setting)` - Enables or disables a custom game setting.
+   ![Screenshot 2024-06-15 214126](https://github.com/nickj609/GameModeManager/assets/32173425/6da6d946-c876-4182-b7d2-8bb4e8d7341f)
   
-   > _For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**._ 
+   ![Screenshot 2024-06-15 215052](https://github.com/nickj609/GameModeManager/assets/32173425/a3d701c6-bba5-446f-90b4-fe849b901a84)
+
+- `!map <map name> <workshop id>` - Changes the map to the map specified.
   
-- `!settings (css_settings)` - Displays an admin menu for enabling or disabling custom game settings.
+   > _The worksop ID is *optional* and only required for maps that aren't explicitly set for a given map group._
+   
+- `!modes` - Displays an admin menu for changing the game mode.
+
+   ![Screenshot 2024-06-15 214427](https://github.com/nickj609/GameModeManager/assets/32173425/2c6448e7-b101-423b-a5d0-f93d7775e71f)
+  
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/3f517755-d3cf-48fd-a331-d0332cfd48b3)
+
+- `!mode <mode name>` - Changes the game mode to the mode specified.
+  
+   > _For example, for **mg_surf** you would do **!mode surf**._
+
+- `!settings` - Displays an admin menu for enabling or disabling custom game settings.
+
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/d0481582-2eb5-4cc9-99cf-51c0dcec2acf)
+   ![Screenshot 2024-06-15 215321](https://github.com/nickj609/GameModeManager/assets/32173425/882da0f6-36f4-4bc1-b70b-096535526a78)
+
+- `!setting <enable|disable> <setting name>` - Enables or disables a custom game setting.
+  
+   > _For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**._
 
 </details>
 
@@ -79,33 +90,33 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!game` - Displays a **dynamic** menu of all game mode manager commands.
 
-   
+   ![Screenshot 2024-06-15 202045](https://github.com/nickj609/GameModeManager/assets/32173425/51451ff1-df41-4b51-881a-a8727d5cbffd)
 
 - `!currentmap` - Displays the current map. 
 
-   
+   ![Screenshot 2024-06-15 202240](https://github.com/nickj609/GameModeManager/assets/32173425/1d9f9e12-2320-4ab8-a021-c4a5477e533a)
 
 - `!showmaps` - Displays a **dynamic** menu of all per-map votes that can be created.
 
-   ![Screenshot 2024-06-08 212858](https://github.com/nickj609/GameModeManager/assets/32173425/1ba2a65a-8867-420c-9576-5549fa5e5469)
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/1fe0914e-0a48-477c-b5a7-6f57abc391ba)
 
-   ![Screenshot 2024-06-08 212923](https://github.com/nickj609/GameModeManager/assets/32173425/eb6a198a-a2cf-477b-ba02-ca6469bd38fc)
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/793e6d64-2b89-4875-8410-cef3982ee8aa)
 
 - `!currentmode` - Displays the current game mode.
 
-   
+   ![Screenshot 2024-06-15 202302](https://github.com/nickj609/GameModeManager/assets/32173425/b546851b-6e2d-4e3a-a012-be8b4223a8cb)
 
 - `!changemode` - Creates a vote to change the game mode (all modes).
 
    ![Screenshot 2024-06-08 212539](https://github.com/nickj609/GameModeManager/assets/32173425/f5e3d915-4c01-45d5-95a2-a40b693e17bb)
 
-   ![Screenshot 2024-06-08 212613](https://github.com/nickj609/GameModeManager/assets/32173425/fa6473c6-5372-4c4b-afb6-2ef5087ea550)
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/d516adef-5ead-445e-9fa3-30a275d80e17)
 
 - `!showmodes` - Displays a menu of all per-mode votes that can be created.
 
    ![Screenshot 2024-06-08 212831](https://github.com/nickj609/GameModeManager/assets/32173425/8fd7e73f-c2e9-459d-bf33-9878de227f55)
 
-   ![Screenshot 2024-06-08 213033](https://github.com/nickj609/GameModeManager/assets/32173425/4b252eb5-69ef-4973-89b8-b48c2f6f7019)
+   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/bbca59d5-7ac8-4f16-bcb9-b42941899546)
 
 - `!showsettings` - Displays a menu of all per-setting votes that can be created.
 
@@ -269,6 +280,9 @@ This plugin will display all in-game menus and messaging based on the player's p
 ```
 {
   "plugin.prefix": "[{GREEN}Server{DEFAULT}]",
+  "game.menu-title": "Game Commands",
+  "currentmap.message": "{RED}[Current Map]{DEFAULT} {0}",
+  "currentmode.message": "{GREEN}[Current Mode]{DEFAULT} {0}",
   "changemap.message": "{LIGHTRED}{0}{DEFAULT} has changed the map to {LIGHTRED}{1}{DEFAULT}.",
   "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} has changed the game mode to {LIGHTRED}{1}{DEFAULT}.",
   "enable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} has {LIGHTRED}Enabled{DEFAULT} setting {LIGHTRED}{1}{DEFAULT}.",
