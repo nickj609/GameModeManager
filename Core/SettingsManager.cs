@@ -8,7 +8,6 @@ namespace GameModeManager
     // Plugin class
     public class SettingsManager : IPluginDependency<Plugin, Config>
     {
-
         // Define settings list
         public static List<Setting> Settings = new List<Setting>();
 
