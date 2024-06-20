@@ -347,7 +347,7 @@ namespace GameModeManager
                 GameMenu = AssignMenu(_config.Settings.Style, "Game Commands");
 
                 // Add menu options for each map in the new map list
-                foreach (string _command in PluginState.Commands)
+                foreach (string _command in PluginState.PlayerCommands)
                 {
                     GameMenu.AddMenuOption(_command, (player, option) =>
                     {

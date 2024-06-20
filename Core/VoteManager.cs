@@ -40,8 +40,8 @@ namespace GameModeManager
                 if(_config.Votes.GameMode)
                 {
                     // Add votes to command list
-                    PluginState.Commands.Add("!changemode");
-                    PluginState.Commands.Add("!showmodes");
+                    PluginState.PlayerCommands.Add("!changemode");
+                    PluginState.PlayerCommands.Add("!showmodes");
 
                     // Define mode options
                     var _modeOptions = new Dictionary<string, VoteOption>();
@@ -135,7 +135,6 @@ namespace GameModeManager
                     }
                 }
             
-            
                 if(_config.Votes.GameSetting)
                 {
                     foreach (Setting _setting in SettingsManager.Settings)
@@ -160,7 +159,7 @@ namespace GameModeManager
                     }
 
                     // Add vote to command list
-                    PluginState.Commands.Add("!showsettings");
+                    PluginState.PlayerCommands.Add("!showsettings");
 
                     // Set game setting vote flag
                     SettingVote = true;
@@ -195,7 +194,7 @@ namespace GameModeManager
                 }
 
                 // Add vote to command list
-                PluginState.Commands.Add("!showmaps");
+                PluginState.PlayerCommands.Add("!showmaps");
 
                 // Update game menu
                 MenuFactory.UpdateGameMenu();
@@ -219,7 +218,7 @@ namespace GameModeManager
                 }
                 
                 // Remove vote from command list
-                PluginState.Commands.Remove("!showmaps");
+                PluginState.PlayerCommands.Remove("!showmaps");
 
                 // Update game menu
                 MenuFactory.UpdateGameMenu();
