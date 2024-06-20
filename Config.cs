@@ -162,6 +162,7 @@ namespace GameModeManager
 
             // Set config
             Config = _config;
+            _dependencyManager.OnConfigParsed(_config);
         }
     }
     public class Config : BasePluginConfig
