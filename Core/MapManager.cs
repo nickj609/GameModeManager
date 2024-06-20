@@ -1,5 +1,4 @@
 // Included libraries
-using System.ComponentModel;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
@@ -7,108 +6,143 @@ using Microsoft.Extensions.Logging;
 // Declare namespace
 namespace GameModeManager
 {
-    // Define Map class
-    public class Map : IEquatable<Map>
+    // Define plugin class
+    public partial class Plugin : BasePlugin
     {
-        public string Name { get; set; }
-        public string DisplayName { get; set; }
-        public string WorkshopId { get; set; }
+        private int MapRotations = 0;
+        public HookResult EventGameEnd(EventCsWinPanelMatch @event, GameEventInfo info)
+        {
+            if (_localizer != null)
+            {
+                Logger.LogInformation("Game has ended. Picking random map from current map group...");
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
+            }
 
-        public Map(string _name)
-        {
-            Name = _name;
-            DisplayName = _name; 
-            WorkshopId = "";
-        }
-        
-        public Map(string _name, string _workshopId)
-        {
-            Name = _name;
-            DisplayName = _name;
-            WorkshopId = _workshopId;
-        }
-        public Map(string _name, string _workshopId, string _displayName)
-        {
-            Name = _name;
-            DisplayName = _displayName;
-            WorkshopId = _workshopId;
+            // Check if RTV is disabled in config and if so enable randomization
+            if(!PluginState.RTVEnabled)
+            {
+                if(PluginState.CurrentMapGroup == null)
+                {
+                    PluginState.CurrentMapGroup = PluginState.DefaultMapGroup;
+                }         
+
+                // Check if game mode rotation is enabled
+                if(Config.GameMode.Rotation && (float)MapRotations % Config.GameMode.Interval == 0)
+                {  
+                    // Get random game mode
+                    Random _rnd = new Random();
+                    int _randomIndex = _rnd.Next(0, PluginState.MapGroups.Count); 
+                    MapGroup _randomMode = PluginState.MapGroups[_randomIndex];
+
+                    // Change mode
+                    Server.ExecuteCommand($"exec {_randomMode.Name}.cfg");
+                }
+                else
+                {
+                    // Get a random map
+                    Random _rnd = new Random();
+                    int _randomIndex = _rnd.Next(0, PluginState.CurrentMapGroup.Maps.Count); 
+                    Map _randomMap = PluginState.CurrentMapGroup.Maps[_randomIndex];
+
+                    // Change map
+                    MapManager.ChangeMap(_randomMap);
+                }
+            }
+            MapRotations++;
+            return HookResult.Continue;
         }
 
-        public bool Equals(Map? _other) 
+        // Construct EventMapTransition Handler to automatically change map at game end
+        public HookResult EventMapChange(EventMapTransition @event, GameEventInfo info)
         {
-            if (_other == null) return false;  // Handle null 
+            if(PluginState.Maps != null)
+            {
+                Map _map = PluginState.Maps.FirstOrDefault(m => m.Name == Server.MapName) ?? new Map(Server.MapName);
+                PluginState.CurrentMap = _map;
+            }
 
-            // Implement your equality logic, e.g.;
-            return Name == _other.Name && WorkshopId == _other.WorkshopId && DisplayName == _other.DisplayName;
-        }
-
-        public void Clear()
-        {
-            Name = "";
-            WorkshopId = "";
+            return HookResult.Continue;
         }
     }
 
-    // Plugin class
-    public partial class Plugin : BasePlugin
+    // Define MapManager class
+    public class MapManager : IPluginDependency<Plugin, Config>
     {
-        // Define current map and map list
-        public static Map? CurrentMap;     
-        public static List<Map> Maps = new List<Map>();
-       
+        // Define dependencies
+        private static Config? _config;
+        private static Plugin? _plugin;
+        private static ILogger? _logger;
+        private static StringLocalizer? _localizer;
+
+        // Load dependencies
+        public void OnLoad(Plugin plugin)
+        { 
+            _plugin = plugin;
+            _logger = plugin.Logger;
+            _localizer = new StringLocalizer(plugin.Localizer);
+        }
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
         // Construct reusable function to update map list
-        private void UpdateMapList(MapGroup _group)
+        public static void UpdateMapList(MapGroup _group)
         {  
-            // If using RTV Plugin
-            if(Config.RTV.Enabled)
+            if (_logger != null)
             {
-                // Update map list for RTV Plugin
-                try 
+                // If using RTV Plugin
+                if(_config != null &&_config.RTV.Enabled)
                 {
-                    using (StreamWriter writer = new StreamWriter(Config.RTV.MapListFile))
+                    // Update map list for RTV Plugin
+                    try 
                     {
-                        foreach (Map _map in _group.Maps)  
+                        using (StreamWriter writer = new StreamWriter(_config.RTV.MapListFile))
                         {
-                            if (string.IsNullOrEmpty(_map.WorkshopId))
+                            foreach (Map _map in _group.Maps)  
                             {
-                                writer.WriteLine(_map.Name);
-                            }
-                            else
-                            {
-                                if(Config.RTV.DefaultMapFormat)
+                                if (string.IsNullOrEmpty(_map.WorkshopId))
                                 {
-                                    writer.WriteLine($"ws:{_map.WorkshopId}");
+                                    writer.WriteLine(_map.Name);
                                 }
                                 else
                                 {
-                                    writer.WriteLine($"{_map.Name}:{_map.WorkshopId}");
+                                    if(_config.RTV.DefaultMapFormat)
+                                    {
+                                        writer.WriteLine($"ws:{_map.WorkshopId}");
+                                    }
+                                    else
+                                    {
+                                        writer.WriteLine($"{_map.Name}:{_map.WorkshopId}");
+                                    }
                                 }
-                            }
+                            } 
                         } 
                     } 
-                } 
-                catch (IOException ex)
-                {
-                    Logger.LogError("Could not update map list.");
-                    Logger.LogError($"{ex.Message}");
+                    catch (IOException ex)
+                    {
+                        _logger.LogError("Could not update map list.");
+                        _logger.LogError($"{ex.Message}");
+                    }
+
+                    // Reload RTV Plugin
+                    Server.ExecuteCommand($"css_plugins reload {_config.RTV.Plugin}");
                 }
 
-                // Reload RTV Plugin
-                Server.ExecuteCommand($"css_plugins reload {Config.RTV.Plugin}");
-            }
-            // Update map list for map menu
-            try
-            {
-                UpdateMapMenu(_group);
-            }
-            catch(Exception ex)
-            {
-                Logger.LogError($"{ex.Message}");
+                // Update map list for map menu
+                try
+                {
+                    MenuFactory.UpdateMapMenu(_group);
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogError($"{ex.Message}");
+                }
             }
         }
 
         // Construct reusable function to change map
-        private void ChangeMap(Map _nextMap)
+        public static void ChangeMap(Map _nextMap)
         {
             // If map valid, change map based on map type
             if (Server.IsMapValid(_nextMap.Name))
@@ -125,55 +159,5 @@ namespace GameModeManager
             }
         }
 
-        // Construct EventGameEnd Handler to automatically change map at game end
-        int _counter = 0;
-        private HookResult EventGameEnd(EventCsIntermission @event, GameEventInfo info)
-        {
-            Logger.LogInformation("Game has ended. Picking random map from current map group...");
-            Server.PrintToChatAll(Localizer["plugin.prefix"] + " Game has ended. Changing map...");
-
-            // Check if RTV is disabled in config and if so enable randomization
-            if(!_RTV)
-            {
-                if(CurrentMapGroup == null)
-                {
-                    CurrentMapGroup = _defaultMapGroup;
-                }         
-
-                // Check if game mode rotation is enabled
-                if(Config.GameMode.Rotation && (float)_counter % Config.GameMode.Interval == 0)
-                {  
-                    // Get random game mode
-                    Random _rnd = new Random();
-                    int _randomIndex = _rnd.Next(0, MapGroups.Count); 
-                    MapGroup _randomMode = MapGroups[_randomIndex];
-
-                    // Change mode
-                    Server.ExecuteCommand($"exec {_randomMode.Name}.cfg");
-                }
-                else
-                {
-                    // Get a random map
-                    Random _rnd = new Random();
-                    int _randomIndex = _rnd.Next(0, CurrentMapGroup.Maps.Count); 
-                    Map _randomMap = CurrentMapGroup.Maps[_randomIndex];
-
-                    // Change map
-                    ChangeMap(_randomMap);
-                }
-            }
-            _counter++;
-            return HookResult.Continue;
-        }
-
-        
-        // Construct EventMapTransition Handler to automatically change map at game end
-        private HookResult EventMapChange(EventMapTransition @event, GameEventInfo info)
-        {
-            Map _map = Maps.FirstOrDefault(m => m.Name == Server.MapName) ?? new Map(Server.MapName);
-            CurrentMap = _map;
-
-            return HookResult.Continue;
-        }
     }
 }

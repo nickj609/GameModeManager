@@ -45,7 +45,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `css_mapgroup <mg_name>` - Sets the current map group.
 
-- `css_rtv_enabled <true|false>` - Enables or disables RTV.
+- `css_rtvEnabled_enabled <true|false>` - Enables or disables RTV.
 
 </details>
 	

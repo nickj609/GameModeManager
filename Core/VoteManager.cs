@@ -1,5 +1,4 @@
 // Included libraries
-using CounterStrikeSharp.API.Core;
 using System.Text.RegularExpressions;
 
 // Copyright (c) 2024 imi-tat0r
@@ -10,132 +9,185 @@ using CS2_CustomVotes.Shared.Models;
 // Declare namespace
 namespace GameModeManager
 {
-    public partial class Plugin : BasePlugin
+    public class VoteManager
     {
+
         // Define vote flags for deregistration
-        bool _gamemodeVote = false;
-        bool _settingVote = false;
-        bool _mapVote = false;
+        private static bool MapVote = false;
+        private static bool SettingVote = false;
+        private static bool GameModeVote = false;
+
+        // Define dependencies
+        private static Config? _config;
+        private static StringLocalizer? _localizer;
+
+        // Load dependencies
+        public void OnLoad(Plugin plugin)
+        { 
+            _localizer = new StringLocalizer(plugin.Localizer);
+        }
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
 
         // Construct reusable function to register custom votes
-        private void RegisterCustomVotes()
+        public static void RegisterCustomVotes()
         {
-            // Check if game mode votes are enable
-            if(Config.Votes.GameMode)
+            if(_config != null && _localizer != null)
             {
-                // Add votes to command list
-                Commands.Add("!changemode");
-                Commands.Add("!showmodes");
-
-                // Define mode options
-                var _modeOptions = new Dictionary<string, VoteOption>();
-                _modeOptions.Add("No", new VoteOption(Localizer["menu.no"], new List<string>()));
-
-                // Check if using game mode list or map group list
-                if (Config.GameMode.ListEnabled)
+                // Check if game mode votes are enable
+                if(_config.Votes.GameMode)
                 {
-                    // Add vote menu option for each game mode in game mode list
-                    foreach (KeyValuePair<string, string> _entry in Config.GameMode.List)
-                    {
-                        // Add mode to all modes vote
-                        string _option=_entry.Key.ToLower();
-                        _modeOptions.Add(_entry.Value, new VoteOption(_entry.Value, new List<string> { $"exec {_option}.cfg" }));
+                    // Add votes to command list
+                    PluginState.Commands.Add("!changemode");
+                    PluginState.Commands.Add("!showmodes");
 
-                        // Create per mode vote
-                        Plugin.CustomVotesApi.Get()?.AddCustomVote(
-                            _option, // Command to trigger the vote
-                            new List<string>(), // Aliases for the command (optional)
-                            Localizer["mode.vote.menu-title", _entry.Value], // Description
-                            "No", // Default
-                            30, // Time to vote
-                            new Dictionary<string, VoteOption> // vote options
-                            {
-                                { "Yes", new VoteOption(Localizer["menu.yes"], new List<string> { $"exec {_option}.cfg" })},
-                                { "No", new VoteOption(Localizer["menu.no"], new List<string>())},
-                            },
-                            "center", // Menu style  - "center" or "chat"
-                            -1 // Minimum percentage of votes required (-1 behaves like 50%)
-                        ); 
-                    }
-                }
-                else
-                {
-                    // Add vote menu option for each map group
-                    foreach (MapGroup _mapGroup in MapGroups)
-                    {
-                        // Define regex for map group prefix
-                        var _regex = new Regex(@"^(mg_)");
-                        var _match = _regex.Match(_mapGroup.Name);
+                    // Define mode options
+                    var _modeOptions = new Dictionary<string, VoteOption>();
+                    _modeOptions.Add("No", new VoteOption(_localizer.Localize("menu.no"), new List<string>()));
 
-                        // Add game mode to all game modes vote
-                        if (_match.Success) 
+                    // Check if using game mode list or map group list
+                    if (_config.GameMode.ListEnabled)
+                    {
+                        // Add vote menu option for each game mode in game mode list
+                        foreach (KeyValuePair<string, string> _entry in _config.GameMode.List)
                         {
-                            // Remove mode prefix
-                            string _option = _mapGroup.Name.Substring(_match.Length);
-                
-                            // Add mode as vote menu option for all modes vote
-                            _modeOptions.Add(_mapGroup.DisplayName, new VoteOption(_mapGroup.DisplayName, new List<string> { $"exec {_option}.cfg" }));
+                            // Add mode to all modes vote
+                            string _option=_entry.Key.ToLower();
+                            _modeOptions.Add(_entry.Value, new VoteOption(_entry.Value, new List<string> { $"exec {_option}.cfg" }));
 
                             // Create per mode vote
                             Plugin.CustomVotesApi.Get()?.AddCustomVote(
                                 _option, // Command to trigger the vote
                                 new List<string>(), // Aliases for the command (optional)
-                                Localizer["mode.vote.menu-title", _mapGroup.DisplayName], // Description
-                                "No", 
+                                _localizer.Localize("mode.vote.menu-title", _entry.Value), // Description
+                                "No", // Default
                                 30, // Time to vote
                                 new Dictionary<string, VoteOption> // vote options
                                 {
-                                    { "Yes", new VoteOption(Localizer["menu.yes"], new List<string> { $"exec {_option}.cfg" })},
-                                    { "No", new VoteOption(Localizer["menu.no"], new List<string>())},
+                                    { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"exec {_option}.cfg" })},
+                                    { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
                                 },
                                 "center", // Menu style  - "center" or "chat"
                                 -1 // Minimum percentage of votes required (-1 behaves like 50%)
                             ); 
                         }
                     }
+                    else
+                    {
+                        // Add vote menu option for each map group
+                        foreach (MapGroup _mapGroup in PluginState.MapGroups)
+                        {
+                            // Define regex for map group prefix
+                            var _regex = new Regex(@"^(mg_)");
+                            var _match = _regex.Match(_mapGroup.Name);
+
+                            // Add game mode to all game modes vote
+                            if (_match.Success) 
+                            {
+                                // Remove mode prefix
+                                string _option = _mapGroup.Name.Substring(_match.Length);
+                    
+                                // Add mode as vote menu option for all modes vote
+                                _modeOptions.Add(_mapGroup.DisplayName, new VoteOption(_mapGroup.DisplayName, new List<string> { $"exec {_option}.cfg" }));
+
+                                // Create per mode vote
+                                Plugin.CustomVotesApi.Get()?.AddCustomVote(
+                                    _option, // Command to trigger the vote
+                                    new List<string>(), // Aliases for the command (optional)
+                                    _localizer.Localize("mode.vote.menu-title", _mapGroup.DisplayName), // Description
+                                    "No", 
+                                    30, // Time to vote
+                                    new Dictionary<string, VoteOption> // vote options
+                                    {
+                                        { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"exec {_option}.cfg" })},
+                                        { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
+                                    },
+                                    "center", // Menu style  - "center" or "chat"
+                                    -1 // Minimum percentage of votes required (-1 behaves like 50%)
+                                ); 
+                            }
+                        }
+                    }
+                    
+                    // Register game modes vote
+                    Plugin.CustomVotesApi.Get()?.AddCustomVote(
+                        "changemode", // Command to trigger the vote
+                        new List<string> {"cm"}, // aliases for the command (optional)
+                        _localizer.Localize("modes.vote.menu-title"), // Description
+                        "No", // Default option
+                        30, // Time to vote
+                        _modeOptions, // All options
+                        "center", // Menu style  - "center" or "chat"
+                        -1 // Minimum percentage of votes required (-1 behaves like 50%)
+                    ); 
+
+                    // Set game mode vote flag
+                    GameModeVote = true;
+
+                    // Register map votes
+                    if(_config.Votes.Map == true)
+                    {
+                        RegisterMapVotes();
+                        // Set map vote flag
+                        MapVote = true;
+                    }
                 }
-                
-                // Register game modes vote
-                Plugin.CustomVotesApi.Get()?.AddCustomVote(
-                    "changemode", // Command to trigger the vote
-                    new List<string> {"cm"}, // aliases for the command (optional)
-                    Localizer["modes.vote.menu-title"], // Description
-                    "No", // Default option
-                    30, // Time to vote
-                    _modeOptions, // All options
-                    "center", // Menu style  - "center" or "chat"
-                    -1 // Minimum percentage of votes required (-1 behaves like 50%)
-                ); 
-
-                // Set game mode vote flag
-                _gamemodeVote = true;
-
-                // Register map votes
-                if(Config.Votes.Map == true)
+            
+            
+                if(_config.Votes.GameSetting)
                 {
-                    RegisterMapVotes();
-                    // Set map vote flag
-                    _mapVote = true;
+                    foreach (Setting _setting in SettingsManager.Settings)
+                    {
+
+                    // Register per setting vote
+                        Plugin.CustomVotesApi.Get()?.AddCustomVote(
+                            _setting.Name, // Command to trigger the vote
+                            new List<string>(), // Aliases for the command (optional)
+                            _localizer.Localize("setting.vote.menu-title", _setting.DisplayName), // Description
+                            "No", // Default option
+                            30, // Time to vote
+                            new Dictionary<string, VoteOption> // vote options
+                            {
+                                { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
+                                { "Enable", new VoteOption(_localizer.Localize("menu.enable"), new List<string> { $"exec {_config.Settings.Folder}/{_setting.Enable}" })},
+                                { "Disable", new VoteOption(_localizer.Localize("menu.disable"), new List<string>{ $"exec {_config.Settings.Folder}/{_setting.Disable}" })},
+                            },
+                            "center", // Menu style  - "center" or "chat"
+                            -1 // Minimum percentage of votes required (-1 behaves like 50%)
+                        ); 
+                    }
+
+                    // Add vote to command list
+                    PluginState.Commands.Add("!showsettings");
+
+                    // Set game setting vote flag
+                    SettingVote = true;
                 }
             }
-        
-            if(Config.Votes.GameSetting)
-            {
-                foreach (Setting _setting in Settings)
-                {
+        }
 
-                   // Register per setting vote
+        public static void RegisterMapVotes()
+        {
+            if(_config != null && _localizer != null && PluginState.CurrentMapGroup != null)
+            {
+                // Get maps from current map group
+                List<Map> _maps = PluginState.CurrentMapGroup.Maps;
+
+                // Register per map vote
+                foreach (Map _map in _maps)
+                {
                     Plugin.CustomVotesApi.Get()?.AddCustomVote(
-                        _setting.Name, // Command to trigger the vote
+                        _map.Name, // Command to trigger the vote
                         new List<string>(), // Aliases for the command (optional)
-                        Localizer["setting.vote.menu-title", _setting.DisplayName], // Description
-                        "No", // Default option
+                        _localizer.Localize("map.vote.menu-title", _map.Name), // Description
+                        "No", 
                         30, // Time to vote
                         new Dictionary<string, VoteOption> // vote options
                         {
-                            { "No", new VoteOption(Localizer["menu.no"], new List<string>())},
-                            { "Enable", new VoteOption(Localizer["menu.enable"], new List<string> { $"exec {Config.Settings.Folder}/{_setting.Enable}" })},
-                            { "Disable", new VoteOption(Localizer["menu.disable"], new List<string>{ $"exec {Config.Settings.Folder}/{_setting.Disable}" })},
+                            { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"css_map {_map.Name} {_map.WorkshopId}" })},
+                            { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
                         },
                         "center", // Menu style  - "center" or "chat"
                         -1 // Minimum percentage of votes required (-1 behaves like 50%)
@@ -143,53 +195,22 @@ namespace GameModeManager
                 }
 
                 // Add vote to command list
-                Commands.Add("!showsettings");
+                PluginState.Commands.Add("!showmaps");
 
-                // Set game setting vote flag
-                _settingVote = true;
+                // Update game menu
+                MenuFactory.UpdateGameMenu();
+
+                // Set map vote flag
+                MapVote = true;
             }
         }
 
-        private void RegisterMapVotes()
+        public static void DeregisterMapVotes()
         {
-            // Get maps from current map group
-            List<Map> _maps = CurrentMapGroup.Maps;
-
-            // Register per map vote
-            foreach (Map _map in _maps)
-            {
-                Plugin.CustomVotesApi.Get()?.AddCustomVote(
-                    _map.Name, // Command to trigger the vote
-                    new List<string>(), // Aliases for the command (optional)
-                    Localizer["map.vote.menu-title", _map.Name], // Description
-                    "No", 
-                    30, // Time to vote
-                    new Dictionary<string, VoteOption> // vote options
-                    {
-                        { "Yes", new VoteOption(Localizer["menu.yes"], new List<string> { $"css_map {_map.Name} {_map.WorkshopId}" })},
-                        { "No", new VoteOption(Localizer["menu.no"], new List<string>())},
-                    },
-                    "center", // Menu style  - "center" or "chat"
-                    -1 // Minimum percentage of votes required (-1 behaves like 50%)
-                ); 
-            }
-
-            // Add vote to command list
-            Commands.Add("!showmaps");
-
-            // Update game menu
-            UpdateGameMenu();
-
-            // Set map vote flag
-            _mapVote = true;
-        }
-
-        private void DeregisterMapVotes()
-        {
-            if (_mapVote == true)
+            if (MapVote == true && PluginState.CurrentMapGroup != null)
             {
                 // Get maps from current map group
-                List<Map> _maps = CurrentMapGroup.Maps;
+                List<Map> _maps = PluginState.CurrentMapGroup.Maps;
 
                 // Deregister per map vote
                 foreach (Map _map in _maps)
@@ -198,28 +219,28 @@ namespace GameModeManager
                 }
                 
                 // Remove vote from command list
-                Commands.Remove("!showmaps");
+                PluginState.Commands.Remove("!showmaps");
 
                 // Update game menu
-                UpdateGameMenu();
+                MenuFactory.UpdateGameMenu();
 
                 // Set map vote flag
-                _mapVote = false;
+                MapVote = false;
             }
         }
 
         // Construct reusable function to deregister custom votes
-        private void DeregisterCustomVotes()
+        public static void DeregisterCustomVotes()
         {
-            if (_gamemodeVote == true)
+            if (GameModeVote == true && _config != null)
             {
                 // Deregister all gamemodes vote
                 Plugin.CustomVotesApi.Get()?.RemoveCustomVote("changemode");
 
                 // Deregister per gamemode votes
-                if (Config.GameMode.ListEnabled)
+                if (_config.GameMode.ListEnabled)
                 {
-                    foreach (KeyValuePair<string, string> _entry in Config.GameMode.List)
+                    foreach (KeyValuePair<string, string> _entry in _config.GameMode.List)
                     {
                         if(_entry.Key != null)
                         {
@@ -230,7 +251,7 @@ namespace GameModeManager
                 }
                 else
                 {    
-                    foreach (MapGroup _mapGroup in MapGroups)
+                    foreach (MapGroup _mapGroup in PluginState.MapGroups)
                     {
 
                         if(_mapGroup.Name != null)
@@ -242,10 +263,10 @@ namespace GameModeManager
                 }
             }
 
-            if (_settingVote == true)
+            if (SettingVote == true)
             {
                 // Deregister per settings votes
-                foreach (Setting _setting in Settings)
+                foreach (Setting _setting in SettingsManager.Settings)
                 {
                     Plugin.CustomVotesApi.Get()?.RemoveCustomVote(_setting.Name);
                 }

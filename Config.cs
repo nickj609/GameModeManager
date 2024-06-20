@@ -28,7 +28,7 @@ namespace GameModeManager
             else if(_config.RTV.Enabled == true) 
             {
                 // Set RTV flag
-                _RTV = _config.RTV.Enabled;
+                PluginState.RTVEnabled = _config.RTV.Enabled;
 
                 // Check if plugin DLL exists
                 if (File.Exists(Path.Join(GameDirectory, _config.RTV.Plugin)))
@@ -184,7 +184,7 @@ namespace GameModeManager
         public class MapGroupSettings
         {
             public float Delay { get; set; } = 2.0f; // Map change delay in seconds
-            public string Default { get; set; } = "mg_active"; // Default map group on server start
+            public string Default { get; set; } = "mg_casual"; // Default map group on server start
             public string DefaultMap { get; set; } =  "de_dust2"; // Default map on server start
             public string Style { get; set; } = "center"; // Changes map menu type (i.e. "chat" or "center")
             public string File { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
@@ -198,19 +198,25 @@ namespace GameModeManager
             public bool ListEnabled { get; set; } = true; // Enables custom game mode list. If set to false, generated from map groups.
             public Dictionary<string, string> List { get; set; } = new Dictionary<string, string>() // Custom game mode list
             {  
+                {"casual", "Casual"},
                 {"comp", "Competitive"}, 
-                {"1v1", "1 vs 1"},
-                {"aim","Aim"},
-                {"awp", "AWP Only"},
-                {"scoutzknivez", "ScoutzKnives"},
                 {"wingman", "Wingman"},
-                {"gungame", "Gun Game"},
-                {"surf", "Surf"},
+                {"prac", "Practice"},
                 {"dm", "Deathmatch"},
-                {"dm-multicfg", "Deathmatch Multicfg"},
+                {"dm-multicfg", "Deathmatch v2"},
+                {"ar", "Armsrace"},
+                {"gg", "Gun Game"},
+                {"retake","Retakes"},
+                {"executes","Executes"},
+                {"1v1", "1v1"},
+                {"aim","Aim"},
+                {"bhop","Bhop"},
+                {"surf", "Surf"},
+                {"kz", "Kreedz"},
+                {"soccer","Soccer"},
+                {"awp", "AWP Only"},
                 {"course", "Course"},
                 {"hns", "Hide N Seek"},
-                {"kz", "Kreedz"},
                 {"minigames", "Mini Games"}
             }; // Default Game Mode List
         }
@@ -221,7 +227,6 @@ namespace GameModeManager
             public bool GameMode { get; set; } = false; // Enables vote to change game mode
             public bool GameSetting { get; set; } = false; // Enables vote to change game setting
             public string Style { get; set; } = "center"; // Changes vote menu type (i.e. "chat" or "center")
-
         }
 
         // Create config from classes
