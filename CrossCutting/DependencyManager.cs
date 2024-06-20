@@ -41,6 +41,13 @@ namespace GameModeManager
                 return this;
             });
         }
+        public void OnMapStart(string mapName)
+        {
+            foreach (var service in Dependencies)
+            {
+                service.OnMapStart(mapName);
+            }
+        }
 
         public void OnPluginLoad(TPlugin plugin)
         {
