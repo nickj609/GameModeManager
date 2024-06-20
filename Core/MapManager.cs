@@ -11,16 +11,14 @@ namespace GameModeManager
     {
         private int MapRotations = 0;
         public HookResult EventGameEnd(EventCsWinPanelMatch @event, GameEventInfo info)
-        {
-            if (_localizer != null)
+        {  
+            // Check if RTV is disabled in config and if so enable randomization
+            if(!PluginState.RTVEnabled && _localizer !=null)
             {
                 Logger.LogInformation("Game has ended. Picking random map from current map group...");
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
-            }
 
-            // Check if RTV is disabled in config and if so enable randomization
-            if(!PluginState.RTVEnabled)
-            {
+                // If current map group is empty, use default.
                 if(PluginState.CurrentMapGroup == null)
                 {
                     PluginState.CurrentMapGroup = PluginState.DefaultMapGroup;
