@@ -4,11 +4,12 @@ using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using CounterStrikeSharp.API.Core.Capabilities;
+using static CounterStrikeSharp.API.Core.Listeners;
 
 // Declare namespace
 namespace GameModeManager
 {
-    // Load dependencies
+    // Create class to locate dependencies
     public class PluginDependencyInjection : IPluginServiceCollection<Plugin>
     {
         public void ConfigureServices(IServiceCollection serviceCollection)
@@ -28,14 +29,16 @@ namespace GameModeManager
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
-        private readonly DependencyManager<Plugin, Config> _dependencyManager;
+        // Define dependencies
         private readonly MapManager _mapManager;
-        private readonly MapGroupManager _mapGroupManager;
         private readonly VoteManager _voteManager;
-        private readonly SettingsManager _settingsManager;
         private readonly MenuFactory _menuFactory;
-        private StringLocalizer? _localizer;
+        private readonly StringLocalizer _localizer;
+        private readonly MapGroupManager _mapGroupManager;
+        private readonly SettingsManager _settingsManager;
+        private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
+        // Register dependencies
         public Plugin(DependencyManager<Plugin, Config> dependencyManager,
             MapManager mapManager,
             MapGroupManager mapGroupManager,
@@ -49,17 +52,13 @@ namespace GameModeManager
             _voteManager = voteManager;
             _settingsManager = settingsManager;
             _menuFactory = menuFactory;
+            _localizer = new StringLocalizer(Localizer);
         }
-
-        // Define custom vote API and signal
-        public static PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
-        private bool _isCustomVotesLoaded = false;
 
         // Construct On Load behavior
         public override void Load(bool hotReload)
         {   
-            base.Load(hotReload);
-            _localizer = new StringLocalizer(Localizer);
+            // Load dependencies
             _dependencyManager.OnPluginLoad(this);
 
             // Error handling
@@ -84,12 +83,20 @@ namespace GameModeManager
                 Logger.LogInformation($"Registering event handlers...");
                 RegisterEventHandler<EventCsWinPanelMatch>(EventGameEnd);
                 RegisterEventHandler<EventMapTransition>(EventMapChange);
+
+                // Register listeners
+                RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);
             }
             catch(Exception ex)
             {
                 Logger.LogError($"{ex.Message}");
             }
         }
+
+        // Define custom vote API and signal
+        private bool _isCustomVotesLoaded = false;
+        private PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
+
         // When all plugins are loaded, register the CS2-CustomVotes plugin if it is enabled in the config
         public override void OnAllPluginsLoaded(bool hotReload)
         {
