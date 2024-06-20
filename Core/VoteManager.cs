@@ -9,7 +9,7 @@ using CS2_CustomVotes.Shared.Models;
 // Declare namespace
 namespace GameModeManager
 {
-    public class VoteManager
+    public class VoteManager : IPluginDependency<Plugin, Config>
     {
 
         // Define vote flags for deregistration

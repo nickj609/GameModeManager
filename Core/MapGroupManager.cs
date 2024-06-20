@@ -12,20 +12,18 @@ using Gameloop.Vdf.Linq;
 namespace GameModeManager
 {
     // Define MapGroupManager class
-    public class MapGroupManager
+    public class MapGroupManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
         private static Config? _config;
         private static Plugin? _plugin;
         private static ILogger? _logger;
-        private static StringLocalizer? _localizer;
 
         // Load dependencies
         public void OnLoad(Plugin plugin)
         { 
             _plugin = plugin;
             _logger = plugin.Logger;
-            _localizer = new StringLocalizer(plugin.Localizer);
         }
         public void OnConfigParsed(Config config)
         {
@@ -42,7 +40,6 @@ namespace GameModeManager
                     // Deserialize gamemodes_server.txt (VDF) to VProperty with GameLoop.Vdf
                     VProperty vdfObject = VdfConvert.Deserialize(File.ReadAllText(_config.MapGroup.File, Encoding.UTF8));
                 
-
                     if (vdfObject == null)
                     {
                         throw new IOException("VDF is empty or incomplete.");

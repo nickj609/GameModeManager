@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace GameModeManager
 {
     // Plugin class
-    public class SettingsManager
+    public class SettingsManager : IPluginDependency<Plugin, Config>
     {
 
         // Define settings list

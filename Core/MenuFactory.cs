@@ -4,13 +4,12 @@ using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 using CounterStrikeSharp.API.Modules.Menu;
-using Microsoft.Extensions.Localization;
 
 // Declare namespace
 namespace GameModeManager
 {
     // Define MenuFactory class
-    public class MenuFactory
+    public class MenuFactory : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
         private static Config? _config;
@@ -290,7 +289,7 @@ namespace GameModeManager
         // Construct reusable function to update the map menu
         public static void UpdateMapMenu(MapGroup _mapGroup)
         {
-            if(_logger != null && MapMenu != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null && _localizer != null)
             {
                 // Assign menu
                 MapMenu = AssignMenu(_config.MapGroup.Style, "Map List");
@@ -342,7 +341,7 @@ namespace GameModeManager
         // Construct reusable function to update the game command menu
         public static void UpdateGameMenu()
         {
-            if(_logger != null && MapMenu != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null && _localizer != null)
             {
                 // Assign menu
                 GameMenu = AssignMenu(_config.Settings.Style, "Game Commands");
@@ -423,7 +422,7 @@ namespace GameModeManager
         // Construct resuable function to set up show maps menu
         public static void UpdateShowMapsMenu(MapGroup _mapGroup)
         {
-            if(_logger != null && MapMenu != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null && _localizer != null)
             {
                 // Assign menu
                 ShowMapsMenu = AssignMenu(_config.MapGroup.Style, "Map List");
@@ -452,7 +451,7 @@ namespace GameModeManager
         // Construct resuable function to set up show maps menu
         public static void CreateShowModesMenu()
         {
-            if(_logger != null && MapMenu != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null && _localizer != null)
             {
                 // Assign menu
                 ShowModesMenu = AssignMenu(_config.GameMode.Style, "Game Mode List");
@@ -543,7 +542,7 @@ namespace GameModeManager
         // Construct resuable function to set up show maps menu
         public static void CreateShowSettingsMenu()
         {
-            if(_logger != null && MapMenu != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null && _localizer != null)
             {
                 // Assign menu
                 ShowSettingsMenu = AssignMenu(_config.Settings.Style, "Setting List");
