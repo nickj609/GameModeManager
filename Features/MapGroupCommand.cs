@@ -19,7 +19,7 @@ namespace GameModeManager
                 // Find map group
                 MapGroup? _mapGroup = PluginState.MapGroups.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
 
-                if (_mapGroup != null && _mapGroup.Name != null && _mapGroup.Maps != null)
+                if (_mapGroup != null && _mapGroup.Name != null && _mapGroup.Maps != null && _mapGroup != PluginState.CurrentMapGroup)
                 {
                     if (PluginState.CurrentMapGroup != null)
                     {

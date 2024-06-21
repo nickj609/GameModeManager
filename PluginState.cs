@@ -1,5 +1,6 @@
 // Included libraries
 using System.Diagnostics;
+using CounterStrikeSharp.API.Core;
 
 // Declare namespace
 namespace GameModeManager
@@ -20,12 +21,15 @@ namespace GameModeManager
             new Map("de_overpass"),
             new Map("de_vertigo")
         };
-        public static MapGroup DefaultMapGroup = new MapGroup("mg_casual", DefaultMaps);
+        public static MapGroup DefaultMapGroup = new MapGroup("mg_active", DefaultMaps);
+        public static Mode DefaultMode = new Mode("Casual", "casual.cfg", new List<MapGroup>{DefaultMapGroup});
 
         // Define dynamic objects
         public static bool RTVEnabled = false;
         public static Map? CurrentMap = DefaultMap;
         public static List<Map> Maps = DefaultMaps;
+        public static Mode CurrentMode = DefaultMode;
+        public static List<Mode> Modes = new List<Mode>();
         public static MapGroup? CurrentMapGroup = DefaultMapGroup;
         public static List<MapGroup> MapGroups = new List<MapGroup>(){DefaultMapGroup};
 
@@ -35,31 +39,5 @@ namespace GameModeManager
             "!currentmode",
             "!currentmap"
         };
-
-        // Define map rotation parameters
-        public static int mp_timelimit = 0;
-        public static Stopwatch stopwatch = new Stopwatch();
-        public static int CTWins = 0;
-        public static int TWins = 0;
-        public static int _currentIndex = -1;
-        public static int _currentIndexs = -1;
-        public static bool WinTeamDraw = false;
-        public static bool onetime = false;
-        public static bool getvalues = false;
-        public static bool timeisup = false;
-        public static bool timeisupTime = false;
-        public static bool timeisupEnd = false;
-        public static bool fiveMinsLeftPrinted = false;
-        public static bool twoMinsLeftPrinted = false;
-        public static bool oneMinLeftPrinted = false;
-        public static bool thirtySecsLeftPrinted = false;
-        public static bool fifteenSecsLeftPrinted = false;
-        public static bool threeSecsLeftPrinted = false;
-        public static bool twoSecsLeftPrinted = false;
-        public static bool oneSecLeftPrinted = false;
-        public static CounterStrikeSharp.API.Modules.Timers.Timer? Defaultmap;
-        public static CounterStrikeSharp.API.Modules.Timers.Timer? RotationTimer;
-        public static CounterStrikeSharp.API.Modules.Timers.Timer? RotationTimer2;
-        public static CounterStrikeSharp.API.Modules.Timers.Timer? ForceEndTimer;
     } 
 }

@@ -174,105 +174,37 @@ namespace GameModeManager
         // Construct resuable function to set up mode menu
         public static void CreateModeMenus()
         {
-            if(_logger != null && MapMenu != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null && _localizer != null)
             {
                 // Assign menu
                 ModeMenu = AssignMenu(_config.GameMode.Style, "Game Mode List");
 
-                if (_config.GameMode.ListEnabled)
+                // Add menu option for each game mode in game mode list
+                foreach (Mode _mode in PluginState.Modes)
                 {
-                    // Add menu option for each game mode in game mode list
-                    foreach (KeyValuePair<string, string> _entry in _config.GameMode.List)
+                    ModeMenu.AddMenuOption(_mode.Name, (player, option) =>
                     {
-                        ModeMenu.AddMenuOption(_entry.Value, (player, option) =>
+                        // Create message
+                        string _message = _localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text);
+
+                        // Write to chat
+                        Server.PrintToChatAll(_message);
+
+                        // Close menu
+                        MenuManager.CloseActiveMenu(player);
+
+                        // Change game mode
+                        if(_plugin != null)
                         {
-                            // Create message
-                            string _message = _localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text);
-
-                            // Write to chat
-                            Server.PrintToChatAll(_message);
-
-                            // Close menu
-                            MenuManager.CloseActiveMenu(player);
-
-                            // Change game mode
-                            string _option = _entry.Key.ToLower();
-
-                            if(_plugin != null)
+                            _plugin.AddTimer(_config.GameMode.Delay, () => 
                             {
-                                _plugin.AddTimer(_config.GameMode.Delay, () => 
-                                {
-                                    Server.ExecuteCommand($"exec {_option}.cfg");
-                                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-                            }
-                        });
-                    }
-                }
-                else
-                {
-                    // Create menu options for each map group parsed
-                    foreach (MapGroup _mapGroup in PluginState.MapGroups)
-                    {
+                                Server.ExecuteCommand($"exec {_mode.Config}");
+                            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
-                        if(_mapGroup.DisplayName != null)
-                        {
-                            ModeMenu.AddMenuOption(_mapGroup.DisplayName, (player, option) =>
-                            {
-                                // Create message
-                                string _message = _localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text);
-
-                                // Write to chat
-                                Server.PrintToChatAll(_message);
-
-                                // Close menu
-                                MenuManager.CloseActiveMenu(player);
-
-                                // Change game mode
-                                string _option = option.Text.ToLower();
-                                if(_plugin != null)
-                                {
-                                    _plugin.AddTimer(_config.GameMode.Delay, () => 
-                                    {
-                                        Server.ExecuteCommand($"exec {_option}.cfg");
-                                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-                                }
-                            });
+                            // Set current mode
+                            PluginState.CurrentMode = _mode;
                         }
-                        else
-                        {
-                            // Split the string into parts by the underscore
-                            string[] _nameParts = (_mapGroup.Name ?? PluginState.DefaultMapGroup.Name).Split('_');
-
-                            // Get the last part (the actual map group name)
-                            string _tempName = _nameParts[_nameParts.Length - 1]; 
-                            
-                            // Combine the capitalized first letter with the rest
-                            string _mapGroupName = _tempName.Substring(0, 1).ToUpper() + _tempName.Substring(1); 
-
-                            ModeMenu.AddMenuOption(_mapGroupName, (player, option) =>
-                            {
-                                // Create message
-                                string _message = _localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text);
-
-                                // Write to chat
-                                Server.PrintToChatAll(_message);
-
-                                // Close menu
-                                MenuManager.CloseActiveMenu(player);
-
-                                // Change game mode
-                                string _option = option.Text.ToLower();
-                                if (_plugin != null)
-                                {
-                                    _plugin.AddTimer(_config.GameMode.Delay, () => 
-                                    {
-                                        Server.ExecuteCommand($"exec {_option}.cfg");
-                                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-                                }
-                            });
-
-                        }
-                    }
+                    });
                 }
 
                 // Setup show modes menu
@@ -456,82 +388,21 @@ namespace GameModeManager
                 // Assign menu
                 ShowModesMenu = AssignMenu(_config.GameMode.Style, "Game Mode List");
 
-                if (_config.GameMode.ListEnabled)
+                foreach (Mode _mode in PluginState.Modes)
                 {
-                    foreach (KeyValuePair<string, string> _entry in _config.GameMode.List)
+                    // Add menu option
+                    ShowModesMenu.AddMenuOption(_mode.Name, (player, option) =>
                     {
-                        // Add menu option
-                        ShowModesMenu.AddMenuOption(_entry.Value, (player, option) =>
-                        {
-                            // Create message
-                            string _message = _localizer.Localize("mode.show.menu-response", _entry.Key);
+                        // Create message
+                        string _modeName = Extensions.RemoveCfgExtension(_mode.Config);
+                        string _message = _localizer.Localize("mode.show.menu-response", _modeName);
 
-                            // Write to chat
-                            player.PrintToChat(_message);
+                        // Write to chat
+                        player.PrintToChat(_message);
 
-                            // Close menu
-                            MenuManager.CloseActiveMenu(player);
-                        });
-                    }
-                }
-                else
-                {
-                    foreach (MapGroup _mapGroup in PluginState.MapGroups)
-                    {
-                        if(_mapGroup.Name != null)
-                        {
-                            // Remove mode prefix
-                            if (new Regex(@"^(mg_)").Match(_mapGroup.Name).Success) 
-                            {
-                                // Create new mode name
-                                _mapGroup.Name = _mapGroup.Name.Substring(new Regex(@"^(mg_)").Match(_mapGroup.Name).Length);
-                            }
-
-                            // Add menu option
-                            _ = ShowModesMenu.AddMenuOption(_mapGroup.DisplayName, (player, option) =>
-                            {
-                                // Write to player
-                                player.PrintToChat(_localizer.Localize("mode.show.menu-response", _mapGroup.Name));
-
-                                // Close menu
-                                MenuManager.CloseActiveMenu(player);
-                            });
-                        }
-                        else
-                        {
-                            // Split the string into parts by the underscore
-                            var _nameParts = (_mapGroup.Name ?? PluginState.DefaultMapGroup.Name).Split('_');
-
-                            // Get the last part (the actual map group name)
-                            string _tempName = _nameParts[_nameParts.Length - 1]; 
-                            
-                            // Combine the capitalized first letter with the rest
-                            string _mapGroupName = _tempName.Substring(0, 1).ToUpper() + _tempName.Substring(1); 
-
-                            ShowModesMenu.AddMenuOption(_mapGroupName, (player, option) =>
-                            {
-                                // Create message
-                                string _message = _localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text);
-
-                                // Write to chat
-                                Server.PrintToChatAll(_message);
-
-                                // Close menu
-                                MenuManager.CloseActiveMenu(player);
-
-                                // Change game mode
-                                string _option = option.Text.ToLower();
-                                if (_plugin != null)
-                                {
-                                    _plugin.AddTimer(_config.GameMode.Delay, () => 
-                                    {
-                                        Server.ExecuteCommand($"exec {_option}.cfg");
-                                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-                                }
-                            });
-
-                        }
-                    }
+                        // Close menu
+                        MenuManager.CloseActiveMenu(player);
+                    });
                 }
             }
         }

@@ -120,8 +120,8 @@ namespace GameModeManager
         // Construct current map command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_currentmode", "Displays current map.")]
-        public void OnCurrentModeCommand(CCSPlayerController? player, CommandInfo command)
+        [ConsoleCommand("css_currentmapgroup", "Displays current map group.")]
+        public void OnCurrentMapGroupCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player != null && PluginState.CurrentMapGroup != null)
             {
@@ -134,6 +134,30 @@ namespace GameModeManager
             else if (player != null && PluginState.CurrentMapGroup == null)
             {
                 player.PrintToChat("Current map group not set.");   
+            }
+            else if (player == null)
+            {
+                Console.Error.WriteLine("css_game is a client only command.");
+            }
+        }
+
+        // Construct current map command handler
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [ConsoleCommand("css_currentmode", "Displays current map.")]
+        public void OnCurrentModeCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player != null && PluginState.CurrentMode != null)
+            {
+                // Create message
+                string _message = Localizer["currentmode.message", PluginState.CurrentMode.Name];
+
+                // Write to chat
+                player.PrintToChat(_message);
+            }
+            else if (player != null && PluginState.CurrentMode == null)
+            {
+                player.PrintToChat("Current mode not set.");   
             }
             else if (player == null)
             {

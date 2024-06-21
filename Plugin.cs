@@ -65,22 +65,18 @@ namespace GameModeManager
             try
             {
                 // Load map groups
-                Logger.LogInformation($"Loading map groups...");
                 MapGroupManager.Load();
 
                 // Load settings
                 if (Config.Settings.Enabled)
                 {
-                    Logger.LogInformation($"Loading settings...");
                     SettingsManager.Load();
                 }
 
                 // Create menus
-                Logger.LogInformation($"Creating menus...");
                 MenuFactory.Load();
 
                 // Register event handlers
-                Logger.LogInformation($"Registering event handlers...");
                 RegisterEventHandler<EventCsWinPanelMatch>(EventGameEnd);
                 RegisterEventHandler<EventMapTransition>(EventMapChange);
 
@@ -95,7 +91,7 @@ namespace GameModeManager
 
         // Define custom vote API and signal
         private bool _isCustomVotesLoaded = false;
-        private PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
+        public static PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
 
         // When all plugins are loaded, register the CS2-CustomVotes plugin if it is enabled in the config
         public override void OnAllPluginsLoaded(bool hotReload)

@@ -4,12 +4,33 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
+using Microsoft.Extensions.Logging;
 
 // Declare namespace
 namespace GameModeManager
 {
     public partial class Plugin : BasePlugin
     {
+        // Construct server game mode command handler
+        [ConsoleCommand("css_gamemode", "Sets the current mapgroup.")]
+        [CommandHelper(minArgs: 1, usage: "<comp>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnGameModeCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null) 
+            {
+                Mode? _mode = PluginState.Modes.FirstOrDefault(m => m.Name.ToLower() == command.ArgByIndex(1) || m.Config == $"{command.ArgByIndex(1)}.cfg");
+
+                if(_mode != null)
+                {
+                    PluginState.CurrentMode = _mode;
+                }
+                else
+                {
+                    Logger.LogWarning($"Unable to find game mode {command.ArgByIndex(1)}. Setting default game mode.");
+                    PluginState.CurrentMode = PluginState.DefaultMode;
+                }
+            }
+        }
         // Construct admin change mode command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 1, usage: "<mode>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
@@ -19,45 +40,24 @@ namespace GameModeManager
             if(player != null)
             {
                 // Define variables
-                string? _option = null;
-                MapGroup? _mapGroup = PluginState.MapGroups?.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
-                KeyValuePair<string, string>? _mode = Config.GameMode.List?.FirstOrDefault(m => m.Key == $"{command.ArgByIndex(1)}");
+                Mode? _mode = PluginState.Modes.FirstOrDefault(m => m.Name == $"{command.ArgByIndex(1)}");
 
-                // Check if using mode list or map groups
-                if (Config.GameMode.ListEnabled != true)
-                {
-                    _mapGroup = PluginState.MapGroups?.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
-
-                    if (_mapGroup != null && _mapGroup.Name != null)
-                    {
-                        _option = _mapGroup.Name;
-                    }
-                }
-                else
-                {
-                    _mode = Config.GameMode.List?.FirstOrDefault(m => m.Key == $"{command.ArgByIndex(1)}");
-
-                    if (_mode != null && _mode is KeyValuePair<string, string> kvp)
-                    {
-                        _option = kvp.Key;
-                    }
-                }
-
-                // Check if mode or mapgroup is found
-                if (_option != null)
+                if (_mode != null)
                 {
                     // Create mode message
-                    string _message = Localizer["plugin.prefix"] + " " + Localizer["changemode.message", player.PlayerName, command.ArgByIndex(1)];
+                    string _message = _localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name);
 
                     // Write to chat
                     Server.PrintToChatAll(_message);
 
                     // Change mode
-                    _option = _option.ToLower();
                     AddTimer(Config.GameMode.Delay, () => 
                     {
-                        Server.ExecuteCommand($"exec {_option}.cfg");
+                        Server.ExecuteCommand($"exec {_mode.Config}");
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+
+                    // Set current mode
+                    PluginState.CurrentMode = _mode;
                 }
                 else
                 {

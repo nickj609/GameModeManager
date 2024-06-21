@@ -29,11 +29,14 @@ namespace GameModeManager
                 {  
                     // Get random game mode
                     Random _rnd = new Random();
-                    int _randomIndex = _rnd.Next(0, PluginState.MapGroups.Count); 
-                    MapGroup _randomMode = PluginState.MapGroups[_randomIndex];
+                    int _randomIndex = _rnd.Next(0, PluginState.Modes.Count); 
+                    Mode _randomMode = PluginState.Modes[_randomIndex];
 
                     // Change mode
-                    Server.ExecuteCommand($"exec {_randomMode.Name}.cfg");
+                    Server.ExecuteCommand($"exec {_randomMode.Config}");
+
+                    // Set current mode
+                    PluginState.CurrentMode = _randomMode;
                 }
                 else
                 {

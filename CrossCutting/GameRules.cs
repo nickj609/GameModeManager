@@ -33,7 +33,6 @@ namespace GameModeManager
             SetGameRulesAsync();
         }
 
-
         public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
         {
             SetGameRules();

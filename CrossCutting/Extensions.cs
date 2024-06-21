@@ -12,5 +12,17 @@ namespace GameModeManager
             return player is not null && player.IsValid && player.Connected == PlayerConnectedState.PlayerConnected &&
                 (considerBots || (!player.IsBot && !player.IsHLTV));
         }
+
+        public static string RemoveCfgExtension(string str)
+        {
+            if (str.EndsWith(".cfg"))
+            {
+                return str.Substring(0, str.Length - 4);
+            }
+            else
+            {
+                return str;
+            }
+        }
     }
 }

@@ -97,18 +97,10 @@ namespace GameModeManager
                 Logger.LogError("Game mode interval must be a number.");
                 throw new Exception("Game mode interval must be a number.");
             }
-            if (_config.GameMode.ListEnabled != true && _config.GameMode.ListEnabled != false) 
+            if(_config.GameMode.List == null || _config.GameMode.List.Count == 0)
             {
-                Logger.LogError("Invalid: Game mode list enabled should be 'true' or 'false'.");
-                throw new Exception("Invalid: Game mode list enabled should be 'true' or 'false'.");
-            }
-            else if (_config.GameMode.ListEnabled == true)
-            {
-                if(_config.GameMode.List == null || _config.GameMode.List.Count == 0)
-                {
-                    Logger.LogError("Undefined: Game mode list cannot be empty.");
-                    throw new Exception("Undefined: Game mode list cannot be empty.");
-                }
+                Logger.LogError("Undefined: Game mode list cannot be empty.");
+                throw new Exception("Undefined: Game mode list cannot be empty.");
             }
 
             // Game Settings
@@ -185,7 +177,7 @@ namespace GameModeManager
         public class MapGroupSettings
         {
             public float Delay { get; set; } = 2.0f; // Map change delay in seconds
-            public string Default { get; set; } = "mg_casual"; // Default map group on server start
+            public string Default { get; set; } = "mg_active"; // Default map group on server start
             public string DefaultMap { get; set; } =  "de_dust2"; // Default map on server start
             public string Style { get; set; } = "center"; // Changes map menu type (i.e. "chat" or "center")
             public string File { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
@@ -194,32 +186,114 @@ namespace GameModeManager
         {
             public bool Rotation { get; set; } = true; // Enables game mode rotation
             public int Interval { get; set; } = 4; // Changes game mode every x map rotations
+            public string DefaultMode { get; set; } =  "Casual"; // Default mode on server start
             public float Delay { get; set; } = 2.0f; // Game mode change delay in seconds
             public string Style { get; set; } = "center"; // Changes mode menu type (i.e. "chat" or "center")
-            public bool ListEnabled { get; set; } = true; // Enables custom game mode list. If set to false, generated from map groups.
-            public Dictionary<string, string> List { get; set; } = new Dictionary<string, string>() // Custom game mode list
-            {  
-                {"casual", "Casual"},
-                {"comp", "Competitive"}, 
-                {"wingman", "Wingman"},
-                {"prac", "Practice"},
-                {"dm", "Deathmatch"},
-                {"dm-multicfg", "Deathmatch v2"},
-                {"ar", "Armsrace"},
-                {"gg", "Gun Game"},
-                {"retake","Retakes"},
-                {"executes","Executes"},
-                {"1v1", "1v1"},
-                {"aim","Aim"},
-                {"bhop","Bhop"},
-                {"surf", "Surf"},
-                {"kz", "Kreedz"},
-                {"soccer","Soccer"},
-                {"awp", "AWP Only"},
-                {"course", "Course"},
-                {"hns", "Hide N Seek"},
-                {"minigames", "Mini Games"}
-            }; // Default Game Mode List
+            public Dictionary<string, Dictionary<string, List<string>>> List { get; set; } = 
+            new Dictionary<string, Dictionary<string, List<string>>>()
+            {
+                { "Casual", new Dictionary<string, List<string>>()
+                {
+                { "casual.cfg", new List<string>() { "mg_active", "mg_casual" }}
+                }
+                },
+                { "Competitive", new Dictionary<string, List<string>>()
+                {
+                { "comp.cfg", new List<string>() { "mg_active", "mg_comp" }}
+                }
+                },
+                { "Wingman", new Dictionary<string, List<string>>()
+                {
+                { "wingman.cfg", new List<string>() { "mg_wingman"}}
+                }
+                },
+                { "Practice", new Dictionary<string, List<string>>()
+                {
+                { "prac.cfg", new List<string>() { "mg_prac"}}
+                }
+                },
+                { "Deathmatch", new Dictionary<string, List<string>>()
+                {
+                { "dm.cfg", new List<string>() { "mg_dm"}}
+                }
+                },
+                { "Deathmatch Multicfg", new Dictionary<string, List<string>>()
+                {
+                { "dm-multicfg.cfg", new List<string>() { "mg_dm"}}
+                }
+                },
+                { "ArmsRace", new Dictionary<string, List<string>>()
+                {
+                { "ar.cfg", new List<string>() { "mg_ar"}}
+                }
+                },
+                { "GunGame", new Dictionary<string, List<string>>()
+                {
+                { "gg.cfg", new List<string>() { "mg_gg"}}
+                }
+                },
+                { "Retakes", new Dictionary<string, List<string>>()
+                {
+                { "retake.cfg", new List<string>() { "mg_retakes"}}
+                }
+                },
+                { "Executes", new Dictionary<string, List<string>>()
+                {
+                { "executes.cfg", new List<string>() { "mg_executes"}}
+                }
+                },
+                { "1v1", new Dictionary<string, List<string>>()
+                {
+                { "1v1.cfg", new List<string>() { "mg_1v1"}}
+                }
+                },
+                { "Aim", new Dictionary<string, List<string>>()
+                {
+                { "aim.cfg", new List<string>() { "mg_aim"}}
+                }
+                },
+                { "Bhop", new Dictionary<string, List<string>>()
+                {
+                { "bhop.cfg", new List<string>() { "mg_bhop"}}
+                }
+                },
+                { "Surf", new Dictionary<string, List<string>>()
+                {
+                { "surf.cfg", new List<string>() { "mg_surf"}}
+                }
+                },
+                { "Kreedz", new Dictionary<string, List<string>>()
+                {
+                { "kz.cfg", new List<string>() { "mg_kz"}}
+                }
+                },
+                { "Awp", new Dictionary<string, List<string>>()
+                {
+                { "awp.cfg", new List<string>() { "mg_awp"}}
+                }
+                },
+                { "Course", new Dictionary<string, List<string>>()
+                {
+                { "course.cfg", new List<string>() { "mg_course"}}
+                }
+                },
+                { "Hide N Seek", new Dictionary<string, List<string>>()
+                {
+                { "hns.cfg", new List<string>() { "mg_hns"}}
+                }
+                },
+                { "Soccer", new Dictionary<string, List<string>>()
+                {
+                { "soccer.cfg", new List<string>() { "mg_soccer"}}
+                }
+                },
+                { "Minigames", new Dictionary<string, List<string>>()
+                {
+                { "minigames.cfg", new List<string>() { "mg_minigames"}}
+                }
+                },
+                
+            };
         }
         public class VoteSettings
         {
