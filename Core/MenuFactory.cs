@@ -2,35 +2,46 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
-using System.Text.RegularExpressions;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
 namespace GameModeManager
 {
-    // Define MenuFactory class
+    // Define class
     public class MenuFactory : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private static Config? _config;
-        private static Plugin? _plugin;
-        private static ILogger? _logger;
-        private static StringLocalizer? _localizer;
+        private Config? _config;
+        private Plugin? _plugin;
+        private ILogger? _logger;
+        private MapManager _mapManager;
+        private PluginState _pluginState;
+        private StringLocalizer _localizer;
 
-        // Load dependencies
+        // Define class instance
+        public MenuFactory(PluginState pluginState, StringLocalizer stringLocalizer, MapManager mapManager)
+        {
+            _mapManager = mapManager;
+            _pluginState = pluginState;
+            _localizer = stringLocalizer;
+        }
+        
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
+        // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
             _plugin = plugin;
             _logger = plugin.Logger;
             _localizer = new StringLocalizer(plugin.Localizer);
         }
-        public void OnConfigParsed(Config config)
-        {
-            _config = config;
-        }
 
-        // Construct reusable method to assign menus
-        public static BaseMenu AssignMenu(string _menuType, string _menuName)
+        // Define reusable method to assign menus
+        public BaseMenu AssignMenu(string _menuType, string _menuName)
         {
             // Create base menu
             BaseMenu _baseMenu;
@@ -39,6 +50,10 @@ namespace GameModeManager
             if (_menuType == "center")
             {
                 _baseMenu = new CenterHtmlMenu(_menuName);
+            }
+            else if (_menuType == "chat") // Maybe switch to custom?
+            {
+                _baseMenu = new ChatMenu(_menuName);
             }
             else
             {
@@ -49,8 +64,8 @@ namespace GameModeManager
             return _baseMenu;
         }
 
-        // Construct reusable method to open each type of menu
-        public static void OpenMenu(BaseMenu _menu, string _menuType, CCSPlayerController _player)
+        // Define reusable method to open each type of menu
+        public void OpenMenu(BaseMenu _menu, string _menuType, CCSPlayerController _player)
         {
             if (_plugin != null)
             {
@@ -80,31 +95,20 @@ namespace GameModeManager
             }
         }
 
-        public static void Load()
+        // Define reusable method to setup settings menu
+        public void CreateSettingsMenus()
         {
-            CreateModeMenus();
-            CreateSettingsMenus();
-        }
-
-        // Define settings menus
-        public static BaseMenu? SettingsMenu;
-        public static BaseMenu? SettingsEnableMenu;
-        public static BaseMenu? SettingsDisableMenu; 
-
-        // Construct reusable method to setup settings menu
-        public static void CreateSettingsMenus()
-        {
-            if(_logger != null && MapMenu != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null)
             {
                 // Assign menus
-                SettingsMenu = AssignMenu(_config.Settings.Style, "Setting Actions");
-                SettingsEnableMenu = AssignMenu(_config.Settings.Style, "Settings List");
-                SettingsDisableMenu = AssignMenu(_config.Settings.Style, "Settings List");
+                _pluginState.SettingsMenu = AssignMenu(_config.Settings.Style, "Setting Actions");
+                _pluginState.SettingsEnableMenu = AssignMenu(_config.Settings.Style, "Settings List");
+                _pluginState.SettingsDisableMenu = AssignMenu(_config.Settings.Style, "Settings List");
 
                 // Add enable menu options
-                foreach (Setting _setting in SettingsManager.Settings)
+                foreach (Setting _setting in _pluginState.Settings)
                 {
-                    SettingsEnableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
+                    _pluginState.SettingsEnableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                     {
                         // Create message
                         string _message = _localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, option.Text);
@@ -120,9 +124,9 @@ namespace GameModeManager
                 }
 
                 // Add disable menu options
-                foreach (Setting _setting in SettingsManager.Settings)
+                foreach (Setting _setting in _pluginState.Settings)
                 {
-                    SettingsDisableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
+                    _pluginState.SettingsDisableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                     {
                         // Create message
                         string _message = _localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, option.Text);
@@ -139,23 +143,23 @@ namespace GameModeManager
                 }
 
                 // Add settings menu options
-                SettingsMenu.AddMenuOption(_localizer.Localize("menu.enable"), (player, option) =>
+                _pluginState.SettingsMenu.AddMenuOption(_localizer.Localize("menu.enable"), (player, option) =>
                 {
-                    SettingsEnableMenu.Title = _localizer.Localize("settings.menu-title");
+                    _pluginState.SettingsEnableMenu.Title = _localizer.Localize("settings.menu-title");
 
                     if(player != null && _plugin != null)
                     {
-                        OpenMenu(SettingsEnableMenu, _config.Settings.Style, player);
+                        OpenMenu(_pluginState.SettingsEnableMenu, _config.Settings.Style, player);
                     }
                 });
-                SettingsMenu.AddMenuOption(_localizer.Localize("menu.disable"), (player, option) =>
+                _pluginState.SettingsMenu.AddMenuOption(_localizer.Localize("menu.disable"), (player, option) =>
                 {
-                    SettingsDisableMenu.Title = _localizer.Localize("settings.menu-title");
+                    _pluginState.SettingsDisableMenu.Title = _localizer.Localize("settings.menu-title");
 
                     if(player != null && _plugin != null)
                     {
                         // Open sub menu
-                        OpenMenu(SettingsDisableMenu, _config.Settings.Style, player);
+                        OpenMenu(_pluginState.SettingsDisableMenu, _config.Settings.Style, player);
                         
                     }
                 });
@@ -167,22 +171,18 @@ namespace GameModeManager
                 }
             }
         }
-        
-        // Define mode menu
-        public static BaseMenu? ModeMenu;
-        
-        // Construct resuable function to set up mode menu
-        public static void CreateModeMenus()
+        // Define resuable method to set up mode menu
+        public void CreateModeMenus()
         {
-            if(_logger != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null)
             {
                 // Assign menu
-                ModeMenu = AssignMenu(_config.GameMode.Style, "Game Mode List");
+                _pluginState.ModeMenu = AssignMenu(_config.GameModes.Style, "Game Mode List");
 
                 // Add menu option for each game mode in game mode list
-                foreach (Mode _mode in PluginState.Modes)
+                foreach (Mode _mode in _pluginState.Modes)
                 {
-                    ModeMenu.AddMenuOption(_mode.Name, (player, option) =>
+                    _pluginState.ModeMenu.AddMenuOption(_mode.Name, (player, option) =>
                     {
                         // Create message
                         string _message = _localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text);
@@ -196,13 +196,13 @@ namespace GameModeManager
                         // Change game mode
                         if(_plugin != null)
                         {
-                            _plugin.AddTimer(_config.GameMode.Delay, () => 
+                            _plugin.AddTimer(_config.GameModes.Delay, () => 
                             {
                                 Server.ExecuteCommand($"exec {_mode.Config}");
                             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                             // Set current mode
-                            PluginState.CurrentMode = _mode;
+                            _pluginState.CurrentMode = _mode;
                         }
                     });
                 }
@@ -215,29 +215,20 @@ namespace GameModeManager
             }
         }
 
-        // Define map menu
-        public static BaseMenu? MapMenu;
-
-        // Construct reusable function to update the map menu
-        public static void UpdateMapMenu(MapGroup _mapGroup)
+        // Define reusable method to update the map menu
+        public void UpdateMapMenus()
         {
-            if(_logger != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null && _plugin != null)
             {
                 // Assign menu
-                MapMenu = AssignMenu(_config.MapGroup.Style, "Map List");
+                _pluginState.MapMenu = AssignMenu(_config.MapGroups.Style, "Map List");
 
                 // Add menu options for each map in the new map list
-                foreach (Map _map in _mapGroup.Maps)
+                foreach (Map _map in _pluginState.CurrentMode.Maps)
                 {
-                    MapMenu.AddMenuOption(_map.DisplayName, (player, option) =>
+                    _pluginState.MapMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                     {
-                        Map? _nextMap = _map;
-
-                        if (_nextMap == null)
-                        {
-                            _logger.LogWarning("Map not found when updating map menu. Using de_dust2 for next map."); 
-                            _nextMap = new Map("de_dust2");
-                        }
+                        Map _nextMap = _map;
 
                         // Create message
                         string _message = _localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _nextMap.Name);
@@ -249,39 +240,34 @@ namespace GameModeManager
                         MenuManager.CloseActiveMenu(player);
 
                         // Change map
-                        if (_plugin != null)
+                        _plugin.AddTimer(_config.MapGroups.Delay, () => 
                         {
-                            _plugin.AddTimer(_config.MapGroup.Delay, () => 
-                            {
-                                MapManager.ChangeMap(_nextMap);
-                            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-                        }
+                            _mapManager.ChangeMap(_nextMap);
+                        }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+    
                     });
                 }
 
                 // Update show maps menu with new map list
                 if(_config.Votes.Map)
                 {
-                    UpdateShowMapsMenu(_mapGroup);
+                    UpdateShowMapsMenu();
                 }
             }
         }
 
-        // Define map menu
-        public static BaseMenu? GameMenu;
-
-        // Construct reusable function to update the game command menu
-        public static void UpdateGameMenu()
+        // Define reusable method to update the game command menu
+        public void UpdateGameMenu()
         {
-            if(_logger != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null)
             {
                 // Assign menu
-                GameMenu = AssignMenu(_config.Settings.Style, "Game Commands");
+                _pluginState.GameMenu = AssignMenu(_config.Settings.Style, "Game Commands");
 
                 // Add menu options for each map in the new map list
-                foreach (string _command in PluginState.PlayerCommands)
+                foreach (string _command in _pluginState.PlayerCommands)
                 {
-                    GameMenu.AddMenuOption(_command, (player, option) =>
+                    _pluginState.GameMenu.AddMenuOption(_command, (player, option) =>
                     {
                         // Close menu
                         MenuManager.CloseActiveMenu(player);
@@ -289,7 +275,7 @@ namespace GameModeManager
                         switch(option.Text)
                         {
                             case "!changemode":
-                            if (player != null && ShowMapsMenu != null && _config.Votes.Enabled == true && _config.Votes.GameMode == true)
+                            if (player != null && _config.Votes.Enabled && _config.Votes.GameMode)
                             {
                                 // Create message
                                 string _message = _localizer.Localize("mode.show.menu-response") + _localizer.Localize("changemode");
@@ -297,49 +283,41 @@ namespace GameModeManager
                             }
                             break;
                             case "!showmaps":
-                            if (player != null && ShowMapsMenu != null && _config.Votes.Enabled == true && _config.Votes.Map == true)
+                            if (player != null && _pluginState.ShowMapsMenu != null && _config.Votes.Enabled && _config.Votes.Map)
                             {
-                                OpenMenu(ShowMapsMenu, _config.MapGroup.Style, player);
+                                OpenMenu(_pluginState.ShowMapsMenu, _config.MapGroups.Style, player);
                             }
                             break;
                             case "!showmodes":
-                            if (player != null && ShowModesMenu != null && _config.Votes.Enabled == true && _config.Votes.GameMode == true)
+                            if (player != null && _pluginState.ShowModesMenu != null && _config.Votes.Enabled && _config.Votes.GameMode)
                             {
-                                OpenMenu(ShowModesMenu, _config.GameMode.Style, player);
+                                OpenMenu(_pluginState.ShowModesMenu, _config.GameModes.Style, player);
                             }
                             break;
                             case "!showsettings":
-                            if (player != null && ShowSettingsMenu != null && _config.Votes.Enabled == true && _config.Votes.GameSetting == true)
+                            if (player != null && _pluginState.ShowSettingsMenu != null && _config.Votes.Enabled && _config.Votes.GameSetting)
                             {
-                                OpenMenu(ShowSettingsMenu, _config.Settings.Style, player);
+                                OpenMenu(_pluginState.ShowSettingsMenu, _config.Settings.Style, player);
                             }
                             break;
                             case "!currentmode":
-                            if (player != null && PluginState.CurrentMapGroup != null)
+                            if (player != null)
                             {
                                 // Create message
-                                string _message = _localizer.Localize("currentmode.message", PluginState.CurrentMapGroup.DisplayName);
+                                string _message = _localizer.Localize("currentmode.message", _pluginState.CurrentMode.Name);
 
                                 // Write to chat
                                 player.PrintToChat(_message);
-                            }
-                            else if (player != null && PluginState.CurrentMap == null)
-                            {
-                                player.PrintToChat("Current map group not set.");   
                             }
                             break;
                             case "!currentmap":
-                            if (player != null && PluginState.CurrentMap != null)
+                            if (player != null)
                             {
                                 // Create message
-                                string _message = _localizer.Localize("currentmap.message", PluginState.CurrentMap.Name);
+                                string _message = _localizer.Localize("currentmap.message", _pluginState.CurrentMap.Name);
 
                                 // Write to chat
                                 player.PrintToChat(_message);
-                            }
-                            else if (player != null && PluginState.CurrentMap == null)
-                            {
-                                player.PrintToChat("Current map is not set.");
                             }
                             break;
                         }
@@ -348,21 +326,18 @@ namespace GameModeManager
             }
         }
 
-        // Define show map menu
-        public static BaseMenu? ShowMapsMenu;
-
-        // Construct resuable function to set up show maps menu
-        public static void UpdateShowMapsMenu(MapGroup _mapGroup)
+        // Define resuable method to set up show maps menu
+        public void UpdateShowMapsMenu()
         {
-            if(_logger != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null)
             {
                 // Assign menu
-                ShowMapsMenu = AssignMenu(_config.MapGroup.Style, "Map List");
+                _pluginState.ShowMapsMenu = AssignMenu(_config.MapGroups.Style, "Map List");
 
-                foreach (Map _map in _mapGroup.Maps)
+                foreach (Map _map in _pluginState.CurrentMode.Maps)
                 {
                     // Add menu option
-                    ShowMapsMenu.AddMenuOption(_map.DisplayName, (player, option) =>
+                    _pluginState.ShowMapsMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                     {
                         // Create message
                         string _message = _localizer.Localize("maps.show.menu-response", _map.Name);
@@ -377,21 +352,18 @@ namespace GameModeManager
             }
         }
 
-        // Define show map menu
-        public static BaseMenu? ShowModesMenu;
-
-        // Construct resuable function to set up show maps menu
-        public static void CreateShowModesMenu()
+        // Define resuable method to set up show maps menu
+        public void CreateShowModesMenu()
         {
-            if(_logger != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null)
             {
                 // Assign menu
-                ShowModesMenu = AssignMenu(_config.GameMode.Style, "Game Mode List");
+                _pluginState.ShowModesMenu = AssignMenu(_config.GameModes.Style, "Game Mode List");
 
-                foreach (Mode _mode in PluginState.Modes)
+                foreach (Mode _mode in _pluginState.Modes)
                 {
                     // Add menu option
-                    ShowModesMenu.AddMenuOption(_mode.Name, (player, option) =>
+                    _pluginState.ShowModesMenu.AddMenuOption(_mode.Name, (player, option) =>
                     {
                         // Create message
                         string _modeName = Extensions.RemoveCfgExtension(_mode.Config);
@@ -407,21 +379,18 @@ namespace GameModeManager
             }
         }
 
-        // Define show map menu
-        public static BaseMenu? ShowSettingsMenu;
-
-        // Construct resuable function to set up show maps menu
-        public static void CreateShowSettingsMenu()
+        // Define resuable method to set up show maps menu
+        public void CreateShowSettingsMenu()
         {
-            if(_logger != null && _config != null && _localizer != null)
+            if(_logger != null && _config != null)
             {
                 // Assign menu
-                ShowSettingsMenu = AssignMenu(_config.Settings.Style, "Setting List");
+                _pluginState.ShowSettingsMenu = AssignMenu(_config.Settings.Style, "Setting List");
                 
-                foreach (Setting _setting in SettingsManager.Settings)
+                foreach (Setting _setting in _pluginState.Settings)
                 {
                     // Add menu option
-                    ShowSettingsMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
+                    _pluginState.ShowSettingsMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                     {
                         // Create message
                         string _message = _localizer.Localize("setting.show.menu-response", _setting.Name);

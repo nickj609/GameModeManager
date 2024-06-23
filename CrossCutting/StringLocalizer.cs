@@ -4,13 +4,14 @@ using Microsoft.Extensions.Localization;
 // Declare namespace
 namespace GameModeManager
 {
-    // Define StringLocalizer class
+    // Define class
     public class StringLocalizer
     {
+        // Define dependencies
+        private readonly string _prefix;
         private IStringLocalizer _localizer;
 
-        private readonly string _prefix;
-
+        // Define class instances
         public StringLocalizer(IStringLocalizer localizer)
         {
             _localizer = localizer;
@@ -23,6 +24,7 @@ namespace GameModeManager
             _prefix = prefix;
         }
 
+        // Define methods for localization
         public string LocalizeWithPrefixInternal(string prefix, string key, params object[] args)
         {
             return $"{_localizer[prefix]} {Localize(key, args)}";

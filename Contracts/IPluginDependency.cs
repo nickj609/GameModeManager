@@ -1,7 +1,7 @@
-﻿using CounterStrikeSharp.API.Core;
-
+﻿// Decalre namespace
 namespace GameModeManager
 {
+    // Define interface
     public interface IPluginDependency<TPlugin, TConfig>
     {
         public virtual void OnConfigParsed(TConfig config) { }
