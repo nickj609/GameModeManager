@@ -52,9 +52,11 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 <details>
 <summary>Admin Commands</summary>
 
+- `!allmaps` - Displays an admin menu for changing the map to any map from any game mode. 
+
 - `!maps` - Displays an admin menu for changing the map. 
 
-   > _It only shows maps for the current game mode/map group._
+   > _It only shows maps for the current game mode._
 
    ![Screenshot 2024-06-15 214126](https://github.com/nickj609/GameModeManager/assets/32173425/6da6d946-c876-4182-b7d2-8bb4e8d7341f)
   
@@ -98,9 +100,13 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!showmaps` - Displays a **dynamic** menu of all per-map votes that can be created.
 
+  > _It only shows maps for the current game mode._
+
    ![image](https://github.com/nickj609/GameModeManager/assets/32173425/1fe0914e-0a48-477c-b5a7-6f57abc391ba)
 
    ![image](https://github.com/nickj609/GameModeManager/assets/32173425/793e6d64-2b89-4875-8410-cef3982ee8aa)
+
+- `!showallmaps` - Displays a menu of all per-map votes that can be created for all games modes. 
 
 - `!currentmode` - Displays the current game mode.
 
