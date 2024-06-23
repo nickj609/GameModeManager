@@ -172,7 +172,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | Rotation            | Enables game mode rotation.                                                                                                               |  
 | Interval            | Changes game mode every x map rotations.                                                                                                  | 
 | Delay               | Delay for changing game modes in seconds.                                                                                                 | 
-| DefaultMode         | Default mode on server start (i.e. deathmatch).                                                                                       | 
+| DefaultMode         | Default mode on server start (i.e. deathmatch).                                                                                           | 
 | Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      |
 | List                | A customizable list of game modes for your server with friendly names for menus.                                                          |  
 
@@ -180,15 +180,15 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables voting.                                                                                                                           | 
-| Map                 | Enables map vote.                                                                                                                         | 
-| AllMap                 | Enables all maps vote.                                                                                                                         |
+| Map                 | Enables map votes.                                                                                                                        | 
+| AllMap              | Enables all map votes.                                                                                                                    |
 | GameMode            | Enables game mode votes.                                                                                                                  |
 | GameSetting         | Enables game setting votes.                                                                                                               |
 | Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
 
 > [!CAUTION]
 > - All configuration files must be within `/csgo/cfg/`.
-> - Your mode config files must use `css_mapgroup` to cycle the current map group.
+> - Your mode config files must use `css_gamemode` to cycle the game mode for the plugin.
 
 <details>
 <summary><b>Click to see Default Values</b></summary>
