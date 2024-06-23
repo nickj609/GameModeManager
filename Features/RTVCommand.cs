@@ -3,36 +3,59 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Commands;
-using CounterStrikeSharp.API.Core.Attributes.Registration;
 
 // Declare namespace
 namespace GameModeManager
 {
-    public partial class Plugin : BasePlugin
+    public class RTVCommand : IPluginDependency<Plugin, Config>
     {
-        // Construct server rtv command handler
-        [ConsoleCommand("css_rtv_enabled", "Enables or disables RTV.")]
+
+        // Define dependencies
+        private Config? _config;
+        private ILogger? _logger;
+        private PluginState _pluginState;
+
+        // Define class instance
+        public RTVCommand(PluginState pluginState)
+        {
+            _pluginState = pluginState;
+        }
+
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
+        // Define on load behavior
+        public void OnLoad(Plugin plugin)
+        {
+            _logger = plugin.Logger;
+            plugin.AddCommand("css_rtv_enabled", "Enables or disables RTV.", OnRTVCommand);
+        }
+
+        // Define server rtv command handler
         [CommandHelper(minArgs: 1, usage: "<true|false>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player == null) 
             {
-               if (command.ArgByIndex(1).ToLower() == "true" && PluginState.RTVEnabled == false)
+               if (command.ArgByIndex(1).ToLower() == "true" && _pluginState.RTVEnabled == false && _logger != null && _config != null)
                {
-                    Logger.LogInformation($"Enabling RTV...");
-                    Server.ExecuteCommand($"css_plugins load {Config.RTV.Plugin}");
+                    _logger.LogInformation($"Enabling RTV...");
+                    Server.ExecuteCommand($"css_plugins load {_config.RTV.Plugin}");
 
-                    Logger.LogInformation($"Disabling game mode and map rotations...");
-                    PluginState.RTVEnabled = true;
+                    _logger.LogInformation($"Disabling game mode and map rotations...");
+                    _pluginState.RTVEnabled = true;
                }
-               else if (command.ArgByIndex(1).ToLower() == "false" && PluginState.RTVEnabled == true)
+               else if (command.ArgByIndex(1).ToLower() == "false" && _pluginState.RTVEnabled && _logger != null && _config != null)
                {
                 
-                    Logger.LogInformation($"Disabling RTV...");
-                    Server.ExecuteCommand($"css_plugins unload {Config.RTV.Plugin}");
+                    _logger.LogInformation($"Disabling RTV...");
+                    Server.ExecuteCommand($"css_plugins unload {_config.RTV.Plugin}");
 
-                    Logger.LogInformation($"Enabling game mode and map rotations...");
-                    PluginState.RTVEnabled = false;
+                    _logger.LogInformation($"Enabling game mode and map rotations...");
+                    _pluginState.RTVEnabled = false;
                }
                else
                {

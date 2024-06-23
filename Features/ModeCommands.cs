@@ -1,63 +1,111 @@
 // Included libraries
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
-using CounterStrikeSharp.API.Core.Attributes.Registration;
 
 // Declare namespace
 namespace GameModeManager
 {
-    public partial class Plugin : BasePlugin
+    public class ModeCommands : IPluginDependency<Plugin, Config>
     {
-        // Construct admin change mode command handler
+        // Define dependencies
+        private Plugin? _plugin;
+        private Config? _config;
+        private ILogger? _logger;
+        private MapManager _mapManager;
+        private PluginState _pluginState;
+        private MenuFactory _menuFactory;
+        private VoteManager _voteManager;
+        private StringLocalizer _localizer;
+
+        // Define class instance
+        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, MapManager mapManager, VoteManager voteManager)
+        {
+            _localizer = localizer;
+            _mapManager = mapManager;
+            _pluginState = pluginState;
+            _menuFactory = menuFactory;
+            _voteManager = voteManager;
+        }
+
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
+        // Define on load behavior
+        public void OnLoad(Plugin plugin)
+        {
+            _plugin = plugin;
+            _logger = plugin.Logger;
+            plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
+            plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
+            plugin.AddCommand("css_gamemode", "Sets the current mapgroup.", OnGameModeCommand);
+        }
+
+        // Define server game mode command handler
+        [CommandHelper(minArgs: 1, usage: "<comp>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnGameModeCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null && _logger != null) 
+            {
+                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.ToLower() == command.ArgByIndex(1).ToLower() || m.Config == $"{command.ArgByIndex(1).ToLower()}.cfg");
+
+                if(_mode != null && _mode != _pluginState.CurrentMode)
+                {
+                    _logger.LogInformation($"Current mode: {_pluginState.CurrentMode.Name}");
+                    _logger.LogInformation($"New mode: {_mode.Name}");
+                    _logger.LogInformation("Regenerating per map votes...");
+                    
+                    // Deregister map votes from old mode
+                    _voteManager.DeregisterMapVotes();
+
+                    // Set mode
+                    _pluginState.CurrentMode = _mode;
+
+                    // Update map list and map menu
+                    _mapManager.UpdateMapList();
+                    _menuFactory.UpdateMapMenus();
+
+                    // Register map votes for new mode
+                    _voteManager.RegisterMapVotes();
+                }
+                else
+                {
+                    _logger.LogWarning($"Unable to find game mode {command.ArgByIndex(1)}. Setting default game mode.");
+                    _pluginState.CurrentMode = PluginState.DefaultMode;
+                }
+            }
+        }
+        // Define admin change mode command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 1, usage: "<mode>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_mode", "Changes the game mode to the mode specified in the command argument.")]
         public void OnModeCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(player != null)
             {
                 // Define variables
-                string? _option = null;
-                MapGroup? _mapGroup = PluginState.MapGroups?.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
-                KeyValuePair<string, string>? _mode = Config.GameMode.List?.FirstOrDefault(m => m.Key == $"{command.ArgByIndex(1)}");
+                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.ToLower() == $"{command.ArgByIndex(1).ToLower()}" || m.Config.ToLower() == $"{command.ArgByIndex(1).ToLower()}.cfg");
 
-                // Check if using mode list or map groups
-                if (Config.GameMode.ListEnabled != true)
-                {
-                    _mapGroup = PluginState.MapGroups?.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
-
-                    if (_mapGroup != null && _mapGroup.Name != null)
-                    {
-                        _option = _mapGroup.Name;
-                    }
-                }
-                else
-                {
-                    _mode = Config.GameMode.List?.FirstOrDefault(m => m.Key == $"{command.ArgByIndex(1)}");
-
-                    if (_mode != null && _mode is KeyValuePair<string, string> kvp)
-                    {
-                        _option = kvp.Key;
-                    }
-                }
-
-                // Check if mode or mapgroup is found
-                if (_option != null)
+                if (_mode != null && _plugin != null && _config != null)
                 {
                     // Create mode message
-                    string _message = Localizer["plugin.prefix"] + " " + Localizer["changemode.message", player.PlayerName, command.ArgByIndex(1)];
+                    string _message = _localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name);
 
                     // Write to chat
                     Server.PrintToChatAll(_message);
 
                     // Change mode
-                    _option = _option.ToLower();
-                    AddTimer(Config.GameMode.Delay, () => 
+                    _plugin.AddTimer(_config.GameModes.Delay, () => 
                     {
-                        Server.ExecuteCommand($"exec {_option}.cfg");
+                        Server.ExecuteCommand($"exec {_mode.Config}");
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+
+                    // Set current mode
+                    _pluginState.CurrentMode = _mode;
                 }
                 else
                 {
@@ -71,17 +119,16 @@ namespace GameModeManager
             }
         }
 
-        // Construct admin mode menu command handler
+        // Define admin mode menu command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_modes", "Provides a list of game modes.")]
         public void OnModesCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && MenuFactory.ModeMenu != null)
+            if(player != null && _pluginState.ModeMenu != null && _config != null)
             {
                 // Open menu
-                MenuFactory.ModeMenu.Title = Localizer["modes.menu-title"];
-                MenuFactory.OpenMenu(MenuFactory.ModeMenu, Config.GameMode.Style, player);
+                _pluginState.ModeMenu.Title = _localizer.Localize("modes.menu-title");
+                _menuFactory.OpenMenu(_pluginState.ModeMenu, _config.GameModes.Style, player);
             }
             else if (player == null)
             {

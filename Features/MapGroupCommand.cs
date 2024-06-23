@@ -2,51 +2,51 @@
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Commands;
-using CounterStrikeSharp.API.Core.Attributes.Registration;
 
 // Declare namespace
 namespace GameModeManager
 {
-    public partial class Plugin : BasePlugin
+    public class MapGroupCommand : IPluginDependency<Plugin, Config>
     {
-        // Construct server map group command handler
-        [ConsoleCommand("css_mapgroup", "Sets the current mapgroup.")]
+        // Define dependencies
+        private ILogger? _logger;
+        private PluginState _pluginState;
+        private VoteManager _voteManager;
+
+        // Define class instance
+        public MapGroupCommand(PluginState pluginState, VoteManager voteManager)
+        {
+            _pluginState = pluginState;
+            _voteManager = voteManager;
+        }
+
+        // Define on load behavior
+        public void OnLoad(Plugin plugin)
+        {
+            _logger = plugin.Logger;
+            plugin.AddCommand("css_mapgroup", "Sets the current mapgroup.", OnMapGroupCommand);
+        }
+
+        // Define server map group command handler
         [CommandHelper(minArgs: 1, usage: "<mg_active>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnMapGroupCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player == null) 
             {
                 // Find map group
-                MapGroup? _mapGroup = PluginState.MapGroups.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
+                MapGroup? _mapGroup = _pluginState.MapGroups.FirstOrDefault(g => g.Name == command.ArgByIndex(1).ToLower());
 
-                if (_mapGroup != null && _mapGroup.Name != null && _mapGroup.Maps != null)
+                if (_mapGroup != null && _mapGroup != _pluginState.CurrentMapGroup && _logger != null)
                 {
-                    if (PluginState.CurrentMapGroup != null)
-                    {
-                        Logger.LogInformation($"Current map group is {PluginState.CurrentMapGroup.Name}.");
-                        Logger.LogInformation($"New map group is {_mapGroup.Name}.");
-                    }
+                    // Log map group change
+                    _logger.LogInformation($"Current map group is {_pluginState.CurrentMapGroup.Name}.");
+                    _logger.LogInformation($"New map group is {_mapGroup.Name}.");
 
-                    // Error handling
-                    try
-                    {
-                        // Update map list and map menu
-                        MapManager.UpdateMapList(_mapGroup);
+                    // Deregister map votes from old map group
+                    _voteManager.DeregisterMapVotes();
 
-                        // Deregister map votes from old map group
-                        VoteManager.DeregisterMapVotes();
-
-                        // Set new map group and map
-                        PluginState.CurrentMapGroup = _mapGroup;
-                        PluginState.CurrentMap = _mapGroup.Maps.FirstOrDefault();
-
-                        // Register map votes for new map group
-                        VoteManager.RegisterMapVotes();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"{ex.Message}");
-                    } 
+                    // Set new map group
+                    _pluginState.CurrentMapGroup = _mapGroup;
                 }
                 else
                 {

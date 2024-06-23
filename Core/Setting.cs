@@ -4,23 +4,16 @@ using System.Globalization;
 // Declare namespace
 namespace GameModeManager
 {
-    // Define setting class
+    // Define class
     public class Setting : IEquatable<Setting>
     {
-        // Define setting variables
+        // Define parameters
         public string Name { get; set; }
         public string Enable { get; set; }
         public string Disable { get; set; }
         public string DisplayName { get; set; }
-
-        // Construct reusable function to format settings names
-        private string FormatSettingName(string _settingName)
-        {
-                _settingName = _settingName.Replace("_", " ");
-                return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_settingName); 
-        }
         
-        // Construct class instances
+        // Define class instances
         public Setting(string _name)
         {
             Name = _name;
@@ -36,14 +29,21 @@ namespace GameModeManager
             DisplayName = FormatSettingName(_name);
         }
 
-        // Construct function for comparisons
+        // Define reusable method to format settings names
+        private string FormatSettingName(string _settingName)
+        {
+                _settingName = _settingName.Replace("_", " ");
+                return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_settingName); 
+        }
+
+        // Define reusable method to equate settings
         public bool Equals(Setting? _other) 
         {
-            if (_other == null) return false;  // Handle null 
+            if (_other == null) return false; 
             return Name == _other.Name && Enable == _other.Enable && Disable == _other.Disable && DisplayName == _other.DisplayName;
         }
 
-        // Construct function to clear values
+        // Define reusable method to clear values
         public void Clear()
         {
             Name = "";

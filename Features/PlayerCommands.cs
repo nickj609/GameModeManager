@@ -2,49 +2,76 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
-using CounterStrikeSharp.API.Core.Attributes.Registration;
 
 // Declare namespace
 namespace GameModeManager
 {
-    public partial class Plugin : BasePlugin
+    public class PlayerCommands : IPluginDependency<Plugin, Config>
     {
-        // Construct show maps menu command handler
+        // Define dependencies
+        private Config? _config;
+        private PluginState _pluginState;
+        private MenuFactory _menuFactory;
+        private StringLocalizer _localizer;
+
+        // Define class instance
+        public PlayerCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory)
+        {
+            _localizer = localizer;
+            _pluginState = pluginState;
+            _menuFactory = menuFactory;
+        }
+
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
+        // Define on load behavior
+        public void OnLoad(Plugin plugin)
+        {
+            plugin.AddCommand("css_showmaps", "Shows a list of maps.", OnShowMapsCommand);
+            plugin.AddCommand("css_game", "Provides a list of game commands.", OnGameCommand);
+            plugin.AddCommand("css_currentmap", "Displays current map.", OnCurrentMapCommand);
+            plugin.AddCommand("css_currentmode", "Displays current map.", OnCurrentModeCommand);
+            plugin.AddCommand("css_showmodes", "Shows a list of game modes.", OnShowModesCommand);
+            plugin.AddCommand("css_showsettings", "Provides a list of game settings.", OnShowSettingsCommand);
+        }
+
+        // Define show maps menu command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_showmaps", "Provides a list of maps from current mode.")]
         public void OnShowMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(Config.Votes.Enabled == true && Config.Votes.Map == true)
+            if(_config != null && _config.Votes.Enabled && _config.Votes.Map)
             {
-                if(player != null && MenuFactory.ShowMapsMenu != null)
+                if(player != null && _pluginState.ShowMapsMenu != null)
                 {
                     // Open menu
-                    MenuFactory.ShowMapsMenu.Title = Localizer["maps.menu-title"];
-                    MenuFactory.OpenMenu(MenuFactory.ShowMapsMenu, Config.GameMode.Style, player);
+                    _pluginState.ShowMapsMenu.Title = _localizer.Localize ("maps.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.ShowMapsMenu, _config.GameModes.Style, player);
                 }
                 else if (player == null)
                 {
                     Console.Error.WriteLine("css_showmaps is a client only command.");
                 }
-            }
-            
+            }            
         }
 
-        // Construct show maps menu command handler
+        // Define show maps menu command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_showmodes", "Provides a list of game modes.")]
         public void OnShowModesCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(Config.Votes.Enabled == true && Config.Votes.GameMode == true)
+            if(_config != null && _config.Votes.Enabled && _config.Votes.GameMode)
             {
 
-                if(player != null && MenuFactory.ShowModesMenu != null)
+                if(player != null && _pluginState.ShowModesMenu != null)
                 {
                     // Open menu
-                    MenuFactory.ShowModesMenu.Title = Localizer["modes.menu-title"];
-                    MenuFactory.OpenMenu(MenuFactory.ShowModesMenu, Config.GameMode.Style, player);
+                    _pluginState.ShowModesMenu.Title = _localizer.Localize("modes.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.ShowModesMenu, _config.GameModes.Style, player);
                 }
                 else if (player == null)
                 {
@@ -53,39 +80,36 @@ namespace GameModeManager
             }
         }
 
-        // Construct show maps menu command handler
+        // Define show maps menu command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_showsettings", "Provides a list of game settings.")]
         public void OnShowSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(Config.Votes.Enabled == true && Config.Votes.GameSetting == true)
+            if(_config != null && _config.Votes.Enabled && _config.Votes.GameSetting)
             {
-                if(player != null && MenuFactory.ShowSettingsMenu != null)
+                if(player != null && _pluginState.ShowSettingsMenu != null)
                 {
                     // Open menu
-                    MenuFactory.ShowSettingsMenu.Title = Localizer["settings.menu-title"];
-                    MenuFactory.OpenMenu(MenuFactory.ShowSettingsMenu, Config.Settings.Style, player);
+                    _pluginState.ShowSettingsMenu.Title = _localizer.Localize("settings.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.ShowSettingsMenu, _config.Settings.Style, player);
                 }
                 else if (player == null)
                 {
                     Console.Error.WriteLine("css_showsettings is a client only command.");
                 }
             }
-            
         }
 
-        // Construct game menu command handler
+        // Define game menu command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_game", "Provides a list of game commands.")]
         public void OnGameCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && MenuFactory.GameMenu != null)
+            if(player != null && _pluginState.GameMenu != null && _config != null)
             {
                 // Open menu
-                MenuFactory.GameMenu.Title = Localizer["game.menu-title"];
-                MenuFactory.OpenMenu(MenuFactory.GameMenu, Config.Settings.Style, player);
+                _pluginState.GameMenu.Title = _localizer.Localize("game.menu-title");
+                _menuFactory.OpenMenu(_pluginState.GameMenu, _config.Settings.Style, player);
             }
             else if (player == null)
             {
@@ -93,49 +117,39 @@ namespace GameModeManager
             }
         }
 
-        // Construct current map command handler
+        // Define current map command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_currentmap", "Displays current map.")]
         public void OnCurrentMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player != null && PluginState.CurrentMap != null)
+            if (player != null)
             {
                 // Create message
-                string _message = Localizer["currentmap.message", PluginState.CurrentMap.DisplayName];
+                string _message = _localizer.Localize("currentmap.message", _pluginState.CurrentMap.DisplayName);
 
                 // Write to chat
                 player.PrintToChat(_message);
             }
-            else if (player != null && PluginState.CurrentMap == null)
-            {
-                player.PrintToChat("Current map is not set.");
-            }
-            else if (player == null)
+            else
             {
                 Console.Error.WriteLine("css_game is a client only command.");
             }
         }
 
-        // Construct current map command handler
+        // Define current map command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_currentmode", "Displays current map.")]
         public void OnCurrentModeCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player != null && PluginState.CurrentMapGroup != null)
+            if (player != null)
             {
                 // Create message
-                string _message = Localizer["currentmode.message", PluginState.CurrentMapGroup.DisplayName];
+                string _message = _localizer.Localize("currentmode.message", _pluginState.CurrentMode.Name);
 
                 // Write to chat
                 player.PrintToChat(_message);
             }
-            else if (player != null && PluginState.CurrentMapGroup == null)
-            {
-                player.PrintToChat("Current map group not set.");   
-            }
-            else if (player == null)
+            else
             {
                 Console.Error.WriteLine("css_game is a client only command.");
             }

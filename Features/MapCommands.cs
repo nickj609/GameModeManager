@@ -3,24 +3,57 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
-using CounterStrikeSharp.API.Core.Attributes.Registration;
 
 // Declare namespace
 namespace GameModeManager
 {
-    public partial class Plugin : BasePlugin
+    public class MapCommands : IPluginDependency<Plugin, Config>
     {
-        // Construct admin map menu command handler
+        // Define dependencies
+        private Config? _config;
+        private Plugin? _plugin;
+        private MapManager _mapManager;
+        private PluginState _pluginState;
+        private MenuFactory _menuFactory;
+        private StringLocalizer _localizer;
+
+        // Define class instance
+        public MapCommands(PluginState pluginState, MenuFactory menuFactory, MapManager mapManager, StringLocalizer localizer)
+        {
+            _localizer = localizer;
+            _mapManager = mapManager;
+            _pluginState = pluginState;
+            _menuFactory = menuFactory;
+        }
+
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
+        // Define on load behavior
+        public void OnLoad(Plugin plugin)
+        {
+            _plugin = plugin;
+            _plugin.AddCommand("css_maps", "Provides a list of maps from the current game mode.", OnMapsCommand);
+
+            if (_config != null && _config.Commands.Map)
+            {
+                _plugin.AddCommand("css_map", "Changes the map to the map specified in the command argument.", OnMapCommand);
+            }
+        }
+
+        // Define admin map menu command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_maps", "Provides a list of maps from the current game mode.")]
         public void OnMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
 
-            if(player != null && MenuFactory.MapMenu != null)
+            if(player != null && _pluginState.MapMenu != null && _config != null)
             {
-                MenuFactory.MapMenu.Title = Localizer["maps.menu-title"];
-                MenuFactory.OpenMenu(MenuFactory.MapMenu, Config.GameMode.Style, player);
+                _pluginState.MapMenu.Title = _localizer.Localize("maps.menu-title");
+                _menuFactory.OpenMenu(_pluginState.MapMenu, _config.GameModes.Style, player);
             }
             else
             {
@@ -28,17 +61,16 @@ namespace GameModeManager
             }
         }
 
-        // Construct admin change map command handler
+        // Define admin change map command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 1, usage: "<map_name> optional: <workshop id>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        [ConsoleCommand("css_map", "Changes the map to the map specified in the command argument.")]
         public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && PluginState.Maps != null)
+            if(player != null && _config != null && _plugin != null)
             {
                 // Find map
                 Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
-                Map? _foundMap = PluginState.Maps.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
+                Map? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
 
                 if (_foundMap != null)
                 {
@@ -47,12 +79,12 @@ namespace GameModeManager
                 }
 
                 // Write to chat
-                Server.PrintToChatAll(Localizer["plugin.prefix"] + " " + Localizer["changemap.message", player.PlayerName, _newMap.Name]);
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _newMap.Name));
 
                 // Change map
-                AddTimer(Config.MapGroup.Delay, () => 
+                _plugin.AddTimer(_config.MapGroups.Delay, () => 
                 {
-                    MapManager.ChangeMap(_newMap);
+                    _mapManager.ChangeMap(_newMap);
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
             else

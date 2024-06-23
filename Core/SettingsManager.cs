@@ -5,33 +5,38 @@ using System.Text.RegularExpressions;
 // Declare namespace
 namespace GameModeManager
 {
-    // Plugin class
+    // Define class
     public class SettingsManager : IPluginDependency<Plugin, Config>
     {
-        // Define settings list
-        public static List<Setting> Settings = new List<Setting>();
-
         // Define dependencies
-        private static Plugin? _plugin;
+        private static Config? _config;
         private static ILogger? _logger;
+        private PluginState _pluginState;
 
-        // Load dependencies
-        public void OnLoad(Plugin plugin)
-        { 
-            _plugin = plugin;
-            _logger = plugin.Logger;
+        // Define class instance
+        public SettingsManager(PluginState pluginState)
+        {
+            _pluginState = pluginState;
         }
 
-        // Constuct reusable function to parse settings
-        public static void Load()
+        // Load config
+        public void OnConfigParsed(Config config)
         {
-            if(_logger != null)
+            _config = config;
+        }
+        
+        // Define on load behavior (parses settings into setting classes)
+        public void OnLoad(Plugin plugin)
+        { 
+            _logger = plugin.Logger;
+            
+            if (_config != null && _config.Settings.Enabled)
             {
                 // Check if the directory exists
-                if (Directory.Exists(Plugin.SettingsDirectory))
+                if (Directory.Exists(PluginState.SettingsDirectory))
                 {
                     // Get all .cfg files
-                    string[] _cfgFiles = Directory.GetFiles(Plugin.SettingsDirectory, "*.cfg");
+                    string[] _cfgFiles = Directory.GetFiles(PluginState.SettingsDirectory, "*.cfg");
 
                     if (_cfgFiles.Length != 0)
                     {
@@ -53,13 +58,13 @@ namespace GameModeManager
                                 _name = _name.Substring(_match.Length);
 
                                 // Find existing setting if it's already in the list
-                                var _setting = Settings.FirstOrDefault(s => s.Name == _name);
+                                var _setting = _pluginState.Settings.FirstOrDefault(s => s.Name == _name);
 
                                 if (_setting == null)
                                 {
                                     // Create a new setting if not found
                                     _setting = new Setting(_name);
-                                    Settings.Add(_setting);
+                                    _pluginState.Settings.Add(_setting);
                                 }
 
                                 // Assign config path based on prefix

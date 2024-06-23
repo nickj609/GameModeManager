@@ -5,15 +5,15 @@ using System.Reflection;
 // Declare namespace
 namespace GameModeManager
 {
-    // Define DependencyManager class
+    // Define class
     public class DependencyManager<TPlugin, TConfig>
     {
+        // Define dependencies
+        private List<Type> TypesToAdd { get; set; } = new();
+        Type dependencyType = typeof(IPluginDependency<TPlugin, TConfig>);
         private List<IPluginDependency<TPlugin, TConfig>> Dependencies { get; set; } = new();
 
-        private List<Type> TypesToAdd { get; set; } = new();
-
-        Type dependencyType = typeof(IPluginDependency<TPlugin, TConfig>);
-
+        // Define method to load dependencies
         public void LoadDependencies(Assembly assembly)
         {
 
@@ -24,6 +24,7 @@ namespace GameModeManager
             TypesToAdd.AddRange(typesToAdd);
         }
 
+        // Define method to create singletons
         public void AddIt(IServiceCollection collection)
         {
             foreach (var type in TypesToAdd)
@@ -41,6 +42,8 @@ namespace GameModeManager
                 return this;
             });
         }
+
+        // Define on map start behavior
         public void OnMapStart(string mapName)
         {
             foreach (var service in Dependencies)
@@ -49,6 +52,7 @@ namespace GameModeManager
             }
         }
 
+        // Define on plugin load behavior
         public void OnPluginLoad(TPlugin plugin)
         {
             foreach (var service in Dependencies)
@@ -57,6 +61,7 @@ namespace GameModeManager
             }
         }
 
+        // Define on config parsed behavior
         public void OnConfigParsed(TConfig config)
         {
             foreach (var service in Dependencies)

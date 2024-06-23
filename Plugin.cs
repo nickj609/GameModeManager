@@ -1,9 +1,7 @@
 ﻿// Included libraries
-using CS2_CustomVotes.Shared;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using CounterStrikeSharp.API.Core.Capabilities;
 using static CounterStrikeSharp.API.Core.Listeners;
 
 // Declare namespace
@@ -20,10 +18,10 @@ namespace GameModeManager
             serviceCollection.AddScoped<StringLocalizer>();
         }
     }
-     // Define BasePlugin class
+     // Define plugin class
     public partial class Plugin : BasePlugin
     {
-        // Define plugin details
+        // Define plugin parameters
         public override string ModuleName => "GameModeManager";
         public override string ModuleVersion => "1.0.44";
         public override string ModuleAuthor => "Striker-Nick";
@@ -31,71 +29,69 @@ namespace GameModeManager
         
         // Define dependencies
         private readonly MapManager _mapManager;
+        private readonly PluginState _pluginState;
         private readonly VoteManager _voteManager;
         private readonly MenuFactory _menuFactory;
         private readonly StringLocalizer _localizer;
-        private readonly MapGroupManager _mapGroupManager;
-        private readonly SettingsManager _settingsManager;
+        private readonly MapCommands _mapCommands;
+        private readonly MapGroupCommand _mapGroupCommand;
+        private readonly ModeCommands _modeCommands;
+        private readonly PlayerCommands _playerCommands;
+        private readonly RTVCommand _rtvCommand;
+        private readonly SettingCommands _settingCommands;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Register dependencies
         public Plugin(DependencyManager<Plugin, Config> dependencyManager,
             MapManager mapManager,
-            MapGroupManager mapGroupManager,
             VoteManager voteManager,
-            SettingsManager settingsManager,
-            MenuFactory menuFactory)
+            MenuFactory menuFactory, 
+            PluginState pluginState, 
+            MapCommands mapCommands, 
+            MapGroupCommand mapGroupCommand, 
+            ModeCommands modeCommands, 
+            PlayerCommands playerCommands, 
+            RTVCommand rtvCommand, 
+            SettingCommands settingCommands)
         {
             _dependencyManager = dependencyManager;
+            _rtvCommand = rtvCommand;
             _mapManager = mapManager;
-            _mapGroupManager = mapGroupManager;
             _voteManager = voteManager;
-            _settingsManager = settingsManager;
             _menuFactory = menuFactory;
+            _pluginState = pluginState;
+            _mapCommands = mapCommands;
+            _modeCommands = modeCommands;
+            _playerCommands = playerCommands;
+            _mapGroupCommand = mapGroupCommand;
+            _settingCommands = settingCommands;
             _localizer = new StringLocalizer(Localizer);
         }
 
-        // Construct On Load behavior
+        // Define method to load plugin
         public override void Load(bool hotReload)
         {   
             // Load dependencies
             _dependencyManager.OnPluginLoad(this);
 
-            // Error handling
-            try
-            {
-                // Load map groups
-                Logger.LogInformation($"Loading map groups...");
-                MapGroupManager.Load();
+            // Create menus
+            _menuFactory.UpdateMapMenus();
+            _menuFactory.CreateModeMenus();
+            _menuFactory.CreateSettingsMenus();
+            
+            // Set RTV map list
+            _mapManager.UpdateMapList();
+            
+            // Register event handlers
+            RegisterEventHandler<EventCsWinPanelMatch>(EventGameEnd);
+            RegisterEventHandler<EventMapTransition>(EventMapChange);
 
-                // Load settings
-                if (Config.Settings.Enabled)
-                {
-                    Logger.LogInformation($"Loading settings...");
-                    SettingsManager.Load();
-                }
-
-                // Create menus
-                Logger.LogInformation($"Creating menus...");
-                MenuFactory.Load();
-
-                // Register event handlers
-                Logger.LogInformation($"Registering event handlers...");
-                RegisterEventHandler<EventCsWinPanelMatch>(EventGameEnd);
-                RegisterEventHandler<EventMapTransition>(EventMapChange);
-
-                // Register listeners
-                RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);
-            }
-            catch(Exception ex)
-            {
-                Logger.LogError($"{ex.Message}");
-            }
+            // Register listeners
+            RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);
         }
 
         // Define custom vote API and signal
         private bool _isCustomVotesLoaded = false;
-        private PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
 
         // When all plugins are loaded, register the CS2-CustomVotes plugin if it is enabled in the config
         public override void OnAllPluginsLoaded(bool hotReload)
@@ -107,7 +103,7 @@ namespace GameModeManager
                 // Ensure CS2-CustomVotes API is loaded
                 try
                 {
-                    if (CustomVotesApi.Get() is null)
+                    if (_pluginState.CustomVotesApi.Get() is null)
                         return;
                 }
                 catch (Exception)
@@ -116,30 +112,17 @@ namespace GameModeManager
                     return;
                 }
                 
+                // set unload flag
                 _isCustomVotesLoaded = true;
 
                 // Register custom votes
-                try
-                {
-                    VoteManager.RegisterCustomVotes();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError($"{ex.Message}");
-                }
+                _voteManager.RegisterCustomVotes();
             }
-
-            // Create game command menu
-             try
-            {
-                MenuFactory.UpdateGameMenu(); 
-            }
-            catch(Exception ex)
-            {
-                Logger.LogError($"{ex.Message}");
-            }
+            
+            // Create game menu
+            _menuFactory.UpdateGameMenu(); 
         }
-        // Constuct unload behavior to deregister votes
+        // Define method to unload plugin
         public override void Unload(bool hotReload)
         {
                 // Deregister votes and game events
@@ -150,7 +133,7 @@ namespace GameModeManager
                     // Deregister custom votes
                     try
                     {
-                        VoteManager.DeregisterCustomVotes();
+                        _voteManager.DeregisterCustomVotes();
                     }
                     catch (Exception ex)
                     {

@@ -8,6 +8,7 @@ namespace GameModeManager
     // Define ServerManager class
     public static class ServerManager
     {
+        // Define method calculate valid players (no bots)
         public static CCSPlayerController[] ValidPlayers(bool considerBots = false)
         {
             //considerBots = true;
@@ -18,6 +19,7 @@ namespace GameModeManager
                 .ToArray();
         }
 
+        // Define method get a count of valid players
         public static int ValidPlayerCount(bool considerBots = false)
         {
             return ValidPlayers(considerBots).Length;
