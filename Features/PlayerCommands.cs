@@ -31,7 +31,8 @@ namespace GameModeManager
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            plugin.AddCommand("css_showmaps", "Shows a list of maps.", OnShowMapsCommand);
+            plugin.AddCommand("css_showmaps", "Shows a list of maps.", OnShowMapCommand);
+            plugin.AddCommand("css_showallmaps", "Shows a list of all maps.", OnShowAllMapsCommand);
             plugin.AddCommand("css_game", "Provides a list of game commands.", OnGameCommand);
             plugin.AddCommand("css_currentmap", "Displays current map.", OnCurrentMapCommand);
             plugin.AddCommand("css_currentmode", "Displays current map.", OnCurrentModeCommand);
@@ -42,14 +43,34 @@ namespace GameModeManager
         // Define show maps menu command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        public void OnShowMapsCommand(CCSPlayerController? player, CommandInfo command)
+        public void OnShowMapCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(_config != null && _config.Votes.Enabled && _config.Votes.Map)
+            {
+                if(player != null && _pluginState.ShowMapMenu != null)
+                {
+                    // Open menu
+                    _pluginState.ShowMapMenu.Title = _localizer.Localize ("maps.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.ShowMapMenu, _config.GameModes.Style, player);
+                }
+                else if (player == null)
+                {
+                    Console.Error.WriteLine("css_showmaps is a client only command.");
+                }
+            }            
+        }
+
+        // Define show all maps menu command handler
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        public void OnShowAllMapsCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if(_config != null && _config.Votes.Enabled && _config.Votes.AllMap)
             {
                 if(player != null && _pluginState.ShowMapsMenu != null)
                 {
                     // Open menu
-                    _pluginState.ShowMapsMenu.Title = _localizer.Localize ("maps.menu-title");
+                    _pluginState.ShowMapsMenu.Title = _localizer.Localize ("modes.menu-title");
                     _menuFactory.OpenMenu(_pluginState.ShowMapsMenu, _config.GameModes.Style, player);
                 }
                 else if (player == null)

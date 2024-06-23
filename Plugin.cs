@@ -75,7 +75,7 @@ namespace GameModeManager
             _dependencyManager.OnPluginLoad(this);
 
             // Create menus
-            _menuFactory.UpdateMapMenus();
+            _menuFactory.CreateMapMenus();
             _menuFactory.CreateModeMenus();
             _menuFactory.CreateSettingsMenus();
             

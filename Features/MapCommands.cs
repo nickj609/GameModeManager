@@ -36,7 +36,8 @@ namespace GameModeManager
         public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
-            _plugin.AddCommand("css_maps", "Provides a list of maps from the current game mode.", OnMapsCommand);
+            _plugin.AddCommand("css_maps", "Displays a list of maps from the current mode.", OnMapsCommand);
+            _plugin.AddCommand("css_allmaps", "Displays a list of modes and their maps.", OnAllMapsCommand);
 
             if (_config != null && _config.Commands.Map)
             {
@@ -54,6 +55,23 @@ namespace GameModeManager
             {
                 _pluginState.MapMenu.Title = _localizer.Localize("maps.menu-title");
                 _menuFactory.OpenMenu(_pluginState.MapMenu, _config.GameModes.Style, player);
+            }
+            else
+            {
+                Console.Error.WriteLine("css_maps is a client only command.");
+            }
+        }
+
+        // Define admin map menu command handler
+        [RequiresPermissions("@css/changemap")]
+        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        public void OnAllMapsCommand(CCSPlayerController? player, CommandInfo command)
+        {
+
+            if(player != null && _pluginState.MapsMenu != null && _config != null)
+            {
+                _pluginState.MapsMenu.Title = _localizer.Localize("modes.menu-title");
+                _menuFactory.OpenMenu(_pluginState.MapsMenu, _config.GameModes.Style, player);
             }
             else
             {

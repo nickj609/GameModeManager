@@ -144,7 +144,8 @@ namespace GameModeManager
     public class VoteSettings
     {
         public bool Enabled { get; set; } = false; // Enables CS2-CustomVotes compatibility
-        public bool Map { get; set; } = false; // Enables vote to change game to a specific map
+        public bool Map { get; set; } = false; // Enables vote to change game to a specific map in the current mode
+        public bool AllMap { get; set; } = false; // Enables vote to change game to a specific map in all modes
         public bool GameMode { get; set; } = false; // Enables vote to change game mode
         public bool GameSetting { get; set; } = false; // Enables vote to change game setting
         public string Style { get; set; } = "center"; // Changes vote menu type (i.e. "chat" or "center")

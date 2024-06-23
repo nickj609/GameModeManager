@@ -54,9 +54,11 @@ namespace GameModeManager
  
         // Define menus
         public BaseMenu? MapMenu;
+        public BaseMenu? MapsMenu;
         public BaseMenu? ModeMenu;
         public BaseMenu? GameMenu;
         public BaseMenu? SettingsMenu;
+        public BaseMenu? ShowMapMenu;
         public BaseMenu? ShowMapsMenu;
         public BaseMenu? ShowModesMenu;
         public BaseMenu? ShowSettingsMenu;

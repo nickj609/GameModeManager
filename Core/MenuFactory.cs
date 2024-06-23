@@ -215,6 +215,101 @@ namespace GameModeManager
             }
         }
 
+        public void CreateMapMenus()
+        {
+            CreateAllMapsMenus();
+            UpdateMapMenus();
+        }
+
+        public void CreateAllMapsMenus()
+        {
+            if(_logger != null && _config != null && _plugin != null)
+            {
+                _pluginState.MapsMenu = AssignMenu(_config.MapGroups.Style, "Select a game mode.");
+
+                foreach (Mode _mode in _pluginState.Modes)
+                {
+                    _pluginState.MapsMenu.AddMenuOption(_mode.Name, (player, option) =>
+                    {
+
+                        BaseMenu subMenu;
+                        subMenu = AssignMenu(_config.MapGroups.Style, _localizer.Localize("maps.menu-title"));
+
+                        foreach (Map _map in _mode.Maps)
+                        {
+                            subMenu.AddMenuOption(_map.DisplayName, (player, option) =>
+                            {
+
+                                Map _nextMap = _map;
+
+                                // Create message
+                                string _message = _localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _nextMap.Name);
+
+                                // Write to chat
+                                Server.PrintToChatAll(_message);
+
+                                // Close menu
+                                MenuManager.CloseActiveMenu(player);
+
+                                // Change map
+                                _plugin.AddTimer(_config.MapGroups.Delay, () => 
+                                {
+                                    _mapManager.ChangeMap(_nextMap);
+                                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+            
+
+                            });
+                        }
+
+                        OpenMenu(subMenu, _config.MapGroups.Style, player);
+    
+                    });
+                }
+                // Create show all maps menu
+                if(_config.Votes.Map)
+                {
+                    CreateShowAllMapsMenus();
+                }
+            }
+        }
+
+        public void CreateShowAllMapsMenus()
+        {
+            if(_logger != null && _config != null && _plugin != null)
+            {
+                _pluginState.ShowMapsMenu = AssignMenu(_config.MapGroups.Style, "Select a game mode.");
+
+                foreach (Mode _mode in _pluginState.Modes)
+                {
+                    _pluginState.ShowMapsMenu.AddMenuOption(_mode.Name, (player, option) =>
+                    {
+                        // Close menu
+                        MenuManager.CloseActiveMenu(player);
+
+                        BaseMenu subMenu;
+                        subMenu = AssignMenu(_config.MapGroups.Style, _localizer.Localize("maps.menu-title"));
+
+                        foreach (Map _map in _mode.Maps)
+                        {
+                            subMenu.AddMenuOption(_map.DisplayName, (player, option) =>
+                            {
+                                // Create message
+                                string _message = _localizer.Localize("maps.show.menu-response", _map.Name);
+
+                                // Write to chat
+                                player.PrintToChat(_message);
+
+                                // Close menu
+                                MenuManager.CloseActiveMenu(player);
+                            });
+                        }
+
+                        OpenMenu(subMenu, _config.MapGroups.Style, player);
+                    });
+                }
+            }
+        }
+
         // Define reusable method to update the map menu
         public void UpdateMapMenus()
         {
@@ -251,7 +346,7 @@ namespace GameModeManager
                 // Update show maps menu with new map list
                 if(_config.Votes.Map)
                 {
-                    UpdateShowMapsMenu();
+                    UpdateShowMapMenu();
                 }
             }
         }
@@ -327,17 +422,17 @@ namespace GameModeManager
         }
 
         // Define resuable method to set up show maps menu
-        public void UpdateShowMapsMenu()
+        public void UpdateShowMapMenu()
         {
             if(_logger != null && _config != null)
             {
                 // Assign menu
-                _pluginState.ShowMapsMenu = AssignMenu(_config.MapGroups.Style, "Map List");
+                _pluginState.ShowMapMenu = AssignMenu(_config.MapGroups.Style, "Map List");
 
                 foreach (Map _map in _pluginState.CurrentMode.Maps)
                 {
                     // Add menu option
-                    _pluginState.ShowMapsMenu.AddMenuOption(_map.DisplayName, (player, option) =>
+                    _pluginState.ShowMapMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                     {
                         // Create message
                         string _message = _localizer.Localize("maps.show.menu-response", _map.Name);
