@@ -99,7 +99,7 @@ namespace GameModeManager
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _newMap.Name));
 
                 // Change map
-                _plugin.AddTimer(_config.MapGroups.Delay, () => 
+                _plugin.AddTimer(_config.Maps.Delay, () => 
                 {
                     ServerManager.ChangeMap(_newMap);
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);

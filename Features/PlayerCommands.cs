@@ -45,7 +45,7 @@ namespace GameModeManager
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnShowMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(_config.Votes.Enabled && _config.Votes.Map)
+            if(_config.Votes.Enabled && _config.Votes.Maps)
             {
                 if(player != null)
                 {
@@ -65,9 +65,9 @@ namespace GameModeManager
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnShowAllMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(_config.Votes.Enabled && _config.Votes.AllMap)
+            if(_config.Votes.Enabled && _config.Votes.AllMaps)
             {
-                if(player != null && _pluginState.ShowMapsMenu != null)
+                if(player != null)
                 {
                     // Open menu
                     _pluginState.ShowMapsMenu.Title = _localizer.Localize ("modes.menu-title");
@@ -85,7 +85,7 @@ namespace GameModeManager
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnShowModesCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(_config.Votes.Enabled && _config.Votes.GameMode)
+            if(_config.Votes.Enabled && _config.Votes.GameModes)
             {
 
                 if(player != null)
@@ -106,7 +106,7 @@ namespace GameModeManager
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnShowSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _config.Votes.Enabled && _config.Votes.GameSetting)
+            if(player != null && _config.Votes.Enabled && _config.Votes.GameSettings)
             {
                 // Open menu
                 _pluginState.ShowSettingsMenu.Title = _localizer.Localize("settings.menu-title");

@@ -61,8 +61,7 @@ namespace GameModeManager
             new Map("de_nuke", "Nuke"),
             new Map("de_vertigo", "Vertigo")
         };
-        public static MapGroup DefaultMapGroup = new MapGroup("mg_active", "Active Map Pool",  DefaultMaps);
-        public static Mode DefaultMode = new Mode("Casual", "casual.cfg", new List<MapGroup>{DefaultMapGroup});
+        public static Mode DefaultMode = new Mode("Casual", "casual.cfg", new List<MapGroup>());
         
         // Define dynamic attributes
         public int MapRotations = 0;
@@ -71,7 +70,6 @@ namespace GameModeManager
         public Mode CurrentMode = DefaultMode;
         public List<Map> Maps = new List<Map>();
         public List<Mode> Modes = new List<Mode>();
-        public MapGroup CurrentMapGroup = DefaultMapGroup;
         public List<Setting> Settings = new List<Setting>();
         public List<string> PlayerCommands = new List<string>()
         {

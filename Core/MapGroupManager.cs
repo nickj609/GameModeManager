@@ -36,7 +36,7 @@ namespace GameModeManager
         public void OnLoad(Plugin plugin)
         {
             // Deserialize gamemodes_server.txt (VDF) to VProperty with GameLoop.Vdf
-            VProperty vdfObject = VdfConvert.Deserialize(File.ReadAllText(_config.MapGroups.File, Encoding.UTF8));
+            VProperty vdfObject = VdfConvert.Deserialize(File.ReadAllText(_config.GameModes.MapGroupFile, Encoding.UTF8));
         
             if (vdfObject == null)
             {
@@ -57,17 +57,6 @@ namespace GameModeManager
                     {  
                         // Set map group name
                         MapGroup _group = new MapGroup(_mapGroup.Key);
-
-                        // Set display name
-                        var _displayName = _mapGroup.Value.OfType<VProperty>()
-                                .Where(p => p.Key == "displayname")
-                                .Select(p => p.Value)
-                                .FirstOrDefault();
-
-                        if (_displayName != null)
-                        {
-                            _group.DisplayName = _displayName.ToString();
-                        }
 
                         // Create an array of maps
                         var _maps = _mapGroup.Value.OfType<VProperty>()
@@ -127,11 +116,9 @@ namespace GameModeManager
                     }
                 }
             }
-            // Set default map group from configuration file. If not found, use plugin default.
-            PluginState.DefaultMapGroup = _pluginState.MapGroups.FirstOrDefault(g => g.Name == _config.MapGroups.Default) ?? PluginState.DefaultMapGroup;
-            _pluginState.CurrentMapGroup = PluginState.DefaultMapGroup;
 
-            PluginState.DefaultMap = _pluginState.Maps.FirstOrDefault(m => m.Name == _config.MapGroups.DefaultMap) ?? PluginState.DefaultMap;
+            // Set default map
+            PluginState.DefaultMap = _pluginState.Maps.FirstOrDefault(m => m.Name == _config.Maps.Default) ?? PluginState.DefaultMap;
             _pluginState.CurrentMap = PluginState.DefaultMap;
         }
     }

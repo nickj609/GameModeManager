@@ -40,60 +40,71 @@ namespace GameModeManager
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void CommandHandler(CCSPlayerController? player, CommandInfo command)
         {
-            string text;
+            // Define message
+            string _message;
 
+            // If warmup, send general message
             if (_gameRules.WarmupRunning)
             {
                 if (player is not null)
+                {
                     player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                }
                 else
+                {
                     Server.PrintToConsole(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                }
+                
                 return;
             }
 
-            if (!_timeLimitManager.UnlimitedTime)
+            // Create message based on map conditions
+            if (!_timeLimitManager.UnlimitedTime) // If timelmit exists
             {
                 if (_timeLimitManager.TimeRemaining > 1)
                 {
+                    // Get remaining time
                     TimeSpan remaining = TimeSpan.FromSeconds((double)_timeLimitManager.TimeRemaining);
+
+                    // If hours left
                     if (remaining.Hours > 0)
                     {
-                        text = _localizer.LocalizeWithPrefix("timeleft.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
+                        _message = _localizer.LocalizeWithPrefix("timeleft.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
                     }
-                    else if (remaining.Minutes > 0)
+                    else if (remaining.Minutes > 0) // If minutes left
                     {
-                        text = _localizer.LocalizeWithPrefix("timeleft.remaining-time-minute", remaining.Minutes, remaining.Seconds);
+                        _message = _localizer.LocalizeWithPrefix("timeleft.remaining-time-minute", remaining.Minutes, remaining.Seconds);
                     }
-                    else
+                    else // If seconds left
                     {
-                        text = _localizer.LocalizeWithPrefix("timeleft.remaining-time-second", remaining.Seconds);
+                        _message = _localizer.LocalizeWithPrefix("timeleft.remaining-time-second", remaining.Seconds);
                     }
                 }
-                else
+                else // If time over
                 {
-                    text = _localizer.LocalizeWithPrefix("timeleft.time-over");
+                    _message = _localizer.LocalizeWithPrefix("timeleft.time-over");
                 }
             }
-            else if (!_maxRoundsManager.UnlimitedRounds)
+            else if (!_maxRoundsManager.UnlimitedRounds) // If round limit exists
             {
-                if (_maxRoundsManager.RemainingRounds > 1)
-                    text = _localizer.LocalizeWithPrefix("timeleft.remaining-rounds", _maxRoundsManager.RemainingRounds);
-                else
-                    text = _localizer.LocalizeWithPrefix("timeleft.last-round");
+                if (_maxRoundsManager.RemainingRounds > 1) // If remaining rounds more than 1
+                    _message = _localizer.LocalizeWithPrefix("timeleft.remaining-rounds", _maxRoundsManager.RemainingRounds);
+                else // If last round
+                    _message = _localizer.LocalizeWithPrefix("timeleft.last-round");
             }
-            else
+            else // If no time limit or round limit
             {
-                text = _localizer.LocalizeWithPrefix("timeleft.no-time-limit");
+                _message = _localizer.LocalizeWithPrefix("timeleft.no-time-limit");
             }
 
-            
+            // Send message    
             if (player is not null)
             {
-                player.PrintToChat(text);
+                player.PrintToChat(_message);
             }
             else
             {
-                Server.PrintToConsole(text);
+                Server.PrintToConsole(_message);
             }
         }
     }

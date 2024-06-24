@@ -29,9 +29,7 @@ namespace GameModeManager
         // Define on load behavior (parses settings into setting classes)
         public void OnLoad(Plugin plugin)
         { 
-            _logger = plugin.Logger;
-            
-            if (_config != null && _config.Settings.Enabled)
+            if (_config.Settings.Enabled)
             {
                 // Check if the directory exists
                 if (Directory.Exists(PluginState.SettingsDirectory))
@@ -54,7 +52,6 @@ namespace GameModeManager
 
                             if (_match.Success) 
                             {
-
                                 // Create new setting name
                                 _name = _name.Substring(_match.Length);
 
@@ -76,8 +73,7 @@ namespace GameModeManager
                                 else 
                                 {
                                     _setting.Disable = _fileName;
-                                }
-                                
+                                }      
                             }
                             else
                             {

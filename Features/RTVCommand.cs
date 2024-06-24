@@ -31,7 +31,6 @@ namespace GameModeManager
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            _logger = plugin.Logger;
             plugin.AddCommand("css_rtv_enabled", "Enables or disables RTV.", OnRTVCommand);
         }
 

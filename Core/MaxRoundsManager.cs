@@ -90,7 +90,6 @@ namespace GameModeManager
                 return HookResult.Continue;
             });
 
-
             plugin.RegisterEventHandler<EventRoundAnnounceLastRoundHalf>((@event, info) =>
             {
                 if (@event is null)

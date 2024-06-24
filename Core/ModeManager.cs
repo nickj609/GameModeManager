@@ -5,7 +5,6 @@ namespace GameModeManager
     public class ModeManager : IPluginDependency<Plugin, Config>
     {
        // Define dependencies
-        private Plugin? _plugin;
         private PluginState _pluginState;
         private static Config _config = new Config();
 
@@ -24,24 +23,25 @@ namespace GameModeManager
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
-            _plugin = plugin;
-
             if (_config != null)
             {
                 // Create modes for each game mode in game mode list
                 foreach(var _mode in _config.GameModes.List)
                 {
+                    MapGroup? mapGroup;
                     string name =_mode.Key;
+                    List<MapGroup> mapGroups = new List<MapGroup>();
                     Dictionary<string, List<string>> modeConfig = _mode.Value;
                     string configName = modeConfig.FirstOrDefault().Key;
                     List<string> _mapGroups = modeConfig.FirstOrDefault().Value;
-                    List<MapGroup> mapGroups = new List<MapGroup>();
-                    MapGroup? mapGroup;
 
                     foreach(string _mapGroup in _mapGroups)
                     {
-                        mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name == _mapGroup) ?? PluginState.DefaultMapGroup;
-                        mapGroups.Add(mapGroup);
+                        mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name == _mapGroup);
+                        if(mapGroup != null)
+                        {
+                            mapGroups.Add(mapGroup);
+                        }
                     }
                     // Add mode to new mode list
                     Mode gameMode = new Mode(name, configName, mapGroups);
@@ -49,7 +49,7 @@ namespace GameModeManager
                 }
 
                 // Set default mode
-                _pluginState.CurrentMode =  _pluginState.Modes.FirstOrDefault(m => m.Name == _config.GameModes.Default) ?? PluginState.DefaultMode;
+                _pluginState.CurrentMode = _pluginState.Modes.FirstOrDefault(m => m.Name == _config.GameModes.Default) ?? PluginState.DefaultMode;
             }
         }
     }

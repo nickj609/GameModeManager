@@ -44,7 +44,7 @@ namespace GameModeManager
             if(_config != null)
             {
                 // Check if game mode votes are enable
-                if(_config.Votes.GameMode)
+                if(_config.Votes.GameModes)
                 {
                     // Add votes to command list
                     _pluginState.PlayerCommands.Add("!changemode");
@@ -94,7 +94,7 @@ namespace GameModeManager
                     GameModeVote = true;
 
                     // Register map votes
-                    if(_config.Votes.Map)
+                    if(_config.Votes.Maps)
                     {
                         RegisterMapVotes();
 
@@ -103,7 +103,7 @@ namespace GameModeManager
                     }
                 }
             
-                if(_config.Votes.GameSetting)
+                if(_config.Votes.GameSettings)
                 {
                     foreach (Setting _setting in _pluginState.Settings)
                     {

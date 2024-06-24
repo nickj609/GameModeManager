@@ -41,8 +41,6 @@ namespace GameModeManager
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            _plugin = plugin;
-            _logger = plugin.Logger;
             plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
             plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
             plugin.AddCommand("css_gamemode", "Sets the current mapgroup.", OnGameModeCommand);
@@ -92,7 +90,7 @@ namespace GameModeManager
                 // Define variables
                 Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.ToLower() == $"{command.ArgByIndex(1).ToLower()}" || m.Config.ToLower() == $"{command.ArgByIndex(1).ToLower()}.cfg");
 
-                if (_mode != null && _plugin != null && _config != null)
+                if (_mode != null)
                 {
                     // Create mode message
                     string _message = _localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name);

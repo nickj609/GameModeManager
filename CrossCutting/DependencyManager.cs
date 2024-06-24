@@ -1,6 +1,6 @@
 // Included libraries
-using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 // Declare namespace
 namespace GameModeManager

@@ -56,9 +56,9 @@ namespace GameModeManager
         public void OnMapStart(string map)
         {
             LoadCvar();
-            if (_timeLimit != null && _timeLimit.GetPrimitiveValue<float>() > 0)
+            if (!UnlimitedTime) // If time limit exists
             {
-                // Create timer based on retrieved time limit
+                // Create timer based on the retrieved time limit
                 StartTimer();
             }
         }
@@ -71,10 +71,9 @@ namespace GameModeManager
 
         private Timer? timer;
 
+        // Define time limit timer to force change map on time limit end
         private void StartTimer()
         {
-            if (_timeLimit == null) return;
-
             // Calculate interval in milliseconds
             int intervalInMilliseconds = (int)Math.Floor(TimeLimitValue);
 

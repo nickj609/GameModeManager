@@ -47,11 +47,11 @@ namespace GameModeManager
             // Update map list for RTV Plugin
             try 
             {
-                using (StreamWriter writer = new StreamWriter(_config.RTV.MapListFile))
+                using (StreamWriter writer = new StreamWriter(_config.RTV.MapList))
                 {
                     foreach (Map _map in _pluginState.CurrentMode.Maps)  
                     {
-                        if (_map.WorkshopId == -1)
+                        if (_map.WorkshopId < 0)
                         {
                             writer.WriteLine(_map.Name);
                         }
