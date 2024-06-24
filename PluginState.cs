@@ -3,7 +3,6 @@ using CS2_CustomVotes.Shared;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Core.Capabilities;
-using Microsoft.Extensions.Logging;
 
 // Declare namespace
 namespace GameModeManager
@@ -28,6 +27,7 @@ namespace GameModeManager
         // Define class instance
         public PluginState(MenuFactory menuFactory)
         {
+            // Load menu factory
             _menuFactory = menuFactory;
 
             // Assign menus
