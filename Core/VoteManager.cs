@@ -15,10 +15,10 @@ namespace GameModeManager
         private bool GameModeVote = false;
 
         // Define dependencies
-        private Config? _config;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
+        private Config _config = new Config();
 
         // Define class instance
         public VoteManager(PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer)
@@ -138,36 +138,33 @@ namespace GameModeManager
         //Define method to register map votes
         public void RegisterMapVotes()
         {
-            if(_config != null && _localizer != null)
+            // Register per map vote
+            foreach (Map _map in _pluginState.CurrentMode.Maps)
             {
-                // Register per map vote
-                foreach (Map _map in _pluginState.CurrentMode.Maps)
-                {
-                    _pluginState.CustomVotesApi.Get()?.AddCustomVote(
-                        _map.Name, // Command to trigger the vote
-                        new List<string>(), // Aliases for the command (optional)
-                        _localizer.Localize("map.vote.menu-title", _map.Name), // Description
-                        "No", 
-                        30, // Time to vote
-                        new Dictionary<string, VoteOption> // vote options
-                        {
-                            { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"css_map {_map.Name} {_map.WorkshopId}" })},
-                            { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
-                        },
-                        "center", // Menu style  - "center" or "chat"
-                        -1 // Minimum percentage of votes required (-1 behaves like 50%)
-                    ); 
-                }
-
-                // Add vote to command list
-                _pluginState.PlayerCommands.Add("!showmaps");
-
-                // Update game menu
-                _menuFactory.UpdateGameMenu();
-
-                // Set map vote flag
-                MapVote = true;
+                _pluginState.CustomVotesApi.Get()?.AddCustomVote(
+                    _map.Name, // Command to trigger the vote
+                    new List<string>(), // Aliases for the command (optional)
+                    _localizer.Localize("map.vote.menu-title", _map.Name), // Description
+                    "No", 
+                    30, // Time to vote
+                    new Dictionary<string, VoteOption> // vote options
+                    {
+                        { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"css_map {_map.Name} {_map.WorkshopId}" })},
+                        { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
+                    },
+                    "center", // Menu style  - "center" or "chat"
+                    -1 // Minimum percentage of votes required (-1 behaves like 50%)
+                ); 
             }
+
+            // Add vote to command list
+            _pluginState.PlayerCommands.Add("!showmaps");
+
+            // Update game menu
+            _menuFactory.UpdateGameMenu();
+
+            // Set map vote flag
+            MapVote = true;
         }
 
         // Define method to deregister map votes
@@ -195,7 +192,7 @@ namespace GameModeManager
         // Define reusable method to deregister custom votes
         public void DeregisterCustomVotes()
         {
-            if (GameModeVote && _config != null)
+            if (GameModeVote)
             {
                 // Deregister all gamemodes vote
                 _pluginState.CustomVotesApi.Get()?.RemoveCustomVote("changemode");

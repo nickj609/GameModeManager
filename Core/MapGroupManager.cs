@@ -15,13 +15,14 @@ namespace GameModeManager
     public class MapGroupManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Config? _config;
-        private ILogger? _logger;
+        private ILogger _logger;
         private PluginState _pluginState;
+        private Config _config = new Config();
 
         // Define class instance
-        public MapGroupManager(PluginState pluginState)
+        public MapGroupManager(PluginState pluginState, ILogger logger)
         {
+            _logger = logger;
             _pluginState = pluginState;  
         }
 
@@ -34,109 +35,104 @@ namespace GameModeManager
         // Define on load behavior (parses map groups and stores them in mapgroup instances)
         public void OnLoad(Plugin plugin)
         {
-            _logger = plugin.Logger;
-
-            if (_config != null)
+            // Deserialize gamemodes_server.txt (VDF) to VProperty with GameLoop.Vdf
+            VProperty vdfObject = VdfConvert.Deserialize(File.ReadAllText(_config.MapGroups.File, Encoding.UTF8));
+        
+            if (vdfObject == null)
             {
-                // Deserialize gamemodes_server.txt (VDF) to VProperty with GameLoop.Vdf
-                VProperty vdfObject = VdfConvert.Deserialize(File.ReadAllText(_config.MapGroups.File, Encoding.UTF8));
-            
-                if (vdfObject == null)
+                throw new IOException("VDF is empty or incomplete.");
+            }
+            else
+            {
+                // Create an array of only map groups
+                var _mapGroups = vdfObject.Value.OfType<VProperty>()
+                                        .Where(p => p.Key == "mapgroups")
+                                        .Select(p => p.Value)
+                                        .FirstOrDefault();
+
+                // Parse array to populate map group list               
+                if (_mapGroups != null)
                 {
-                    throw new IOException("VDF is empty or incomplete.");
-                }
-                else
-                {
-                    // Create an array of only map groups
-                    var _mapGroups = vdfObject.Value.OfType<VProperty>()
-                                            .Where(p => p.Key == "mapgroups")
-                                            .Select(p => p.Value)
-                                            .FirstOrDefault();
+                    foreach (VProperty _mapGroup in _mapGroups.OfType<VProperty>()) 
+                    {  
+                        // Set map group name
+                        MapGroup _group = new MapGroup(_mapGroup.Key);
 
-                    // Parse array to populate map group list               
-                    if (_mapGroups != null)
-                    {
-                        foreach (VProperty _mapGroup in _mapGroups.OfType<VProperty>()) 
-                        {  
-                            // Set map group name
-                            MapGroup _group = new MapGroup(_mapGroup.Key);
+                        // Set display name
+                        var _displayName = _mapGroup.Value.OfType<VProperty>()
+                                .Where(p => p.Key == "displayname")
+                                .Select(p => p.Value)
+                                .FirstOrDefault();
 
-                            // Set display name
-                            var _displayName = _mapGroup.Value.OfType<VProperty>()
-                                    .Where(p => p.Key == "displayname")
-                                    .Select(p => p.Value)
-                                    .FirstOrDefault();
+                        if (_displayName != null)
+                        {
+                            _group.DisplayName = _displayName.ToString();
+                        }
 
-                            if (_displayName != null)
+                        // Create an array of maps
+                        var _maps = _mapGroup.Value.OfType<VProperty>()
+                                .Where(p => p.Key == "maps")
+                                .Select(p => p.Value)
+                                .FirstOrDefault();
+
+                        // Parse array to add maps to map group
+                        if (_maps != null)
+                        {
+                            foreach (VProperty _map in _maps)
                             {
-                                _group.DisplayName = _displayName.ToString();
-                            }
+                                string _mapName = _map.Key;
 
-                            // Create an array of maps
-                            var _maps = _mapGroup.Value.OfType<VProperty>()
-                                    .Where(p => p.Key == "maps")
-                                    .Select(p => p.Value)
-                                    .FirstOrDefault();
+                                // Set display name
+                                string _mapDisplayName = _map.Value.ToString();
 
-                            // Parse array to add maps to map group
-                            if (_maps != null)
-                            {
-                                foreach (VProperty _map in _maps)
+                                if (_mapName.StartsWith("workshop/"))
                                 {
-                                    string _mapName = _map.Key;
+                                    string[] parts = _mapName.Split('/');
+                                    long _mapWorkshopId = long.Parse(parts[1]); 
+                                    string _mapNameFormatted = parts[parts.Length - 1];
 
-                                    // Set display name
-                                    string _mapDisplayName = _map.Value.ToString();
-
-                                    if (_mapName.StartsWith("workshop/"))
+                                    if (!string.IsNullOrEmpty(_mapDisplayName))
                                     {
-                                        string[] parts = _mapName.Split('/');
-                                        long _mapWorkshopId = long.Parse(parts[1]); 
-                                        string _mapNameFormatted = parts[parts.Length - 1];
-
-                                        if (!string.IsNullOrEmpty(_mapDisplayName))
-                                        {
-                                            _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
-                                            _pluginState.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
-                                        }
-                                        else
-                                        {
-                                            _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
-                                            _pluginState.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
-                                        }
+                                        _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
+                                        _pluginState.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
                                     }
                                     else
                                     {
-                                        if (!string.IsNullOrEmpty(_mapDisplayName))
-                                        {
-                                            _group.Maps.Add(new Map(_mapName, _mapDisplayName));
-                                            _pluginState.Maps.Add(new Map(_mapName));
-                                        }
-                                        else
-                                        {
-                                            _group.Maps.Add(new Map(_mapName));
-                                            _pluginState.Maps.Add(new Map(_mapName));
-                                        }
+                                        _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
+                                        _pluginState.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
                                     }
                                 }
-                            }  
-                            else
-                            {
-                                _logger.LogWarning("Mapgroup found, but the 'maps' property is missing or incomplete. Setting default maps.");
-                                _group.Maps = PluginState.DefaultMaps;
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(_mapDisplayName))
+                                    {
+                                        _group.Maps.Add(new Map(_mapName, _mapDisplayName));
+                                        _pluginState.Maps.Add(new Map(_mapName));
+                                    }
+                                    else
+                                    {
+                                        _group.Maps.Add(new Map(_mapName));
+                                        _pluginState.Maps.Add(new Map(_mapName));
+                                    }
+                                }
                             }
-                            // Add map group to map group list
-                            _pluginState.MapGroups.Add(_group);
+                        }  
+                        else
+                        {
+                            _logger.LogWarning("Mapgroup found, but the 'maps' property is missing or incomplete. Setting default maps.");
+                            _group.Maps = PluginState.DefaultMaps;
                         }
+                        // Add map group to map group list
+                        _pluginState.MapGroups.Add(_group);
                     }
                 }
-                // Set default map group from configuration file. If not found, use plugin default.
-                PluginState.DefaultMapGroup = _pluginState.MapGroups.FirstOrDefault(g => g.Name == _config.MapGroups.Default) ?? PluginState.DefaultMapGroup;
-                _pluginState.CurrentMapGroup = PluginState.DefaultMapGroup;
-
-                PluginState.DefaultMap = _pluginState.Maps.FirstOrDefault(m => m.Name == _config.MapGroups.DefaultMap) ?? PluginState.DefaultMap;
-                _pluginState.CurrentMap = PluginState.DefaultMap;
             }
+            // Set default map group from configuration file. If not found, use plugin default.
+            PluginState.DefaultMapGroup = _pluginState.MapGroups.FirstOrDefault(g => g.Name == _config.MapGroups.Default) ?? PluginState.DefaultMapGroup;
+            _pluginState.CurrentMapGroup = PluginState.DefaultMapGroup;
+
+            PluginState.DefaultMap = _pluginState.Maps.FirstOrDefault(m => m.Name == _config.MapGroups.DefaultMap) ?? PluginState.DefaultMap;
+            _pluginState.CurrentMap = PluginState.DefaultMap;
         }
     }
 }

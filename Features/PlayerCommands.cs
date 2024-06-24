@@ -9,10 +9,10 @@ namespace GameModeManager
     public class PlayerCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Config? _config;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
+        private Config _config = new Config();
 
         // Define class instance
         public PlayerCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory)
@@ -45,9 +45,9 @@ namespace GameModeManager
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnShowMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(_config != null && _config.Votes.Enabled && _config.Votes.Map)
+            if(_config.Votes.Enabled && _config.Votes.Map)
             {
-                if(player != null && _pluginState.ShowMapMenu != null)
+                if(player != null)
                 {
                     // Open menu
                     _pluginState.ShowMapMenu.Title = _localizer.Localize ("maps.menu-title");
@@ -65,7 +65,7 @@ namespace GameModeManager
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnShowAllMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(_config != null && _config.Votes.Enabled && _config.Votes.AllMap)
+            if(_config.Votes.Enabled && _config.Votes.AllMap)
             {
                 if(player != null && _pluginState.ShowMapsMenu != null)
                 {
@@ -85,10 +85,10 @@ namespace GameModeManager
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnShowModesCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(_config != null && _config.Votes.Enabled && _config.Votes.GameMode)
+            if(_config.Votes.Enabled && _config.Votes.GameMode)
             {
 
-                if(player != null && _pluginState.ShowModesMenu != null)
+                if(player != null)
                 {
                     // Open menu
                     _pluginState.ShowModesMenu.Title = _localizer.Localize("modes.menu-title");
@@ -106,18 +106,15 @@ namespace GameModeManager
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnShowSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(_config != null && _config.Votes.Enabled && _config.Votes.GameSetting)
+            if(player != null && _config.Votes.Enabled && _config.Votes.GameSetting)
             {
-                if(player != null && _pluginState.ShowSettingsMenu != null)
-                {
-                    // Open menu
-                    _pluginState.ShowSettingsMenu.Title = _localizer.Localize("settings.menu-title");
-                    _menuFactory.OpenMenu(_pluginState.ShowSettingsMenu, _config.Settings.Style, player);
-                }
-                else if (player == null)
-                {
-                    Console.Error.WriteLine("css_showsettings is a client only command.");
-                }
+                // Open menu
+                _pluginState.ShowSettingsMenu.Title = _localizer.Localize("settings.menu-title");
+                _menuFactory.OpenMenu(_pluginState.ShowSettingsMenu, _config.Settings.Style, player);
+            }
+            else if (player == null)
+            {
+                Console.Error.WriteLine("css_showsettings is a client only command.");
             }
         }
 
@@ -126,13 +123,13 @@ namespace GameModeManager
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnGameCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _pluginState.GameMenu != null && _config != null)
+            if(player != null)
             {
                 // Open menu
                 _pluginState.GameMenu.Title = _localizer.Localize("game.menu-title");
                 _menuFactory.OpenMenu(_pluginState.GameMenu, _config.Settings.Style, player);
             }
-            else if (player == null)
+            else
             {
                 Console.Error.WriteLine("css_game is a client only command.");
             }

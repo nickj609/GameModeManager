@@ -10,18 +10,17 @@ namespace GameModeManager
     public class MapCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Config? _config;
-        private Plugin? _plugin;
-        private MapManager _mapManager;
+        private Plugin _plugin;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
+        private Config _config = new Config();
 
         // Define class instance
-        public MapCommands(PluginState pluginState, MenuFactory menuFactory, MapManager mapManager, StringLocalizer localizer)
+        public MapCommands(Plugin plugin, PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer)
         {
+            _plugin = plugin;
             _localizer = localizer;
-            _mapManager = mapManager;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
         }
@@ -39,7 +38,7 @@ namespace GameModeManager
             _plugin.AddCommand("css_maps", "Displays a list of maps from the current mode.", OnMapsCommand);
             _plugin.AddCommand("css_allmaps", "Displays a list of modes and their maps.", OnAllMapsCommand);
 
-            if (_config != null && _config.Commands.Map)
+            if (_config.Commands.Map)
             {
                 _plugin.AddCommand("css_map", "Changes the map to the map specified in the command argument.", OnMapCommand);
             }
@@ -51,7 +50,7 @@ namespace GameModeManager
         public void OnMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
 
-            if(player != null && _pluginState.MapMenu != null && _config != null)
+            if(player != null && _pluginState.MapMenu != null)
             {
                 _pluginState.MapMenu.Title = _localizer.Localize("maps.menu-title");
                 _menuFactory.OpenMenu(_pluginState.MapMenu, _config.GameModes.Style, player);
@@ -68,7 +67,7 @@ namespace GameModeManager
         public void OnAllMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
 
-            if(player != null && _pluginState.MapsMenu != null && _config != null)
+            if(player != null)
             {
                 _pluginState.MapsMenu.Title = _localizer.Localize("modes.menu-title");
                 _menuFactory.OpenMenu(_pluginState.MapsMenu, _config.GameModes.Style, player);
@@ -84,7 +83,7 @@ namespace GameModeManager
         [CommandHelper(minArgs: 1, usage: "<map_name> optional: <workshop id>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _config != null && _plugin != null)
+            if(player != null)
             {
                 // Find map
                 Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");

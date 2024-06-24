@@ -1,6 +1,3 @@
-// Included libraries
-using CounterStrikeSharp.API;
-
 // Declare namespace
 namespace GameModeManager
 {

@@ -29,6 +29,9 @@ namespace GameModeManager
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
         // Define dependencies
+        private readonly Plugin _plugin;
+        private readonly ILogger _logger;
+        private readonly GameRules _gameRules;
         private readonly RTVCommand _rtvCommand;
         private readonly MapManager _mapManager;
         private readonly PluginState _pluginState;
@@ -38,11 +41,10 @@ namespace GameModeManager
         private readonly ModeCommands _modeCommands;
         private readonly StringLocalizer _localizer;
         private readonly PlayerCommands _playerCommands;
-        private readonly GameRules _gameRules;
-        private readonly TimeLimitManager _timeLimitManager;
-        private readonly MaxRoundsManager _maxRoundsManager;
         private readonly SettingCommands _settingCommands;
         private readonly RotationManager _rotationManager;
+        private readonly TimeLimitManager _timeLimitManager;
+        private readonly MaxRoundsManager _maxRoundsManager;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Register dependencies
@@ -61,6 +63,8 @@ namespace GameModeManager
             TimeLimitManager timeLimitManager,
             MaxRoundsManager maxRoundsManager)
         {
+            _plugin = this;
+            _logger = Logger;
             _gameRules = gameRules;
             _rtvCommand = rtvCommand;
             _mapManager = mapManager;
@@ -74,7 +78,7 @@ namespace GameModeManager
             _settingCommands = settingCommands;
             _timeLimitManager = timeLimitManager;
             _maxRoundsManager = maxRoundsManager;
-             _dependencyManager = dependencyManager;
+            _dependencyManager = dependencyManager;
             _localizer = new StringLocalizer(Localizer);
         }
 

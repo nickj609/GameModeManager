@@ -11,13 +11,14 @@ namespace GameModeManager
     {
 
         // Define dependencies
-        private Config? _config;
-        private ILogger? _logger;
+        private ILogger _logger;
         private PluginState _pluginState;
+        private Config _config = new Config();
 
         // Define class instance
-        public RTVCommand(PluginState pluginState)
+        public RTVCommand(PluginState pluginState, ILogger logger)
         {
+            _logger = logger;
             _pluginState = pluginState;
         }
 

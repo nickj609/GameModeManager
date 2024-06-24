@@ -3,6 +3,7 @@ using CS2_CustomVotes.Shared;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Core.Capabilities;
+using Microsoft.Extensions.Logging;
 
 // Declare namespace
 namespace GameModeManager
@@ -10,13 +11,40 @@ namespace GameModeManager
     // Define class
     public class PluginState : IPluginDependency<Plugin, Config>
     {
+        // Define dependencies
+        public BaseMenu MapMenu;
+        public BaseMenu MapsMenu;
+        public BaseMenu ModeMenu;
+        public BaseMenu GameMenu;
+        public BaseMenu ShowMapMenu;
+        public BaseMenu SettingsMenu;
+        public BaseMenu ShowMapsMenu;
+        public BaseMenu ShowModesMenu;
+        public BaseMenu ShowSettingsMenu;
+        public BaseMenu SettingsEnableMenu;
+        public BaseMenu SettingsDisableMenu; 
+        private readonly MenuFactory _menuFactory;
+
         // Define class instance
-        public PluginState()
+        public PluginState(MenuFactory menuFactory)
         {
-            
+            _menuFactory = menuFactory;
+
+            // Assign menus
+            MapMenu = _menuFactory.AssignMenu("center", "Map List");
+            MapsMenu = _menuFactory.AssignMenu("center", "Map List");
+            ModeMenu = _menuFactory.AssignMenu("center", "Mode List");
+            GameMenu = _menuFactory.AssignMenu("center", "Command List");
+            ShowMapMenu = _menuFactory.AssignMenu("center", "Map List");
+            ShowMapsMenu = _menuFactory.AssignMenu("center", "Map List");
+            ShowModesMenu = _menuFactory.AssignMenu("center", "Mode List");
+            SettingsMenu = _menuFactory.AssignMenu("center", "Setting Actions");
+            ShowSettingsMenu = _menuFactory.AssignMenu("center", "Setting List");
+            SettingsEnableMenu = _menuFactory.AssignMenu("center", "Setting List");
+            SettingsDisableMenu = _menuFactory.AssignMenu("center", "Setting List");
         }
 
-        // Define directories (Thanks Kus!)
+        // Define static directories (Thanks Kus!)
         public static string GameDirectory = Path.Join(Server.GameDirectory + "/csgo/");
         public static string ConfigDirectory = Path.Join(GameDirectory + "cfg/");
         public static string SettingsDirectory = Path.Join(ConfigDirectory + "settings/");
@@ -36,7 +64,7 @@ namespace GameModeManager
         public static MapGroup DefaultMapGroup = new MapGroup("mg_active", "Active Map Pool",  DefaultMaps);
         public static Mode DefaultMode = new Mode("Casual", "casual.cfg", new List<MapGroup>{DefaultMapGroup});
         
-        // Define dynamic objects
+        // Define dynamic attributes
         public int MapRotations = 0;
         public bool RTVEnabled = false;
         public Map CurrentMap = DefaultMap;
@@ -51,19 +79,6 @@ namespace GameModeManager
             "!currentmap"
         };
         public List<MapGroup> MapGroups = new List<MapGroup>();
- 
-        // Define menus
-        public BaseMenu? MapMenu;
-        public BaseMenu? MapsMenu;
-        public BaseMenu? ModeMenu;
-        public BaseMenu? GameMenu;
-        public BaseMenu? SettingsMenu;
-        public BaseMenu? ShowMapMenu;
-        public BaseMenu? ShowMapsMenu;
-        public BaseMenu? ShowModesMenu;
-        public BaseMenu? ShowSettingsMenu;
-        public BaseMenu? SettingsEnableMenu;
-        public BaseMenu? SettingsDisableMenu; 
 
         // Define CS2-CustomVotesApi
         public PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");

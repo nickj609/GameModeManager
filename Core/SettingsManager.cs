@@ -9,13 +9,14 @@ namespace GameModeManager
     public class SettingsManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private static Config? _config;
-        private static ILogger? _logger;
+        private ILogger _logger;
         private PluginState _pluginState;
+        private Config _config = new Config();
 
         // Define class instance
-        public SettingsManager(PluginState pluginState)
+        public SettingsManager(PluginState pluginState, ILogger logger)
         {
+            _logger = logger;
             _pluginState = pluginState;
         }
 

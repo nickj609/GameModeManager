@@ -10,10 +10,10 @@ namespace GameModeManager
     public class SettingCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Config? _config;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
+        private Config _config = new Config();
 
         // Define class instance
         public SettingCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory)
@@ -52,7 +52,7 @@ namespace GameModeManager
 
                 if(_option != null) 
                 {
-                    if (_status == "enable" && _localizer != null && _config != null) 
+                    if (_status == "enable") 
                     {
                         // Create message
                         string _message = _localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, _settingName);
@@ -63,7 +63,7 @@ namespace GameModeManager
                         // Change game setting
                         Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_option.Enable}");
                     }
-                    else if (_status == "disable" && _localizer != null && _config != null)
+                    else if (_status == "disable")
                     {
                         // Create message
                         string _message = _localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, _settingName);
@@ -95,7 +95,7 @@ namespace GameModeManager
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _pluginState.SettingsMenu != null && _localizer != null && _config != null)
+            if(player != null)
             {
                 // Open menu
                 _pluginState.SettingsMenu.Title = _localizer.Localize("settings.menu-actions");

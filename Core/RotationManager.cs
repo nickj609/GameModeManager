@@ -10,21 +10,19 @@ namespace GameModeManager
     public class RotationManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin? _plugin;
-        private ILogger? _logger;
-        private MapManager _mapManager;
+        private Plugin _plugin;
+        private ILogger _logger;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private Config _config = new Config();
-        private TimeLimitManager _timeLimitManager;
 
         // Define class instance
-        public RotationManager(PluginState pluginState, StringLocalizer stringLocalizer, MapManager mapManager, TimeLimitManager timeLimitManager)
+        public RotationManager(Plugin plugin, PluginState pluginState, StringLocalizer stringLocalizer, ILogger logger)
         {
-            _mapManager = mapManager;
+            _plugin = plugin;
+            _logger = logger;
             _pluginState = pluginState;
             _localizer = stringLocalizer;
-            _timeLimitManager = timeLimitManager;
         }
         
         // Load config
@@ -78,7 +76,7 @@ namespace GameModeManager
         public void TriggerRotation()
         {  
             // Check if RTV is disabled in config and if so enable randomization
-            if(!_pluginState.RTVEnabled && _logger != null)
+            if(!_pluginState.RTVEnabled)
             {
                 // Check if game mode rotation is enabled
                 if(_plugin != null && _config.GameModes.Rotation && _pluginState.MapRotations % _config.GameModes.Interval == 0)

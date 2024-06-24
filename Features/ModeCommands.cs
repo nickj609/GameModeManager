@@ -11,18 +11,20 @@ namespace GameModeManager
     public class ModeCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin? _plugin;
-        private Config? _config;
-        private ILogger? _logger;
+        private Plugin _plugin;
+        private ILogger _logger;
         private MapManager _mapManager;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private VoteManager _voteManager;
         private StringLocalizer _localizer;
+        private Config _config = new Config();
 
         // Define class instance
-        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, MapManager mapManager, VoteManager voteManager)
+        public ModeCommands(Plugin plugin, PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, MapManager mapManager, VoteManager voteManager, ILogger logger)
         {
+            _plugin = plugin;
+            _logger = logger;
             _localizer = localizer;
             _mapManager = mapManager;
             _pluginState = pluginState;
@@ -50,7 +52,7 @@ namespace GameModeManager
         [CommandHelper(minArgs: 1, usage: "<comp>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnGameModeCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player == null && _logger != null) 
+            if (player == null) 
             {
                 Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.ToLower() == command.ArgByIndex(1).ToLower() || m.Config == $"{command.ArgByIndex(1).ToLower()}.cfg");
 
@@ -118,7 +120,7 @@ namespace GameModeManager
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnModesCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _pluginState.ModeMenu != null && _config != null)
+            if(player != null)
             {
                 // Open menu
                 _pluginState.ModeMenu.Title = _localizer.Localize("modes.menu-title");
