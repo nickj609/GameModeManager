@@ -254,7 +254,7 @@ namespace GameModeManager
                                 // Change map
                                 _plugin.AddTimer(_config.MapGroups.Delay, () => 
                                 {
-                                    _mapManager.ChangeMap(_nextMap);
+                                    ServerManager.ChangeMap(_nextMap);
                                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             
 
@@ -337,7 +337,7 @@ namespace GameModeManager
                         // Change map
                         _plugin.AddTimer(_config.MapGroups.Delay, () => 
                         {
-                            _mapManager.ChangeMap(_nextMap);
+                            ServerManager.ChangeMap(_nextMap);
                         }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
     
                     });

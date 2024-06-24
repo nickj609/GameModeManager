@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
 
+
 // Declare namespace
 namespace GameModeManager
 {
@@ -28,33 +29,39 @@ namespace GameModeManager
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
         // Define dependencies
+        private readonly RTVCommand _rtvCommand;
         private readonly MapManager _mapManager;
         private readonly PluginState _pluginState;
         private readonly VoteManager _voteManager;
         private readonly MenuFactory _menuFactory;
-        private readonly StringLocalizer _localizer;
         private readonly MapCommands _mapCommands;
-        private readonly MapGroupCommand _mapGroupCommand;
         private readonly ModeCommands _modeCommands;
+        private readonly StringLocalizer _localizer;
         private readonly PlayerCommands _playerCommands;
-        private readonly RTVCommand _rtvCommand;
+        private readonly GameRules _gameRules;
+        private readonly TimeLimitManager _timeLimitManager;
+        private readonly MaxRoundsManager _maxRoundsManager;
         private readonly SettingCommands _settingCommands;
+        private readonly RotationManager _rotationManager;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Register dependencies
         public Plugin(DependencyManager<Plugin, Config> dependencyManager,
+            GameRules gameRules,
             MapManager mapManager,
+            RTVCommand rtvCommand, 
             VoteManager voteManager,
             MenuFactory menuFactory, 
             PluginState pluginState, 
             MapCommands mapCommands, 
-            MapGroupCommand mapGroupCommand, 
             ModeCommands modeCommands, 
             PlayerCommands playerCommands, 
-            RTVCommand rtvCommand, 
-            SettingCommands settingCommands)
+            SettingCommands settingCommands,
+            RotationManager rotationManager,
+            TimeLimitManager timeLimitManager,
+            MaxRoundsManager maxRoundsManager)
         {
-            _dependencyManager = dependencyManager;
+            _gameRules = gameRules;
             _rtvCommand = rtvCommand;
             _mapManager = mapManager;
             _voteManager = voteManager;
@@ -63,8 +70,11 @@ namespace GameModeManager
             _mapCommands = mapCommands;
             _modeCommands = modeCommands;
             _playerCommands = playerCommands;
-            _mapGroupCommand = mapGroupCommand;
+            _rotationManager= rotationManager;
             _settingCommands = settingCommands;
+            _timeLimitManager = timeLimitManager;
+            _maxRoundsManager = maxRoundsManager;
+             _dependencyManager = dependencyManager;
             _localizer = new StringLocalizer(Localizer);
         }
 
@@ -81,10 +91,6 @@ namespace GameModeManager
             
             // Set RTV map list
             _mapManager.UpdateMapList();
-            
-            // Register event handlers
-            RegisterEventHandler<EventCsWinPanelMatch>(EventGameEnd);
-            RegisterEventHandler<EventMapTransition>(EventMapChange);
 
             // Register listeners
             RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);
@@ -111,7 +117,7 @@ namespace GameModeManager
                     Logger.LogWarning("CS2-CustomVotes plugin not found. Custom votes will not be registered.");
                     return;
                 }
-                
+            
                 // set unload flag
                 _isCustomVotesLoaded = true;
 

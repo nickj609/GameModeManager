@@ -1,3 +1,6 @@
+// Included libraries
+using CounterStrikeSharp.API;
+
 // Declare namespace
 namespace GameModeManager
 {
@@ -5,8 +8,9 @@ namespace GameModeManager
     public class ModeManager : IPluginDependency<Plugin, Config>
     {
        // Define dependencies
-        private static Config? _config;
+        private Plugin? _plugin;
         private PluginState _pluginState;
+        private static Config _config = new Config();
 
         // Define class instance
         public ModeManager(PluginState pluginState)
@@ -23,6 +27,8 @@ namespace GameModeManager
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
+            _plugin = plugin;
+
             if (_config != null)
             {
                 // Create modes for each game mode in game mode list
@@ -46,7 +52,7 @@ namespace GameModeManager
                 }
 
                 // Set default mode
-                _pluginState.CurrentMode =  _pluginState.Modes.FirstOrDefault(m => m.Name == _config.GameModes.DefaultMode) ?? PluginState.DefaultMode;
+                _pluginState.CurrentMode =  _pluginState.Modes.FirstOrDefault(m => m.Name == _config.GameModes.Default) ?? PluginState.DefaultMode;
             }
         }
     }

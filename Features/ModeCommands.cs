@@ -99,13 +99,7 @@ namespace GameModeManager
                     Server.PrintToChatAll(_message);
 
                     // Change mode
-                    _plugin.AddTimer(_config.GameModes.Delay, () => 
-                    {
-                        Server.ExecuteCommand($"exec {_mode.Config}");
-                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-
-                    // Set current mode
-                    _pluginState.CurrentMode = _mode;
+                    ServerManager.ChangeMode(_mode, _plugin, _pluginState, _config.GameModes.Delay);
                 }
                 else
                 {

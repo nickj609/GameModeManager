@@ -6,6 +6,23 @@ using Microsoft.Extensions.Logging;
 namespace GameModeManager
 {
     // Define settings classes
+    public class ScheduleEntry
+    {
+        public object? TimerState { get; set; }
+        public string Time { get; set; } = "10:00"; // Time of the rotation (e.g., "10:00")
+        public string Mode { get; set; } = "Casual"; // Optional: Game mode to rotate to (if specified)
+    }
+
+    public class Schedule
+    {
+        public List<ScheduleEntry> Entries { get; set; } = new List<ScheduleEntry>()
+        {
+            new ScheduleEntry() { Time = "10:00", Mode = "Casual" },
+            new ScheduleEntry() { Time = "15:00", Mode = "Practice" },
+            new ScheduleEntry() { Time = "17:00", Mode = "Competitive" }
+        };
+    }
+
     public class RTVSettings
     {
         public bool Enabled { get; set; } = false; // Enable RTV Compatibility
@@ -32,7 +49,7 @@ namespace GameModeManager
     {
         public bool Rotation { get; set; } = true; // Enables game mode rotation
         public int Interval { get; set; } = 4; // Changes game mode every x map rotations
-        public string DefaultMode { get; set; } =  "Casual"; // Default mode on server start
+        public string Default { get; set; } =  "Casual"; // Default mode on server start
         public float Delay { get; set; } = 2.0f; // Game mode change delay in seconds
         public string Style { get; set; } = "center"; // Changes mode menu type (i.e. "chat" or "center")
         public Dictionary<string, Dictionary<string, List<string>>> List { get; set; } = 
@@ -140,6 +157,8 @@ namespace GameModeManager
             },
             
         };
+        public bool ScheduleEnabled {get; set;} = false; // Enables or disables rotation schedule
+        public Schedule Schedule { get; set; } = new Schedule(); // Schedule options
     }
     public class VoteSettings
     {
@@ -155,6 +174,7 @@ namespace GameModeManager
     {
         public bool Map { get; set; } = true; // Enables or disables !map command for CS2-SimpleAdmin compatibility
     }
+
     public class Config : IBasePluginConfig
     {
         // Create config from classes

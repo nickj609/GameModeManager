@@ -1,16 +1,20 @@
 ﻿// Included libraries
-using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
-using System.Security.Cryptography.X509Certificates;
 
 // Declare namespace
 namespace GameModeManager
 {
     // Define class
-    public class MaxRoundsManager : IPluginDependency<Plugin, Config>
+    public class MaxRoundsManager : IPluginDependency<Plugin,Config>
     {
+        // Define class instance
+        public MaxRoundsManager(GameRules gameRules)
+        {
+            _gameRules = gameRules;
+        }
+
         // Define game rules
         private GameRules _gameRules;
         
@@ -65,12 +69,6 @@ namespace GameModeManager
 
                 return ((int)Math.Floor(MaxRoundsValue / 2M)) + 1;
             }
-        }
-
-        // Define class instance
-        public MaxRoundsManager(GameRules gameRules)
-        {
-            _gameRules = gameRules;
         }
 
         // Define on load behavior

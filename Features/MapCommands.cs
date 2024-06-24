@@ -102,7 +102,7 @@ namespace GameModeManager
                 // Change map
                 _plugin.AddTimer(_config.MapGroups.Delay, () => 
                 {
-                    _mapManager.ChangeMap(_newMap);
+                    ServerManager.ChangeMap(_newMap);
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
             else
