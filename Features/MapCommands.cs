@@ -10,16 +10,15 @@ namespace GameModeManager
     public class MapCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin _plugin;
+        private Plugin? _plugin;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private Config _config = new Config();
 
         // Define class instance
-        public MapCommands(Plugin plugin, PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer)
+        public MapCommands(PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer)
         {
-            _plugin = plugin;
             _localizer = localizer;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
@@ -50,7 +49,7 @@ namespace GameModeManager
         public void OnMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
 
-            if(player != null && _pluginState.MapMenu != null)
+            if(player != null)
             {
                 _pluginState.MapMenu.Title = _localizer.Localize("maps.menu-title");
                 _menuFactory.OpenMenu(_pluginState.MapMenu, _config.GameModes.Style, player);
@@ -98,11 +97,14 @@ namespace GameModeManager
                 // Write to chat
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _newMap.Name));
 
-                // Change map
-                _plugin.AddTimer(_config.Maps.Delay, () => 
+                if(_plugin != null)
                 {
-                    ServerManager.ChangeMap(_newMap);
-                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                    // Change map
+                    _plugin.AddTimer(_config.Maps.Delay, () => 
+                    {
+                        ServerManager.ChangeMap(_newMap);
+                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                }
             }
             else
             {

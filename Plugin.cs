@@ -29,8 +29,6 @@ namespace GameModeManager
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
         // Define dependencies
-        private readonly Plugin _plugin;
-        private readonly ILogger _logger;
         private readonly GameRules _gameRules;
         private readonly RTVCommand _rtvCommand;
         private readonly MapManager _mapManager;
@@ -63,8 +61,6 @@ namespace GameModeManager
             TimeLimitManager timeLimitManager,
             MaxRoundsManager maxRoundsManager)
         {
-            _plugin = this;
-            _logger = Logger;
             _gameRules = gameRules;
             _rtvCommand = rtvCommand;
             _mapManager = mapManager;
@@ -87,14 +83,6 @@ namespace GameModeManager
         {   
             // Load dependencies
             _dependencyManager.OnPluginLoad(this);
-
-            // Create menus
-            _menuFactory.CreateMapMenus();
-            _menuFactory.CreateModeMenus();
-            _menuFactory.CreateSettingsMenus();
-            
-            // Set RTV map list
-            _mapManager.UpdateMapList();
 
             // Register listeners
             RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);

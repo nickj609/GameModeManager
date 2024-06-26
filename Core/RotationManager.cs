@@ -10,16 +10,15 @@ namespace GameModeManager
     public class RotationManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin _plugin;
-        private ILogger _logger;
+        private Plugin? _plugin;
+        private ILogger<RotationManager> _logger;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private Config _config = new Config();
 
         // Define class instance
-        public RotationManager(Plugin plugin, PluginState pluginState, StringLocalizer stringLocalizer, ILogger logger)
+        public RotationManager(PluginState pluginState, StringLocalizer stringLocalizer, ILogger<RotationManager> logger)
         {
-            _plugin = plugin;
             _logger = logger;
             _pluginState = pluginState;
             _localizer = stringLocalizer;
@@ -31,7 +30,7 @@ namespace GameModeManager
             _config = config;
 
              // Parse schedule entries
-            foreach (var entry in _config.GameModes.Schedule.Entries)
+            foreach (var entry in _config.Rotation.Schedule)
             {
                 // Schedule the mode change
                 DateTime targetTime = DateTime.Parse(entry.Time); // Parse the time string
@@ -47,20 +46,19 @@ namespace GameModeManager
                 // Convert TimeSpan to milliseconds for timer constructor
                 int delayInMilliseconds = (int)delay.TotalMilliseconds;
 
-                // Set the timer state (can be the ScheduleEntry itself)
-                entry.TimerState = entry;
-
                 // Create a Timer callback delegate (without capturing variables)
                 TimerCallback callback = TriggerScheduleChange;
 
                 // Schedule the timer callback
-                Timer timer = new Timer(callback, entry.TimerState , delayInMilliseconds, Timeout.Infinite);
+                Timer timer = new Timer(callback, entry , delayInMilliseconds, Timeout.Infinite);
             }
         }
 
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
+            _plugin = plugin;
+
             // Define event game end handler
             _plugin.RegisterEventHandler<EventCsWinPanelMatch>((@event, info) =>
             {  
@@ -76,7 +74,7 @@ namespace GameModeManager
             if(!_pluginState.RTVEnabled)
             {
                 // Check if game mode rotation is enabled
-                if(_plugin != null && _config.GameModes.Rotation && _pluginState.MapRotations % _config.GameModes.Interval == 0)
+                if(_plugin != null && _config.Rotation.ModeRotation && _pluginState.MapRotations % _config.Rotation.ModeInterval == 0)
                 {  
                     // Log information
                     _logger.LogInformation("Game has ended. Picking random game mode...");
@@ -95,18 +93,31 @@ namespace GameModeManager
                     // Define random map
                     Map _randomMap;    
 
-                    // Choose random map                
-                    if (_config.Maps.Cycle == 1)
+                    // Choose random map           
+                    if (_config.Rotation.Cycle == 2)
                     {
-                        // Log message
-                        _logger.LogInformation("Game has ended. Picking random map from current mode...");
+                        List<Map> _mapList = new List<Map>();
 
-                        // Get a random map from all registered maps
+                        foreach (string mapGroup in _config.Rotation.MapGroups)
+                        {
+                            MapGroup? _mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name == mapGroup);
+
+                            if (_mapGroup != null)
+                            {
+                                foreach (Map _map in _mapGroup.Maps)
+                                {
+                                    _mapList.Add(_map);
+                                }
+                            }
+                        } 
+
+                        // Get a random map from current game mode
                         Random _rnd = new Random();
-                        int _randomIndex = _rnd.Next(0, _pluginState.Maps.Count); 
-                        _randomMap = _pluginState.Maps[_randomIndex];
+                        int _randomIndex = _rnd.Next(0, _mapList.Count); 
+                        _randomMap = _mapList[_randomIndex];
+
                     }
-                    else
+                    else if (_config.Rotation.Cycle == 1)
                     {
                         // Log message
                         _logger.LogInformation("Game has ended. Picking random map from all maps list...");
@@ -115,6 +126,16 @@ namespace GameModeManager
                         Random _rnd = new Random();
                         int _randomIndex = _rnd.Next(0, _pluginState.CurrentMode.Maps.Count); 
                         _randomMap = _pluginState.CurrentMode.Maps[_randomIndex];
+                    }
+                    else
+                    {
+                        // Log message
+                        _logger.LogInformation("Game has ended. Picking random map from current mode...");
+
+                        // Get a random map from all registered maps
+                        Random _rnd = new Random();
+                        int _randomIndex = _rnd.Next(0, _pluginState.Maps.Count); 
+                        _randomMap = _pluginState.Maps[_randomIndex];
                     }
 
                     // Change map
@@ -136,7 +157,7 @@ namespace GameModeManager
                 // Find the mode
                 Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name == entry.Mode);
 
-                if (_mode != null)
+                if (_mode != null && _plugin != null)
                 {
                     // Change the mode based on the entry (replace with your logic)
                     ServerManager.ChangeMode(_mode, _plugin, _pluginState, _config.GameModes.Delay);

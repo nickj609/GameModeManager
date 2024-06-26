@@ -11,12 +11,12 @@ namespace GameModeManager
     {
 
         // Define dependencies
-        private ILogger _logger;
+        private ILogger<RTVCommand> _logger;
         private PluginState _pluginState;
         private Config _config = new Config();
 
         // Define class instance
-        public RTVCommand(PluginState pluginState, ILogger logger)
+        public RTVCommand(PluginState pluginState, ILogger<RTVCommand> logger)
         {
             _logger = logger;
             _pluginState = pluginState;
@@ -40,7 +40,7 @@ namespace GameModeManager
         {
             if (player == null) 
             {
-               if (command.ArgByIndex(1).ToLower() == "true" && _pluginState.RTVEnabled == false && _logger != null && _config != null)
+               if (command.ArgByIndex(1).Equals("true", StringComparison.OrdinalIgnoreCase) && !_pluginState.RTVEnabled)
                {
                     _logger.LogInformation($"Enabling RTV...");
                     Server.ExecuteCommand($"css_plugins load {_config.RTV.Plugin}");
@@ -48,7 +48,7 @@ namespace GameModeManager
                     _logger.LogInformation($"Disabling game mode and map rotations...");
                     _pluginState.RTVEnabled = true;
                }
-               else if (command.ArgByIndex(1).ToLower() == "false" && _pluginState.RTVEnabled && _logger != null && _config != null)
+               else if (command.ArgByIndex(1).Equals("false", StringComparison.OrdinalIgnoreCase) && _pluginState.RTVEnabled)
                {
                 
                     _logger.LogInformation($"Disabling RTV...");

@@ -11,8 +11,8 @@ namespace GameModeManager
     public class ModeCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin _plugin;
-        private ILogger _logger;
+        private Plugin? _plugin;
+        private ILogger<ModeCommands> _logger;
         private MapManager _mapManager;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
@@ -21,9 +21,8 @@ namespace GameModeManager
         private Config _config = new Config();
 
         // Define class instance
-        public ModeCommands(Plugin plugin, PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, MapManager mapManager, VoteManager voteManager, ILogger logger)
+        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, MapManager mapManager, VoteManager voteManager, ILogger<ModeCommands> logger)
         {
-            _plugin = plugin;
             _logger = logger;
             _localizer = localizer;
             _mapManager = mapManager;
@@ -41,6 +40,8 @@ namespace GameModeManager
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
+            _plugin = plugin;
+
             plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
             plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
             plugin.AddCommand("css_gamemode", "Sets the current mapgroup.", OnGameModeCommand);
@@ -52,9 +53,9 @@ namespace GameModeManager
         {
             if (player == null) 
             {
-                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.ToLower() == command.ArgByIndex(1).ToLower() || m.Config == $"{command.ArgByIndex(1).ToLower()}.cfg");
-
-                if(_mode != null && _mode != _pluginState.CurrentMode)
+                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
+                
+                if(_mode != null)
                 {
                     _logger.LogInformation($"Current mode: {_pluginState.CurrentMode.Name}");
                     _logger.LogInformation($"New mode: {_mode.Name}");
@@ -67,7 +68,7 @@ namespace GameModeManager
                     _pluginState.CurrentMode = _mode;
 
                     // Update map list and map menu
-                    _mapManager.UpdateMapList();
+                    _mapManager.UpdateRTVMapList();
                     _menuFactory.UpdateMapMenus();
 
                     // Register map votes for new mode
@@ -88,7 +89,7 @@ namespace GameModeManager
             if(player != null)
             {
                 // Define variables
-                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.ToLower() == $"{command.ArgByIndex(1).ToLower()}" || m.Config.ToLower() == $"{command.ArgByIndex(1).ToLower()}.cfg");
+                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase));
 
                 if (_mode != null)
                 {
@@ -99,7 +100,10 @@ namespace GameModeManager
                     Server.PrintToChatAll(_message);
 
                     // Change mode
-                    ServerManager.ChangeMode(_mode, _plugin, _pluginState, _config.GameModes.Delay);
+                    if(_plugin != null)
+                    {
+                        ServerManager.ChangeMode(_mode, _plugin, _pluginState, _config.GameModes.Delay);
+                    }
                 }
                 else
                 {

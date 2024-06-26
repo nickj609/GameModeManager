@@ -44,15 +44,15 @@ namespace GameModeManager
             if(player != null)
             {
                 // Get args
-                string _status = $"{command.ArgByIndex(1).ToLower()}";
+                string _status = $"{command.ArgByIndex(1)}";
                 string _settingName = $"{command.ArgByIndex(2)}";
 
                 // Find game setting
-                Setting? _option = _pluginState.Settings.FirstOrDefault(s => s.Name == _settingName);
+                Setting? _option = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_settingName, StringComparison.OrdinalIgnoreCase));
 
                 if(_option != null) 
                 {
-                    if (_status == "enable") 
+                    if (_status.Equals("enable", StringComparison.OrdinalIgnoreCase)) 
                     {
                         // Create message
                         string _message = _localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, _settingName);
@@ -63,7 +63,7 @@ namespace GameModeManager
                         // Change game setting
                         Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_option.Enable}");
                     }
-                    else if (_status == "disable")
+                    else if (_status.Equals("disable", StringComparison.OrdinalIgnoreCase))
                     {
                         // Create message
                         string _message = _localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, _settingName);

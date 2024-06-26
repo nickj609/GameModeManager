@@ -15,12 +15,12 @@ namespace GameModeManager
     public class MapGroupManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private ILogger _logger;
+        private ILogger<MapGroupManager> _logger;
         private PluginState _pluginState;
         private Config _config = new Config();
 
         // Define class instance
-        public MapGroupManager(PluginState pluginState, ILogger logger)
+        public MapGroupManager(PluginState pluginState, ILogger<MapGroupManager> logger)
         {
             _logger = logger;
             _pluginState = pluginState;  
@@ -46,7 +46,7 @@ namespace GameModeManager
             {
                 // Create an array of only map groups
                 var _mapGroups = vdfObject.Value.OfType<VProperty>()
-                                        .Where(p => p.Key == "mapgroups")
+                                        .Where(p => p.Key.Equals("mapgroups", StringComparison.OrdinalIgnoreCase))
                                         .Select(p => p.Value)
                                         .FirstOrDefault();
 
@@ -60,7 +60,7 @@ namespace GameModeManager
 
                         // Create an array of maps
                         var _maps = _mapGroup.Value.OfType<VProperty>()
-                                .Where(p => p.Key == "maps")
+                                .Where(p => p.Key.Equals("maps", StringComparison.OrdinalIgnoreCase))
                                 .Select(p => p.Value)
                                 .FirstOrDefault();
 

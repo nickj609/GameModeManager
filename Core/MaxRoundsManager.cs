@@ -9,14 +9,14 @@ namespace GameModeManager
     // Define class
     public class MaxRoundsManager : IPluginDependency<Plugin,Config>
     {
+        // Define dependencies
+        private GameRules _gameRules;
+
         // Define class instance
         public MaxRoundsManager(GameRules gameRules)
         {
             _gameRules = gameRules;
         }
-
-        // Define game rules
-        private GameRules _gameRules;
         
         // Define win counters
         private int TWins = 0;

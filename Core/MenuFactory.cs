@@ -1,7 +1,6 @@
 // Included libraries
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
@@ -11,17 +10,14 @@ namespace GameModeManager
     public class MenuFactory : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin _plugin;
-        private ILogger _logger;
+        private Plugin? _plugin;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private Config _config = new Config();
 
         // Define class instance
-        public MenuFactory(PluginState pluginState, StringLocalizer stringLocalizer, ILogger logger, Plugin plugin)
+        public MenuFactory(PluginState pluginState, StringLocalizer stringLocalizer)
         {
-            _plugin = plugin;
-            _logger = logger;
             _pluginState = pluginState;
             _localizer = stringLocalizer;
         }
@@ -32,6 +28,12 @@ namespace GameModeManager
             _config = config;
         }
 
+        // Define on load behavior
+        public void OnLoad(Plugin plugin)
+        {
+            _plugin = plugin;
+        }
+
         // Define reusable method to assign menus
         public BaseMenu AssignMenu(string _menuType, string _menuName)
         {
@@ -39,11 +41,11 @@ namespace GameModeManager
             BaseMenu _baseMenu;
 
             // Assign chat or hud menu based on config
-            if (_menuType == "center")
+            if (_menuType.Equals("center", StringComparison.OrdinalIgnoreCase))
             {
                 _baseMenu = new CenterHtmlMenu(_menuName);
             }
-            else if (_menuType == "chat") // Maybe switch to custom?
+            else if (_menuType.Equals("chat", StringComparison.OrdinalIgnoreCase)) // Maybe switch to custom?
             {
                 _baseMenu = new ChatMenu(_menuName);
             }
@@ -60,13 +62,13 @@ namespace GameModeManager
         public void OpenMenu(BaseMenu _menu, string _menuType, CCSPlayerController _player)
         {
             // Check if menu type from config is hud or chat menu
-            if (_menuType == "center")
+            if (_menuType.Equals("center", StringComparison.OrdinalIgnoreCase))
             {
                 // Create tmp menu
                 CenterHtmlMenu? _hudMenu = _menu as CenterHtmlMenu;
 
                 // Open menu
-                if (_hudMenu != null)
+                if (_hudMenu != null && _plugin != null)
                 {
                     MenuManager.OpenCenterHtmlMenu(_plugin, _player, _hudMenu);
                 }
@@ -232,10 +234,13 @@ namespace GameModeManager
                             MenuManager.CloseActiveMenu(player);
 
                             // Change map
-                            _plugin.AddTimer(_config.Maps.Delay, () => 
+                            if(_plugin != null)
                             {
-                                ServerManager.ChangeMap(_nextMap);
-                            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                                _plugin.AddTimer(_config.Maps.Delay, () => 
+                                {
+                                    ServerManager.ChangeMap(_nextMap);
+                                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                            }
                         });
                     }
 
@@ -307,11 +312,13 @@ namespace GameModeManager
                     MenuManager.CloseActiveMenu(player);
 
                     // Change map
-                    _plugin.AddTimer(_config.Maps.Delay, () => 
+                    if (_plugin != null)
                     {
-                        ServerManager.ChangeMap(_nextMap);
-                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-
+                        _plugin.AddTimer(_config.Maps.Delay, () => 
+                        {
+                            ServerManager.ChangeMap(_nextMap);
+                        }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                    }
                 });
             }
 

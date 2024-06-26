@@ -9,15 +9,17 @@ namespace GameModeManager
     public class SettingsManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private ILogger _logger;
+        private ILogger<SettingsManager> _logger;
         private PluginState _pluginState;
         private Config _config = new Config();
+        private readonly MenuFactory _menuFactory;
 
         // Define class instance
-        public SettingsManager(PluginState pluginState, ILogger logger)
+        public SettingsManager(PluginState pluginState, ILogger<SettingsManager> logger, MenuFactory menufactory)
         {
             _logger = logger;
             _pluginState = pluginState;
+            _menuFactory = menufactory;
         }
 
         // Load config
@@ -91,6 +93,8 @@ namespace GameModeManager
                     _logger.LogError("Settings folder not found.");
                 }
             }
+            // Create settings menus
+            _menuFactory.CreateSettingsMenus();
         }
     }
 }

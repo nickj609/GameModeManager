@@ -1,7 +1,6 @@
 // Included libraries
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using Microsoft.Extensions.Logging;
 
 // Declare namespace
 namespace GameModeManager
@@ -10,22 +9,18 @@ namespace GameModeManager
     public class MapManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private ILogger _logger;
         private PluginState _pluginState;
         private Config _config = new Config();
 
         // Define class instance
-        public MapManager(PluginState pluginState, ILogger logger)
+        public MapManager(PluginState pluginState)
         {
-            _logger = logger;
             _pluginState = pluginState;
         }
 
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
-            _logger = plugin.Logger;
-
             // Register event map transition handler to set current map
             plugin.RegisterEventHandler<EventMapTransition>((@event, info) =>
             {
@@ -42,14 +37,27 @@ namespace GameModeManager
         }
 
         // Define reusable method to update map list
-        public void UpdateMapList()
+        public void UpdateRTVMapList()
         {  
-            // Update map list for RTV Plugin
-            try 
+            if (_config.RTV.Enabled)
             {
+
+                // Get map list
+                List<Map> _mapList = new List<Map>();
+
+                if (_config.RTV.Mode == 1)
+                {
+                    _mapList = _pluginState.Maps;
+                }
+                else
+                {
+                    _mapList = _pluginState.CurrentMode.Maps;
+                }
+
+                // Update map list for RTV Plugin
                 using (StreamWriter writer = new StreamWriter(_config.RTV.MapList))
                 {
-                    foreach (Map _map in _pluginState.CurrentMode.Maps)  
+                    foreach (Map _map in _mapList)  
                     {
                         if (_map.WorkshopId < 0)
                         {
@@ -57,7 +65,7 @@ namespace GameModeManager
                         }
                         else
                         {
-                            if(_config.RTV.DefaultMapFormat)
+                            if(_config.RTV.MapFormat)
                             {
                                 writer.WriteLine($"ws:{_map.WorkshopId}");
                             }
@@ -68,16 +76,10 @@ namespace GameModeManager
                         }
                     } 
                 } 
-            } 
-            catch (IOException ex)
-            {
-                _logger.LogError("Could not update map list.");
-                _logger.LogError($"{ex.Message}");
+                
+                // Reload RTV Plugin
+                Server.ExecuteCommand($"css_plugins reload {_config.RTV.Plugin}");
             }
-
-            // Reload RTV Plugin
-            Server.ExecuteCommand($"css_plugins reload {_config.RTV.Plugin}");
         }
-
     }
 }

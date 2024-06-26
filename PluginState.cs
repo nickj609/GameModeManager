@@ -10,38 +10,10 @@ namespace GameModeManager
     // Define class
     public class PluginState : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
-        public BaseMenu MapMenu;
-        public BaseMenu MapsMenu;
-        public BaseMenu ModeMenu;
-        public BaseMenu GameMenu;
-        public BaseMenu ShowMapMenu;
-        public BaseMenu SettingsMenu;
-        public BaseMenu ShowMapsMenu;
-        public BaseMenu ShowModesMenu;
-        public BaseMenu ShowSettingsMenu;
-        public BaseMenu SettingsEnableMenu;
-        public BaseMenu SettingsDisableMenu; 
-        private readonly MenuFactory _menuFactory;
-
         // Define class instance
-        public PluginState(MenuFactory menuFactory)
+        public PluginState()
         {
-            // Load menu factory
-            _menuFactory = menuFactory;
 
-            // Assign menus
-            MapMenu = _menuFactory.AssignMenu("center", "Map List");
-            MapsMenu = _menuFactory.AssignMenu("center", "Map List");
-            ModeMenu = _menuFactory.AssignMenu("center", "Mode List");
-            GameMenu = _menuFactory.AssignMenu("center", "Command List");
-            ShowMapMenu = _menuFactory.AssignMenu("center", "Map List");
-            ShowMapsMenu = _menuFactory.AssignMenu("center", "Map List");
-            ShowModesMenu = _menuFactory.AssignMenu("center", "Mode List");
-            SettingsMenu = _menuFactory.AssignMenu("center", "Setting Actions");
-            ShowSettingsMenu = _menuFactory.AssignMenu("center", "Setting List");
-            SettingsEnableMenu = _menuFactory.AssignMenu("center", "Setting List");
-            SettingsDisableMenu = _menuFactory.AssignMenu("center", "Setting List");
         }
 
         // Define static directories (Thanks Kus!)
@@ -77,6 +49,19 @@ namespace GameModeManager
             "!currentmap"
         };
         public List<MapGroup> MapGroups = new List<MapGroup>();
+
+        // Define menus
+        public BaseMenu MapMenu = new ChatMenu("Map List");
+        public BaseMenu MapsMenu = new ChatMenu("Map List");
+        public BaseMenu ModeMenu = new ChatMenu("Mode List");
+        public BaseMenu GameMenu = new ChatMenu("Command List");
+        public BaseMenu ShowMapMenu = new ChatMenu("Map List");
+        public BaseMenu ShowMapsMenu = new ChatMenu("Map List");
+        public BaseMenu ShowModesMenu = new ChatMenu("Mode List");
+        public BaseMenu SettingsMenu = new ChatMenu("Setting Actions");
+        public BaseMenu ShowSettingsMenu = new ChatMenu("Settings List");
+        public BaseMenu SettingsEnableMenu = new ChatMenu("Settings List");
+        public BaseMenu SettingsDisableMenu = new ChatMenu("Settings List");
 
         // Define CS2-CustomVotesApi
         public PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
