@@ -8,34 +8,30 @@ namespace GameModeManager
     // Define class dependencies
     public class ScheduleEntry
     {
-        public object? TimerState { get; set; }
         public string Time { get; set; } = "10:00"; // Time of the rotation (e.g., "10:00")
         public string Mode { get; set; } = "Casual"; // Optional: Game mode to rotate to (if specified)
     }
 
-    public class Schedule
+    public class ModeEntry
     {
-        public List<ScheduleEntry> Entries { get; set; } = new List<ScheduleEntry>()
-        {
-            new ScheduleEntry() { Time = "10:00", Mode = "Casual" },
-            new ScheduleEntry() { Time = "15:00", Mode = "Practice" },
-            new ScheduleEntry() { Time = "17:00", Mode = "Competitive" }
-        };
+        public string Name {get; set;} = "Casual";
+        public string Config {get; set;} = "casual.cfg";
+        public List<string> MapGroups {get; set;} = new List<string>(){"mg_active", "mg_delta"};
     }
-
     // Define RTV settings
     public class RTVSettings
     {
         public bool Enabled { get; set; } = false; // Enable RTV Compatibility
-        public bool DefaultMapFormat { get; set; } = false; // Default file format (ws:<workshop id>). When set to false, uses format <map name>:<workshop id>. 
+        public int Mode { get; set; } = 0; // 0 for current mode maps, 1 for all maps
+        public bool MapFormat { get; set; } = false; // Default file format (ws:<workshop id>). When set to false, uses format <map name>:<workshop id>. 
         public string Plugin { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // RTV plugin path
         public string MapList { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"; // Default map list file
+        
     }
 
     // Define map settings
     public class MapSettings
     {
-        public int Cycle { get; set; } = 0; // 0 for mode maps, 1 for all maps
         public float Delay { get; set; } = 2.0f; // Map change delay in seconds
         public string Style { get; set; } = "center"; // Changes map menu type 
         public string Default { get; set; } =  "de_dust2"; // Default map on server start
@@ -68,123 +64,52 @@ namespace GameModeManager
         public bool AllMaps { get; set; } = true; // Enables or disables !allmaps command
     }
 
+    public class RotationSettings
+    {
+        public int Cycle { get; set; } = 0; // 0 for current mode maps, 1 for all maps, 2 for specific map groups
+        public List<string> MapGroups { get; set;} = new List<string>(){"mg_active", "mg_delta"};
+        public bool ModeRotation { get; set; } = true; // Enables game mode rotations
+        public int ModeInterval { get; set; } = 4; // Changes mode every x map rotations
+        public bool ModeSchedules {get; set;} = false; // Enables or disables mode schedules
+        public List<ScheduleEntry> Schedule { get; set; } = new List<ScheduleEntry>()
+        {
+            new ScheduleEntry() { Time = "10:00", Mode = "Casual" },
+            new ScheduleEntry() { Time = "15:00", Mode = "Practice" },
+            new ScheduleEntry() { Time = "17:00", Mode = "Competitive" }
+        }; // Schedule options
+    }
+
     // Define game mode settings
     public class GameModeSettings
     {
         public float Delay { get; set; } = 2.0f; // Game mode change delay in seconds
-        public int Interval { get; set; } = 4; // Changes mode every x map rotations
-        public bool Rotation { get; set; } = true; // Enables game mode rotations
         public string Style { get; set; } = "center"; // Changes mode menu type 
         public string Default { get; set; } =  "Casual"; // Default mode on server start
         public string MapGroupFile { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
         
-        public Dictionary<string, Dictionary<string, List<string>>> List { get; set; } = 
-        new Dictionary<string, Dictionary<string, List<string>>>()
+        public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
         {
-            { "Casual", new Dictionary<string, List<string>>()
-            {
-            { "casual.cfg", new List<string>() { "mg_active", "mg_casual" }}
-            }
-            },
-            { "Competitive", new Dictionary<string, List<string>>()
-            {
-            { "comp.cfg", new List<string>() { "mg_active", "mg_comp" }}
-            }
-            },
-            { "Wingman", new Dictionary<string, List<string>>()
-            {
-            { "wingman.cfg", new List<string>() { "mg_wingman"}}
-            }
-            },
-            { "Practice", new Dictionary<string, List<string>>()
-            {
-            { "prac.cfg", new List<string>() { "mg_prac"}}
-            }
-            },
-            { "Deathmatch", new Dictionary<string, List<string>>()
-            {
-            { "dm.cfg", new List<string>() { "mg_dm"}}
-            }
-            },
-            { "Deathmatch Multicfg", new Dictionary<string, List<string>>()
-            {
-            { "dm-multicfg.cfg", new List<string>() { "mg_dm"}}
-            }
-            },
-            { "ArmsRace", new Dictionary<string, List<string>>()
-            {
-            { "ar.cfg", new List<string>() { "mg_armsrace"}}
-            }
-            },
-            { "GunGame", new Dictionary<string, List<string>>()
-            {
-            { "gg.cfg", new List<string>() { "mg_gg"}}
-            }
-            },
-            { "Retakes", new Dictionary<string, List<string>>()
-            {
-            { "retake.cfg", new List<string>() { "mg_retakes"}}
-            }
-            },
-            { "Executes", new Dictionary<string, List<string>>()
-            {
-            { "executes.cfg", new List<string>() { "mg_executes"}}
-            }
-            },
-            { "1v1", new Dictionary<string, List<string>>()
-            {
-            { "1v1.cfg", new List<string>() { "mg_1v1"}}
-            }
-            },
-            { "Aim", new Dictionary<string, List<string>>()
-            {
-            { "aim.cfg", new List<string>() { "mg_aim"}}
-            }
-            },
-            { "Bhop", new Dictionary<string, List<string>>()
-            {
-            { "bhop.cfg", new List<string>() { "mg_bhop"}}
-            }
-            },
-            { "Surf", new Dictionary<string, List<string>>()
-            {
-            { "surf.cfg", new List<string>() { "mg_surf"}}
-            }
-            },
-            { "Kreedz", new Dictionary<string, List<string>>()
-            {
-            { "kz.cfg", new List<string>() { "mg_kz"}}
-            }
-            },
-            { "Awp", new Dictionary<string, List<string>>()
-            {
-            { "awp.cfg", new List<string>() { "mg_awp"}}
-            }
-            },
-            { "Course", new Dictionary<string, List<string>>()
-            {
-            { "course.cfg", new List<string>() { "mg_course"}}
-            }
-            },
-            { "Hide N Seek", new Dictionary<string, List<string>>()
-            {
-            { "hns.cfg", new List<string>() { "mg_hns"}}
-            }
-            },
-            { "Soccer", new Dictionary<string, List<string>>()
-            {
-            { "soccer.cfg", new List<string>() { "mg_soccer"}}
-            }
-            },
-            { "Minigames", new Dictionary<string, List<string>>()
-            {
-            { "minigames.cfg", new List<string>() { "mg_minigames"}}
-            }
-            },
-            
+            new ModeEntry() { Name = "Casual", Config = "casual.cfg", MapGroups = new List<string>(){"mg_active", "mg_delta"} },
+            new ModeEntry() { Name = "Competitive", Config = "comp.cfg", MapGroups = new List<string>(){"mg_active", "mg_delta"}},
+            new ModeEntry() { Name = "Wingman", Config = "wingman.cfg", MapGroups = new List<string>(){"mg_active", "mg_delta"}},
+            new ModeEntry() { Name = "Practice", Config = "prac.cfg", MapGroups = new List<string>(){"mg_prac"}},
+            new ModeEntry() { Name = "Deathmatch", Config = "dm.cfg", MapGroups = new List<string>(){"mg_dm"}},
+            new ModeEntry() { Name = "Deathmatch Multicfg", Config = "dm-multicfg.cfg", MapGroups = new List<string>(){"mg_dm"}},
+            new ModeEntry() { Name = "ArmsRace", Config = "armsrace.cfg", MapGroups = new List<string>(){"mg_gg"}},
+            new ModeEntry() { Name = "GunGame", Config = "gg.cfg", MapGroups = new List<string>(){"mg_gg"}},
+            new ModeEntry() { Name = "Retakes", Config = "retake.cfg", MapGroups = new List<string>(){"mg_retake"}},
+            new ModeEntry() { Name = "Executes", Config = "executes.cfg", MapGroups = new List<string>(){"mg_executes"}},
+            new ModeEntry() { Name = "1v1", Config = "1v1.cfg", MapGroups = new List<string>(){"mg_1v1"}},
+            new ModeEntry() { Name = "Aim", Config = "aim.cfg", MapGroups = new List<string>(){"mg_aim"}},
+            new ModeEntry() { Name = "Bhop", Config = "bhop.cfg", MapGroups = new List<string>(){"mg_bhop"}},
+            new ModeEntry() { Name = "Surf", Config = "surf.cfg", MapGroups = new List<string>(){"mg_surf"}},
+            new ModeEntry() { Name = "KreedZ", Config = "kz.cfg", MapGroups = new List<string>(){"mg_kz"}},
+            new ModeEntry() { Name = "Awp", Config = "awp.cfg", MapGroups = new List<string>(){"mg_awp"}},
+            new ModeEntry() { Name = "Course", Config = "course.cfg", MapGroups = new List<string>(){"mg_course"}},
+            new ModeEntry() { Name = "Hide N Seek", Config = "hns.cfg", MapGroups = new List<string>(){"mg_hns"}},
+            new ModeEntry() { Name = "Soccer", Config = "soccer.cfg", MapGroups = new List<string>(){"mg_soccer"}},
+            new ModeEntry() { Name = "Minigames", Config = "minigames.cfg", MapGroups = new List<string>(){"mg_minigames"}}
         };
-        public bool ScheduleEnabled {get; set;} = false; // Enables or disables rotation schedule
-        public Schedule Schedule { get; set; } = new Schedule(); // Schedule options
     }
 
     // Define configuration class
@@ -197,6 +122,7 @@ namespace GameModeManager
          public VoteSettings Votes { get; set; } = new();
          public GameSettings Settings { get; set; } = new();
          public CommandSettings Commands { get; set; } = new();
+         public RotationSettings Rotation { get; set; } = new();
          public GameModeSettings GameModes { get; set; } = new();
     }
 
@@ -242,16 +168,22 @@ namespace GameModeManager
                     throw new Exception($"Cannot find RTV 'MapListFile': {_config.RTV.MapList}");
                 }
 
-                // Check if DefaultMapFormat is true or false
-                if (_config.RTV.DefaultMapFormat != true && _config.RTV.DefaultMapFormat != false)
+                // Check if MapFormat is true or false
+                if (_config.RTV.MapFormat != true && _config.RTV.MapFormat != false)
                 {
-                    Logger.LogError("Invalid: RTV 'DefaultMapFormat' should be 'true' or 'false'.");
-                    throw new Exception("Invalid: RTV 'DefaultMapFormat' should be 'true' or 'false'.");
+                    Logger.LogError("Invalid: RTV 'MapFormat' should be 'true' or 'false'.");
+                    throw new Exception("Invalid: RTV 'MapFormat' should be 'true' or 'false'.");
+                }
+
+                if (!int.TryParse(_config.RTV.Mode.ToString(), out _)) 
+                {
+                    Logger.LogError("RTV mode must be a number.");
+                    throw new Exception("RTV mode must be a number.");
                 }
             }
 
             // Maps settings
-            if (!int.TryParse(_config.Maps.Cycle.ToString(), out _))  
+            if (!int.TryParse(_config.Rotation.Cycle.ToString(), out _))  
             {
                 Logger.LogError("Maps cycle must be a number.");
                 throw new Exception("Maps cycle must be a number.");
@@ -261,7 +193,7 @@ namespace GameModeManager
                 Logger.LogError("Maps delay must be a number.");
                 throw new Exception("Maps delay must be a number.");
             }
-            if (_config.Maps.Style.ToLower() != "center" && _config.Maps.Style.ToLower() != "chat") 
+            if (!_config.Maps.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
@@ -298,7 +230,7 @@ namespace GameModeManager
                 Logger.LogError("Invalid: all maps vote should be 'true' or 'false'.");
                 throw new Exception("Invalid: maps vote should be 'true' or 'false'.");
             }
-            if (_config.Votes.Style.ToLower() != "center" && _config.Votes.Style.ToLower() != "chat") 
+            if (_config.Votes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.Votes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
@@ -350,14 +282,14 @@ namespace GameModeManager
                 Logger.LogError($"Cannot find map group file: {_config.GameModes.MapGroupFile}");
                 throw new Exception($"Cannot find map group file: {_config.GameModes.MapGroupFile}");
             }
-            if (_config.GameModes.Rotation != true && _config.GameModes.Rotation != false) 
+            if (_config.Rotation.ModeRotation != true && _config.Rotation.ModeRotation != false) 
             {
                 Logger.LogError("Invalid: Game mode rotation should be 'true' or 'false'.");
                 throw new Exception("Invalid: Game mode rotation should be 'true' or 'false'.");
             }
-            else if(_config.GameModes.Rotation == true)
+            else if(_config.Rotation.ModeRotation == true)
             {
-                if (!int.TryParse(_config.GameModes.Interval.ToString(), out _)) 
+                if (!int.TryParse(_config.Rotation.ModeInterval.ToString(), out _)) 
                 {
                     Logger.LogError("Game modes interval must be a number.");
                     throw new Exception("Game modes interval must be a number.");
@@ -374,17 +306,17 @@ namespace GameModeManager
                 Logger.LogError("Undefined: Game modes list cannot be empty.");
                 throw new Exception("Undefined: Game modes list cannot be empty.");
             }
-            if (_config.GameModes.ScheduleEnabled != true && _config.GameModes.ScheduleEnabled != false) 
+            if (_config.Rotation.ModeSchedules != true && _config.Rotation.ModeSchedules != false) 
             {
                 Logger.LogError("Invalid: Schedule Enabled should be 'true' or 'false'.");
                 throw new Exception("Invalid: Schedule Enabled should be 'true' or 'false'.");
             }
-            if (_config.GameModes.ScheduleEnabled == true && _config.GameModes.Schedule == null) 
+            if (_config.Rotation.ModeSchedules == true && _config.Rotation.Schedule == null) 
             {
                 Logger.LogError("Invalid: Schedule cannot be empty");
                 throw new Exception("Invalid: Schedule cannot be empty");
             }
-            if (_config.GameModes.Style.ToLower() != "center" && _config.GameModes.Style.ToLower() != "chat") 
+            if (_config.GameModes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.GameModes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
