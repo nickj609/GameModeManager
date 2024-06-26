@@ -11,10 +11,10 @@ namespace GameModeManager
     {
         // Define dependencies
         private Plugin? _plugin;
-        private ILogger<RotationManager> _logger;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private Config _config = new Config();
+        private ILogger<RotationManager> _logger;
 
         // Define class instance
         public RotationManager(PluginState pluginState, StringLocalizer stringLocalizer, ILogger<RotationManager> logger)
@@ -70,9 +70,6 @@ namespace GameModeManager
         // Define method to trigger mode and map rotations
         public void TriggerRotation()
         {  
-            // Check if RTV is disabled in config and if so enable randomization
-            if(!_pluginState.RTVEnabled)
-            {
                 // Check if game mode rotation is enabled
                 if(_plugin != null && _config.Rotation.ModeRotation && _pluginState.MapRotations % _config.Rotation.ModeInterval == 0)
                 {  
@@ -142,7 +139,6 @@ namespace GameModeManager
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
                     ServerManager.ChangeMap(_randomMap);
                 }
-            }
             _pluginState.MapRotations++;
         }
 
