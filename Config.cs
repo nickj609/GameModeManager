@@ -62,13 +62,15 @@ namespace GameModeManager
         public bool Map { get; set; } = true; // Enables or disables !map command
         public bool Maps { get; set; } = true; // Enables or disables !maps command 
         public bool AllMaps { get; set; } = true; // Enables or disables !allmaps command
+        public bool TimeLeft { get; set; } = true; // Enables or disables !allmaps command
     }
 
     public class RotationSettings
     {
+        public bool Enabled { get; set; } = true; //
         public int Cycle { get; set; } = 0; // 0 for current mode maps, 1 for all maps, 2 for specific map groups
         public List<string> MapGroups { get; set;} = new List<string>(){"mg_active", "mg_delta"};
-        public bool ModeRotation { get; set; } = true; // Enables game mode rotations
+        public bool ModeRotation { get; set; } = false; // Enables game mode rotations
         public int ModeInterval { get; set; } = 4; // Changes mode every x map rotations
         public bool ModeSchedules {get; set;} = false; // Enables or disables mode schedules
         public List<ScheduleEntry> Schedule { get; set; } = new List<ScheduleEntry>()
@@ -271,6 +273,16 @@ namespace GameModeManager
                 Logger.LogError("Invalid: All maps command setting should be 'true' or 'false'.");
                 throw new Exception("Invalid: All maps command setting should be 'true' or 'false'.");
             }
+            if (_config.Commands.TimeLeft != true && _config.Commands.TimeLeft != false)
+            {
+                Logger.LogError("Invalid: All maps command setting should be 'true' or 'false'.");
+                throw new Exception("Invalid: All maps command setting should be 'true' or 'false'.");
+            }
+            else if (_config.Commands.TimeLeft == true && !_config.RTV.Enabled == true)
+            {
+                Logger.LogError("Invalid: TimeLeft command cannot be enabled with RTV.");
+                throw new Exception("Invalid: TimeLeft command cannot be enabled with RTV.");
+            }
 
             // Game mode settings
             if (File.Exists(Path.Join(PluginState.GameDirectory, _config.GameModes.MapGroupFile)))  
@@ -281,19 +293,6 @@ namespace GameModeManager
             {
                 Logger.LogError($"Cannot find map group file: {_config.GameModes.MapGroupFile}");
                 throw new Exception($"Cannot find map group file: {_config.GameModes.MapGroupFile}");
-            }
-            if (_config.Rotation.ModeRotation != true && _config.Rotation.ModeRotation != false) 
-            {
-                Logger.LogError("Invalid: Game mode rotation should be 'true' or 'false'.");
-                throw new Exception("Invalid: Game mode rotation should be 'true' or 'false'.");
-            }
-            else if(_config.Rotation.ModeRotation == true)
-            {
-                if (!int.TryParse(_config.Rotation.ModeInterval.ToString(), out _)) 
-                {
-                    Logger.LogError("Game modes interval must be a number.");
-                    throw new Exception("Game modes interval must be a number.");
-                }
             }
             if (!float.TryParse(_config.GameModes.Delay.ToString(), out _)) 
             {
@@ -306,16 +305,6 @@ namespace GameModeManager
                 Logger.LogError("Undefined: Game modes list cannot be empty.");
                 throw new Exception("Undefined: Game modes list cannot be empty.");
             }
-            if (_config.Rotation.ModeSchedules != true && _config.Rotation.ModeSchedules != false) 
-            {
-                Logger.LogError("Invalid: Schedule Enabled should be 'true' or 'false'.");
-                throw new Exception("Invalid: Schedule Enabled should be 'true' or 'false'.");
-            }
-            if (_config.Rotation.ModeSchedules == true && _config.Rotation.Schedule == null) 
-            {
-                Logger.LogError("Invalid: Schedule cannot be empty");
-                throw new Exception("Invalid: Schedule cannot be empty");
-            }
             if (_config.GameModes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.GameModes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
@@ -325,6 +314,57 @@ namespace GameModeManager
             {
                 Logger.LogError("Invalid: Default game mode must not be empty.");
                 throw new Exception("Invalid: Default game mode must not be empty.");
+            }
+
+            // Rotation settings
+             if (_config.Rotation.Enabled != true && _config.Rotation.Enabled != false) 
+            {
+                Logger.LogError("Invalid: Rotation Enabled should be 'true' or 'false'.");
+                throw new Exception("Invalid: Rotation Enabled should be 'true' or 'false'.");
+            }
+            else if (_config.Rotation.Enabled == true && _config.RTV.Enabled == true)
+            {
+                Logger.LogError("Invalid: RTV and Rotation cannot be both enabled.");
+                throw new Exception("Invalid: RTV and Rotation cannot be both enabled.");
+            }
+            else if(_config.Rotation.Enabled == true)
+            {
+                if (_config.Rotation.Cycle != 0 && _config.Rotation.Cycle != 1 && _config.Rotation.Cycle != 2)
+                {
+                    Logger.LogError("Invalid: Rotation cycle must be 0, 1, or 2.");
+                    throw new Exception("Invalid: Rotation cycle must be 0, 1, or 2.");
+                }
+                if (_config.Rotation.ModeRotation != true && _config.Rotation.ModeRotation != false)
+                {
+                    Logger.LogError("Invalid: Mode Rotation must be 'true' or 'false'.");
+                    throw new Exception("Invalid: Mode Rotation must be 'true' or 'false'.");
+                }
+                else if (_config.Rotation.ModeRotation == true)
+                {
+                    if (!int.TryParse(_config.Rotation.ModeInterval.ToString(), out _)) 
+                    {
+                        Logger.LogError("Game modes interval must be a number.");
+                        throw new Exception("Game modes interval must be a number.");
+                    }
+                }
+                if (_config.Rotation.ModeSchedules != true && _config.Rotation.ModeSchedules != false) 
+                {
+                    Logger.LogError("Invalid: Schedule Enabled should be 'true' or 'false'.");
+                    throw new Exception("Invalid: Schedule Enabled should be 'true' or 'false'.");
+                }
+                else if (_config.Rotation.ModeSchedules == true)
+                {
+                    if (_config.Rotation.Schedule == null || _config.Rotation.Schedule.Count <= 0)
+                    {
+                        Logger.LogError("Invalid: Schedule cannot be empty");
+                        throw new Exception("Invalid: Schedule cannot be empty");
+                    }
+                }
+                else if (_config.Rotation.ModeSchedules == true && _config.Rotation.ModeRotation == true)
+                {
+                    Logger.LogError("Invalid: Mode rotation and schedule cannot be both enabled.");
+                    throw new Exception("Invalid: Mode rotation and schedule cannot be both enabled.");
+                }
             }
 
             // Config version check

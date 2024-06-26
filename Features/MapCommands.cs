@@ -34,12 +34,21 @@ namespace GameModeManager
         public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
-            _plugin.AddCommand("css_maps", "Displays a list of maps from the current mode.", OnMapsCommand);
-            _plugin.AddCommand("css_allmaps", "Displays a list of modes and their maps.", OnAllMapsCommand);
 
+            // Enable commands if enabled in the config. 
             if (_config.Commands.Map)
             {
                 _plugin.AddCommand("css_map", "Changes the map to the map specified in the command argument.", OnMapCommand);
+            }
+
+            if (_config.Commands.Maps)
+            {
+                _plugin.AddCommand("css_maps", "Displays a list of maps from the current mode.", OnMapsCommand);
+            }
+
+            if (_config.Commands.AllMaps)
+            {
+                _plugin.AddCommand("css_allmaps", "Displays a list of modes and their maps.", OnAllMapsCommand);
             }
         }
 

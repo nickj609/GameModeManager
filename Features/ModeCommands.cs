@@ -12,13 +12,13 @@ namespace GameModeManager
     {
         // Define dependencies
         private Plugin? _plugin;
-        private ILogger<ModeCommands> _logger;
         private MapManager _mapManager;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private VoteManager _voteManager;
         private StringLocalizer _localizer;
         private Config _config = new Config();
+        private ILogger<ModeCommands> _logger;
 
         // Define class instance
         public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, MapManager mapManager, VoteManager voteManager, ILogger<ModeCommands> logger)
