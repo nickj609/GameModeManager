@@ -149,42 +149,60 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables RTV Compatibility.                                                                                                                | 
 | Plugin              | Default path for the desired RTV plugin.                                                                                                  | 
-| MapListFile         | Default path for the maplist.txt file to update when the map group or game mode changes.                                                  | 
+| MapList             | Default path for the maplist.txt file to update when the map group or game mode changes.                                                  | 
 | DefaultMapFormat    | Enables the default format for adding maps to the map list file: `ws:{workshopid}`. When disabled: `{mapname}:{workshopid}`.              |
+
+### Map Settings
+| Setting             | Description                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Delay               | Map change change delay in seconds.                                                                                                       | 
+| Default             | Default map group on server start (i.e. mg_active).                                                                                       | 
+| Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
+
+### Vote Settings
+| Setting             | Description                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
+| Enabled             | Enables voting.                                                                                                                           | 
+| Maps                | Enables map votes.                                                                                                                        | 
+| AllMaps             | Enables all map votes.                                                                                                                    |
+| GameModes           | Enables game mode votes.                                                                                                                  |
+| GameSettings        | Enables game setting votes.                                                                                                               |
+| Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
 
 ### Game Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables custom game settings.                                                                                                             | 
 | Folder              | Default settings folder within `/csgo/cfg/`.                                                                                              | 
-| Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      |
+| Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      | 
 
-### Map Group Settings
+### Command Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Delay               | Map change change delay in seconds.                                                                                                       | 
-| Default             | Default map group on server start (i.e. mg_active).                                                                                       | 
-| File                | Map groups file name in `/csgo/`. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).                         |     
+| Map                 | Enables or disables the !map admin command.                                                                                               | 
+| Maps                | Enables or disables the !maps admin command.                                                                                              | 
+| AllMaps             | Enables or disables the !allmaps admin command.                                                                                           |
+| TimeLeft            | Enables or disables the !allmaps admin command.                                                                                           |
+
+### Rotation Settings
+| Setting             | Description                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
+| Enabled             | Enables rotations. (Cannot be enabled when RTV is enabled)                                                                                | 
+| Cycle               | Changes the rotation cycle. (0 = maps from current mode, 1 = maps from all modes, 2, maps from specific map groups)                       |
+| MapGroups           | Mapgroups to use for rotation cycle 2.                                                                                                    |
+| ModeRotation        | Enables game mode rotation. (Cannot be enabled when ModeSchedule is enabled)                                                              | 
+| ModeInterval        | Changes game mode every x map rotations. (If ModeRotation is enabled)                                                                     | 
+| ModeSchedule        | Enables mode schedules. (Cannot be enabled when ModeRotations is enabled)                                                                 | 
+| Schedule            | Schedule for mode rotations (24-hr format in UTC time)                                                                                    | 
 
 ### Game Mode Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| Rotation            | Enables game mode rotation.                                                                                                               |  
-| Interval            | Changes game mode every x map rotations.                                                                                                  | 
 | Delay               | Delay for changing game modes in seconds.                                                                                                 | 
-| DefaultMode         | Default mode on server start (i.e. deathmatch).                                                                                           | 
+| Default             | Default mode on server start (i.e. deathmatch).                                                                                           | 
 | Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      |
+| MapGroupFile        | Map groups file name in `/csgo/`. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).                         | 
 | List                | A customizable list of game modes for your server with friendly names for menus.                                                          |  
-
-### Vote Settings
-| Setting             | Description                                                                                                                               |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| Enabled             | Enables voting.                                                                                                                           | 
-| Map                 | Enables map votes.                                                                                                                        | 
-| AllMap              | Enables all map votes.                                                                                                                    |
-| GameMode            | Enables game mode votes.                                                                                                                  |
-| GameSetting         | Enables game setting votes.                                                                                                               |
-| Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
 
 > [!CAUTION]
 > - All configuration files must be within `/csgo/cfg/`.
@@ -495,8 +513,6 @@ To add game modes, update the JSON key pairs in the configuration file (`csgo/ad
   }
 }
 ```
-
-If you have `ListEnabled` set to `false`, game modes are generated based on the map groups in your map group file (default is `gamemodes_server.txt`).
 
 </details>
 
