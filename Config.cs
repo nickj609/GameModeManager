@@ -67,7 +67,8 @@ namespace GameModeManager
 
     public class RotationSettings
     {
-        public bool Enabled { get; set; } = true; //
+        public bool Enabled { get; set; } = true; // Enables game rotations
+        public bool EnforceTimeLimit { get; set; } = false; // Enables rotation on mp_timelimit end. 
         public int Cycle { get; set; } = 0; // 0 for current mode maps, 1 for all maps, 2 for specific map groups
         public List<string> MapGroups { get; set;} = new List<string>(){"mg_active", "mg_delta"};
         public bool ModeRotation { get; set; } = false; // Enables game mode rotations
@@ -118,7 +119,7 @@ namespace GameModeManager
     public class Config : IBasePluginConfig
     {
         // Create config from classes
-         public int Version { get; set; } = 5;
+         public int Version { get; set; } = 6;
          public RTVSettings RTV { get; set; } = new();
          public MapSettings Maps { get; set; } = new();
          public VoteSettings Votes { get; set; } = new();
@@ -368,7 +369,7 @@ namespace GameModeManager
             }
 
             // Config version check
-            if (_config.Version < 5)
+            if (_config.Version < 6)
             {
                 throw new Exception("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it");
             }
