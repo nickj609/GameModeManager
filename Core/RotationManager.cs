@@ -12,16 +12,20 @@ namespace GameModeManager
         // Define dependencies
         private Plugin? _plugin;
         private PluginState _pluginState;
+        private TimeLimitManager _timeLimitManager;
+        private GameRules _gameRules;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<RotationManager> _logger;
 
         // Define class instance
-        public RotationManager(PluginState pluginState, StringLocalizer stringLocalizer, ILogger<RotationManager> logger)
+        public RotationManager(PluginState pluginState, StringLocalizer stringLocalizer, ILogger<RotationManager> logger, TimeLimitManager timeLimitManager, GameRules gameRules)
         {
+            _gameRules = gameRules;
             _logger = logger;
             _pluginState = pluginState;
             _localizer = stringLocalizer;
+            _timeLimitManager = timeLimitManager;
         }
         
         // Load config
@@ -169,6 +173,18 @@ namespace GameModeManager
             {
                 Server.ExecuteCommand("sv_hibernate_when_empty false");
             }
+        }
+
+        // Define on round start behavior
+        public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
+        {
+            _timeLimitManager = new TimeLimitManager(_gameRules);
+
+            if (!_timeLimitManager.UnlimitedTime && _timeLimitManager.TimeRemaining == 0 && _config.Rotation.EnforceTimeLimit)
+            {
+                TriggerRotation();
+            }
+            return HookResult.Continue;
         }
     }
 }

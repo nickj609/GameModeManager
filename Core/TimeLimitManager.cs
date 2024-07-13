@@ -9,7 +9,6 @@ namespace GameModeManager
     public class TimeLimitManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private RotationManager _rotationManager;
         private GameRules _gameRules;
         private ConVar? _timeLimit;
         private decimal TimeLimitValue => (decimal)(_timeLimit?.GetPrimitiveValue<float>() ?? 0F) * 60M;
@@ -40,10 +39,9 @@ namespace GameModeManager
         }
 
         // Define class instance
-        public TimeLimitManager(GameRules gameRules, RotationManager rotationManager)
+        public TimeLimitManager(GameRules gameRules)
         {
             _gameRules = gameRules;
-            _rotationManager = rotationManager;
         }
 
         // Define method to load convars
@@ -52,36 +50,10 @@ namespace GameModeManager
             _timeLimit = ConVar.Find("mp_timelimit");
         }
 
-        // Define on map start behavior
-        public void OnMapStart(string map)
-        {
-            LoadCvar();
-            if (!UnlimitedTime) // If time limit exists
-            {
-                // Create timer based on the retrieved time limit
-                StartTimer();
-            }
-        }
-
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
             LoadCvar();
-        }
-
-        private Timer? timer;
-
-        // Define time limit timer to force change map on time limit end
-        private void StartTimer()
-        {
-            // Calculate interval in milliseconds
-            int intervalInMilliseconds = (int)Math.Floor(TimeLimitValue);
-
-            // Create a delegate to encapsulate rotation logic
-            TimerCallback callback = delegate { _rotationManager.TriggerRotation(); };
-
-            // Create timer with interval and callback
-            timer = new Timer(callback, null, intervalInMilliseconds, Timeout.Infinite);
         }
     }
 }
