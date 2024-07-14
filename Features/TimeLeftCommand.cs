@@ -48,11 +48,11 @@ namespace GameModeManager
             {
                 if (player is not null)
                 {
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("timeleft.warmup"));
                 }
                 else
                 {
-                    Server.PrintToConsole(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                    Server.PrintToConsole(_localizer.LocalizeWithPrefix("timeleft.warmup"));
                 }
                 
                 return;
@@ -82,7 +82,7 @@ namespace GameModeManager
                 }
                 else // If time over
                 {
-                    _message = _localizer.LocalizeWithPrefix("timeleft.time-over");
+                    _message = _localizer.LocalizeWithPrefix("timeleft.remaining-time-over");
                 }
             }
             else if (!_maxRoundsManager.UnlimitedRounds) // If round limit exists

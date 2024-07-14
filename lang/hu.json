@@ -29,5 +29,6 @@
   "timeleft.remaining-time-second": "Hátralévő idő: {0} másodperc",
   "timeleft.no-time-limit": "Nincs időkorlát",
   "timeleft.remaining-last-round": "Ez az utolsó forduló",
-  "timeleft.remaining-time-over": "Lejárt az idő, ez az utolsó forduló"
+  "timeleft.remaining-time-over": "Lejárt az idő, ez az utolsó forduló",
+  "timeleft.warmup": "Bemelegítés alatt nem használható ez a parancs."
   }

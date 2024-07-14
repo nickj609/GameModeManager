@@ -29,5 +29,6 @@
   "timeleft.remaining-time-second": "Tiempo restante {0} segundo(s)",
   "timeleft.no-time-limit": "No hay límite de tiempo",
   "timeleft.remaining-last-round": "Esta es la última ronda",
-  "timeleft.remaining-time-over": "El tiempo ha terminado, esta es la última ronda"
+  "timeleft.remaining-time-over": "El tiempo ha terminado, esta es la última ronda",
+  "timeleft.warmup": "Comando deshabilitado durante el calentamiento."
   }

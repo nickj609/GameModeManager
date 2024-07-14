@@ -29,5 +29,6 @@
   "timeleft.remaining-time-second": "Осталось времени {0} секунд",
   "timeleft.no-time-limit": "Ограничений по времени нет",
   "timeleft.last-round": "Это последний раунд",
-  "timeleft.time-over": "Время закончилось, это последний раунд"
+  "timeleft.time-over": "Время закончилось, это последний раунд",
+  "timeleft.warmup": "Команда отключена во время разминки"
   }

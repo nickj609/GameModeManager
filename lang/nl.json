@@ -29,5 +29,6 @@
   "timeleft.remaining-time-second": "Resterende tijd {0} seconden",
   "timeleft.no-time-limit": "Er is geen tijdslimiet",
   "timeleft.remaining-last-round": "Dit is de laatste ronde",
-  "timeleft.remaining-time-over": "De tijd is om, dit is de laatste ronde"
+  "timeleft.remaining-time-over": "De tijd is om, dit is de laatste ronde",
+  "timeleft.warmup": "Commando uitgeschakeld tijdens opwarmen."
   }

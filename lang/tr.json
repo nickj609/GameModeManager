@@ -29,5 +29,6 @@
   "timeleft.remaining-time-second": "Kalan süre {0} saniye",
   "timeleft.no-time-limit": "Zaman sınırı yok",
   "timeleft.last-round": "Bu son tur",
-  "timeleft.time-over": "Zaman bitti, bu son tur"
+  "timeleft.time-over": "Zaman bitti, bu son tur",
+  "timeleft.warmup": "Isınma sırasında komut devre dışı bırakıldı."
   }

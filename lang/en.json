@@ -29,5 +29,6 @@
   "timeleft.remaining-time-second": "Remaining time {0} second(s)",
   "timeleft.no-time-limit": "There is no time limit",
   "timeleft.remaining-last-round": "This is the last round",
-  "timeleft.remaining-time-over": "Time is over, this is the last round"
+  "timeleft.remaining-time-over": "Time is over, this is the last round",
+  "timeleft.warmup": "Command disabled during warmup."
 }

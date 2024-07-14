@@ -29,5 +29,6 @@
   "timeleft.remaining-time-second": "Verbleibende Zeit {0} Sekunde(n)",
   "timeleft.no-time-limit": "Es gibt kein Zeitlimit",
   "timeleft.remaining-last-round": "Dies ist die letzte Runde",
-  "timeleft.remaining-time-over": "Die Zeit ist abgelaufen, dies ist die letzte Runde"
+  "timeleft.remaining-time-over": "Die Zeit ist abgelaufen, dies ist die letzte Runde",
+  "timeleft.warmup": "Befehl während des Aufwärmens deaktiviert."
   }

@@ -29,5 +29,6 @@
   "timeleft.remaining-time-second": "Atlikušais Laiks {0} sekunde(s)",
   "timeleft.no-time-limit": "Nav laika limita",
   "timeleft.last-round": "Šis ir pēdējais raunds",
-  "timeleft.time-over": "Laiks ir beidzies, šis ir pēdējāis raunds"
+  "timeleft.time-over": "Laiks ir beidzies, šis ir pēdējāis raunds",
+  "timeleft.warmup": "Komanda nav pieejama warmup laikā."
   }

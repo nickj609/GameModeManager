@@ -29,5 +29,6 @@
   "timeleft.remaining-time-second": "Temps restant {0} seconde(s)",
   "timeleft.no-time-limit": "Il n'y a pas de limite de temps",
   "timeleft.last-round": "C'est le dernier tour",
-  "timeleft.time-over": "Le temps est écoulé, c'est le dernier tour"
+  "timeleft.time-over": "Le temps est écoulé, c'est le dernier tour",
+  "timeleft.warmup": "Commande désactivée pendant l'échauffement."
   }
