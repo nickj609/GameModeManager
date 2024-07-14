@@ -35,23 +35,23 @@ namespace GameModeManager
         }
 
         // Define reusable method to assign menus
-        public BaseMenu AssignMenu(string _menuType, string _menuName)
+        public BaseMenu AssignMenu(string menuType, string menuName)
         {
             // Create base menu
             BaseMenu _baseMenu;
 
             // Assign chat or hud menu based on config
-            if (_menuType.Equals("center", StringComparison.OrdinalIgnoreCase))
+            if (menuType.Equals("center", StringComparison.OrdinalIgnoreCase))
             {
-                _baseMenu = new CenterHtmlMenu(_menuName);
+                _baseMenu = new CenterHtmlMenu(menuName);
             }
-            else if (_menuType.Equals("chat", StringComparison.OrdinalIgnoreCase)) // Maybe switch to custom?
+            else if (menuType.Equals("chat", StringComparison.OrdinalIgnoreCase)) // Maybe switch to custom?
             {
-                _baseMenu = new ChatMenu(_menuName);
+                _baseMenu = new ChatMenu(menuName);
             }
             else
             {
-                _baseMenu = new ChatMenu(_menuName);
+                _baseMenu = new ChatMenu(menuName);
             }
 
             // Return assigned menu
@@ -59,13 +59,13 @@ namespace GameModeManager
         }
 
         // Define reusable method to open each type of menu
-        public void OpenMenu(BaseMenu _menu, string _menuType, CCSPlayerController _player)
+        public void OpenMenu(BaseMenu menu, string menuType, CCSPlayerController _player)
         {
             // Check if menu type from config is hud or chat menu
-            if (_menuType.Equals("center", StringComparison.OrdinalIgnoreCase))
+            if (menuType.Equals("center", StringComparison.OrdinalIgnoreCase))
             {
                 // Create tmp menu
-                CenterHtmlMenu? _hudMenu = _menu as CenterHtmlMenu;
+                CenterHtmlMenu? _hudMenu = menu as CenterHtmlMenu;
 
                 // Open menu
                 if (_hudMenu != null && _plugin != null)
@@ -76,7 +76,7 @@ namespace GameModeManager
             else
             {
                 // Create tmp menu
-                ChatMenu? _chatMenu = _menu as ChatMenu;
+                ChatMenu? _chatMenu = menu as ChatMenu;
 
                 // Open menu
                 if (_chatMenu != null)

@@ -22,10 +22,10 @@ namespace GameModeManager
         }
 
         // Define reusable method to equate values
-        public bool Equals(MapGroup? _other) 
+        public bool Equals(MapGroup? other) 
         {
-            if(_other == null) return false;
-            return Name == _other.Name && Maps.SequenceEqual(_other.Maps);
+            if(other == null) return false;
+            return Name == other.Name && Maps.SequenceEqual(other.Maps);
         }
 
         // Define reusable method to clear values

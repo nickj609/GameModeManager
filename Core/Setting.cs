@@ -14,33 +14,33 @@ namespace GameModeManager
         public string DisplayName { get; set; }
         
         // Define class instances
-        public Setting(string _name)
+        public Setting(string name)
         {
-            Name = _name;
+            Name = name;
             Enable = "";
             Disable = "";
-            DisplayName = FormatSettingName(_name);
+            DisplayName = FormatSettingName(name);
         }
-        public Setting(string _name, string _enable, string _disable)
+        public Setting(string name, string enable, string disable)
         {
-            Name = _name;
-            Enable = _enable;
-            Disable = _disable;
-            DisplayName = FormatSettingName(_name);
+            Name = name;
+            Enable = enable;
+            Disable = disable;
+            DisplayName = FormatSettingName(name);
         }
 
         // Define reusable method to format settings names
-        private string FormatSettingName(string _settingName)
+        private string FormatSettingName(string name)
         {
-                _settingName = _settingName.Replace("_", " ");
-                return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_settingName); 
+                name = name.Replace("_", " ");
+                return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(name); 
         }
 
         // Define reusable method to equate settings
-        public bool Equals(Setting? _other) 
+        public bool Equals(Setting? other) 
         {
-            if (_other == null) return false; 
-            return Name == _other.Name && Enable == _other.Enable && Disable == _other.Disable && DisplayName == _other.DisplayName;
+            if (other == null) return false; 
+            return Name == other.Name && Enable == other.Enable && Disable == other.Disable && DisplayName == other.DisplayName;
         }
 
         // Define reusable method to clear values

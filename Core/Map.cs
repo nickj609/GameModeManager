@@ -39,10 +39,10 @@ namespace GameModeManager
         }
 
         // Define reusable method to equate values
-        public bool Equals(Map? _other) 
+        public bool Equals(Map? other) 
         {
-            if (_other == null) return false; 
-            return Name == _other.Name && WorkshopId == _other.WorkshopId && DisplayName == _other.DisplayName;
+            if (other == null) return false; 
+            return Name == other.Name && WorkshopId == other.WorkshopId && DisplayName == other.DisplayName;
         }
 
         // Define reusable method to clear values

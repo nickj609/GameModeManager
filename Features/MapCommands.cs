@@ -95,7 +95,7 @@ namespace GameModeManager
             {
                 // Find map
                 Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
-                Map? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name == $"{command.ArgByIndex(1)}");
+                Map? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase));
 
                 if (_foundMap != null)
                 {

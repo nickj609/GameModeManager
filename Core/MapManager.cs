@@ -25,7 +25,7 @@ namespace GameModeManager
             plugin.RegisterEventHandler<EventMapTransition>((@event, info) =>
             {
 
-                Map _map = _pluginState.Maps.FirstOrDefault(m => m.Name == Server.MapName) ?? new Map(Server.MapName);
+                Map _map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(Server.MapName, StringComparison.OrdinalIgnoreCase)) ?? new Map(Server.MapName);
                 _pluginState.CurrentMap = _map;
 
                 return HookResult.Continue;

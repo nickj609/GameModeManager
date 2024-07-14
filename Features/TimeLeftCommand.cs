@@ -46,7 +46,7 @@ namespace GameModeManager
             // If warmup, send general message
             if (_gameRules.WarmupRunning)
             {
-                if (player is not null)
+                if (player != null)
                 {
                     player.PrintToChat(_localizer.LocalizeWithPrefix("timeleft.warmup"));
                 }
@@ -88,9 +88,13 @@ namespace GameModeManager
             else if (!_maxRoundsManager.UnlimitedRounds) // If round limit exists
             {
                 if (_maxRoundsManager.RemainingRounds > 1) // If remaining rounds more than 1
+                {
                     _message = _localizer.LocalizeWithPrefix("timeleft.remaining-rounds", _maxRoundsManager.RemainingRounds);
+                }
                 else // If last round
+                {
                     _message = _localizer.LocalizeWithPrefix("timeleft.last-round");
+                }
             }
             else // If no time limit or round limit
             {
@@ -98,7 +102,7 @@ namespace GameModeManager
             }
 
             // Send message    
-            if (player is not null)
+            if (player != null)
             {
                 player.PrintToChat(_message);
             }

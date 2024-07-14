@@ -11,27 +11,27 @@ namespace GameModeManager
         public List<MapGroup> MapGroups { get; set; }
 
         // Define class instances
-        public Mode(string _name, string _configFile, List<MapGroup> _mapGroups) 
+        public Mode(string name, string configFile, List<MapGroup> mapGroups) 
         {
-            Name = _name;
-            Config = _configFile;
-            MapGroups = _mapGroups; 
+            Name = name;
+            Config = configFile;
+            MapGroups = mapGroups; 
             Maps = CreateMapList(MapGroups);
 
         }
 
         // Define method to generate maps from map groups
-        public List<Map> CreateMapList(List<MapGroup> _mapgroups)
+        public List<Map> CreateMapList(List<MapGroup> mapGroups)
         {
             List<Map> _maps = new List<Map>();
-            foreach (MapGroup _mapgroup in _mapgroups)
+            foreach (MapGroup mapGroup in mapGroups)
             {
-                foreach(Map _map in _mapgroup.Maps)
+                foreach(Map map in mapGroup.Maps)
                 {
-                    Map? _tmpMap = _maps.FirstOrDefault(m => m.Name == _map.Name);
-                    if(_tmpMap == null)
+                    Map? _map = _maps.FirstOrDefault(m => m.Name == map.Name);
+                    if(_map == null)
                     {
-                        _maps.Add(_map);
+                        _maps.Add(map);
                     }
                 }
             }
@@ -39,10 +39,10 @@ namespace GameModeManager
         }
 
         // Define method to equate values
-        public bool Equals(Mode? _other) 
+        public bool Equals(Mode? other) 
         {
-            if (_other == null) return false;
-            return Name == _other.Name && Config == _other.Config && MapGroups.SequenceEqual(_other.MapGroups);
+            if (other == null) return false;
+            return Name == other.Name && Config == other.Config && MapGroups.SequenceEqual(other.MapGroups);
         }
 
         // Define method to clear values

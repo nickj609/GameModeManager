@@ -42,20 +42,20 @@ namespace GameModeManager
         }
 
         // Define reusable method to change map
-        public static void ChangeMap(Map _nextMap)
+        public static void ChangeMap(Map nextMap)
         {
             // If map valid, change map based on map type
-            if (Server.IsMapValid(_nextMap.Name))
+            if (Server.IsMapValid(nextMap.Name))
             {
-                Server.ExecuteCommand($"changelevel \"{_nextMap.Name}\"");
+                Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
             }
-            else if (_nextMap.WorkshopId != -1)
+            else if (nextMap.WorkshopId != -1)
             {
-                Server.ExecuteCommand($"host_workshop_map \"{_nextMap.WorkshopId}\"");
+                Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
             }
             else
             {
-                Server.ExecuteCommand($"ds_workshop_changelevel \"{_nextMap.Name}\"");
+                Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
             }
         }
 

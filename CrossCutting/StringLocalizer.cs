@@ -20,8 +20,8 @@ namespace GameModeManager
 
         public StringLocalizer(IStringLocalizer localizer, string prefix)
         {
-            _localizer = localizer;
             _prefix = prefix;
+            _localizer = localizer;
         }
 
         // Define methods for localization

@@ -118,7 +118,7 @@ namespace GameModeManager
             }
 
             // Set default map
-            PluginState.DefaultMap = _pluginState.Maps.FirstOrDefault(m => m.Name == _config.Maps.Default) ?? PluginState.DefaultMap;
+            PluginState.DefaultMap = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(_config.Maps.Default, StringComparison.OrdinalIgnoreCase)) ?? PluginState.DefaultMap;
             _pluginState.CurrentMap = PluginState.DefaultMap;
         }
     }

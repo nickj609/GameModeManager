@@ -50,7 +50,7 @@ namespace GameModeManager
             }
 
             // Set default mode
-            _pluginState.CurrentMode = _pluginState.Modes.FirstOrDefault(m => m.Name == _config.GameModes.Default) ?? PluginState.DefaultMode;
+            _pluginState.CurrentMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(_config.GameModes.Default, StringComparison.OrdinalIgnoreCase)) ?? PluginState.DefaultMode;
 
             // Create mode menus
             _menuFactory.CreateModeMenus();

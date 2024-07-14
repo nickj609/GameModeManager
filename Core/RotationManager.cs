@@ -108,7 +108,7 @@ namespace GameModeManager
 
                         foreach (string mapGroup in _config.Rotation.MapGroups)
                         {
-                            MapGroup? _mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name == mapGroup);
+                            MapGroup? _mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(mapGroup, StringComparison.OrdinalIgnoreCase));
 
                             if (_mapGroup != null)
                             {
@@ -162,7 +162,7 @@ namespace GameModeManager
 
             if (entry != null && _plugin != null)
             {
-                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name == entry.Mode);
+                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(entry.Mode, StringComparison.OrdinalIgnoreCase));
 
                 if (_mode != null)
                 {
@@ -184,21 +184,13 @@ namespace GameModeManager
                 Server.ExecuteCommand("sv_hibernate_when_empty false");
             }
 
-            try
+            // Create timer for enforcing rotation on time limit end
+            if (!_timeLimitManager.UnlimitedTime && _config.Rotation.EnforceTimeLimit)
             {
-                // Create timer for enforcing rotation on time limit end
-                if (!_timeLimitManager.UnlimitedTime && _config.Rotation.EnforceTimeLimit)
+                new Timer((float)_timeLimitManager.TimeLimitValue, () =>
                 {
-                    new Timer((float)_timeLimitManager.TimeLimitValue, () =>
-                    {
-                        TriggerRotation();
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"{ex.Message}");
-                throw new Exception($"{ex.Message}");
+                    TriggerRotation();
+                });
             }
         }
     }

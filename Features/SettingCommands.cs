@@ -84,7 +84,7 @@ namespace GameModeManager
                     command.ReplyToCommand($"Can't find setting: {_settingName}");
                 }
             }
-            else if (player == null)
+            else
             {
                 Console.Error.WriteLine("css_settings is a client only command.");
             }
@@ -101,7 +101,7 @@ namespace GameModeManager
                 _pluginState.SettingsMenu.Title = _localizer.Localize("settings.menu-actions");
                 _menuFactory.OpenMenu(_pluginState.SettingsMenu, _config.Settings.Style, player);
             }
-            else if (player == null)
+            else
             {
                 Console.Error.WriteLine("css_settings is a client only command.");
             }

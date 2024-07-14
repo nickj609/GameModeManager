@@ -70,16 +70,20 @@ namespace GameModeManager
                         // Set mode
                         _pluginState.CurrentMode = _mode;
 
-                        // Update map list and map menu
+                        // Update RTV map list and map menus
                         _mapManager.UpdateRTVMapList();
                         _menuFactory.UpdateMapMenus();
-
+        
                         // Register map votes for new mode
                         _voteManager.RegisterMapVotes();
                     }
                     else
                     {
+                        // Set mode
                         _pluginState.CurrentMode = _mode;
+
+                        // Update map menus
+                        _menuFactory.UpdateMapMenus();
                     }
                 }
                 else

@@ -33,6 +33,8 @@ namespace GameModeManager
         { 
             _localizer = new StringLocalizer(plugin.Localizer);
         }
+
+        // Load config
         public void OnConfigParsed(Config config)
         {
             _config = config;
@@ -107,8 +109,7 @@ namespace GameModeManager
                 {
                     foreach (Setting _setting in _pluginState.Settings)
                     {
-
-                        // Register per setting vote
+                        // Register per-setting vote
                         _pluginState.CustomVotesApi.Get()?.AddCustomVote(
                             _setting.Name, // Command to trigger the vote
                             new List<string>(), // Aliases for the command (optional)
@@ -138,7 +139,7 @@ namespace GameModeManager
         //Define method to register map votes
         public void RegisterMapVotes()
         {
-            // Register per map vote
+            // Register per-map vote
             foreach (Map _map in _pluginState.CurrentMode.Maps)
             {
                 _pluginState.CustomVotesApi.Get()?.AddCustomVote(
@@ -172,7 +173,7 @@ namespace GameModeManager
         {
             if (MapVote)
             {
-                // Deregister per map vote
+                // Deregister per-map votes
                 foreach (Map _map in _pluginState.CurrentMode.Maps)
                 {
                     _pluginState.CustomVotesApi.Get()?.RemoveCustomVote(_map.Name);
@@ -192,9 +193,9 @@ namespace GameModeManager
         // Define reusable method to deregister custom votes
         public void DeregisterCustomVotes()
         {
+            // Deregister all gamemode votes
             if (GameModeVote)
             {
-                // Deregister all gamemodes vote
                 _pluginState.CustomVotesApi.Get()?.RemoveCustomVote("changemode");
 
                 foreach (Mode _mode in _pluginState.Modes)
@@ -204,16 +205,16 @@ namespace GameModeManager
                 }
             }
 
+            // Deregister per-setting votes
             if (SettingVote)
             {
-                // Deregister per settings votes
                 foreach (Setting _setting in _pluginState.Settings)
                 {
                     _pluginState.CustomVotesApi.Get()?.RemoveCustomVote(_setting.Name);
                 }
             }
 
-            // Deregister map votes
+            // Deregister per-map votes
             DeregisterMapVotes();
         }
     }
