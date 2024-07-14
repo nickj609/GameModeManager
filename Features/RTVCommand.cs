@@ -9,7 +9,6 @@ namespace GameModeManager
 {
     public class RTVCommand : IPluginDependency<Plugin, Config>
     {
-
         // Define dependencies
         private ILogger<RTVCommand> _logger;
         private PluginState _pluginState;

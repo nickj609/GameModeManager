@@ -2,7 +2,8 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
-
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
+ 
 // Declare namespace
 namespace GameModeManager
 {
@@ -12,16 +13,14 @@ namespace GameModeManager
         // Define dependencies
         private Plugin? _plugin;
         private PluginState _pluginState;
-        private TimeLimitManager _timeLimitManager;
-        private GameRules _gameRules;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<RotationManager> _logger;
+        private TimeLimitManager _timeLimitManager;
 
         // Define class instance
-        public RotationManager(PluginState pluginState, StringLocalizer stringLocalizer, ILogger<RotationManager> logger, TimeLimitManager timeLimitManager, GameRules gameRules)
+        public RotationManager(PluginState pluginState, StringLocalizer stringLocalizer, ILogger<RotationManager> logger, TimeLimitManager timeLimitManager)
         {
-            _gameRules = gameRules;
             _logger = logger;
             _pluginState = pluginState;
             _localizer = stringLocalizer;
@@ -32,30 +31,6 @@ namespace GameModeManager
         public void OnConfigParsed(Config config)
         {
             _config = config;
-
-             // Parse schedule entries
-            foreach (var entry in _config.Rotation.Schedule)
-            {
-                // Schedule the mode change
-                DateTime targetTime = DateTime.Parse(entry.Time); // Parse the time string
-
-                // Calculate delay until target time (considering if it's passed today)
-                TimeSpan delay = targetTime - DateTime.Now;
-                if (delay.TotalMilliseconds <= 0)
-                {
-                    // If target time has already passed, calculate for the next day
-                    delay = delay.Add(TimeSpan.FromDays(1));
-                }
-
-                // Convert TimeSpan to milliseconds for timer constructor
-                int delayInMilliseconds = (int)delay.TotalMilliseconds;
-
-                // Create a Timer callback delegate (without capturing variables)
-                TimerCallback callback = TriggerScheduleChange;
-
-                // Schedule the timer callback
-                Timer timer = new Timer(callback, entry , delayInMilliseconds, Timeout.Infinite);
-            }
         }
 
         // Define on load behavior
@@ -69,14 +44,46 @@ namespace GameModeManager
                 TriggerRotation();
                 return HookResult.Continue;
             }, HookMode.Post);
+
+            // Create mode schedules
+            if (_config.Rotation.ModeSchedules)
+            {
+                // Parse schedule entries
+                foreach (var entry in _config.Rotation.Schedule)
+                {
+                    // Schedule the mode change
+                    DateTime targetTime = DateTime.Parse(entry.Time); // Parse the time string
+
+                    // Calculate delay until target time (considering if it's passed today)
+                    TimeSpan delay = targetTime - DateTime.Now;
+                    if (delay.TotalMilliseconds <= 0)
+                    {
+                        // If target time has already passed, calculate for the next day
+                        delay = delay.Add(TimeSpan.FromDays(1));
+                    }
+
+                    // Create timer
+                    new Timer((float)delay.TotalSeconds, () =>
+                    {
+                        // Trigger schedule
+                        TriggerScheduleChange(entry);
+
+                        // Update delay for the next occurrence (tomorrow)
+                        delay = targetTime.AddDays(1) - DateTime.Now;
+                        
+                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT);
+                }
+            }
         }
 
         // Define method to trigger mode and map rotations
         public void TriggerRotation()
         {  
-                // Check if game mode rotation is enabled
-                if(_plugin != null && _config.Rotation.ModeRotation && _pluginState.MapRotations % _config.Rotation.ModeInterval == 0)
-                {  
+            // Check if game mode rotation is enabled
+            if(_plugin != null && _config.Rotation.Enabled && _pluginState.RTVEnabled != true)
+            {
+                 if (_config.Rotation.ModeRotation && _pluginState.MapRotations % _config.Rotation.ModeInterval == 0)
+                 {  
                     // Log information
                     _logger.LogInformation("Game has ended. Picking random game mode...");
             
@@ -87,7 +94,7 @@ namespace GameModeManager
 
                     // Change mode
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing mode..."));  
-                    ServerManager.ChangeMode(_randomMode,_plugin , _pluginState, _config.GameModes.Delay);
+                    ServerManager.ChangeMode(_randomMode, _plugin ,_pluginState, _config.GameModes.Delay);
                 }
                 else
                 {
@@ -143,7 +150,8 @@ namespace GameModeManager
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
                     ServerManager.ChangeMap(_randomMap);
                 }
-            _pluginState.MapRotations++;
+                _pluginState.MapRotations++;
+            }
         }
 
         // Define method to trigger schedule change
@@ -152,15 +160,17 @@ namespace GameModeManager
             // Cast the state object back to ScheduleEntry
             ScheduleEntry? entry = state as ScheduleEntry;
 
-            if (entry != null)
+            if (entry != null && _plugin != null)
             {
-                // Find the mode
                 Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name == entry.Mode);
 
-                if (_mode != null && _plugin != null)
+                if (_mode != null)
                 {
-                    // Change the mode based on the entry (replace with your logic)
-                    ServerManager.ChangeMode(_mode, _plugin, _pluginState, _config.GameModes.Delay);
+                    // Check if current mode is different from target mode
+                    if (_pluginState.CurrentMode != _mode)
+                    {
+                        ServerManager.ChangeMode(_mode, _plugin, _pluginState, _config.GameModes.Delay);
+                    }
                 }
             }
         }
@@ -173,18 +183,23 @@ namespace GameModeManager
             {
                 Server.ExecuteCommand("sv_hibernate_when_empty false");
             }
-        }
 
-        // Define on round start behavior
-        public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
-        {
-            _timeLimitManager = new TimeLimitManager(_gameRules);
-
-            if (!_timeLimitManager.UnlimitedTime && _timeLimitManager.TimeRemaining == 0 && _config.Rotation.EnforceTimeLimit)
+            try
             {
-                TriggerRotation();
+                // Create timer for enforcing rotation on time limit end
+                if (!_timeLimitManager.UnlimitedTime && _config.Rotation.EnforceTimeLimit)
+                {
+                    new Timer((float)_timeLimitManager.TimeLimitValue, () =>
+                    {
+                        TriggerRotation();
+                    });
+                }
             }
-            return HookResult.Continue;
+            catch (Exception ex)
+            {
+                _logger.LogError($"{ex.Message}");
+                throw new Exception($"{ex.Message}");
+            }
         }
     }
 }

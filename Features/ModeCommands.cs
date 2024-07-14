@@ -59,20 +59,28 @@ namespace GameModeManager
                 {
                     _logger.LogInformation($"Current mode: {_pluginState.CurrentMode.Name}");
                     _logger.LogInformation($"New mode: {_mode.Name}");
-                    _logger.LogInformation("Regenerating per map votes...");
-                    
-                    // Deregister map votes from old mode
-                    _voteManager.DeregisterMapVotes();
 
-                    // Set mode
-                    _pluginState.CurrentMode = _mode;
+                    if (_config.Votes.Enabled && _config.Votes.Maps)
+                    {
+                        _logger.LogInformation("Regenerating per map votes...");
+                        
+                        // Deregister map votes from old mode
+                        _voteManager.DeregisterMapVotes();
 
-                    // Update map list and map menu
-                    _mapManager.UpdateRTVMapList();
-                    _menuFactory.UpdateMapMenus();
+                        // Set mode
+                        _pluginState.CurrentMode = _mode;
 
-                    // Register map votes for new mode
-                    _voteManager.RegisterMapVotes();
+                        // Update map list and map menu
+                        _mapManager.UpdateRTVMapList();
+                        _menuFactory.UpdateMapMenus();
+
+                        // Register map votes for new mode
+                        _voteManager.RegisterMapVotes();
+                    }
+                    else
+                    {
+                        _pluginState.CurrentMode = _mode;
+                    }
                 }
                 else
                 {
@@ -89,7 +97,7 @@ namespace GameModeManager
             if(player != null)
             {
                 // Define variables
-                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase));
+                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
 
                 if (_mode != null)
                 {

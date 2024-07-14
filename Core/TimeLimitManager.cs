@@ -11,7 +11,7 @@ namespace GameModeManager
         // Define dependencies
         private GameRules _gameRules;
         private ConVar? _timeLimit;
-        private decimal TimeLimitValue => (decimal)(_timeLimit?.GetPrimitiveValue<float>() ?? 0F) * 60M;
+        public decimal TimeLimitValue => (decimal)(_timeLimit?.GetPrimitiveValue<float>() ?? 0F) * 60M;
         public bool UnlimitedTime => TimeLimitValue <= 0;
 
         // Calculate time played
