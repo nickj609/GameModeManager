@@ -233,6 +233,11 @@ namespace GameModeManager
                 Logger.LogError("Invalid: all maps vote should be 'true' or 'false'.");
                 throw new Exception("Invalid: maps vote should be 'true' or 'false'.");
             }
+            else if (_config.Votes.Maps == true && _config.Votes.AllMaps == true)
+            {
+                Logger.LogError("Invalid: Maps and AllMaps cannot both be true.");
+                throw new Exception("Invalid: Maps and AllMaps cannot both be true.");
+            }
             if (_config.Votes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.Votes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
@@ -279,7 +284,7 @@ namespace GameModeManager
                 Logger.LogError("Invalid: All maps command setting should be 'true' or 'false'.");
                 throw new Exception("Invalid: All maps command setting should be 'true' or 'false'.");
             }
-            else if (_config.Commands.TimeLeft == true && !_config.RTV.Enabled == true)
+            else if (_config.Commands.TimeLeft == true && _config.RTV.Enabled == true)
             {
                 Logger.LogError("Invalid: TimeLeft command cannot be enabled with RTV.");
                 throw new Exception("Invalid: TimeLeft command cannot be enabled with RTV.");
