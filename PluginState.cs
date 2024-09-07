@@ -1,6 +1,7 @@
 // Included libraries
 using CS2_CustomVotes.Shared;
 using CounterStrikeSharp.API;
+using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Core.Capabilities;
 
@@ -10,10 +11,21 @@ namespace GameModeManager
     // Define class
     public class PluginState : IPluginDependency<Plugin, Config>
     {
-        // Define class instance
-        public PluginState()
-        {
+        // Define dependencies
+        private ILogger<PluginState> _logger;
+        private Config _config = new Config();
 
+        // Define class instance
+        public PluginState(ILogger<PluginState> logger)
+        {
+            _logger = logger;
+        }
+
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+            RTVEnabled = _config.RTV.Enabled;
         }
 
         // Define static directories (Thanks Kus!)
@@ -33,12 +45,14 @@ namespace GameModeManager
             new Map("de_nuke", "Nuke"),
             new Map("de_vertigo", "Vertigo")
         };
-        public static Mode DefaultMode = new Mode("Casual", "casual.cfg", new List<MapGroup>());
+        public static Mode DefaultMode = new Mode("Casual", "casual.cfg", "de_dust2", new List<MapGroup>());
         
         // Define dynamic attributes
         public int MapRotations = 0;
         public bool RTVEnabled = false;
         public Map CurrentMap = DefaultMap;
+        public bool WarmupModeEnabled = false;
+        public Mode WarmupMode = DefaultMode;
         public Mode CurrentMode = DefaultMode;
         public List<Map> Maps = new List<Map>();
         public List<Mode> Modes = new List<Mode>();
@@ -54,8 +68,8 @@ namespace GameModeManager
         public BaseMenu MapMenu = new ChatMenu("Map List");
         public BaseMenu MapsMenu = new ChatMenu("Map List");
         public BaseMenu ModeMenu = new ChatMenu("Mode List");
-        public BaseMenu GameMenu = new ChatMenu("Command List");
         public BaseMenu ShowMapMenu = new ChatMenu("Map List");
+        public BaseMenu GameMenu = new ChatMenu("Command List");
         public BaseMenu ShowMapsMenu = new ChatMenu("Map List");
         public BaseMenu ShowModesMenu = new ChatMenu("Mode List");
         public BaseMenu SettingsMenu = new ChatMenu("Setting Actions");

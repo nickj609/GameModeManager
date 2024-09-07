@@ -9,6 +9,7 @@ namespace GameModeManager
     public class MapManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
+        private Plugin? _plugin;
         private PluginState _pluginState;
         private Config _config = new Config();
 
@@ -18,9 +19,17 @@ namespace GameModeManager
             _pluginState = pluginState;
         }
 
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
+            _plugin = plugin;
+
             // Register event map transition handler to set current map
             plugin.RegisterEventHandler<EventMapTransition>((@event, info) =>
             {
@@ -29,11 +38,7 @@ namespace GameModeManager
                 _pluginState.CurrentMap = _map;
 
                 return HookResult.Continue;
-            }, HookMode.Post); 
-        }
-        public void OnConfigParsed(Config config)
-        {
-            _config = config;
+            }, HookMode.Post);  
         }
 
         // Define reusable method to update map list

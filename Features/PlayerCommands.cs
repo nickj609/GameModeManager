@@ -55,7 +55,7 @@ namespace GameModeManager
                 }
                 else if (player == null)
                 {
-                    Console.Error.WriteLine("css_showmaps is a client only command.");
+                    command.ReplyToCommand("css_showmaps is a client only command.");
                 }
             }            
         }
@@ -75,7 +75,7 @@ namespace GameModeManager
                 }
                 else if (player == null)
                 {
-                    Console.Error.WriteLine("css_showmaps is a client only command.");
+                    command.ReplyToCommand("css_showmaps is a client only command.");
                 }
             }            
         }
@@ -96,7 +96,7 @@ namespace GameModeManager
                 }
                 else if (player == null)
                 {
-                    Console.Error.WriteLine("css_showmodes is a client only command.");
+                    command.ReplyToCommand("css_showmodes is a client only command.");
                 }  
             }
         }
@@ -114,7 +114,7 @@ namespace GameModeManager
             }
             else if (player == null)
             {
-                Console.Error.WriteLine("css_showsettings is a client only command.");
+                command.ReplyToCommand("css_showsettings is a client only command.");
             }
         }
 
@@ -131,7 +131,7 @@ namespace GameModeManager
             }
             else
             {
-                Console.Error.WriteLine("css_game is a client only command.");
+                command.ReplyToCommand("css_game is a client only command.");
             }
         }
 
@@ -150,7 +150,7 @@ namespace GameModeManager
             }
             else
             {
-                Console.Error.WriteLine("css_game is a client only command.");
+                command.ReplyToCommand("css_game is a client only command.");
             }
         }
 
@@ -169,7 +169,7 @@ namespace GameModeManager
             }
             else
             {
-                Console.Error.WriteLine("css_game is a client only command.");
+                command.ReplyToCommand("css_game is a client only command.");
             }
         }
     }

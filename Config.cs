@@ -16,8 +16,11 @@ namespace GameModeManager
     {
         public string Name {get; set;} = "Casual";
         public string Config {get; set;} = "casual.cfg";
+        public string DefaultMap {get; set;} = "de_dust2";
         public List<string> MapGroups {get; set;} = new List<string>(){"mg_active", "mg_delta"};
+        
     }
+    
     // Define RTV settings
     public class RTVSettings
     {
@@ -61,16 +64,16 @@ namespace GameModeManager
     {
         public bool Map { get; set; } = true; // Enables or disables !map command
         public bool Maps { get; set; } = true; // Enables or disables !maps command 
-        public bool AllMaps { get; set; } = true; // Enables or disables !allmaps command
+        public bool AllMaps { get; set; } = false; // Enables or disables !allmaps command
         public bool TimeLeft { get; set; } = true; // Enables or disables !allmaps command
     }
 
     public class RotationSettings
     {
         public bool Enabled { get; set; } = true; // Enables game rotations
-        public bool EnforceTimeLimit { get; set; } = false; // Enables rotation on mp_timelimit end. 
+        public bool WhenServerEmpty { get; set; } = false; // Enables rotation on server empty. 
         public int Cycle { get; set; } = 0; // 0 for current mode maps, 1 for all maps, 2 for specific map groups
-        public List<string> MapGroups { get; set;} = new List<string>(){"mg_active", "mg_delta"};
+        public List<string> MapGroups { get; set;} = new List<string>(){"mg_active", "mg_delta"}; // Map group list for cycle 2
         public bool ModeRotation { get; set; } = false; // Enables game mode rotations
         public int ModeInterval { get; set; } = 4; // Changes mode every x map rotations
         public bool ModeSchedules {get; set;} = false; // Enables or disables mode schedules
@@ -92,26 +95,27 @@ namespace GameModeManager
         
         public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
         {
-            new ModeEntry() { Name = "Casual", Config = "casual.cfg", MapGroups = new List<string>(){"mg_active", "mg_delta"} },
-            new ModeEntry() { Name = "Competitive", Config = "comp.cfg", MapGroups = new List<string>(){"mg_active", "mg_delta"}},
-            new ModeEntry() { Name = "Wingman", Config = "wingman.cfg", MapGroups = new List<string>(){"mg_active", "mg_delta"}},
-            new ModeEntry() { Name = "Practice", Config = "prac.cfg", MapGroups = new List<string>(){"mg_prac"}},
-            new ModeEntry() { Name = "Deathmatch", Config = "dm.cfg", MapGroups = new List<string>(){"mg_dm"}},
-            new ModeEntry() { Name = "Deathmatch Multicfg", Config = "dm-multicfg.cfg", MapGroups = new List<string>(){"mg_dm"}},
-            new ModeEntry() { Name = "ArmsRace", Config = "armsrace.cfg", MapGroups = new List<string>(){"mg_gg"}},
-            new ModeEntry() { Name = "GunGame", Config = "gg.cfg", MapGroups = new List<string>(){"mg_gg"}},
-            new ModeEntry() { Name = "Retakes", Config = "retake.cfg", MapGroups = new List<string>(){"mg_retake"}},
-            new ModeEntry() { Name = "Executes", Config = "executes.cfg", MapGroups = new List<string>(){"mg_executes"}},
-            new ModeEntry() { Name = "1v1", Config = "1v1.cfg", MapGroups = new List<string>(){"mg_1v1"}},
-            new ModeEntry() { Name = "Aim", Config = "aim.cfg", MapGroups = new List<string>(){"mg_aim"}},
-            new ModeEntry() { Name = "Bhop", Config = "bhop.cfg", MapGroups = new List<string>(){"mg_bhop"}},
-            new ModeEntry() { Name = "Surf", Config = "surf.cfg", MapGroups = new List<string>(){"mg_surf"}},
-            new ModeEntry() { Name = "KreedZ", Config = "kz.cfg", MapGroups = new List<string>(){"mg_kz"}},
-            new ModeEntry() { Name = "Awp", Config = "awp.cfg", MapGroups = new List<string>(){"mg_awp"}},
-            new ModeEntry() { Name = "Course", Config = "course.cfg", MapGroups = new List<string>(){"mg_course"}},
-            new ModeEntry() { Name = "Hide N Seek", Config = "hns.cfg", MapGroups = new List<string>(){"mg_hns"}},
-            new ModeEntry() { Name = "Soccer", Config = "soccer.cfg", MapGroups = new List<string>(){"mg_soccer"}},
-            new ModeEntry() { Name = "Minigames", Config = "minigames.cfg", MapGroups = new List<string>(){"mg_minigames"}}
+            new ModeEntry() { Name = "Casual", Config = "casual.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_delta"} },
+            new ModeEntry() { Name = "Competitive", Config = "comp.cfg", DefaultMap = "de_inferno", MapGroups = new List<string>(){"mg_active", "mg_delta"}},
+            new ModeEntry() { Name = "Wingman", Config = "wingman.cfg", DefaultMap = "3085490518", MapGroups = new List<string>(){"mg_active", "mg_delta"}},
+            new ModeEntry() { Name = "Practice", Config = "prac.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_prac"}},
+            new ModeEntry() { Name = "Deathmatch", Config = "dm.cfg", DefaultMap = "3086555291", MapGroups = new List<string>(){"mg_dm"}},
+            new ModeEntry() { Name = "Deathmatch Multicfg", Config = "dm-multicfg.cfg", DefaultMap = "3070923343", MapGroups = new List<string>(){"mg_dm"}},
+            new ModeEntry() { Name = "ArmsRace", Config = "armsrace.cfg", DefaultMap = "ar_shoots", MapGroups = new List<string>(){"mg_gg"}},
+            new ModeEntry() { Name = "GunGame", Config = "gg.cfg", DefaultMap = "ar_shoots", MapGroups = new List<string>(){"mg_gg"}},
+            new ModeEntry() { Name = "Retakes", Config = "retake.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_retake"}},
+            new ModeEntry() { Name = "Executes", Config = "executes.cfg", DefaultMap = "de_mirage", MapGroups = new List<string>(){"mg_executes"}},
+            new ModeEntry() { Name = "1v1", Config = "1v1.cfg", DefaultMap = "3070253400", MapGroups = new List<string>(){"mg_1v1"}},
+            new ModeEntry() { Name = "Aim", Config = "aim.cfg", DefaultMap = "3084291314", MapGroups = new List<string>(){"mg_aim"}},
+            new ModeEntry() { Name = "Bhop", Config = "bhop.cfg", DefaultMap = "3088973190", MapGroups = new List<string>(){"mg_bhop"}},
+            new ModeEntry() { Name = "Surf", Config = "surf.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_surf"}},
+            new ModeEntry() { Name = "KreedZ", Config = "kz.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_kz"}},
+            new ModeEntry() { Name = "Awp", Config = "awp.cfg", DefaultMap = "3142070597", MapGroups = new List<string>(){"mg_awp"}},
+            new ModeEntry() { Name = "Course", Config = "course.cfg", DefaultMap = "3070455802", MapGroups = new List<string>(){"mg_course"}},
+            new ModeEntry() { Name = "Hide N Seek", Config = "hns.cfg", DefaultMap = "3097563690", MapGroups = new List<string>(){"mg_hns"}},
+            new ModeEntry() { Name = "Soccer", Config = "soccer.cfg", DefaultMap = "3070198374", MapGroups = new List<string>(){"mg_soccer"}},
+            new ModeEntry() { Name = "ScoutzKnivez", Config = "scoutzknivez.cfg", DefaultMap = "3073929825", MapGroups = new List<string>(){"mg_scoutzknivez"}},
+            new ModeEntry() { Name = "Minigames", Config = "minigames.cfg", DefaultMap = "3082120895", MapGroups = new List<string>(){"mg_minigames"}}
         };
     }
 
@@ -119,7 +123,7 @@ namespace GameModeManager
     public class Config : IBasePluginConfig
     {
         // Create config from classes
-         public int Version { get; set; } = 6;
+         public int Version { get; set; } = 7;
          public RTVSettings RTV { get; set; } = new();
          public MapSettings Maps { get; set; } = new();
          public VoteSettings Votes { get; set; } = new();
@@ -138,16 +142,10 @@ namespace GameModeManager
         // Parse configuration object data and perform error checking
         public void OnConfigParsed(Config _config)
         {  
-            // RTV settings
-            if (_config.RTV.Enabled != true && _config.RTV.Enabled != false) 
+            if(_config.RTV.Enabled) 
             {
-                Logger.LogError("Invalid: RTV 'Enabled' should be 'true' or 'false'.");
-                throw new Exception("Invalid: RTV 'Enabled' should be 'true' or 'false'.");
-            }
-            else if(_config.RTV.Enabled) 
-            {
-                // Set RTV flag
-                _pluginState.RTVEnabled = _config.RTV.Enabled;
+                // Disable game rotations
+                _config.Rotation.Enabled = false;
 
                 // Check if plugin DLL exists
                 if (File.Exists(Path.Join(PluginState.GameDirectory, _config.RTV.Plugin)))
@@ -170,74 +168,21 @@ namespace GameModeManager
                     Logger.LogError($"Cannot find RTV 'MapListFile': {_config.RTV.MapList}");
                     throw new Exception($"Cannot find RTV 'MapListFile': {_config.RTV.MapList}");
                 }
-
-                // Check if MapFormat is true or false
-                if (_config.RTV.MapFormat != true && _config.RTV.MapFormat != false)
-                {
-                    Logger.LogError("Invalid: RTV 'MapFormat' should be 'true' or 'false'.");
-                    throw new Exception("Invalid: RTV 'MapFormat' should be 'true' or 'false'.");
-                }
-
-                if (!int.TryParse(_config.RTV.Mode.ToString(), out _)) 
-                {
-                    Logger.LogError("RTV mode must be a number.");
-                    throw new Exception("RTV mode must be a number.");
-                }
             }
 
             // Maps settings
-            if (!int.TryParse(_config.Rotation.Cycle.ToString(), out _))  
-            {
-                Logger.LogError("Maps cycle must be a number.");
-                throw new Exception("Maps cycle must be a number.");
-            }
-            if (!float.TryParse(_config.Maps.Delay.ToString(), out _))  
-            {
-                Logger.LogError("Maps delay must be a number.");
-                throw new Exception("Maps delay must be a number.");
-            }
             if (!_config.Maps.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
             }
-            if (_config.Maps.Default == null) 
+            if (String.IsNullOrEmpty(_config.Maps.Default)) 
             {
                 Logger.LogError("Invalid: Default map must not be empty.");
                 throw new Exception("Invalid: Default map must not be empty.");
             }
 
             // Vote Settings
-            if (_config.Votes.Enabled != true && _config.Votes.Enabled != false) 
-            {
-                Logger.LogError("Invalid: votes enabled should be 'true' or 'false'.");
-                throw new Exception("Invalid: votes enabled should be 'true' or 'false'.");
-            }
-            if (_config.Votes.GameModes != true &&_config.Votes.GameModes != false) 
-            {
-                Logger.LogError("Invalid: game modes vote should be 'true' or 'false'.");
-                throw new Exception("Invalid: game modes vote should be 'true' or 'false'.");
-            }
-            if (_config.Votes.GameSettings != true && _config.Votes.GameSettings != false) 
-            {
-                Logger.LogError("Invalid: game settings vote should be 'true' or 'false'.");
-                throw new Exception("Invalid: game settings vote should be 'true' or 'false'.");
-            }
-            if (_config.Votes.Maps != true && _config.Votes.Maps != false) 
-            {
-                Logger.LogError("Invalid: maps vote should be 'true' or 'false'.");
-                throw new Exception("Invalid: maps vote should be 'true' or 'false'.");
-            }
-            if (_config.Votes.AllMaps != true && _config.Votes.AllMaps != false) 
-            {
-                Logger.LogError("Invalid: all maps vote should be 'true' or 'false'.");
-                throw new Exception("Invalid: maps vote should be 'true' or 'false'.");
-            }
-            else if (_config.Votes.Maps == true && _config.Votes.AllMaps == true)
-            {
-                Logger.LogError("Invalid: Maps and AllMaps cannot both be true.");
-                throw new Exception("Invalid: Maps and AllMaps cannot both be true.");
-            }
             if (_config.Votes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.Votes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
@@ -245,12 +190,7 @@ namespace GameModeManager
             }
 
             // Game Settings
-            if (_config.Settings.Enabled != true && _config.Settings.Enabled != false) 
-            {
-                Logger.LogError("Invalid: Game settings should be 'true' or 'false'.");
-                throw new Exception("Invalid: Game settings should be 'true' or 'false'.");
-            }
-            else if (_config.Settings.Enabled)
+            if (_config.Settings.Enabled)
             {
                 if (Directory.Exists(Path.Combine(PluginState.ConfigDirectory, _config.Settings.Folder)))
                 {
@@ -263,33 +203,6 @@ namespace GameModeManager
                 }
             }
 
-            // Command settings
-            if (_config.Commands.Map != true && _config.Commands.Map != false)
-            {
-                Logger.LogError("Invalid: Map command setting should be 'true' or 'false'.");
-                throw new Exception("Invalid: Map command setting should be 'true' or 'false'.");
-            }
-            if (_config.Commands.Maps != true && _config.Commands.Maps != false)
-            {
-                Logger.LogError("Invalid: Maps command setting should be 'true' or 'false'.");
-                throw new Exception("Invalid: Maps command setting should be 'true' or 'false'.");
-            }
-            if (_config.Commands.AllMaps != true && _config.Commands.AllMaps != false)
-            {
-                Logger.LogError("Invalid: All maps command setting should be 'true' or 'false'.");
-                throw new Exception("Invalid: All maps command setting should be 'true' or 'false'.");
-            }
-            if (_config.Commands.TimeLeft != true && _config.Commands.TimeLeft != false)
-            {
-                Logger.LogError("Invalid: All maps command setting should be 'true' or 'false'.");
-                throw new Exception("Invalid: All maps command setting should be 'true' or 'false'.");
-            }
-            else if (_config.Commands.TimeLeft == true && _config.RTV.Enabled == true)
-            {
-                Logger.LogError("Invalid: TimeLeft command cannot be enabled with RTV.");
-                throw new Exception("Invalid: TimeLeft command cannot be enabled with RTV.");
-            }
-
             // Game mode settings
             if (File.Exists(Path.Join(PluginState.GameDirectory, _config.GameModes.MapGroupFile)))  
             {
@@ -300,81 +213,43 @@ namespace GameModeManager
                 Logger.LogError($"Cannot find map group file: {_config.GameModes.MapGroupFile}");
                 throw new Exception($"Cannot find map group file: {_config.GameModes.MapGroupFile}");
             }
-            if (!float.TryParse(_config.GameModes.Delay.ToString(), out _)) 
-            {
-                Logger.LogError("Game modes delay must be a number.");
-                throw new Exception("Game modes delay must be a number.");
-            }
             
-            if(_config.GameModes.List == null || _config.GameModes.List.Count == 0)
+            if(_config.GameModes.List.Count == 0)
             {
                 Logger.LogError("Undefined: Game modes list cannot be empty.");
                 throw new Exception("Undefined: Game modes list cannot be empty.");
             }
+            
             if (_config.GameModes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.GameModes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
             }
-            if (_config.GameModes.Default == null) 
+
+            if (String.IsNullOrEmpty(_config.GameModes.Default)) 
             {
                 Logger.LogError("Invalid: Default game mode must not be empty.");
                 throw new Exception("Invalid: Default game mode must not be empty.");
             }
-
+           
             // Rotation settings
-             if (_config.Rotation.Enabled != true && _config.Rotation.Enabled != false) 
+            if (_config.Rotation.Cycle != 0 && _config.Rotation.Cycle != 1 && _config.Rotation.Cycle != 2)
             {
-                Logger.LogError("Invalid: Rotation Enabled should be 'true' or 'false'.");
-                throw new Exception("Invalid: Rotation Enabled should be 'true' or 'false'.");
+                Logger.LogError("Invalid: Rotation cycle must be 0, 1, or 2.");
+                throw new Exception("Invalid: Rotation cycle must be 0, 1, or 2.");
             }
-            else if (_config.Rotation.Enabled == true && _config.RTV.Enabled == true)
+
+            if (_config.Rotation.ModeSchedules == true)
             {
-                Logger.LogError("Invalid: RTV and Rotation cannot be both enabled.");
-                throw new Exception("Invalid: RTV and Rotation cannot be both enabled.");
-            }
-            else if(_config.Rotation.Enabled == true)
-            {
-                if (_config.Rotation.Cycle != 0 && _config.Rotation.Cycle != 1 && _config.Rotation.Cycle != 2)
+                if (_config.Rotation.Schedule.Count <= 0)
                 {
-                    Logger.LogError("Invalid: Rotation cycle must be 0, 1, or 2.");
-                    throw new Exception("Invalid: Rotation cycle must be 0, 1, or 2.");
-                }
-                if (_config.Rotation.ModeRotation != true && _config.Rotation.ModeRotation != false)
-                {
-                    Logger.LogError("Invalid: Mode Rotation must be 'true' or 'false'.");
-                    throw new Exception("Invalid: Mode Rotation must be 'true' or 'false'.");
-                }
-                else if (_config.Rotation.ModeRotation == true)
-                {
-                    if (!int.TryParse(_config.Rotation.ModeInterval.ToString(), out _)) 
-                    {
-                        Logger.LogError("Game modes interval must be a number.");
-                        throw new Exception("Game modes interval must be a number.");
-                    }
-                }
-                if (_config.Rotation.ModeSchedules != true && _config.Rotation.ModeSchedules != false) 
-                {
-                    Logger.LogError("Invalid: Schedule Enabled should be 'true' or 'false'.");
-                    throw new Exception("Invalid: Schedule Enabled should be 'true' or 'false'.");
-                }
-                else if (_config.Rotation.ModeSchedules == true)
-                {
-                    if (_config.Rotation.Schedule == null || _config.Rotation.Schedule.Count <= 0)
-                    {
-                        Logger.LogError("Invalid: Schedule cannot be empty");
-                        throw new Exception("Invalid: Schedule cannot be empty");
-                    }
-                }
-                else if (_config.Rotation.ModeSchedules == true && _config.Rotation.ModeRotation == true)
-                {
-                    Logger.LogError("Invalid: Mode rotation and schedule cannot be both enabled.");
-                    throw new Exception("Invalid: Mode rotation and schedule cannot be both enabled.");
+                    Logger.LogError("Invalid: Schedule cannot be empty");
+                    throw new Exception("Invalid: Schedule cannot be empty");
                 }
             }
 
             // Config version check
-            if (_config.Version < 6)
+            if (_config.Version < 7)
             {
                 throw new Exception("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it");
             }

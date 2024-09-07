@@ -1,5 +1,4 @@
 // Included libraries
-using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -11,26 +10,25 @@ namespace GameModeManager
     public class TimeLeftCommand : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
+        private Config _config = new();
+        private StringLocalizer _localizer;
+        private readonly GameRules _gameRules;
         private TimeLimitManager _timeLimitManager;
         private MaxRoundsManager _maxRoundsManager;
-        private readonly GameRules _gameRules;
-        private StringLocalizer _localizer;
-        private Config _config = new();
 
         // Define class instance
         public TimeLeftCommand(TimeLimitManager timeLimitManager, MaxRoundsManager maxRoundsManager, GameRules gameRules, IStringLocalizer stringLocalizer)
         {
             _gameRules = gameRules;
-            _localizer = new StringLocalizer(stringLocalizer, "timeleft.prefix");
             _timeLimitManager = timeLimitManager;
             _maxRoundsManager = maxRoundsManager;
-
+            _localizer = new StringLocalizer(stringLocalizer, "timeleft.prefix");
         }
 
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            if (!_config.RTV.Enabled)
+            if (_config.Commands.TimeLeft)
             {
                 plugin.AddCommand("timeleft", "Prints in the chat the timeleft in the current map", CommandHandler);
             }
@@ -48,18 +46,18 @@ namespace GameModeManager
             {
                 if (player != null)
                 {
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("timeleft.warmup"));
+                    command.ReplyToCommand(_localizer.LocalizeWithPrefix("timeleft.warmup"));
                 }
                 else
                 {
-                    Server.PrintToConsole(_localizer.LocalizeWithPrefix("timeleft.warmup"));
+                    command.ReplyToCommand(_localizer.LocalizeWithPrefix("timeleft.warmup"));
                 }
                 
                 return;
             }
 
             // Create message based on map conditions
-            if (!_timeLimitManager.UnlimitedTime) // If timelmit exists
+            if (!_timeLimitManager.UnlimitedTime) // If time not over
             {
                 if (_timeLimitManager.TimeRemaining > 1)
                 {
@@ -85,7 +83,7 @@ namespace GameModeManager
                     _message = _localizer.LocalizeWithPrefix("timeleft.remaining-time-over");
                 }
             }
-            else if (!_maxRoundsManager.UnlimitedRounds) // If round limit exists
+            else if (!_maxRoundsManager.UnlimitedRounds) // If round limit not reached
             {
                 if (_maxRoundsManager.RemainingRounds > 1) // If remaining rounds more than 1
                 {
@@ -96,7 +94,7 @@ namespace GameModeManager
                     _message = _localizer.LocalizeWithPrefix("timeleft.last-round");
                 }
             }
-            else // If no time limit or round limit
+            else // If no time or round limit
             {
                 _message = _localizer.LocalizeWithPrefix("timeleft.no-time-limit");
             }
@@ -104,11 +102,11 @@ namespace GameModeManager
             // Send message    
             if (player != null)
             {
-                player.PrintToChat(_message);
+                command.ReplyToCommand(_message);
             }
             else
             {
-                Server.PrintToConsole(_message);
+                command.ReplyToCommand(_message);
             }
         }
     }

@@ -23,17 +23,6 @@ namespace GameModeManager
             plugin.RegisterEventHandler<EventRoundAnnounceWarmup>(OnAnnounceWarmup);
         }
 
-        // Define methods to set game rules
-        public void SetGameRules() => _gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()?.GameRules;
-        public void SetGameRulesAsync()
-        {
-            _gameRules = null;
-            new Timer(1.0F, () =>
-            {
-                SetGameRules();
-            });
-        }
-
         // Define on map start behavior
         public void OnMapStart(string map)
         {
@@ -52,6 +41,17 @@ namespace GameModeManager
         {
             SetGameRules();
             return HookResult.Continue;
+        }
+
+        // Define methods to set game rules
+        public void SetGameRules() => _gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()?.GameRules;
+        public void SetGameRulesAsync()
+        {
+            _gameRules = null;
+            new Timer(1.0F, () =>
+            {
+                SetGameRules();
+            });
         }
     }
 }

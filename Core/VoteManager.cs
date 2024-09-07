@@ -28,16 +28,16 @@ namespace GameModeManager
             _menuFactory = menuFactory;
         }
 
-        // Load dependencies
-        public void OnLoad(Plugin plugin)
-        { 
-            _localizer = new StringLocalizer(plugin.Localizer);
-        }
-
         // Load config
         public void OnConfigParsed(Config config)
         {
             _config = config;
+        }
+
+        // Load dependencies
+        public void OnLoad(Plugin plugin)
+        { 
+            _localizer = new StringLocalizer(plugin.Localizer);
         }
 
         // Define reusable method to register custom votes

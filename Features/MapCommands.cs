@@ -65,7 +65,7 @@ namespace GameModeManager
             }
             else
             {
-                Console.Error.WriteLine("css_maps is a client only command.");
+                command.ReplyToCommand("css_maps is a client only command.");
             }
         }
 
@@ -82,7 +82,7 @@ namespace GameModeManager
             }
             else
             {
-                Console.Error.WriteLine("css_maps is a client only command.");
+                command.ReplyToCommand("css_maps is a client only command.");
             }
         }
 
@@ -117,7 +117,7 @@ namespace GameModeManager
             }
             else
             {
-                Console.Error.WriteLine("css_map is a client only command.");
+                command.ReplyToCommand("css_map is a client only command.");
             }
         }
     }

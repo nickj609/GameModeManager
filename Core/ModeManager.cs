@@ -45,7 +45,7 @@ namespace GameModeManager
                     }
                 }
                 // Add mode to new mode list
-                Mode gameMode = new Mode(_mode.Name, _mode.Config, mapGroups);
+                Mode gameMode = new Mode(_mode.Name, _mode.Config, _mode.DefaultMap, mapGroups);
                 _pluginState.Modes.Add(gameMode); 
             }
 
@@ -58,7 +58,12 @@ namespace GameModeManager
 
             // Create RTV map list
             _mapManager.UpdateRTVMapList();
-            
+        }
+
+        // Define on map start behavior
+        public void OnMapStart(string mapName)
+        {
+
         }
     }
 }

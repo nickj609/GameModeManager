@@ -44,7 +44,7 @@ namespace GameModeManager
 
             plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
             plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
-            plugin.AddCommand("css_gamemode", "Sets the current mapgroup.", OnGameModeCommand);
+            plugin.AddCommand("css_gamemode", "Sets the current game mode.", OnGameModeCommand);
         }
 
         // Define server game mode command handler
@@ -88,11 +88,12 @@ namespace GameModeManager
                 }
                 else
                 {
-                    _logger.LogWarning($"Unable to find game mode {command.ArgByIndex(1)}. Setting default game mode.");
+                    _logger.LogWarning($"Unable to find game mode {command.ArgByIndex(1)}. Setting default warmup mode.");
                     _pluginState.CurrentMode = PluginState.DefaultMode;
                 }
             }
         }
+
         // Define admin change mode command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 1, usage: "<mode>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
@@ -125,7 +126,7 @@ namespace GameModeManager
             }
             else
             {
-                Console.Error.WriteLine("css_mode is a client only command.");
+                command.ReplyToCommand("css_mode is a client only command.");
             }
         }
 
@@ -142,7 +143,7 @@ namespace GameModeManager
             }
             else if (player == null)
             {
-                Console.Error.WriteLine("css_modes is a client only command.");
+                command.ReplyToCommand("css_modes is a client only command.");
             }
         }
     }

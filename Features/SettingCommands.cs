@@ -86,7 +86,7 @@ namespace GameModeManager
             }
             else
             {
-                Console.Error.WriteLine("css_settings is a client only command.");
+                command.ReplyToCommand("css_settings is a client only command.");
             }
         }
 
@@ -103,7 +103,7 @@ namespace GameModeManager
             }
             else
             {
-                Console.Error.WriteLine("css_settings is a client only command.");
+                command.ReplyToCommand("css_settings is a client only command.");
             }
         }
     }

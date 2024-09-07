@@ -7,17 +7,18 @@ namespace GameModeManager
         // Define parameters
         public string Name { get; set; }
         public string Config { get; set; }
+        public Map DefaultMap { get; set; }
         public List<Map> Maps { get; set; }
         public List<MapGroup> MapGroups { get; set; }
 
         // Define class instances
-        public Mode(string name, string configFile, List<MapGroup> mapGroups) 
+        public Mode(string name, string configFile, string defaultMap,  List<MapGroup> mapGroups) 
         {
             Name = name;
             Config = configFile;
-            MapGroups = mapGroups; 
+            MapGroups = mapGroups;  
             Maps = CreateMapList(MapGroups);
-
+            DefaultMap = Maps.FirstOrDefault(m => m.Name == defaultMap || m.WorkshopId.ToString() == defaultMap) ?? PluginState.DefaultMap;
         }
 
         // Define method to generate maps from map groups

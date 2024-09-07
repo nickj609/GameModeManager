@@ -15,9 +15,9 @@ namespace GameModeManager
     public class MapGroupManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private ILogger<MapGroupManager> _logger;
         private PluginState _pluginState;
         private Config _config = new Config();
+        private ILogger<MapGroupManager> _logger;
 
         // Define class instance
         public MapGroupManager(PluginState pluginState, ILogger<MapGroupManager> logger)

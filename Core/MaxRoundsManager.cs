@@ -11,12 +11,6 @@ namespace GameModeManager
     {
         // Define dependencies
         private GameRules _gameRules;
-
-        // Define class instance
-        public MaxRoundsManager(GameRules gameRules)
-        {
-            _gameRules = gameRules;
-        }
         
         // Define win counters
         private int TWins = 0;
@@ -71,6 +65,12 @@ namespace GameModeManager
             }
         }
 
+        // Define class instance
+        public MaxRoundsManager(GameRules gameRules)
+        {
+            _gameRules = gameRules;
+        }
+
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
@@ -113,6 +113,13 @@ namespace GameModeManager
             ClearRounds();
         }
 
+        // Define on map start behavior
+        public void OnMapStart(string map)
+        {
+            LoadCvar();
+            ClearRounds();
+        }
+        
         // Define method to load convars
         void LoadCvar()
         {
@@ -149,14 +156,6 @@ namespace GameModeManager
                 TWins++;
             }
             //Server.PrintToChatAll($"T Wins {TWins}, CTWins {CTWins}");
-        }
-
-        // Define on map start behavior
-        public void OnMapStart(string map)
-        {
-            LoadCvar();
-            ClearRounds();
-        }
-            
+        }   
     }
 }

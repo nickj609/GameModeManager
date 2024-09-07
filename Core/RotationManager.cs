@@ -36,12 +36,13 @@ namespace GameModeManager
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
+            // Load plugin
             _plugin = plugin;
 
             // Define event game end handler
             _plugin.RegisterEventHandler<EventCsWinPanelMatch>((@event, info) =>
             {  
-                TriggerRotation();
+                ServerManager.TriggerRotation(_plugin, _config, _pluginState, _logger, _localizer);
                 return HookResult.Continue;
             }, HookMode.Post);
 
@@ -49,7 +50,7 @@ namespace GameModeManager
             if (_config.Rotation.ModeSchedules)
             {
                 // Parse schedule entries
-                foreach (var entry in _config.Rotation.Schedule)
+                foreach (ScheduleEntry entry in _config.Rotation.Schedule)
                 {
                     // Schedule the mode change
                     DateTime targetTime = DateTime.Parse(entry.Time); // Parse the time string
@@ -66,7 +67,7 @@ namespace GameModeManager
                     new Timer((float)delay.TotalSeconds, () =>
                     {
                         // Trigger schedule
-                        TriggerScheduleChange(entry);
+                        ServerManager.TriggerScheduleChange(_plugin, entry, _pluginState, _config);
 
                         // Update delay for the next occurrence (tomorrow)
                         delay = targetTime.AddDays(1) - DateTime.Now;
@@ -74,124 +75,46 @@ namespace GameModeManager
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT);
                 }
             }
-        }
 
-        // Define method to trigger mode and map rotations
-        public void TriggerRotation()
-        {  
-            // Check if game mode rotation is enabled
-            if(_plugin != null && _config.Rotation.Enabled && _pluginState.RTVEnabled != true)
+            if(_config.Rotation.WhenServerEmpty)
             {
-                 if (_config.Rotation.ModeRotation && _pluginState.MapRotations % _config.Rotation.ModeInterval == 0)
-                 {  
-                    // Log information
-                    _logger.LogInformation("Game has ended. Picking random game mode...");
-            
-                    // Get random game mode
-                    Random _rnd = new Random();
-                    int _randomIndex = _rnd.Next(0, _pluginState.Modes.Count); 
-                    Mode _randomMode = _pluginState.Modes[_randomIndex];
-
-                    // Change mode
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing mode..."));  
-                    ServerManager.ChangeMode(_randomMode, _plugin ,_pluginState, _config.GameModes.Delay);
-                }
-                else
-                {
-                    // Define random map
-                    Map _randomMap;    
-
-                    // Choose random map           
-                    if (_config.Rotation.Cycle == 2)
+                _plugin.RegisterEventHandler<EventPlayerConnect>((@event, info) =>
+                {  
+                    if(Extensions.ValidPlayerCount(false) == 1)
                     {
-                        List<Map> _mapList = new List<Map>();
-
-                        foreach (string mapGroup in _config.Rotation.MapGroups)
+                        if (!_timeLimitManager.UnlimitedTime)
                         {
-                            MapGroup? _mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(mapGroup, StringComparison.OrdinalIgnoreCase));
-
-                            if (_mapGroup != null)
-                            {
-                                foreach (Map _map in _mapGroup.Maps)
-                                {
-                                    _mapList.Add(_map);
-                                }
-                            }
-                        } 
-
-                        // Get a random map from current game mode
-                        Random _rnd = new Random();
-                        int _randomIndex = _rnd.Next(0, _mapList.Count); 
-                        _randomMap = _mapList[_randomIndex];
-
+                            _timeLimitManager.EnforceTimeLimit(_plugin, false);
+                        }
                     }
-                    else if (_config.Rotation.Cycle == 1)
+
+                    return HookResult.Continue;
+                }, HookMode.Post);
+
+                _plugin.RegisterEventHandler<EventPlayerDisconnect>((@event, info) =>
+                {  
+                    if(Extensions.ValidPlayerCount(false) == 0)
                     {
-                        // Log message
-                        _logger.LogInformation("Game has ended. Picking random map from all maps list...");
+                        if(!Extensions.IsHibernationEnabled())
+                        {
+                            Server.ExecuteCommand("sv_hibernate_when_empty false");
+                        }
 
-                        // Get a random map from current game mode
-                        Random _rnd = new Random();
-                        int _randomIndex = _rnd.Next(0, _pluginState.CurrentMode.Maps.Count); 
-                        _randomMap = _pluginState.CurrentMode.Maps[_randomIndex];
-                    }
-                    else
-                    {
-                        // Log message
-                        _logger.LogInformation("Game has ended. Picking random map from current mode...");
-
-                        // Get a random map from all registered maps
-                        Random _rnd = new Random();
-                        int _randomIndex = _rnd.Next(0, _pluginState.Maps.Count); 
-                        _randomMap = _pluginState.Maps[_randomIndex];
+                        if(!_timeLimitManager.UnlimitedTime)
+                        {
+                            _timeLimitManager.EnforceTimeLimit(_plugin, true);
+                        }
+                        else
+                        {
+                            _timeLimitManager.EnforceCustomTimeLimit(_plugin, 600);
+                        }
                     }
 
-                    // Change map
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
-                    ServerManager.ChangeMap(_randomMap);
-                }
-                _pluginState.MapRotations++;
+                    return HookResult.Continue;
+                }, HookMode.Post);
             }
         }
 
-        // Define method to trigger schedule change
-        private void TriggerScheduleChange(object? state)
-        {
-            // Cast the state object back to ScheduleEntry
-            ScheduleEntry? entry = state as ScheduleEntry;
-
-            if (entry != null && _plugin != null)
-            {
-                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(entry.Mode, StringComparison.OrdinalIgnoreCase));
-
-                if (_mode != null)
-                {
-                    // Check if current mode is different from target mode
-                    if (_pluginState.CurrentMode != _mode)
-                    {
-                        ServerManager.ChangeMode(_mode, _plugin, _pluginState, _config.GameModes.Delay);
-                    }
-                }
-            }
-        }
-
-        // Define on map start behavior
-        public void OnMapStart(Plugin plugin)
-        {
-            // Disable server hibernation
-            if (ServerManager.IsHibernationEnabled() && !_pluginState.RTVEnabled)
-            {
-                Server.ExecuteCommand("sv_hibernate_when_empty false");
-            }
-
-            // Create timer for enforcing rotation on time limit end
-            if (!_timeLimitManager.UnlimitedTime && _config.Rotation.EnforceTimeLimit)
-            {
-                new Timer((float)_timeLimitManager.TimeLimitValue, () =>
-                {
-                    TriggerRotation();
-                });
-            }
-        }
+        
     }
 }

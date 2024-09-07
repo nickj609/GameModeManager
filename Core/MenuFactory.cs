@@ -159,6 +159,7 @@ namespace GameModeManager
                 CreateShowSettingsMenu();
             }
         }
+        
         // Define resuable method to set up mode menu
         public void CreateModeMenus()
         {
