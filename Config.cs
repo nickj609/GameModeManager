@@ -68,6 +68,12 @@ namespace GameModeManager
         public bool TimeLeft { get; set; } = true; // Enables or disables !allmaps command
     }
 
+    public class WarmupSettings
+    {
+        public float Time { get; set; } = 60; // Default warmup time
+        public static string Folder { get; set; } = "warmup"; // Default warmup folder
+        public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg", DefaultMap = "3070923343", MapGroups = new List<string>(){"mg_dm"}};
+    }
     public class RotationSettings
     {
         public bool Enabled { get; set; } = true; // Enables game rotations
@@ -90,7 +96,7 @@ namespace GameModeManager
     {
         public float Delay { get; set; } = 2.0f; // Game mode change delay in seconds
         public string Style { get; set; } = "center"; // Changes mode menu type 
-        public string Default { get; set; } =  "Casual"; // Default mode on server start
+        public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Casual", Config = "casual.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_delta"} }; // Default mode on server start
         public string MapGroupFile { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
         
         public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
@@ -128,6 +134,7 @@ namespace GameModeManager
          public MapSettings Maps { get; set; } = new();
          public VoteSettings Votes { get; set; } = new();
          public GameSettings Settings { get; set; } = new();
+         public WarmupSettings Warmup { get; set; } = new();
          public CommandSettings Commands { get; set; } = new();
          public RotationSettings Rotation { get; set; } = new();
          public GameModeSettings GameModes { get; set; } = new();
@@ -226,7 +233,7 @@ namespace GameModeManager
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
             }
 
-            if (String.IsNullOrEmpty(_config.GameModes.Default)) 
+            if (_config.GameModes.Default.Equals(null)) 
             {
                 Logger.LogError("Invalid: Default game mode must not be empty.");
                 throw new Exception("Invalid: Default game mode must not be empty.");

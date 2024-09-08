@@ -76,8 +76,6 @@ namespace GameModeManager
             {
                 return str;
             }
-        }
+        }   
     }
-
-    
 }

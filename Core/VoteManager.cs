@@ -6,6 +6,7 @@ using CS2_CustomVotes.Shared.Models;
 // Declare namespace
 namespace GameModeManager
 {
+    // Define class
     public class VoteManager : IPluginDependency<Plugin, Config>
     {
 

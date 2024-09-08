@@ -18,7 +18,7 @@ namespace GameModeManager
             Config = configFile;
             MapGroups = mapGroups;  
             Maps = CreateMapList(MapGroups);
-            DefaultMap = Maps.FirstOrDefault(m => m.Name == defaultMap || m.WorkshopId.ToString() == defaultMap) ?? PluginState.DefaultMap;
+            DefaultMap = Maps.FirstOrDefault(m => m.Name == defaultMap || m.WorkshopId.ToString() == defaultMap) ?? new Map("pseudorandom");
         }
 
         // Define method to generate maps from map groups

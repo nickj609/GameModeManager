@@ -8,6 +8,7 @@ using CounterStrikeSharp.API.Modules.Commands;
 // Declare namespace
 namespace GameModeManager
 {
+    // Define class
     public class ModeCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
@@ -115,7 +116,7 @@ namespace GameModeManager
                     // Change mode
                     if(_plugin != null)
                     {
-                        ServerManager.ChangeMode(_mode, _plugin, _pluginState, _config.GameModes.Delay);
+                        ServerManager.ChangeMode(_mode, _config, _plugin, _pluginState, _config.GameModes.Delay);
                     }
                 }
                 else

@@ -7,6 +7,7 @@ using CounterStrikeSharp.API.Modules.Commands;
 // Declare namespace
 namespace GameModeManager
 {
+    // Define class
     public class SettingCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies

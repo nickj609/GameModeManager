@@ -113,8 +113,6 @@ namespace GameModeManager
                     return HookResult.Continue;
                 }, HookMode.Post);
             }
-        }
-
-        
+        }    
     }
 }

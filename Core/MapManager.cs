@@ -46,7 +46,6 @@ namespace GameModeManager
         {  
             if (_config.RTV.Enabled)
             {
-
                 // Get map list
                 List<Map> _mapList = new List<Map>();
 

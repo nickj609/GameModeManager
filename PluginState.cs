@@ -26,12 +26,15 @@ namespace GameModeManager
         {
             _config = config;
             RTVEnabled = _config.RTV.Enabled;
+            WarmupMode = new Mode(_config.Warmup.Default.Name,_config.Warmup.Default.Config,_config.Warmup.Default.DefaultMap, new List<MapGroup>());
+            WarmupTime = _config.Warmup.Time;
         }
 
         // Define static directories (Thanks Kus!)
         public static string GameDirectory = Path.Join(Server.GameDirectory + "/csgo/");
         public static string ConfigDirectory = Path.Join(GameDirectory + "cfg/");
         public static string SettingsDirectory = Path.Join(ConfigDirectory + "settings/");
+        public static string WarmupDirectory = Path.Join(ConfigDirectory + "warmup/");
 
         // Define static objects
         public static Map DefaultMap = new Map("de_dust2", "Dust 2");
@@ -45,15 +48,21 @@ namespace GameModeManager
             new Map("de_nuke", "Nuke"),
             new Map("de_vertigo", "Vertigo")
         };
-        public static Mode DefaultMode = new Mode("Casual", "casual.cfg", "de_dust2", new List<MapGroup>());
+        public static MapGroup DefaultMapGroup = new MapGroup("mg_active", DefaultMaps);
+        public static List<MapGroup> DefaultMapGroups = new List<MapGroup>{DefaultMapGroup};
+        public static Mode DefaultMode = new Mode("Casual", "casual.cfg", "de_dust2", DefaultMapGroups);
+        public static Mode DefaultWarmup = new Mode("Deathmatch", "dm.cfg", "3070923343", new List<MapGroup>());
         
         // Define dynamic attributes
         public int MapRotations = 0;
+        public float WarmupTime = 60;
         public bool RTVEnabled = false;
+        public Map NextMap = DefaultMap;
+        public bool WarmupStarted = false;
         public Map CurrentMap = DefaultMap;
         public bool WarmupModeEnabled = false;
-        public Mode WarmupMode = DefaultMode;
         public Mode CurrentMode = DefaultMode;
+        public Mode WarmupMode = DefaultWarmup;
         public List<Map> Maps = new List<Map>();
         public List<Mode> Modes = new List<Mode>();
         public List<Setting> Settings = new List<Setting>();

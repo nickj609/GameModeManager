@@ -7,6 +7,7 @@ using CounterStrikeSharp.API.Modules.Commands;
 // Declare namespace
 namespace GameModeManager
 {
+    // Define class
     public class MapCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
@@ -111,7 +112,7 @@ namespace GameModeManager
                     // Change map
                     _plugin.AddTimer(_config.Maps.Delay, () => 
                     {
-                        ServerManager.ChangeMap(_newMap);
+                        ServerManager.ChangeMap(_newMap, _config, _pluginState);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 }
             }

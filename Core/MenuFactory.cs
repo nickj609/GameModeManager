@@ -152,7 +152,7 @@ namespace GameModeManager
                     
                 }
             });
-
+            
             // Setup show settings menu
             if(_config.Votes.GameSettings)
             {
@@ -193,7 +193,6 @@ namespace GameModeManager
                     }
                 });
             }
-
             // Setup show modes menu
             if(_config.Votes.GameModes)
             {
@@ -201,12 +200,14 @@ namespace GameModeManager
             }
         }
 
+        // Define resuable method to create map menus
         public void CreateMapMenus()
         {
             CreateAllMapsMenus();
             UpdateMapMenus();
         }
 
+        // Define resuable method to create all maps menu
         public void CreateAllMapsMenus()
         {
             _pluginState.MapsMenu = AssignMenu(_config.Maps.Style, "Select a game mode.");
@@ -239,12 +240,12 @@ namespace GameModeManager
                             {
                                 _plugin.AddTimer(_config.Maps.Delay, () => 
                                 {
-                                    ServerManager.ChangeMap(_nextMap);
+                                    ServerManager.ChangeMap(_nextMap, _config, _pluginState);
                                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                             }
                         });
                     }
-
+                    // Open menu
                     OpenMenu(subMenu, _config.Maps.Style, player);
 
                 });
@@ -317,7 +318,7 @@ namespace GameModeManager
                     {
                         _plugin.AddTimer(_config.Maps.Delay, () => 
                         {
-                            ServerManager.ChangeMap(_nextMap);
+                            ServerManager.ChangeMap(_nextMap, _config, _pluginState);
                         }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     }
                 });

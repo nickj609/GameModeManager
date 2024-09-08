@@ -7,15 +7,17 @@ namespace GameModeManager
        // Define dependencies
         private PluginState _pluginState;
         private Config _config = new Config();
+        private MapGroupManager _mapGroupManager;
         private readonly MapManager _mapManager;
         private readonly MenuFactory _menuFactory;
 
         // Define class instance
-        public ModeManager(PluginState pluginState, MenuFactory menuFactory, MapManager mapManager)
+        public ModeManager(PluginState pluginState, MenuFactory menuFactory, MapManager mapManager, MapGroupManager mapGroupManager)
         {
             _mapManager = mapManager;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
+            _mapGroupManager = mapGroupManager;
         }
 
         // Load config
@@ -31,26 +33,15 @@ namespace GameModeManager
             foreach(ModeEntry _mode in _config.GameModes.List)
             {
                 // Create map group list
-                List<MapGroup> mapGroups = new List<MapGroup>();
-
-                // Create map group from config
-                foreach(string _mapGroup in _mode.MapGroups)
-                {
-                    MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name == _mapGroup);
-
-                    // Add map group to list
-                    if(mapGroup != null)
-                    {
-                        mapGroups.Add(mapGroup);
-                    }
-                }
+                List<MapGroup> mapGroups = _mapGroupManager.CreateMapGroupList(_mode.MapGroups);
+                
                 // Add mode to new mode list
                 Mode gameMode = new Mode(_mode.Name, _mode.Config, _mode.DefaultMap, mapGroups);
                 _pluginState.Modes.Add(gameMode); 
             }
 
-            // Set default mode
-            _pluginState.CurrentMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(_config.GameModes.Default, StringComparison.OrdinalIgnoreCase)) ?? PluginState.DefaultMode;
+            // Set current mode
+            _pluginState.CurrentMode =  new Mode(_config.Warmup.Default.Name, _config.Warmup.Default.Config, _config.Warmup.Default.DefaultMap, new List<MapGroup>());
 
             // Create mode menus
             _menuFactory.CreateModeMenus();
@@ -58,12 +49,6 @@ namespace GameModeManager
 
             // Create RTV map list
             _mapManager.UpdateRTVMapList();
-        }
-
-        // Define on map start behavior
-        public void OnMapStart(string mapName)
-        {
-
         }
     }
 }

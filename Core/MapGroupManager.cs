@@ -121,5 +121,42 @@ namespace GameModeManager
             PluginState.DefaultMap = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(_config.Maps.Default, StringComparison.OrdinalIgnoreCase)) ?? PluginState.DefaultMap;
             _pluginState.CurrentMap = PluginState.DefaultMap;
         }
+
+        // Define method to create map group lsit
+        public List<MapGroup> CreateMapGroupList(List<string>mapGroups)
+        {
+            // Create map group list
+            List<MapGroup> _mapGroups = new List<MapGroup>();
+
+            foreach(string mapGroup in mapGroups)
+            {
+                MapGroup? _mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(mapGroup, StringComparison.OrdinalIgnoreCase));
+
+                if (_mapGroup != null)
+                {
+                    // Add mapgroup to list
+                    _mapGroups.Add(_mapGroup);
+                }
+                else
+                {
+                    // Log warning
+                    _logger.LogWarning($"Unable to find {mapGroup}. Make sure it is spelled correctly and listed in your gamemodes_server.txt file.");
+                }
+
+            }
+            if(_mapGroups != null)
+            {
+                // Return list
+                return _mapGroups;
+            }
+            else
+            {
+                // Log warning
+                _logger.LogWarning($"Unable to create map group list. Using default list.");
+
+                // Return default map group
+                return PluginState.DefaultMapGroups;
+            }
+        }
     }
 }

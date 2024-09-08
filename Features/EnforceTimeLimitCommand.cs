@@ -6,6 +6,7 @@ using CounterStrikeSharp.API.Modules.Commands;
 // Declare namespace
 namespace GameModeManager
 {
+    // Define class
     public class EnforceTimeLimitCommand : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
