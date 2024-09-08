@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameModeManager", "GameModeManager.csproj", "{B0F050EF-23D3-4424-9745-741042122EAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameModeManager", "GameModeManager\GameModeManager.csproj", "{D4F4F816-FFBA-4578-BF42-D2ED7CC35294}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameModeManager.Shared", "GameModeManager.Shared\GameModeManager.Shared.csproj", "{3EDA988A-6A97-47CC-9CF4-453956E52AE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +13,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B0F050EF-23D3-4424-9745-741042122EAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B0F050EF-23D3-4424-9745-741042122EAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B0F050EF-23D3-4424-9745-741042122EAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B0F050EF-23D3-4424-9745-741042122EAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4F4F816-FFBA-4578-BF42-D2ED7CC35294}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4F4F816-FFBA-4578-BF42-D2ED7CC35294}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4F4F816-FFBA-4578-BF42-D2ED7CC35294}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4F4F816-FFBA-4578-BF42-D2ED7CC35294}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EDA988A-6A97-47CC-9CF4-453956E52AE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EDA988A-6A97-47CC-9CF4-453956E52AE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EDA988A-6A97-47CC-9CF4-453956E52AE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EDA988A-6A97-47CC-9CF4-453956E52AE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {B4CE33F4-A897-45D7-91ED-45050C310202}
+		SolutionGuid = {4BCC12FE-268C-4A49-A7E2-28666CBA0313}
 	EndGlobalSection
 EndGlobal

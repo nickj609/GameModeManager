@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>GameModeManager</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.253"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="lib\Gameloop.Vdf\Gameloop.Vdf.dll" Version="0.6.2" />
+    <Reference Include="CS2-CustomVotes.Shared" Version="1.0.1">
+      <Private>false</Private>
+      <HintPath>lib\counterstrikesharp\shared\CS2-CustomVotes.Shared\CS2-CustomVotes.Shared.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../GameModeManager.Shared\GameModeManager.Shared.csproj" />
+  </ItemGroup>
+  <Target Name="PublicBuild" AfterTargets="AfterBuild">
+        <MakeDir Directories="$(OutDir)Public\addons\counterstrikesharp\plugins\GameModeManager\lang"/>
+        <MakeDir Directories="$(OutDir)Public\addons\counterstrikesharp\plugins\CS2-CustomVotes"/>
+        <MakeDir Directories="$(OutDir)Public\addons\counterstrikesharp\shared\CS2-CustomVotes.Shared"/>
+        <Exec Command="xcopy /Y /R $(OutDir)*.* $(OutDir)Public\addons\counterstrikesharp\plugins\GameModeManager\" />
+        <Exec Command="xcopy /Y /E /R $(ProjectDir)lib\csgo\ $(OutDir)Public\" />
+        <Exec Command="xcopy /Y /R $(ProjectDir)lang\*.* $(OutDir)Public\addons\counterstrikesharp\plugins\GameModeManager\lang\" />
+  </Target>
+</Project>
