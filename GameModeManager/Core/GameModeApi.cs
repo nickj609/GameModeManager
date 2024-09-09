@@ -14,6 +14,7 @@ namespace GameModeManager.Core
         // Define dependencies
         private Plugin? _plugin;
         private PluginState _pluginState;
+        private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<IGameModeApi> _logger;
@@ -26,11 +27,12 @@ namespace GameModeManager.Core
         public string CurrentMap { get { return _pluginState.CurrentMap.DisplayName; } }
         
         // Define class instance
-        public GameModeApi(PluginState pluginState, StringLocalizer localizer, ILogger<IGameModeApi> logger, TimeLimitManager timeLimitManager)
+        public GameModeApi(PluginState pluginState, StringLocalizer localizer, ILogger<IGameModeApi> logger, TimeLimitManager timeLimitManager, MenuFactory menuFactory)
         {
             _logger = logger;
             _localizer = localizer;
             _pluginState = pluginState;
+            _menuFactory = menuFactory;
             _timeLimitManager = timeLimitManager;
         }
 
@@ -46,6 +48,12 @@ namespace GameModeManager.Core
             _plugin = plugin;
         }
 
+        // Update map menus api handler
+        public void UpdateMapMenus()
+        {
+            _menuFactory.UpdateMapMenus();
+        }
+
         // Trigger rotation api handler
         public void TriggerRotation()
         {
@@ -53,6 +61,13 @@ namespace GameModeManager.Core
             {
                 ServerManager.TriggerRotation(_plugin, _config, _pluginState, _logger, _localizer);
             }
+        }
+
+        // Enable RTV compatibility api handler
+        public void EnableRTV(bool enabled)
+        {
+            _pluginState.RTVEnabled = enabled;
+            _config.Rotation.Enabled = !enabled;
         }
 
         // Change map api handler

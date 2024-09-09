@@ -10,8 +10,14 @@ public interface IGameModeApi
     string CurrentMap { get; }
     string CurrentMode { get; }  
     
+    // Update map menus api handler
+    public void UpdateMapMenus();
+
     // Trigger rotation api handler
     public void TriggerRotation();
+
+    // Enable RTV compatibility api handler
+    public void EnableRTV(bool enabled);
 
     // Change map api handlers
     public void ChangeMap(string mapName);

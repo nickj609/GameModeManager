@@ -348,9 +348,8 @@ namespace GameModeManager.Core
                         case "!changemode":
                         if (player != null && _config.Votes.Enabled && _config.Votes.GameModes)
                         {
-                            // Create message
-                            string _message = _localizer.Localize("mode.show.menu-response") + _localizer.Localize("changemode");
-                            player.PrintToChat(_message);
+                            // Start vote
+                            _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, option.Text);
                         }
                         break;
                         case "!showmaps":
@@ -451,8 +450,7 @@ namespace GameModeManager.Core
                     MenuManager.CloseActiveMenu(player);
 
                     // Start vote
-                    _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, _setting.Name);
-                    
+                    _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, _setting.Name); 
                 });
             }
         }
