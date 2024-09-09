@@ -2,6 +2,7 @@
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
+using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -44,7 +45,7 @@ namespace GameModeManager.Features
         {
             if(_plugin != null)
             {
-                Mode? warmupMode = _pluginState.Modes.FirstOrDefault(m => m.Name == command.ArgByIndex(1));
+                Mode? warmupMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase));
                 if(warmupMode == null)
                 {
                     _pluginState.WarmupModeEnabled = false;

@@ -5,7 +5,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.Modules.Cvars;
 
 // Declare namespace
-namespace GameModeManager
+namespace GameModeManager.CrossCutting
 {
     // Define class
     public static class Extensions

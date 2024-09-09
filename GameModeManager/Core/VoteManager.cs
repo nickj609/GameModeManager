@@ -1,6 +1,7 @@
 // Included libraries
 using GameModeManager.Models;
 using GameModeManager.Contracts;
+using GameModeManager.CrossCutting;
 
 // Copyright (c) 2024 imi-tat0r
 // https://github.com/imi-tat0r/CS2-CustomVotes/

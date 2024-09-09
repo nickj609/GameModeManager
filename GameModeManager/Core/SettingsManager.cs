@@ -60,7 +60,7 @@ namespace GameModeManager.Core
                                 _name = _name.Substring(_match.Length);
 
                                 // Find existing setting if it's already in the list
-                                var _setting = _pluginState.Settings.FirstOrDefault(s => s.Name == _name);
+                                var _setting = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_name, StringComparison.OrdinalIgnoreCase));
 
                                 if (_setting == null)
                                 {

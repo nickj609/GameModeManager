@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Localization;
 
 // Declare namespace
-namespace GameModeManager
+namespace GameModeManager.CrossCutting
 {
     // Define class
     public class StringLocalizer

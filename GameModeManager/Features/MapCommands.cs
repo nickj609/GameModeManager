@@ -4,6 +4,7 @@ using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
+using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -115,7 +116,7 @@ namespace GameModeManager.Features
                     // Change map
                     _plugin.AddTimer(_config.Maps.Delay, () => 
                     {
-                        ServerManager.ChangeMap(_newMap, _config, _pluginState);
+                        ServerManager.ChangeMap(_newMap, _config, _plugin, _pluginState);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 }
             }

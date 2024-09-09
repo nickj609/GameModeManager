@@ -3,6 +3,7 @@ using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
+using GameModeManager.CrossCutting;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
  
 // Declare namespace
@@ -104,10 +105,6 @@ namespace GameModeManager.Core
                         if(!_timeLimitManager.UnlimitedTime)
                         {
                             _timeLimitManager.EnforceTimeLimit(_plugin, true);
-                        }
-                        else
-                        {
-                            _timeLimitManager.EnforceCustomTimeLimit(_plugin, 600);
                         }
                     }
 

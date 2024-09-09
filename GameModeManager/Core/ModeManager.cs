@@ -1,6 +1,7 @@
 // Included libraries
 using GameModeManager.Models;
 using GameModeManager.Contracts;
+using GameModeManager.CrossCutting;
 
 // Declare namespace
 namespace GameModeManager.Core

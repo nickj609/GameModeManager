@@ -3,6 +3,7 @@ using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
+using GameModeManager.CrossCutting;
 
 // Declare namespace
 namespace GameModeManager.Core
@@ -25,7 +26,6 @@ namespace GameModeManager.Core
             _pluginState = pluginState;
             _mapGroupManager = mapGroupManager;
             _timeLimitManager = timeLimitManager;
-            
         }
 
         // Load config
@@ -52,27 +52,24 @@ namespace GameModeManager.Core
         // Define on warmup end behavior
         public HookResult OnWarmupEnd(EventWarmupEnd @event, GameEventInfo info)
         {
-            if(_pluginState.WarmupStarted == true)
+            if(_pluginState.WarmupStarted == true && _plugin != null)
             {
                 // Disable warmup started flag
                 _pluginState.WarmupStarted = false;
+                _timeLimitManager.EnforceCustomTimeLimit(_plugin, false, _pluginState.WarmupTime);
 
                 // Check if modes are the same
-                if (_pluginState.CurrentMode.Name == _pluginState.NextMode.Name)
+                if (_pluginState.CurrentMode.Name.Equals(_pluginState.NextMode.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     // Change map
-                    ServerManager.ChangeMap(_pluginState.NextMap, _config, _pluginState);
+                    ServerManager.ChangeMap(_pluginState.NextMap, _config, _plugin, _pluginState);
                 }
                 else // If not
                 {
                     // Change mode with map preference
-                    if (_plugin != null)
-                    {
-                        ServerManager.ChangeMode(_pluginState.NextMode, _pluginState.NextMap, _config, _plugin, _pluginState, 0);
-                    }
+                    ServerManager.ChangeMode(_pluginState.NextMode, _pluginState.NextMap, _config, _plugin, _pluginState, 0);
                 }
             }
-            
             return HookResult.Continue;
         }
 
@@ -81,7 +78,7 @@ namespace GameModeManager.Core
         {
             if(_pluginState.WarmupStarted == true && _plugin != null)
             {
-                _timeLimitManager.EnforceCustomTimeLimit(_plugin, _config.Warmup.Time);
+                _timeLimitManager.EnforceCustomTimeLimit(_plugin, true, _pluginState.WarmupTime);
             }
             return HookResult.Continue;
         }

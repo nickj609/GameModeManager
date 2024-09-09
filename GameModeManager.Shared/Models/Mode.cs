@@ -18,7 +18,7 @@ namespace GameModeManager.Shared.Models
             Config = configFile;
             MapGroups = mapGroups;  
             Maps = CreateMapList(MapGroups);
-            DefaultMap = Maps.FirstOrDefault(m => m.Name == defaultMap || m.WorkshopId.ToString() == defaultMap) ?? new Map("pseudorandom");
+            DefaultMap = Maps.FirstOrDefault(m => m.Name.Equals(defaultMap, StringComparison.OrdinalIgnoreCase) || m.WorkshopId.ToString().Equals(defaultMap, StringComparison.OrdinalIgnoreCase)) ?? new Map("pseudorandom");
         }
 
         // Define method to generate maps from map groups
@@ -29,7 +29,7 @@ namespace GameModeManager.Shared.Models
             {
                 foreach(Map map in mapGroup.Maps)
                 {
-                    Map? _map = _maps.FirstOrDefault(m => m.Name == map.Name);
+                    Map? _map = _maps.FirstOrDefault(m => m.Name.Equals(map.Name, StringComparison.OrdinalIgnoreCase));
                     if(_map == null)
                     {
                         _maps.Add(map);

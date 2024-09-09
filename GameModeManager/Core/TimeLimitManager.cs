@@ -1,6 +1,7 @@
 ﻿// Included libraries
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
+using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Cvars;
 
@@ -101,17 +102,25 @@ namespace GameModeManager.Core
             }
         }
 
-        public void EnforceCustomTimeLimit(Plugin plugin, float timeLimit)
+        // Define method to enforce custom time limit
+        public void EnforceCustomTimeLimit(Plugin plugin, bool enabled, float timeLimit)
         {
-
-            // Clear previous timers
-            plugin.Timers.Clear();
-
-            // Enforce time limit
-            plugin.AddTimer(timeLimit, () =>
+            if(enabled)
             {
-                ServerManager.TriggerRotation(plugin, _config, _pluginState, _logger, _localizer);
-            });
+                // Clear previous timers
+                plugin.Timers.Clear();
+
+                // Enforce time limit
+                plugin.AddTimer(timeLimit, () =>
+                {
+                    ServerManager.TriggerRotation(plugin, _config, _pluginState, _logger, _localizer);
+                });
+            }
+            else
+            {
+                // Clear previous timers
+                plugin.Timers.Clear();
+            }
         }
     }
 }

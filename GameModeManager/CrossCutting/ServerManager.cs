@@ -4,13 +4,13 @@ using GameModeManager.Models;
 using Microsoft.Extensions.Logging;
 
 // Declare namespace
-namespace GameModeManager
+namespace GameModeManager.CrossCutting
 {
     // Define class
     public static class ServerManager
     {
         // Define reusable method to change map
-        public static void ChangeMap(Map nextMap, Config config, PluginState pluginState)
+        public static void ChangeMap(Map nextMap, Config config, Plugin plugin, PluginState pluginState)
         {
             // If random default map for mode
             if (nextMap.Name.Equals("pseudorandom", StringComparison.CurrentCultureIgnoreCase))
@@ -18,19 +18,51 @@ namespace GameModeManager
                 nextMap = GetRandomMap(config, pluginState);
             }
 
-            // If map valid, change map based on map type
-            if (Server.IsMapValid(nextMap.Name))
+            // Change map
+            plugin.AddTimer(config.Maps.Delay, () => 
             {
-                Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
-            }
-            else if (nextMap.WorkshopId != -1)
+                // If map valid, change map based on map type
+                if (Server.IsMapValid(nextMap.Name))
+                {
+                    Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
+                }
+                else if (nextMap.WorkshopId != -1)
+                {
+                    Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
+                }
+                else
+                {
+                    Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
+                }
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+        }
+
+        // Define reusable method to change map
+        public static void ChangeMap(Map nextMap, Config config, Plugin plugin, PluginState pluginState, float delay)
+        {
+            // If random default map for mode
+            if (nextMap.Name.Equals("pseudorandom", StringComparison.CurrentCultureIgnoreCase))
             {
-                Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
+                nextMap = GetRandomMap(config, pluginState);
             }
-            else
+
+            // Change map
+            plugin.AddTimer(delay, () => 
             {
-                Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
-            }
+                // If map valid, change map based on map type
+                if (Server.IsMapValid(nextMap.Name))
+                {
+                    Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
+                }
+                else if (nextMap.WorkshopId != -1)
+                {
+                    Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
+                }
+                else
+                {
+                    Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
+                }
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         // Define reusable method to schedule warmup
@@ -52,7 +84,6 @@ namespace GameModeManager
 
                 // Set current mode to warmup mode
                 pluginState.CurrentMode = pluginState.WarmupMode;
-
                 return true;
             }
         }
@@ -80,7 +111,7 @@ namespace GameModeManager
                     }
                     
                     // Change map
-                    ChangeMap(mode.DefaultMap, config, pluginState);
+                    ChangeMap(mode.DefaultMap, config, plugin, pluginState, 0);
 
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
@@ -109,7 +140,7 @@ namespace GameModeManager
                     }
                     
                     // Change map
-                    ChangeMap(map, config, pluginState);
+                    ChangeMap(map, config, plugin, pluginState);
 
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
@@ -143,7 +174,7 @@ namespace GameModeManager
 
                     // Change map
                     Server.PrintToChatAll(localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
-                    ChangeMap(_randomMap, config, pluginState);
+                    ChangeMap(_randomMap, config, plugin, pluginState);
                 }
                 pluginState.MapRotations++;
             }
@@ -152,8 +183,10 @@ namespace GameModeManager
         // Define method to trigger schedule change
         public static void TriggerScheduleChange(Plugin plugin, ScheduleEntry state, PluginState pluginState, Config config)
         {
+            // Find mode
             Mode? _mode = pluginState.Modes.FirstOrDefault(m => m.Name.Equals(state.Mode, StringComparison.OrdinalIgnoreCase));
 
+            // Change mode
             if (_mode != null)
             {
                 // Check if current mode is different from target mode
@@ -178,8 +211,10 @@ namespace GameModeManager
 
                 foreach (string mapGroup in config.Rotation.MapGroups)
                 {
+                    // Find map group
                     MapGroup? _mapGroup = pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(mapGroup, StringComparison.OrdinalIgnoreCase));
 
+                    // add maps from map group to map list
                     if (_mapGroup != null)
                     {
                         foreach (Map _map in _mapGroup.Maps)
@@ -209,7 +244,6 @@ namespace GameModeManager
                 int _randomIndex = _rnd.Next(0, pluginState.CurrentMode.Maps.Count); 
                 _randomMap = pluginState.CurrentMode.Maps[_randomIndex];
             }
-
             return _randomMap;
         }
     }

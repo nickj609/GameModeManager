@@ -5,7 +5,7 @@ using CounterStrikeSharp.API.Core;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 // Declare namespace
-namespace GameModeManager
+namespace GameModeManager.CrossCutting
 {
     // Define class
     public class GameRules : IPluginDependency<Plugin, Config>

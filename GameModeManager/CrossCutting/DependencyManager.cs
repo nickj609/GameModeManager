@@ -4,7 +4,7 @@ using GameModeManager.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
 // Declare namespace
-namespace GameModeManager
+namespace GameModeManager.CrossCutting
 {
     // Define class
     public class DependencyManager<TPlugin, TConfig>
