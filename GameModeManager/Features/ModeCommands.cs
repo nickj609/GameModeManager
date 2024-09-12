@@ -93,7 +93,7 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    _logger.LogWarning($"Unable to find game mode {command.ArgByIndex(1)}. Setting default warmup mode.");
+                    _logger.LogWarning($"Unable to find game mode {command.ArgByIndex(1)}. Setting default mode.");
                     _pluginState.CurrentMode = PluginState.DefaultMode;
                 }
             }

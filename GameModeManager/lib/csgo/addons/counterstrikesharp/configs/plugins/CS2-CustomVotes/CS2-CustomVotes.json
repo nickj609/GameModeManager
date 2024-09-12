@@ -1,8 +1,0 @@
-{
-  "CustomVotesEnabled": true,
-  "VoteCooldown": 60,
-  "ChatPrefix": "[{Green}Server{Default}]",
-  "ForceStyle": "none",
-  "CustomVotes": [{}],
-  "ConfigVersion": 2
-}

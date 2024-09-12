@@ -481,7 +481,7 @@ This plugin will display all in-game menus and messaging based on the player's p
 ```
 2024-06-08 22:59:32.827 +00:00 [WARN] plugin:GameModeManager Skipping random_setting.cfg because its missing the correct prefix.
 2024-06-08 23:05:24.421 +00:00 [INFO] plugin:GameModeManager Current map group is mg_active.
-2024-06-08 23:05:24.421 +00:00 [INFO] plugin:GameModeManager New map group is mg_delta.
+2024-06-08 23:05:24.421 +00:00 [INFO] plugin:GameModeManager New map group is mg_comp.
 2024-06-08 24:15:47.044 +00:00 [INFO] plugin:GameModeManager Game has ended. Picking random map from current mode...
 ```
 	

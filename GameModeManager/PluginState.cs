@@ -43,7 +43,6 @@ namespace GameModeManager
         public static List<Map> DefaultMaps = new List<Map>()
         {
             new Map("de_dust2", "Dust 2"),
-            new Map("de_ancient", "Ancient"),
             new Map("de_anubis", "Anubis"),
             new Map("de_inferno", "Inferno"),
             new Map("de_mirage", "Mirage"),

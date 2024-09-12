@@ -17,7 +17,7 @@ namespace GameModeManager
         public string Name {get; set;} = "Casual";
         public string Config {get; set;} = "casual.cfg";
         public string DefaultMap {get; set;} = "de_dust2";
-        public List<string> MapGroups {get; set;} = new List<string>(){"mg_active", "mg_delta"};
+        public List<string> MapGroups {get; set;} = new List<string>(){"mg_active", "mg_comp"};
         
     }
     
@@ -79,7 +79,7 @@ namespace GameModeManager
         public bool Enabled { get; set; } = true; // Enables game rotations
         public bool WhenServerEmpty { get; set; } = false; // Enables rotation on server empty. 
         public int Cycle { get; set; } = 0; // 0 for current mode maps, 1 for all maps, 2 for specific map groups
-        public List<string> MapGroups { get; set;} = new List<string>(){"mg_active", "mg_delta"}; // Map group list for cycle 2
+        public List<string> MapGroups { get; set;} = new List<string>(){"mg_active", "mg_comp"}; // Map group list for cycle 2
         public bool ModeRotation { get; set; } = false; // Enables game mode rotations
         public int ModeInterval { get; set; } = 4; // Changes mode every x map rotations
         public bool ModeSchedules {get; set;} = false; // Enables or disables mode schedules
@@ -96,14 +96,14 @@ namespace GameModeManager
     {
         public float Delay { get; set; } = 2.0f; // Game mode change delay in seconds
         public string Style { get; set; } = "center"; // Changes mode menu type 
-        public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Casual", Config = "casual.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_delta"} }; // Default mode on server start
+        public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Casual", Config = "casual.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_comp"} }; // Default mode on server start
         public string MapGroupFile { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
         
         public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
         {
-            new ModeEntry() { Name = "Casual", Config = "casual.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_delta"} },
-            new ModeEntry() { Name = "Competitive", Config = "comp.cfg", DefaultMap = "de_inferno", MapGroups = new List<string>(){"mg_active", "mg_delta"}},
-            new ModeEntry() { Name = "Wingman", Config = "wingman.cfg", DefaultMap = "3085490518", MapGroups = new List<string>(){"mg_active", "mg_delta"}},
+            new ModeEntry() { Name = "Casual", Config = "casual.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_comp"} },
+            new ModeEntry() { Name = "Competitive", Config = "comp.cfg", DefaultMap = "de_inferno", MapGroups = new List<string>(){"mg_active", "mg_comp"}},
+            new ModeEntry() { Name = "Wingman", Config = "wingman.cfg", DefaultMap = "3085490518", MapGroups = new List<string>(){"mg_active", "mg_comp"}},
             new ModeEntry() { Name = "Practice", Config = "prac.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_prac"}},
             new ModeEntry() { Name = "Deathmatch", Config = "dm.cfg", DefaultMap = "3086555291", MapGroups = new List<string>(){"mg_dm"}},
             new ModeEntry() { Name = "Deathmatch Multicfg", Config = "dm-multicfg.cfg", DefaultMap = "3070923343", MapGroups = new List<string>(){"mg_dm"}},

@@ -130,16 +130,19 @@ namespace GameModeManager.Core
                 });
             }
 
-            // Add settings menu options
+            // create enable settings sub menu option
             _pluginState.SettingsMenu.AddMenuOption(_localizer.Localize("menu.enable"), (player, option) =>
             {
                 _pluginState.SettingsEnableMenu.Title = _localizer.Localize("settings.menu-title");
 
                 if(player != null)
                 {
+                    // Open sub menu
                     OpenMenu(_pluginState.SettingsEnableMenu, _config.Settings.Style, player);
                 }
             });
+
+            // Create disable settings menu sub menu option
             _pluginState.SettingsMenu.AddMenuOption(_localizer.Localize("menu.disable"), (player, option) =>
             {
                 _pluginState.SettingsDisableMenu.Title = _localizer.Localize("settings.menu-title");
@@ -152,7 +155,7 @@ namespace GameModeManager.Core
                 }
             });
             
-            // Setup user settings menu
+            // Create user settings menu
             if(_config.Votes.GameSettings)
             {
                 CreateShowSettingsMenu();
@@ -182,13 +185,7 @@ namespace GameModeManager.Core
                     // Change game mode
                     if(_plugin != null)
                     {
-                        _plugin.AddTimer(_config.GameModes.Delay, () => 
-                        {
-                            Server.ExecuteCommand($"exec {_mode.Config}");
-                        }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-
-                        // Set current mode
-                        _pluginState.CurrentMode = _mode;
+                        ServerManager.ChangeMode(_mode, _config, _plugin, _pluginState, _config.GameModes.Delay);
                     }
                 });
             }
@@ -216,7 +213,7 @@ namespace GameModeManager.Core
             {
                 _pluginState.MapsMenu.AddMenuOption(_mode.Name, (player, option) =>
                 {
-
+                    // Create sub menu
                     BaseMenu subMenu;
                     subMenu = AssignMenu(_config.Maps.Style, _localizer.Localize("maps.menu-title"));
 
@@ -238,16 +235,12 @@ namespace GameModeManager.Core
                             // Change map
                             if(_plugin != null)
                             {
-                                _plugin.AddTimer(_config.Maps.Delay, () => 
-                                {
-                                    ServerManager.ChangeMap(_nextMap, _config, _plugin, _pluginState);
-                                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                                ServerManager.ChangeMap(_nextMap, _config, _plugin, _pluginState, _config.Maps.Delay);
                             }
                         });
-                    }
+                    } 
                     // Open menu
                     OpenMenu(subMenu, _config.Maps.Style, player);
-
                 });
             }
             // Create user all map(s) menu
@@ -269,6 +262,7 @@ namespace GameModeManager.Core
                     // Close menu
                     MenuManager.CloseActiveMenu(player);
 
+                    // Create sub menu
                     BaseMenu subMenu;
                     subMenu = AssignMenu(_config.Maps.Style, _localizer.Localize("maps.menu-title"));
 
@@ -280,7 +274,7 @@ namespace GameModeManager.Core
                             MenuManager.CloseActiveMenu(player);
 
                             // Start vote
-                            _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, _map.DisplayName);
+                            _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, _map.Name);
                         });
                     }
                     // Open sub menu
@@ -314,10 +308,7 @@ namespace GameModeManager.Core
                     // Change map
                     if (_plugin != null)
                     {
-                        _plugin.AddTimer(_config.Maps.Delay, () => 
-                        {
-                            ServerManager.ChangeMap(_nextMap, _config, _plugin, _pluginState);
-                        }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                        ServerManager.ChangeMap(_nextMap, _config, _plugin, _pluginState, _config.Maps.Delay);
                     }
                 });
             }
@@ -349,7 +340,7 @@ namespace GameModeManager.Core
                         if (player != null && _config.Votes.Enabled && _config.Votes.GameModes)
                         {
                             // Start vote
-                            _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, option.Text);
+                            _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, option.Text.Substring(1));
                         }
                         break;
                         case "!showmaps":
@@ -430,7 +421,7 @@ namespace GameModeManager.Core
                     MenuManager.CloseActiveMenu(player);
 
                     // Start vote
-                    _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, _mode.Name);
+                    _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, Extensions.RemoveCfgExtension(_mode.Config));
                 });
             }
         }

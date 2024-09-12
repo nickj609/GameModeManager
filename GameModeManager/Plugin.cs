@@ -1,6 +1,5 @@
 ﻿// Included libraries
 using GameModeManager.Core;
-using GameModeManager.Features;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
@@ -26,61 +25,31 @@ namespace GameModeManager
     {
         // Define plugin parameters
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "1.0.45";
+        public override string ModuleVersion => "1.0.46";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
         // Define dependencies
-        private readonly GameRules _gameRules;
-        private readonly RTVCommand _rtvCommand;
-        private readonly MapManager _mapManager;
         private readonly PluginState _pluginState;
         private readonly VoteManager _voteManager;
         private readonly MenuFactory _menuFactory;
-        private readonly MapCommands _mapCommands;
-        private readonly ModeCommands _modeCommands;
-        private readonly StringLocalizer _localizer;
-        private readonly PlayerCommands _playerCommands;
-        private readonly SettingCommands _settingCommands;
-        private readonly RotationManager _rotationManager;
-        private readonly TimeLimitManager _timeLimitManager;
-        private readonly MaxRoundsManager _maxRoundsManager;
+        private readonly ModeManager _modeManager;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Register dependencies
         public Plugin(DependencyManager<Plugin, Config> dependencyManager,
-            GameRules gameRules,
-            MapManager mapManager,
-            RTVCommand rtvCommand, 
             VoteManager voteManager,
             MenuFactory menuFactory, 
-            PluginState pluginState, 
-            MapCommands mapCommands, 
-            ModeCommands modeCommands, 
-            PlayerCommands playerCommands, 
-            SettingCommands settingCommands,
-            RotationManager rotationManager,
-            TimeLimitManager timeLimitManager,
-            MaxRoundsManager maxRoundsManager)
+            PluginState pluginState, ModeManager modeManager)
         {
-            _gameRules = gameRules;
-            _rtvCommand = rtvCommand;
-            _mapManager = mapManager;
             _voteManager = voteManager;
             _menuFactory = menuFactory;
             _pluginState = pluginState;
-            _mapCommands = mapCommands;
-            _modeCommands = modeCommands;
-            _playerCommands = playerCommands;
-            _rotationManager= rotationManager;
-            _settingCommands = settingCommands;
-            _timeLimitManager = timeLimitManager;
-            _maxRoundsManager = maxRoundsManager;
+            _modeManager = modeManager;
             _dependencyManager = dependencyManager;
-            _localizer = new StringLocalizer(Localizer);
         }
 
-        // Define method to load plugin
+        // Define on load behavior
         public override void Load(bool hotReload)
         {   
             // Load dependencies
@@ -93,11 +62,12 @@ namespace GameModeManager
         // Define custom vote API and signal
         private bool _isCustomVotesLoaded = false;
 
-        // When all plugins are loaded, register the CS2-CustomVotes plugin if it is enabled in the config
+        // Define on all plugins loaded behavior
         public override void OnAllPluginsLoaded(bool hotReload)
         {
             base.OnAllPluginsLoaded(hotReload);
 
+            // Check if custom votes are enabled
             if (Config.Votes.Enabled)
             {
                 // Ensure CS2-CustomVotes API is loaded

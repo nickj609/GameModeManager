@@ -8,4 +8,8 @@
     <ItemGroup>
       <PackageReference Include="CounterStrikeSharp.API" Version="1.0.253" />
     </ItemGroup>
+    <Target Name="PublicBuild" AfterTargets="AfterBuild">
+        <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared"/>
+        <Exec Command="xcopy /Y /R $(OutDir)*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared\" />
+  </Target>
 </Project>

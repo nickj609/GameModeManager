@@ -1,5 +1,4 @@
 // Included libraries
-using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
@@ -14,17 +13,13 @@ namespace GameModeManager.Core
         // Define dependencies
         private Plugin? _plugin;
         private PluginState _pluginState;
-        private StringLocalizer _localizer;
         private Config _config = new Config();
-        private MapGroupManager _mapGroupManager;
         private TimeLimitManager _timeLimitManager;
 
         // Define class instance
-        public WarmupManager(StringLocalizer localizer, PluginState pluginState, TimeLimitManager timeLimitManager, MapGroupManager mapGroupManager)
+        public WarmupManager(PluginState pluginState, TimeLimitManager timeLimitManager)
         {
-            _localizer = localizer;
             _pluginState = pluginState;
-            _mapGroupManager = mapGroupManager;
             _timeLimitManager = timeLimitManager;
         }
 
@@ -38,15 +33,8 @@ namespace GameModeManager.Core
         public void OnLoad(Plugin plugin)
         { 
             _plugin = plugin;
-            _localizer = new StringLocalizer(plugin.Localizer);
             plugin.RegisterEventHandler<EventWarmupEnd>(OnWarmupEnd);
             plugin.RegisterEventHandler<EventRoundAnnounceWarmup>(OnAnnounceWarmup);
-
-            // Create map group list
-            List<MapGroup> mapGroups = _mapGroupManager.CreateMapGroupList(_config.Warmup.Default.MapGroups);
-
-            // Set warmup mode  
-            _pluginState.WarmupMode = new Mode(_config.Warmup.Default.Name, _config.Warmup.Default.Config, _config.Warmup.Default.DefaultMap, mapGroups);
         }
 
         // Define on warmup end behavior

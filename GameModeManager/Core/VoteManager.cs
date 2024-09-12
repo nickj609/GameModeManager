@@ -59,8 +59,10 @@ namespace GameModeManager.Core
                     _pluginState.PlayerCommands.Add("!showmodes");
 
                     // Define mode options
-                    var _modeOptions = new Dictionary<string, VoteOption>();
-                    _modeOptions.Add("No", new VoteOption(_localizer.Localize("menu.no"), new List<string>()));
+                    var _modeOptions = new Dictionary<string, VoteOption>
+                    {
+                        { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>()) }
+                    };
 
                     // Add vote menu option for each game mode in game mode list
                     foreach (Mode _mode in _pluginState.Modes)
