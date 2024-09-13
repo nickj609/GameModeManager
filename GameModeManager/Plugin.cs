@@ -1,5 +1,6 @@
 ﻿// Included libraries
 using GameModeManager.Core;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
@@ -33,19 +34,14 @@ namespace GameModeManager
         private readonly PluginState _pluginState;
         private readonly VoteManager _voteManager;
         private readonly MenuFactory _menuFactory;
-        private readonly ModeManager _modeManager;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Register dependencies
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager,
-            VoteManager voteManager,
-            MenuFactory menuFactory, 
-            PluginState pluginState, ModeManager modeManager)
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager,VoteManager voteManager, MenuFactory menuFactory, PluginState pluginState)
         {
             _voteManager = voteManager;
             _menuFactory = menuFactory;
             _pluginState = pluginState;
-            _modeManager = modeManager;
             _dependencyManager = dependencyManager;
         }
 
@@ -66,6 +62,11 @@ namespace GameModeManager
         public override void OnAllPluginsLoaded(bool hotReload)
         {
             base.OnAllPluginsLoaded(hotReload);
+
+            if (!Config.RTV.Enabled)
+            {
+                Server.ExecuteCommand($"css_plugins unload {Config.RTV.Plugin}");
+            }
 
             // Check if custom votes are enabled
             if (Config.Votes.Enabled)

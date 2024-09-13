@@ -24,7 +24,8 @@ namespace GameModeManager.Features
         private MaxRoundsManager _maxRoundsManager;
 
         // Define class instance
-        public PlayerCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, TimeLimitManager timeLimitManager, MaxRoundsManager maxRoundsManager, GameRules gameRules, IStringLocalizer iLocalizer)
+        public PlayerCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, 
+        TimeLimitManager timeLimitManager, MaxRoundsManager maxRoundsManager, GameRules gameRules, IStringLocalizer iLocalizer)
         {
             _gameRules = gameRules;
             _localizer = localizer;

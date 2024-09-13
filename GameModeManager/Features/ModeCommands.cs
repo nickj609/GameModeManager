@@ -27,7 +27,8 @@ namespace GameModeManager.Features
         private ILogger<ModeCommands> _logger;
 
         // Define class instance
-        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, MapManager mapManager, VoteManager voteManager, ILogger<ModeCommands> logger,ServerManager serverManager)
+        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, 
+        MapManager mapManager, VoteManager voteManager, ILogger<ModeCommands> logger, ServerManager serverManager)
         {
             _logger = logger;
             _localizer = localizer;

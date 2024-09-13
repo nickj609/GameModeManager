@@ -64,7 +64,6 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
-
             if(player != null)
             {
                 _pluginState.MapMenu.Title = _localizer.Localize("maps.menu-title");

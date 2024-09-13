@@ -32,10 +32,10 @@ namespace GameModeManager
         }
 
         // Define static directories (Thanks Kus!)
-        public static string ConfigDirectory = Path.Join(GameDirectory + "cfg/");
-        public static string WarmupDirectory = Path.Join(ConfigDirectory + "warmup/");
         public static string GameDirectory = Path.Join(Server.GameDirectory + "/csgo/");
+        public static string ConfigDirectory = Path.Join(GameDirectory + "cfg/");
         public static string SettingsDirectory = Path.Join(ConfigDirectory + "settings/");
+        public static string WarmupDirectory = Path.Join(ConfigDirectory + "warmup/");
 
         // Define static objects
         public static Map DefaultMap = new Map("de_dust2", "Dust 2");

@@ -56,7 +56,6 @@ namespace GameModeManager.Core
                 {
                     // Add votes to command list
                     _pluginState.PlayerCommands.Add("!changemode");
-                    _pluginState.PlayerCommands.Add("!showmodes");
 
                     // Define mode options
                     var _modeOptions = new Dictionary<string, VoteOption>
@@ -136,7 +135,7 @@ namespace GameModeManager.Core
                     }
 
                     // Add vote to command list
-                    _pluginState.PlayerCommands.Add("!showsettings");
+                    _pluginState.PlayerCommands.Add("!changesetting");
 
                     // Set game setting vote flag
                     SettingVote = true;
@@ -167,7 +166,7 @@ namespace GameModeManager.Core
             }
 
             // Add vote to command list
-            _pluginState.PlayerCommands.Add("!showmaps");
+            _pluginState.PlayerCommands.Add("!changemap");
 
             // Update game menu
             _menuFactory.UpdateGameMenu();
@@ -188,7 +187,7 @@ namespace GameModeManager.Core
                 }
                 
                 // Remove vote from command list
-                _pluginState.PlayerCommands.Remove("!showmaps");
+                _pluginState.PlayerCommands.Remove("!changemap");
 
                 // Update game menu
                 _menuFactory.UpdateGameMenu();

@@ -197,6 +197,12 @@ namespace GameModeManager
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
             }
 
+            // Command Settings
+            if (_config.Commands.AllMaps)
+            {
+                _config.Commands.Maps = false;
+            }
+
             // Game Settings
             if (_config.Settings.Enabled)
             {

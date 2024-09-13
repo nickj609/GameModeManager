@@ -25,7 +25,8 @@ namespace GameModeManager.Core
         private MaxRoundsManager _maxRoundsManager;
 
         // Define class instance
-        public MenuFactory(PluginState pluginState, StringLocalizer stringLocalizer, TimeLimitManager timeLimitManager, MaxRoundsManager maxRoundsManager, GameRules gameRules, IStringLocalizer iLocalizer, ServerManager serverManager)
+        public MenuFactory(PluginState pluginState, StringLocalizer stringLocalizer, TimeLimitManager timeLimitManager, 
+        MaxRoundsManager maxRoundsManager, GameRules gameRules, IStringLocalizer iLocalizer, ServerManager serverManager)
         {
             _gameRules = gameRules;
             _iLocalizer = iLocalizer;
@@ -348,7 +349,7 @@ namespace GameModeManager.Core
                     switch(option.Text)
                     {
                         case "!changemap":
-                        if (player != null && _config.Votes.Enabled && _config.Votes.Maps && !_config.Votes.AllMaps)
+                        if (player != null && _config.Votes.Enabled && _config.Votes.Maps)
                         {
                             OpenMenu(_pluginState.ShowMapMenu, _config.Maps.Style, player);
                         }
@@ -363,7 +364,7 @@ namespace GameModeManager.Core
                             OpenMenu(_pluginState.ShowModesMenu, _config.GameModes.Style, player);
                         }
                         break;
-                        case "!changesettings":
+                        case "!changesetting":
                         if (player != null && _config.Votes.Enabled && _config.Votes.GameSettings)
                         {
                             OpenMenu(_pluginState.ShowSettingsMenu, _config.Settings.Style, player);
