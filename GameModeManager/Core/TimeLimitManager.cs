@@ -2,7 +2,6 @@
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
-using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Cvars;
 
 // Declare namespace
@@ -12,13 +11,11 @@ namespace GameModeManager.Core
     public class TimeLimitManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
+        private Plugin? _plugin;
         private ConVar? _timeLimit;
         private ConVar? _warmupTime;
         private GameRules _gameRules;
-         private PluginState _pluginState;
-        private StringLocalizer _localizer;
-        private ILogger<TimeLimitManager> _logger;
-        private Config _config = new Config();
+        private ServerManager _serverManager;
         public decimal TimeLimitValue => (decimal)(_timeLimit?.GetPrimitiveValue<float>() ?? 0F) * 60M;
         public decimal WarmupTimeValue => (decimal)(_warmupTime?.GetPrimitiveValue<float>() ?? 0F) * 60M;
         public bool UnlimitedTime => TimeLimitValue <= 0;
@@ -48,23 +45,16 @@ namespace GameModeManager.Core
         }
 
         // Define class instance
-        public TimeLimitManager(GameRules gameRules, StringLocalizer stringLocalizer, ILogger<TimeLimitManager> logger, PluginState pluginState )
+        public TimeLimitManager(GameRules gameRules, ServerManager serverManager)
         {
-            _logger = logger;
             _gameRules = gameRules;
-            _pluginState = pluginState;
-            _localizer = stringLocalizer;
-        }
-
-        // Load config
-        public void OnConfigParsed(Config config)
-        {
-            _config = config;
+            _serverManager = serverManager;
         }
 
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
+            _plugin = plugin;
             LoadCvar();
         }
 
@@ -82,44 +72,44 @@ namespace GameModeManager.Core
         }
 
         // Define method to enforce time limit
-        public void EnforceTimeLimit(Plugin plugin, bool enabled)
+        public void EnforceTimeLimit(bool enabled)
         {
-            if(enabled)
+            if(enabled && _plugin != null)
             {
                 // Clear previous timers
-                plugin.Timers.Clear();
+                _plugin.Timers.Clear();
 
                 // Enforce time limit
-                plugin.AddTimer((float)TimeRemaining, () =>
+                _plugin.AddTimer((float)TimeRemaining, () =>
                 {
-                    ServerManager.TriggerRotation(plugin, _config, _pluginState, _logger, _localizer);
+                    _serverManager.TriggerRotation();
                 });
             }
-            else
+            else if(!enabled && _plugin != null)
             {
                 // Clear previous timers
-                plugin.Timers.Clear();
+                _plugin.Timers.Clear();
             }
         }
 
         // Define method to enforce custom time limit
-        public void EnforceCustomTimeLimit(Plugin plugin, bool enabled, float timeLimit)
+        public void EnforceCustomTimeLimit(bool enabled, float timeLimit)
         {
-            if(enabled)
+            if(enabled && _plugin != null)
             {
                 // Clear previous timers
-                plugin.Timers.Clear();
+                _plugin.Timers.Clear();
 
                 // Enforce time limit
-                plugin.AddTimer(timeLimit, () =>
+                _plugin.AddTimer(timeLimit, () =>
                 {
-                    ServerManager.TriggerRotation(plugin, _config, _pluginState, _logger, _localizer);
+                    _serverManager.TriggerRotation();
                 });
             }
-            else
+            else if(!enabled && _plugin != null)
             {
                 // Clear previous timers
-                plugin.Timers.Clear();
+                _plugin.Timers.Clear();
             }
         }
     }

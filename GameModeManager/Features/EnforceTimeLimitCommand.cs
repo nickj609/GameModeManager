@@ -2,7 +2,6 @@
 using GameModeManager.Core;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
-using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -14,14 +13,12 @@ namespace GameModeManager.Features
     {
         // Define dependencies
         private Plugin? _plugin;
-        private StringLocalizer _localizer;
         private Config _config = new Config();
         private TimeLimitManager _timeLimitManager;
 
         // Define class instance
-        public EnforceTimeLimitCommand(TimeLimitManager timeLimitManager, StringLocalizer localizer)
+        public EnforceTimeLimitCommand(TimeLimitManager timeLimitManager)
         {
-            _localizer = localizer;
             _timeLimitManager = timeLimitManager;
         }
 
@@ -49,7 +46,7 @@ namespace GameModeManager.Features
                 {
                     if(!_timeLimitManager.UnlimitedTime && !_config.RTV.Enabled)
                     {
-                        _timeLimitManager.EnforceTimeLimit(_plugin, true);
+                        _timeLimitManager.EnforceTimeLimit(true);
                         command.ReplyToCommand("Map will change on time limit end.");
                     }
                     else if(_config.RTV.Enabled)
@@ -66,7 +63,7 @@ namespace GameModeManager.Features
                 {
                     if(!_timeLimitManager.UnlimitedTime)
                     {
-                        _timeLimitManager.EnforceTimeLimit(_plugin, false);
+                        _timeLimitManager.EnforceTimeLimit(false);
                         command.ReplyToCommand("Map will not change on time limit end.");
                     }
                     else if(_config.RTV.Enabled)

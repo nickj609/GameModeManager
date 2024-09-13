@@ -55,23 +55,24 @@ namespace GameModeManager
     public class GameSettings
     {
         public bool Enabled { get; set; } = true; // Enable game settings
-        public string Style { get; set; } = "center"; // Changes settings menu type
+        public string Style { get; set; } = "center"; // Changes settings menu type (i.e. "chat" or "center")
         public string Folder { get; set; } = "settings"; // Default settings folder
     }
 
     // Define command settings
     public class CommandSettings
     {
-        public bool Map { get; set; } = true; // Enables or disables !map command
-        public bool Maps { get; set; } = true; // Enables or disables !maps command 
-        public bool AllMaps { get; set; } = false; // Enables or disables !allmaps command
-        public bool TimeLeft { get; set; } = true; // Enables or disables !allmaps command
+        public bool Map { get; set; } = true; // Enables or disables !map admin command
+        public bool Maps { get; set; } = true; // Enables or disables !maps admin command 
+        public bool AllMaps { get; set; } = false; // Enables or disables admin !allmaps command
+        public bool TimeLeft { get; set; } = true; // Enables or disables admin !allmaps command
     }
 
     public class WarmupSettings
     {
         public float Time { get; set; } = 60; // Default warmup time
         public string Folder { get; set; } = "warmup"; // Default warmup folder
+        public bool PerMap { get; set; } = false; // Enables or disables per map warmup
         public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg", DefaultMap = "3070923343", MapGroups = new List<string>(){"mg_dm"}};
     }
     public class RotationSettings
@@ -95,7 +96,7 @@ namespace GameModeManager
     public class GameModeSettings
     {
         public float Delay { get; set; } = 2.0f; // Game mode change delay in seconds
-        public string Style { get; set; } = "center"; // Changes mode menu type 
+        public string Style { get; set; } = "center"; // Changes mode menu type (i.e. "chat" or "center")
         public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Casual", Config = "casual.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_comp"} }; // Default mode on server start
         public string MapGroupFile { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
         

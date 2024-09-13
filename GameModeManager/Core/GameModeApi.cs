@@ -15,24 +15,26 @@ namespace GameModeManager.Core
         private Plugin? _plugin;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
-        private StringLocalizer _localizer;
+        private ServerManager _serverManager;
+        private WarmupManager _warmupManager;
         private Config _config = new Config();
         private ILogger<IGameModeApi> _logger;
         private TimeLimitManager _timeLimitManager;
 
         // Load plugin states
-        public string NextMode { get { return _pluginState.NextMode.Name; } }
-        public string NextMap { get { return _pluginState.NextMap.DisplayName; } }
+        public string WarmupMode { get { return _pluginState.WarmupMode.Name; } }
+        public string WarmupTime { get { return _pluginState.WarmupTime.ToString(); } }
         public string CurrentMode { get { return _pluginState.CurrentMode.Name; } } 
         public string CurrentMap { get { return _pluginState.CurrentMap.DisplayName; } }
         
         // Define class instance
-        public GameModeApi(PluginState pluginState, StringLocalizer localizer, ILogger<IGameModeApi> logger, TimeLimitManager timeLimitManager, MenuFactory menuFactory)
+        public GameModeApi(PluginState pluginState, ILogger<IGameModeApi> logger, TimeLimitManager timeLimitManager, MenuFactory menuFactory, ServerManager serverManager, WarmupManager warmupManager)
         {
             _logger = logger;
-            _localizer = localizer;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
+            _serverManager = serverManager;
+            _warmupManager = warmupManager;
             _timeLimitManager = timeLimitManager;
         }
 
@@ -59,7 +61,7 @@ namespace GameModeManager.Core
         {
             if (_plugin != null)
             {
-                ServerManager.TriggerRotation(_plugin, _config, _pluginState, _logger, _localizer);
+                _serverManager.TriggerRotation();
             }
         }
 
@@ -78,7 +80,7 @@ namespace GameModeManager.Core
 
             if (_plugin != null && map != null)
             {
-                ServerManager.ChangeMap(map, _config, _plugin, _pluginState);
+                _serverManager.ChangeMap(map);
             }
             else
             {
@@ -94,7 +96,7 @@ namespace GameModeManager.Core
             // Change map
             if (_plugin != null && map != null)
             {
-                ServerManager.ChangeMap(map, _config, _plugin, _pluginState);
+                _serverManager.ChangeMap(map, delay);
             }
             else
             {
@@ -103,54 +105,18 @@ namespace GameModeManager.Core
         }
 
         // Schedule warmup api handlers 
-        public void ScheduleWarmup(string modeName, float time)
+        public bool isWarmupScheduled()
         {
-            if(_plugin != null)
-            {
-                // Set warmup time
-                _pluginState.WarmupTime = time;
-
-                // Find warmup mode
-                Mode? warmupMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
-
-                // Set warmup mode
-                if(warmupMode == null)
-                {
-                    _pluginState.WarmupModeEnabled = false;
-                    _logger.LogWarning($"Game Mode API: Warmup mode {modeName} not found.");   
-                } 
-                else
-                {
-                    _pluginState.WarmupModeEnabled = true;
-                    string _warmupConfig = _config.Warmup.Folder + "/" + warmupMode.Config;
-                    _pluginState.WarmupMode = new Mode(warmupMode.Name, _warmupConfig, warmupMode.DefaultMap.Name, warmupMode.MapGroups);
-                }         
-            }
+            return _warmupManager.IsWarmupScheduled();
         }
-
-        public void ScheduleWarmup(string modeName)
+        public bool ScheduleWarmup(string modeName)
         {
-            if(_plugin != null)
-            {
-                // Set warmup time
-                _pluginState.WarmupTime = _config.Warmup.Time;
-
-                // Find warmup mode
-                Mode? warmupMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
-
-                // Set warmup mode
-                if(warmupMode == null)
-                {
-                    _pluginState.WarmupModeEnabled = false;
-                    _logger.LogWarning($"Game Mode API: Warmup mode {modeName} not found.");   
-                } 
-                else
-                {
-                    _pluginState.WarmupModeEnabled = true;
-                    string _warmupConfig = _config.Warmup.Folder + "/" + warmupMode.Config;
-                    _pluginState.WarmupMode = new Mode(warmupMode.Name, _warmupConfig, warmupMode.DefaultMap.Name, warmupMode.MapGroups);
-                }         
-            }
+            return _warmupManager.ScheduleWarmup(modeName);
+        }
+        
+        public bool ScheduleWarmup(string modeName, float time)
+        {
+            return _warmupManager.ScheduleWarmup(modeName, time);
         }
 
         // Enforce time limit api handler
@@ -158,7 +124,7 @@ namespace GameModeManager.Core
         {
             if(_plugin != null)
             {
-                _timeLimitManager.EnforceTimeLimit(_plugin, enabled);
+                _timeLimitManager.EnforceTimeLimit(enabled);
             }
         }
 
@@ -167,7 +133,7 @@ namespace GameModeManager.Core
         {
             if(_plugin != null)
             {
-                _timeLimitManager.EnforceCustomTimeLimit(_plugin, enabled, time);
+                _timeLimitManager.EnforceCustomTimeLimit(enabled, time);
             }
         }
 
@@ -180,7 +146,7 @@ namespace GameModeManager.Core
             // Change mode
             if (mode != null && _plugin != null)
             {
-                ServerManager.ChangeMode(mode, _config, _plugin, _pluginState, _config.GameModes.Delay);
+                _serverManager.ChangeMode(mode);
             }
             else
             {
@@ -196,7 +162,7 @@ namespace GameModeManager.Core
             // Change mode
             if (mode != null && _plugin != null)
             {
-                ServerManager.ChangeMode(mode, _config, _plugin, _pluginState, delay);
+                _serverManager.ChangeMode(mode, mode.DefaultMap, delay);
             }
             else
             {
@@ -215,7 +181,7 @@ namespace GameModeManager.Core
             // Change mode
             if (mode != null && map != null && _plugin != null)
             {
-                ServerManager.ChangeMode(mode, map, _config, _plugin, _pluginState, delay);
+                _serverManager.ChangeMode(mode, map, delay);
             }
             else
             {

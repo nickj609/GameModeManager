@@ -19,14 +19,16 @@ namespace GameModeManager.Features
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
+        private ServerManager _serverManager;
         private Config _config = new Config();
 
         // Define class instance
-        public MapCommands(PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer)
+        public MapCommands(PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer, ServerManager serverManager)
         {
             _localizer = localizer;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
+            _serverManager = serverManager;
         }
 
         // Load config
@@ -116,7 +118,7 @@ namespace GameModeManager.Features
                     // Change map
                     _plugin.AddTimer(_config.Maps.Delay, () => 
                     {
-                        ServerManager.ChangeMap(_newMap, _config, _plugin, _pluginState);
+                        _serverManager.ChangeMap(_newMap);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 }
             }

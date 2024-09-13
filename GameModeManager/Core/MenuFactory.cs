@@ -4,6 +4,7 @@ using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
@@ -14,15 +15,25 @@ namespace GameModeManager.Core
     {
         // Define dependencies
         private Plugin? _plugin;
+        private GameRules _gameRules;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
+        private ServerManager _serverManager;
+        private IStringLocalizer _iLocalizer;
         private Config _config = new Config();
+        private TimeLimitManager _timeLimitManager;
+        private MaxRoundsManager _maxRoundsManager;
 
         // Define class instance
-        public MenuFactory(PluginState pluginState, StringLocalizer stringLocalizer)
+        public MenuFactory(PluginState pluginState, StringLocalizer stringLocalizer, TimeLimitManager timeLimitManager, MaxRoundsManager maxRoundsManager, GameRules gameRules, IStringLocalizer iLocalizer, ServerManager serverManager)
         {
+            _gameRules = gameRules;
+            _iLocalizer = iLocalizer;
             _pluginState = pluginState;
             _localizer = stringLocalizer;
+            _serverManager = serverManager;
+            _timeLimitManager = timeLimitManager;
+            _maxRoundsManager = maxRoundsManager;
         }
         
         // Load config
@@ -185,7 +196,7 @@ namespace GameModeManager.Core
                     // Change game mode
                     if(_plugin != null)
                     {
-                        ServerManager.ChangeMode(_mode, _config, _plugin, _pluginState, _config.GameModes.Delay);
+                        _serverManager.ChangeMode(_mode);
                     }
                 });
             }
@@ -235,7 +246,7 @@ namespace GameModeManager.Core
                             // Change map
                             if(_plugin != null)
                             {
-                                ServerManager.ChangeMap(_nextMap, _config, _plugin, _pluginState, _config.Maps.Delay);
+                                _serverManager.ChangeMap(_nextMap);
                             }
                         });
                     } 
@@ -308,7 +319,7 @@ namespace GameModeManager.Core
                     // Change map
                     if (_plugin != null)
                     {
-                        ServerManager.ChangeMap(_nextMap, _config, _plugin, _pluginState, _config.Maps.Delay);
+                        _serverManager.ChangeMap(_nextMap);
                     }
                 });
             }
@@ -336,26 +347,23 @@ namespace GameModeManager.Core
 
                     switch(option.Text)
                     {
+                        case "!changemap":
+                        if (player != null && _config.Votes.Enabled && _config.Votes.Maps && !_config.Votes.AllMaps)
+                        {
+                            OpenMenu(_pluginState.ShowMapMenu, _config.Maps.Style, player);
+                        }
+                        else if(player != null && _config.Votes.Enabled && _config.Votes.AllMaps)
+                        {
+                             OpenMenu(_pluginState.ShowMapsMenu, _config.Maps.Style, player);
+                        }
+                        break;
                         case "!changemode":
-                        if (player != null && _config.Votes.Enabled && _config.Votes.GameModes)
-                        {
-                            // Start vote
-                            _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, option.Text.Substring(1));
-                        }
-                        break;
-                        case "!showmaps":
-                        if (player != null && _config.Votes.Enabled && _config.Votes.Maps)
-                        {
-                            OpenMenu(_pluginState.ShowMapsMenu, _config.Maps.Style, player);
-                        }
-                        break;
-                        case "!showmodes":
                         if (player != null && _config.Votes.Enabled && _config.Votes.GameModes)
                         {
                             OpenMenu(_pluginState.ShowModesMenu, _config.GameModes.Style, player);
                         }
                         break;
-                        case "!showsettings":
+                        case "!changesettings":
                         if (player != null && _config.Votes.Enabled && _config.Votes.GameSettings)
                         {
                             OpenMenu(_pluginState.ShowSettingsMenu, _config.Settings.Style, player);
@@ -379,6 +387,83 @@ namespace GameModeManager.Core
 
                             // Write to chat
                             player.PrintToChat(_message);
+                        }
+                        break;
+                        case "!timeleft":
+                        if (player != null)
+                        {
+                            // Define message
+                            string _message;
+
+                            // Define prefix
+                            StringLocalizer _timeLocalizer = new StringLocalizer(_iLocalizer, "timeleft.prefix");
+
+                            // If warmup, send general message
+                            if (_gameRules.WarmupRunning)
+                            {
+                                if (player != null)
+                                {
+                                    player.PrintToChat(_timeLocalizer.LocalizeWithPrefix("timeleft.warmup"));
+                                }
+                                else
+                                {
+                                    Server.PrintToConsole(_timeLocalizer.LocalizeWithPrefix("timeleft.warmup"));
+                                }
+                                return;
+                            }
+
+                            // Create message based on map conditions
+                            if (!_timeLimitManager.UnlimitedTime) // If time not over
+                            {
+                                if (_timeLimitManager.TimeRemaining > 1)
+                                {
+                                    // Get remaining time
+                                    TimeSpan remaining = TimeSpan.FromSeconds((double)_timeLimitManager.TimeRemaining);
+
+                                    // If hours left
+                                    if (remaining.Hours > 0)
+                                    {
+                                        _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
+                                    }
+                                    else if (remaining.Minutes > 0) // If minutes left
+                                    {
+                                        _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-time-minute", remaining.Minutes, remaining.Seconds);
+                                    }
+                                    else // If seconds left
+                                    {
+                                        _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-time-second", remaining.Seconds);
+                                    }
+                                }
+                                else // If time over
+                                {
+                                    _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-time-over");
+                                }
+                            }
+                            else if (!_maxRoundsManager.UnlimitedRounds) // If round limit not reached
+                            {
+                                if (_maxRoundsManager.RemainingRounds > 1) // If remaining rounds more than 1
+                                {
+                                    _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-rounds", _maxRoundsManager.RemainingRounds);
+                                }
+                                else // If last round
+                                {
+                                    _message = _timeLocalizer.LocalizeWithPrefix("timeleft.last-round");
+                                }
+                            }
+                            else // If no time or round limit
+                            {
+                                _message = _timeLocalizer.LocalizeWithPrefix("timeleft.no-time-limit");
+                            }
+
+                            // Send message    
+                            if (player != null)
+                            {
+                                player.PrintToChat(_message);
+                            }
+                            else
+                            {
+                                Server.PrintToConsole(_message);
+                            }
                         }
                         break;
                     }

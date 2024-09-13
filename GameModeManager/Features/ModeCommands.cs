@@ -22,11 +22,12 @@ namespace GameModeManager.Features
         private MenuFactory _menuFactory;
         private VoteManager _voteManager;
         private StringLocalizer _localizer;
+        private ServerManager _serverManager;
         private Config _config = new Config();
         private ILogger<ModeCommands> _logger;
 
         // Define class instance
-        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, MapManager mapManager, VoteManager voteManager, ILogger<ModeCommands> logger)
+        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, MapManager mapManager, VoteManager voteManager, ILogger<ModeCommands> logger,ServerManager serverManager)
         {
             _logger = logger;
             _localizer = localizer;
@@ -34,6 +35,7 @@ namespace GameModeManager.Features
             _pluginState = pluginState;
             _menuFactory = menuFactory;
             _voteManager = voteManager;
+            _serverManager = serverManager;
         }
 
         // Load config
@@ -120,7 +122,7 @@ namespace GameModeManager.Features
                     // Change mode
                     if(_plugin != null)
                     {
-                        ServerManager.ChangeMode(_mode, _config, _plugin, _pluginState, _config.GameModes.Delay);
+                        _serverManager.ChangeMode(_mode);
                     }
                 }
                 else

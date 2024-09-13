@@ -1,8 +1,7 @@
 // Included libraries
-using GameModeManager.Models;
+using GameModeManager.Core;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
-using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -14,21 +13,12 @@ namespace GameModeManager.Features
     {
         // Define dependencies
         private Plugin? _plugin;
-        private PluginState _pluginState;
-        private StringLocalizer _localizer;
-        private Config _config = new Config();
+        private WarmupManager _warmupManager;
 
         // Define class instance
-        public WarmupCommand(StringLocalizer localizer, PluginState pluginState)
+        public WarmupCommand(WarmupManager warmupManager)
         {
-            _localizer = localizer;
-            _pluginState = pluginState;
-        }
-
-        // Load config
-        public void OnConfigParsed(Config config)
-        {
-            _config = config;
+            _warmupManager = warmupManager;
         }
 
         // Define on load behavior
@@ -40,23 +30,29 @@ namespace GameModeManager.Features
 
         // Define admin map menu command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 1, usage: "<mode name>",whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+        [CommandHelper(minArgs: 1, usage: "<mode> <time>",whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnWarmupModeCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(_plugin != null)
             {
-                Mode? warmupMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase));
-                if(warmupMode == null)
+                bool enabled = false;
+
+                if (command.ArgCount == 1)
                 {
-                    _pluginState.WarmupModeEnabled = false;
-                    command.ReplyToCommand($"Warmup mode: {command.ArgByIndex(1)} not found.");   
+                    enabled = _warmupManager.ScheduleWarmup(command.ArgByIndex(1));
+                }
+                else if (command.ArgCount > 1)
+                {
+                    enabled = _warmupManager.ScheduleWarmup(command.ArgByIndex(1), int.Parse(command.ArgByIndex(2)));
+                }
+                
+                if(enabled == true)
+                {
+                    command.ReplyToCommand($"Warmup mode enabled.");   
                 } 
                 else
                 {
-                    _pluginState.WarmupModeEnabled = true;
-                    string _warmupConfig = _config.Warmup.Folder + "/" + warmupMode.Config;
-                    _pluginState.WarmupMode = new Mode(warmupMode.Name, _warmupConfig, warmupMode.DefaultMap.Name, warmupMode.MapGroups);
-                    
+                    command.ReplyToCommand($"Warmup mode {command.ArgByIndex(1)} cannot be found."); 
                 }         
             }
         }

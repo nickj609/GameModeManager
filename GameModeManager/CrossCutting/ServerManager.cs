@@ -1,218 +1,216 @@
 // Included libraries
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
+using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
 
 // Declare namespace
 namespace GameModeManager.CrossCutting
 {
     // Define class
-    public static class ServerManager
+    public class ServerManager : IPluginDependency<Plugin, Config>
     {
+        // Define Dependencies
+        private Plugin? _plugin;
+        private PluginState _pluginState;
+        private StringLocalizer _localizer;
+        private Config _config = new Config();
+        private ILogger<ServerManager> _logger;
+
+        // Define class instance
+        public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer)
+        {
+            _logger = logger;
+            _localizer = localizer;
+            _pluginState = pluginState;
+        }
+
+        // Load config
+         public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
+        // Define On Load behavior
+        public void OnLoad(Plugin plugin)
+        {
+            _plugin = plugin;
+        }
+
         // Define reusable method to change map
-        public static void ChangeMap(Map nextMap, Config config, Plugin plugin, PluginState pluginState)
+        public void ChangeMap(Map nextMap)
         {
             // If random default map for mode
             if (nextMap.Name.Equals("pseudorandom", StringComparison.CurrentCultureIgnoreCase))
             {
-                nextMap = GetRandomMap(config, pluginState);
-            }
+                nextMap = GetRandomMap();
+            }  
 
             // Change map
-            plugin.AddTimer(config.Maps.Delay, () => 
+            if (_plugin != null)
             {
-                // If map valid, change map based on map type
-                if (Server.IsMapValid(nextMap.Name))
+                _plugin.AddTimer(_config.Maps.Delay, () => 
                 {
-                    Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
-                }
-                else if (nextMap.WorkshopId != -1)
-                {
-                    Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
-                }
-                else
-                {
-                    Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
-                }
-            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                    // If map valid, change map based on map type
+                    if (Server.IsMapValid(nextMap.Name))
+                    {
+                        Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
+                    }
+                    else if (nextMap.WorkshopId != -1)
+                    {
+                        Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
+                    }
+                    else
+                    {
+                        Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
+                    }
+                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+            }
         }
 
         // Define reusable method to change map
-        public static void ChangeMap(Map nextMap, Config config, Plugin plugin, PluginState pluginState, float delay)
+        public void ChangeMap(Map nextMap, float delay)
         {
             // If random default map for mode
             if (nextMap.Name.Equals("pseudorandom", StringComparison.CurrentCultureIgnoreCase))
             {
-                nextMap = GetRandomMap(config, pluginState);
+                nextMap = GetRandomMap();
             }
 
             // Change map
-            plugin.AddTimer(delay, () => 
+            if (_plugin != null)
             {
-                // If map valid, change map based on map type
-                if (Server.IsMapValid(nextMap.Name))
+                _plugin.AddTimer(delay, () => 
                 {
-                    Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
-                }
-                else if (nextMap.WorkshopId != -1)
-                {
-                    Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
-                }
-                else
-                {
-                    Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
-                }
-            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-        }
-
-        // Define reusable method to schedule warmup
-        public static bool ScheduleWarmup(PluginState pluginState)
-        {
-            // Check if warmup mode is enabled
-            if (pluginState.WarmupModeEnabled == false)
-            {
-                // If not, disable warmup started flag and return false
-                pluginState.WarmupStarted = false;
-                return false;
-            }
-            else
-            {
-                // If so, enable warmup started flag, execute warmup mode config, and return true
-                pluginState.WarmupStarted = true;
-                pluginState.WarmupModeEnabled = false;
-                Server.ExecuteCommand($"exec {pluginState.WarmupMode.Config}");
-
-                // Set current mode to warmup mode
-                pluginState.CurrentMode = pluginState.WarmupMode;
-                return true;
+                    // If map valid, change map based on map type
+                    if (Server.IsMapValid(nextMap.Name))
+                    {
+                        Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
+                    }
+                    else if (nextMap.WorkshopId != -1)
+                    {
+                        Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
+                    }
+                    else
+                    {
+                        Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
+                    }
+                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
         }
 
         // Define reusable method to change mode
-        public static void ChangeMode(Mode mode, Config config, Plugin plugin, PluginState pluginState, float delay)
+        public void ChangeMode(Mode mode)
         {
-            if (plugin != null)
+            if (_plugin != null)
             {
                 // Change mode
-                plugin.AddTimer(delay, () => 
+                _plugin.AddTimer(_config.GameModes.Delay, () => 
                 {
-                    // Set next mode and map
-                    pluginState.NextMode = mode;
-                    pluginState.NextMap = mode.DefaultMap;
+                    // Execute mode config
+                    Server.ExecuteCommand($"exec {mode.Config}");
 
-                    // Check for scheduled warmup
-                    if (!ScheduleWarmup(pluginState))
-                    {
-                        // Execute mode config
-                        Server.ExecuteCommand($"exec {mode.Config}");
-
-                        // Set current mode
-                        pluginState.CurrentMode = mode; 
-                    }
+                    // Set current mode
+                    _pluginState.CurrentMode = mode; 
                     
                     // Change map
-                    ChangeMap(mode.DefaultMap, config, plugin, pluginState, 0);
+                    ChangeMap(mode.DefaultMap, 0);
 
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
         }
 
         // Define reusable method to change mode with desired map
-        public static void ChangeMode(Mode mode, Map map, Config config, Plugin plugin, PluginState pluginState, float delay)
+        public void ChangeMode(Mode mode, Map map, float delay)
         {
-            if (plugin != null)
+            if (_plugin != null)
             {
+                // Disable warmup scheduler
+                _pluginState.WarmupScheduled = false;
+
                 // Change mode
-                plugin.AddTimer(delay, () => 
+                _plugin.AddTimer(delay, () => 
                 {
-                    // Set next mode and map
-                    pluginState.NextMap = map;
-                    pluginState.NextMode = mode;
+                    // Execute mode config
+                    Server.ExecuteCommand($"exec {mode.Config}");
 
-                    // Check for scheduled warmup
-                    if (!ScheduleWarmup(pluginState))
-                    {
-                        // Execute mode config
-                        Server.ExecuteCommand($"exec {mode.Config}");
-
-                        // Set current mode
-                        pluginState.CurrentMode = mode; 
-                    }
+                    // Set current mode
+                    _pluginState.CurrentMode = mode; 
                     
                     // Change map
-                    ChangeMap(map, config, plugin, pluginState);
+                    ChangeMap(map);
 
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
         }
 
         // Define method to trigger mode and map rotations
-        public static void TriggerRotation(Plugin plugin,Config config, PluginState pluginState, ILogger logger, StringLocalizer localizer)
+        public void TriggerRotation()
         {  
             // Check if rotations are enabled
-            if(config.Rotation.Enabled)
+            if(_config.Rotation.Enabled)
             {
                 // If mode rotations are enabled, change mode on mode interval
-                if (config.Rotation.ModeRotation && pluginState.MapRotations % config.Rotation.ModeInterval == 0)
+                if (_config.Rotation.ModeRotation && (_pluginState.MapRotations % _config.Rotation.ModeInterval == 0))
                 {  
                     // Log information
-                    logger.LogInformation("Game has ended. Picking random game mode...");
+                    _logger.LogInformation("Game has ended. Picking random game mode...");
             
                     // Get random game mode
                     Random _rnd = new Random();
-                    int _randomIndex = _rnd.Next(0, pluginState.Modes.Count); 
-                    Mode _randomMode = pluginState.Modes[_randomIndex];
+                    int _randomIndex = _rnd.Next(0, _pluginState.Modes.Count); 
+                    Mode _randomMode = _pluginState.Modes[_randomIndex];
 
                     // Change mode
-                    Server.PrintToChatAll(localizer.LocalizeWithPrefix("Game has ended. Changing mode..."));  
-                    ChangeMode(_randomMode, config, plugin, pluginState, config.GameModes.Delay);
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing mode..."));  
+                    ChangeMode(_randomMode);
                 }
                 else // Change map
                 {
                     // Define random map
-                    Map _randomMap = GetRandomMap(config, pluginState);
+                    Map _randomMap = GetRandomMap();
 
                     // Change map
-                    Server.PrintToChatAll(localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
-                    ChangeMap(_randomMap, config, plugin, pluginState);
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
+                    ChangeMap(_randomMap);
                 }
-                pluginState.MapRotations++;
+                _pluginState.MapRotations++;
             }
         }
 
         // Define method to trigger schedule change
-        public static void TriggerScheduleChange(Plugin plugin, ScheduleEntry state, PluginState pluginState, Config config)
+        public void TriggerScheduleChange(ScheduleEntry state)
         {
             // Find mode
-            Mode? _mode = pluginState.Modes.FirstOrDefault(m => m.Name.Equals(state.Mode, StringComparison.OrdinalIgnoreCase));
+            Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(state.Mode, StringComparison.OrdinalIgnoreCase));
 
             // Change mode
             if (_mode != null)
             {
                 // Check if current mode is different from target mode
-                if (pluginState.CurrentMode != _mode)
+                if (_pluginState.CurrentMode != _mode)
                 {
-                    ChangeMode(_mode, config, plugin, pluginState, config.GameModes.Delay);
+                    ChangeMode(_mode);
                 }
             }
         }
 
         // Define reusable method to get random map
-        public static Map GetRandomMap(Config config, PluginState pluginState)
+        public Map GetRandomMap()
         {    
             // Define random map
             Map _randomMap; 
 
             // Set random map
-            if (config.Rotation.Cycle == 2) // If cycle = 2, select from specified map groups in config
+            if (_config.Rotation.Cycle == 2) // If cycle = 2, select from specified map groups in config
             {
                 // Create map list
                 List<Map> _mapList = new List<Map>();
 
-                foreach (string mapGroup in config.Rotation.MapGroups)
+                foreach (string mapGroup in _config.Rotation.MapGroups)
                 {
                     // Find map group
-                    MapGroup? _mapGroup = pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(mapGroup, StringComparison.OrdinalIgnoreCase));
+                    MapGroup? _mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(mapGroup, StringComparison.OrdinalIgnoreCase));
 
                     // add maps from map group to map list
                     if (_mapGroup != null)
@@ -229,20 +227,20 @@ namespace GameModeManager.CrossCutting
                 _randomMap = _mapList[_randomIndex];
 
             }
-            else if (config.Rotation.Cycle == 1) // If cycle = 1, select from all maps
+            else if (_config.Rotation.Cycle == 1) // If cycle = 1, select from all maps
             {
                 // Get a random map from all registered maps
                 Random _rnd = new Random();
-                int _randomIndex = _rnd.Next(0, pluginState.Maps.Count); 
-                _randomMap = pluginState.Maps[_randomIndex];
+                int _randomIndex = _rnd.Next(0, _pluginState.Maps.Count); 
+                _randomMap = _pluginState.Maps[_randomIndex];
             
             }
             else // Select from current mode
             {
                 // Get a random map from current game mode
                 Random _rnd = new Random();
-                int _randomIndex = _rnd.Next(0, pluginState.CurrentMode.Maps.Count); 
-                _randomMap = pluginState.CurrentMode.Maps[_randomIndex];
+                int _randomIndex = _rnd.Next(0, _pluginState.CurrentMode.Maps.Count); 
+                _randomMap = _pluginState.CurrentMode.Maps[_randomIndex];
             }
             return _randomMap;
         }

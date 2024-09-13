@@ -3,7 +3,6 @@ using CS2_CustomVotes.Shared;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
-using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Core.Capabilities;
 
@@ -14,13 +13,12 @@ namespace GameModeManager
     public class PluginState : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private ILogger<PluginState> _logger;
         private Config _config = new Config();
 
         // Define class instance
-        public PluginState(ILogger<PluginState> logger)
+        public PluginState()
         {
-            _logger = logger;
+
         }
 
         // Load config
@@ -28,15 +26,16 @@ namespace GameModeManager
         {
             _config = config;
             RTVEnabled = _config.RTV.Enabled;
-            WarmupMode = new Mode(_config.Warmup.Default.Name,_config.Warmup.Default.Config,_config.Warmup.Default.DefaultMap, new List<MapGroup>());
             WarmupTime = _config.Warmup.Time;
+            PerMapWarmup = _config.Warmup.PerMap;
+            WarmupMode = new Mode(_config.Warmup.Default.Name,_config.Warmup.Default.Config,_config.Warmup.Default.DefaultMap, new List<MapGroup>());
         }
 
         // Define static directories (Thanks Kus!)
-        public static string GameDirectory = Path.Join(Server.GameDirectory + "/csgo/");
         public static string ConfigDirectory = Path.Join(GameDirectory + "cfg/");
-        public static string SettingsDirectory = Path.Join(ConfigDirectory + "settings/");
         public static string WarmupDirectory = Path.Join(ConfigDirectory + "warmup/");
+        public static string GameDirectory = Path.Join(Server.GameDirectory + "/csgo/");
+        public static string SettingsDirectory = Path.Join(ConfigDirectory + "settings/");
 
         // Define static objects
         public static Map DefaultMap = new Map("de_dust2", "Dust 2");
@@ -58,11 +57,9 @@ namespace GameModeManager
         public int MapRotations = 0;
         public float WarmupTime = 60;
         public bool RTVEnabled = false;
-        public Map NextMap = DefaultMap;
-        public Mode NextMode = DefaultMode;
-        public bool WarmupStarted = false;
+        public bool PerMapWarmup = false;
         public Map CurrentMap = DefaultMap;
-        public bool WarmupModeEnabled = false;
+        public bool WarmupScheduled = false;
         public Mode CurrentMode = DefaultMode;
         public Mode WarmupMode = DefaultWarmup;
         public List<Map> Maps = new List<Map>();

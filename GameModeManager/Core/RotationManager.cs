@@ -2,7 +2,6 @@
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
-using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
  
@@ -14,18 +13,14 @@ namespace GameModeManager.Core
     {
         // Define dependencies
         private Plugin? _plugin;
-        private PluginState _pluginState;
-        private StringLocalizer _localizer;
+        private ServerManager _serverManager;
         private Config _config = new Config();
-        private ILogger<RotationManager> _logger;
         private TimeLimitManager _timeLimitManager;
 
         // Define class instance
-        public RotationManager(PluginState pluginState, StringLocalizer stringLocalizer, ILogger<RotationManager> logger, TimeLimitManager timeLimitManager)
+        public RotationManager(TimeLimitManager timeLimitManager, ServerManager serverManager)
         {
-            _logger = logger;
-            _pluginState = pluginState;
-            _localizer = stringLocalizer;
+            _serverManager = serverManager;
             _timeLimitManager = timeLimitManager;
         }
         
@@ -44,7 +39,7 @@ namespace GameModeManager.Core
             // Define event game end handler
             _plugin.RegisterEventHandler<EventCsWinPanelMatch>((@event, info) =>
             {  
-                ServerManager.TriggerRotation(_plugin, _config, _pluginState, _logger, _localizer);
+                _serverManager.TriggerRotation();
                 return HookResult.Continue;
             }, HookMode.Post);
 
@@ -69,7 +64,7 @@ namespace GameModeManager.Core
                     new Timer((float)delay.TotalSeconds, () =>
                     {
                         // Trigger schedule
-                        ServerManager.TriggerScheduleChange(_plugin, entry, _pluginState, _config);
+                        _serverManager.TriggerScheduleChange(entry);
 
                         // Update delay for the next occurrence (tomorrow)
                         delay = targetTime.AddDays(1) - DateTime.Now;
@@ -86,7 +81,7 @@ namespace GameModeManager.Core
                     {
                         if (!_timeLimitManager.UnlimitedTime)
                         {
-                            _timeLimitManager.EnforceTimeLimit(_plugin, false);
+                            _timeLimitManager.EnforceTimeLimit(false);
                         }
                     }
 
@@ -104,7 +99,7 @@ namespace GameModeManager.Core
 
                         if(!_timeLimitManager.UnlimitedTime)
                         {
-                            _timeLimitManager.EnforceTimeLimit(_plugin, true);
+                            _timeLimitManager.EnforceTimeLimit(true);
                         }
                     }
 

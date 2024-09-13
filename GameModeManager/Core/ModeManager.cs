@@ -11,8 +11,8 @@ namespace GameModeManager.Core
     {
        // Define dependencies
         private PluginState _pluginState;
-        private Config _config = new Config();
         private ILogger<ModeManager> _logger;
+        private Config _config = new Config();
         private readonly MapManager _mapManager;
         private readonly MenuFactory _menuFactory;
 
