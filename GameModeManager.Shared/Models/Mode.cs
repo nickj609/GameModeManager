@@ -7,7 +7,6 @@ namespace GameModeManager.Shared.Models
         // Define parameters
         public string Name { get; set; }
         public string Config { get; set; }
-        public Map DefaultMap { get; set; }
         public List<Map> Maps { get; set; }
         public List<MapGroup> MapGroups { get; set; }
 
@@ -18,7 +17,6 @@ namespace GameModeManager.Shared.Models
             Config = configFile;
             MapGroups = mapGroups;  
             Maps = CreateMapList(MapGroups);
-            DefaultMap = Maps.FirstOrDefault(m => m.Name.Equals(defaultMap, StringComparison.OrdinalIgnoreCase) || m.WorkshopId.ToString().Equals(defaultMap, StringComparison.OrdinalIgnoreCase)) ?? new Map("pseudorandom");
         }
 
         // Define method to generate maps from map groups

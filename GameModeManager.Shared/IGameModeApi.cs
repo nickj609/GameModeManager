@@ -35,6 +35,5 @@ public interface IGameModeApi
     // Change mode api handlers
     public void ChangeMode(string modeName);
     public void ChangeMode(string modeName, float delay);
-    public void ChangeMode(string modeName, string mapName, float delay);
 
 }

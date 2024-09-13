@@ -119,7 +119,7 @@ namespace GameModeManager.Core
             return _warmupManager.ScheduleWarmup(modeName, time);
         }
 
-        // Enforce time limit api handler
+        // Enforce time limit api handlers
         public void EnforceTimeLimit(bool enabled)
         {
             if(_plugin != null)
@@ -128,7 +128,6 @@ namespace GameModeManager.Core
             }
         }
 
-        // Enforce custom time limit api handler
         public void EnforceCustomTimeLimit(bool enabled, float time)
         {
             if(_plugin != null)
@@ -162,30 +161,11 @@ namespace GameModeManager.Core
             // Change mode
             if (mode != null && _plugin != null)
             {
-                _serverManager.ChangeMode(mode, mode.DefaultMap, delay);
+                _serverManager.ChangeMode(mode, delay);
             }
             else
             {
                 _logger.LogWarning($"Game Mode API: Mode {modeName} not found.");
-            }
-        }
-
-        public void ChangeMode(string modeName, string mapName, float delay)
-        {
-            // Find mode
-            Mode? mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
-
-            // Find map
-            Map? map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(mapName, StringComparison.OrdinalIgnoreCase));
-
-            // Change mode
-            if (mode != null && map != null && _plugin != null)
-            {
-                _serverManager.ChangeMode(mode, map, delay);
-            }
-            else
-            {
-                _logger.LogWarning($"Game Mode API: Mode {modeName} or Map {mapName} not found.");
             }
         }
     }

@@ -112,16 +112,13 @@ namespace GameModeManager.CrossCutting
 
                     // Set current mode
                     _pluginState.CurrentMode = mode; 
-                    
-                    // Change map
-                    ChangeMap(mode.DefaultMap, 0);
 
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
         }
 
         // Define reusable method to change mode with desired map
-        public void ChangeMode(Mode mode, Map map, float delay)
+        public void ChangeMode(Mode mode, float delay)
         {
             if (_plugin != null)
             {
@@ -136,9 +133,6 @@ namespace GameModeManager.CrossCutting
 
                     // Set current mode
                     _pluginState.CurrentMode = mode; 
-                    
-                    // Change map
-                    ChangeMap(map);
 
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }

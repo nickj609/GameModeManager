@@ -100,7 +100,7 @@ namespace GameModeManager.Core
                     string _warmupConfig = _config.Warmup.Folder + "/" + warmupMode.Config;
 
                     // Set warmup mode
-                    _pluginState.WarmupMode = new Mode(warmupMode.Name, _warmupConfig, warmupMode.DefaultMap.Name, warmupMode.MapGroups);
+                    _pluginState.WarmupMode = new Mode(warmupMode.Name, _warmupConfig, warmupMode.MapGroups);
 
                     // Schedule warmup
                     _pluginState.WarmupScheduled = true;
@@ -132,7 +132,7 @@ namespace GameModeManager.Core
                     string _warmupConfig = _config.Warmup.Folder + "/" + warmupMode.Config;
 
                     // Set warmup mode
-                    _pluginState.WarmupMode = new Mode(warmupMode.Name, _warmupConfig, warmupMode.DefaultMap.Name, warmupMode.MapGroups);
+                    _pluginState.WarmupMode = new Mode(warmupMode.Name, _warmupConfig, warmupMode.MapGroups);
 
                     // Schedule warmup
                     _pluginState.WarmupScheduled = true;

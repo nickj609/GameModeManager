@@ -60,12 +60,12 @@ namespace GameModeManager.Core
 
                 if(mapGroups.Count > 0)
                 {
-                    gameMode = new Mode(_mode.Name, _mode.Config, _mode.DefaultMap, mapGroups);
+                    gameMode = new Mode(_mode.Name, _mode.Config, mapGroups);
                 }
                 else
                 {
                     _logger.LogWarning($"Unable to create map group list. Using default list.");
-                    gameMode = new Mode(_mode.Name, _mode.Config, _mode.DefaultMap, PluginState.DefaultMapGroups);
+                    gameMode = new Mode(_mode.Name, _mode.Config, PluginState.DefaultMapGroups);
                 }
                 
                 _pluginState.Modes.Add(gameMode);
