@@ -38,10 +38,10 @@ namespace GameModeManager.Core
             foreach(ModeEntry _mode in _config.GameModes.List)
             {
                 // Create map group list
-                List<MapGroup> mapGroups = new();
+                List<MapGroup> mapGroups = new List<MapGroup>();
 
                 // Create map group from config
-                foreach(string _mapGroup in _config.GameModes.Default.MapGroups)
+                foreach(string _mapGroup in _mode.MapGroups)
                 {
                     MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name == _mapGroup);
 
@@ -52,7 +52,7 @@ namespace GameModeManager.Core
                     }
                     else
                     {
-                        _logger.LogWarning($"Unable to find {_mapGroup} in map group list.");
+                        _logger.LogError($"Unable to find {_mapGroup} in map group list.");
                     }
                 }
 
@@ -62,14 +62,12 @@ namespace GameModeManager.Core
                 if(mapGroups.Count > 0)
                 {
                     gameMode = new Mode(_mode.Name, _mode.Config, mapGroups);
+                    _pluginState.Modes.Add(gameMode);
                 }
                 else
                 {
-                    _logger.LogWarning($"Unable to create map group list. Using default list.");
-                    gameMode = new Mode(_mode.Name, _mode.Config, PluginState.DefaultMapGroups);
+                    _logger.LogError($"Unable to create map group list.");
                 }
-                
-                _pluginState.Modes.Add(gameMode);
             }
                
             // Set current mode
@@ -81,8 +79,7 @@ namespace GameModeManager.Core
             }
             else
             {
-                _logger.LogWarning($"Unable to find mode {_config.GameModes.Default.Name} in modes list. Using default mode.");
-                _pluginState.CurrentMode = PluginState.DefaultMode;
+                _logger.LogError($"Unable to find mode {_config.GameModes.Default.Name} in modes list.");
             }
 
             // Create mode menus

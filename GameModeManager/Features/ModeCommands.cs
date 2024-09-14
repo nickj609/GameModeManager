@@ -16,7 +16,6 @@ namespace GameModeManager.Features
     public class ModeCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin? _plugin;
         private MapManager _mapManager;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
@@ -48,8 +47,6 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            _plugin = plugin;
-
             plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
             plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
             plugin.AddCommand("css_gamemode", "Sets the current game mode.", OnGameModeCommand);
@@ -96,9 +93,12 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    _logger.LogWarning($"Unable to find game mode {command.ArgByIndex(1)}. Setting default mode.");
-                    _pluginState.CurrentMode = PluginState.DefaultMode;
+                    command.ReplyToCommand($"Unable to find game mode {command.ArgByIndex(1)}.");
                 }
+            }
+            else
+            {
+                command.ReplyToCommand("css_mode is a server only command.");
             }
         }
 
@@ -121,10 +121,7 @@ namespace GameModeManager.Features
                     Server.PrintToChatAll(_message);
 
                     // Change mode
-                    if(_plugin != null)
-                    {
-                        _serverManager.ChangeMode(_mode);
-                    }
+                    _serverManager.ChangeMode(_mode);
                 }
                 else
                 {

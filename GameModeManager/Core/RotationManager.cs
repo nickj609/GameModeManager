@@ -84,7 +84,6 @@ namespace GameModeManager.Core
                             _timeLimitManager.EnforceTimeLimit(false);
                         }
                     }
-
                     return HookResult.Continue;
                 }, HookMode.Post);
 
@@ -102,7 +101,6 @@ namespace GameModeManager.Core
                             _timeLimitManager.EnforceTimeLimit(true);
                         }
                     }
-
                     return HookResult.Continue;
                 }, HookMode.Post);
             }

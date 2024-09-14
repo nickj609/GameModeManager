@@ -39,8 +39,6 @@ namespace GameModeManager.Core
         {
             // Deserialize gamemodes_server.txt (VDF) to VProperty with GameLoop.Vdf
             VProperty vdfObject = VdfConvert.Deserialize(File.ReadAllText(_config.GameModes.MapGroupFile, Encoding.UTF8));
-
-            _logger.LogDebug("Loading map groups...");
         
             if (vdfObject == null)
             {
@@ -73,17 +71,19 @@ namespace GameModeManager.Core
                         {
                             foreach (VProperty _map in _maps)
                             {
+                                // Set map names
                                 string _mapName = _map.Key;
-
-                                // Set display name
                                 string _mapDisplayName = _map.Value.ToString();
 
+                                // Check if map is a workshop map
                                 if (_mapName.StartsWith("workshop/"))
                                 {
+                                    // Separate workshop ID from map name
                                     string[] parts = _mapName.Split('/');
                                     long _mapWorkshopId = long.Parse(parts[1]); 
                                     string _mapNameFormatted = parts[parts.Length - 1];
 
+                                    // Add map to all maps list
                                     if (!string.IsNullOrEmpty(_mapDisplayName))
                                     {
                                         _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
@@ -97,6 +97,7 @@ namespace GameModeManager.Core
                                 }
                                 else
                                 {
+                                    // Add map to all maps list
                                     if (!string.IsNullOrEmpty(_mapDisplayName))
                                     {
                                         _group.Maps.Add(new Map(_mapName, _mapDisplayName));
@@ -109,22 +110,28 @@ namespace GameModeManager.Core
                                     }
                                 }
                             }
+                            // Add map group to map group list
+                            _pluginState.MapGroups.Add(_group);
                         }  
                         else
                         {
-                            _logger.LogWarning("Mapgroup found, but the 'maps' property is missing or incomplete. Setting default maps.");
-                            _group.Maps = PluginState.DefaultMaps;
+                            _logger.LogError($"Mapgroup {_mapGroup.Key} found, but the 'maps' property is missing or incomplete.");
                         }
-                        // Add map group to map group list
-                        _pluginState.MapGroups.Add(_group);
                     }
                 }
-                _logger.LogDebug("Map Groups loaded!");
             }
 
-            // Set default map
-            PluginState.DefaultMap = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(_config.Maps.Default, StringComparison.OrdinalIgnoreCase)) ?? PluginState.DefaultMap;
-            _pluginState.CurrentMap = PluginState.DefaultMap;
+            // Set current map
+            Map? defaultMap = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(_config.Maps.Default, StringComparison.OrdinalIgnoreCase));
+
+            if (defaultMap != null)
+            {
+                _pluginState.CurrentMap = defaultMap;
+            }
+            else
+            {
+                _pluginState.CurrentMap = PluginState.DefaultMap;
+            }
         }
     }
 }

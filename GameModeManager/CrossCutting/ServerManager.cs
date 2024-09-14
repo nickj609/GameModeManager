@@ -40,12 +40,6 @@ namespace GameModeManager.CrossCutting
         // Define reusable method to change map
         public void ChangeMap(Map nextMap)
         {
-            // If random default map for mode
-            if (nextMap.Name.Equals("pseudorandom", StringComparison.CurrentCultureIgnoreCase))
-            {
-                nextMap = GetRandomMap();
-            }  
-
             // Change map
             if (_plugin != null)
             {
@@ -71,12 +65,6 @@ namespace GameModeManager.CrossCutting
         // Define reusable method to change map
         public void ChangeMap(Map nextMap, float delay)
         {
-            // If random default map for mode
-            if (nextMap.Name.Equals("pseudorandom", StringComparison.CurrentCultureIgnoreCase))
-            {
-                nextMap = GetRandomMap();
-            }
-
             // Change map
             if (_plugin != null)
             {
@@ -110,9 +98,6 @@ namespace GameModeManager.CrossCutting
                     // Execute mode config
                     Server.ExecuteCommand($"exec {mode.Config}");
 
-                    // Set current mode
-                    _pluginState.CurrentMode = mode; 
-
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
         }
@@ -131,9 +116,6 @@ namespace GameModeManager.CrossCutting
                     // Execute mode config
                     Server.ExecuteCommand($"exec {mode.Config}");
 
-                    // Set current mode
-                    _pluginState.CurrentMode = mode; 
-
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
         }
@@ -145,7 +127,7 @@ namespace GameModeManager.CrossCutting
             if(_config.Rotation.Enabled)
             {
                 // If mode rotations are enabled, change mode on mode interval
-                if (_config.Rotation.ModeRotation && (_pluginState.MapRotations % _config.Rotation.ModeInterval == 0))
+                if (_config.Rotation.ModeRotation && _pluginState.MapRotations != 0 && _pluginState.MapRotations % _config.Rotation.ModeInterval == 0)
                 {  
                     // Log information
                     _logger.LogInformation("Game has ended. Picking random game mode...");

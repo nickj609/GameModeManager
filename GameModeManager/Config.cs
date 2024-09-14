@@ -1,6 +1,5 @@
 // Included libraries
 using CounterStrikeSharp.API.Core;
-using GameModeManager.Models;
 using Microsoft.Extensions.Logging;
 
 // Declare namespace
@@ -44,7 +43,7 @@ namespace GameModeManager
     {
         public bool Enabled { get; set; } = false; // Enables CS2-CustomVotes compatibility
         public bool Maps { get; set; } = false; // Enables vote to change game to a specific map in the current mode
-        public bool AllMaps { get; set; } = false; // Enables vote to change game to a specific map in all modes
+        public bool AllMaps { get; set; } = false; // Changes vote to change game to a specific map in all modes
         public bool GameModes { get; set; } = false; // Enables vote to change game mode
         public bool GameSettings { get; set; } = false; // Enables vote to change game setting
         public string Style { get; set; } = "center"; // Changes vote menu type (i.e. "chat" or "center")
@@ -63,8 +62,8 @@ namespace GameModeManager
     {
         public bool Map { get; set; } = true; // Enables or disables !map admin command
         public bool Maps { get; set; } = true; // Enables or disables !maps admin command 
-        public bool AllMaps { get; set; } = false; // Enables or disables admin !allmaps command
-        public bool TimeLeft { get; set; } = true; // Enables or disables admin !allmaps command
+        public bool AllMaps { get; set; } = false; // Enables or disables !allmaps admin command
+        public bool TimeLeft { get; set; } = true; // Enables or disables !timeleft admin command
     }
 
     public class WarmupSettings
@@ -72,11 +71,10 @@ namespace GameModeManager
         public float Time { get; set; } = 60; // Default warmup time
         public bool PerMap { get; set; } = false; // Enables or disables per map warmup
         public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Knives Only", Config = $"warmup/knives_only.cfg", MapGroups = new List<string>()}; // Default warmup mode
-
         public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
         {
             new ModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg", MapGroups = new List<string>() },
-            new ModeEntry() { Name = "Knives Only", Config = $"warmup/dm.cfg", MapGroups = new List<string>()}
+            new ModeEntry() { Name = "Knives Only", Config = $"warmup/knives_only.cfg", MapGroups = new List<string>()}
         };
     }
     public class RotationSettings
@@ -199,12 +197,6 @@ namespace GameModeManager
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
-            }
-
-            // Command Settings
-            if (_config.Commands.AllMaps)
-            {
-                _config.Commands.Maps = false;
             }
 
             // Game Settings

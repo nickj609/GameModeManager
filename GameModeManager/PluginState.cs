@@ -27,7 +27,6 @@ namespace GameModeManager
             _config = config;
             RTVEnabled = _config.RTV.Enabled;
             PerMapWarmup = _config.Warmup.PerMap;
-            WarmupMode = new Mode(_config.Warmup.Default.Name,_config.Warmup.Default.Config, new List<MapGroup>());
         }
 
         // Define static directories (Thanks Kus!)
@@ -49,7 +48,7 @@ namespace GameModeManager
         public static MapGroup DefaultMapGroup = new MapGroup("mg_active", DefaultMaps);
         public static List<MapGroup> DefaultMapGroups = new List<MapGroup>{DefaultMapGroup};
         public static Mode DefaultMode = new Mode("Casual", "casual.cfg", DefaultMapGroups);
-        public static Mode DefaultWarmup = new Mode("Deathmatch", "dm.cfg", new List<MapGroup>());
+        public static Mode DefaultWarmup = new Mode("Knives Only", "warmup/knives_only.cfg", new List<MapGroup>());
         
         // Define dynamic attributes
         public int MapRotations = 0;

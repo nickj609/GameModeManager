@@ -11,7 +11,6 @@ namespace GameModeManager.Core
     public class MapManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin? _plugin;
         private PluginState _pluginState;
         private Config _config = new Config();
 
@@ -30,8 +29,6 @@ namespace GameModeManager.Core
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
-            _plugin = plugin;
-
             // Register event map transition handler to set current map
             plugin.RegisterEventHandler<EventMapTransition>((@event, info) =>
             {
@@ -49,7 +46,7 @@ namespace GameModeManager.Core
             if (_config.RTV.Enabled)
             {
                 // Get map list
-                List<Map> _mapList = new List<Map>();
+                List<Map> _mapList;
 
                 if (_config.RTV.Mode == 1)
                 {

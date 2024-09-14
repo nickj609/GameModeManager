@@ -245,10 +245,7 @@ namespace GameModeManager.Core
                             MenuManager.CloseActiveMenu(player);
 
                             // Change map
-                            if(_plugin != null)
-                            {
-                                _serverManager.ChangeMap(_nextMap);
-                            }
+                            _serverManager.ChangeMap(_nextMap);
                         });
                     } 
                     // Open menu
@@ -318,14 +315,12 @@ namespace GameModeManager.Core
                     MenuManager.CloseActiveMenu(player);
 
                     // Change map
-                    if (_plugin != null)
-                    {
-                        _serverManager.ChangeMap(_nextMap);
-                    }
+                    _serverManager.ChangeMap(_nextMap);
+
                 });
             }
 
-            // Update user map menu
+            // Update player vote map menu
             if(_config.Votes.Maps)
             {
                 UpdateShowMapMenu();
@@ -349,11 +344,11 @@ namespace GameModeManager.Core
                     switch(option.Text)
                     {
                         case "!changemap":
-                        if (player != null && _config.Votes.Enabled && _config.Votes.Maps)
+                        if (player != null && _config.Votes.Enabled && _config.Votes.Maps && !_config.Votes.AllMaps)
                         {
                             OpenMenu(_pluginState.ShowMapMenu, _config.Maps.Style, player);
                         }
-                        else if(player != null && _config.Votes.Enabled && _config.Votes.AllMaps)
+                        else if(player != null && _config.Votes.Enabled && _config.Votes.Maps && _config.Votes.AllMaps)
                         {
                              OpenMenu(_pluginState.ShowMapsMenu, _config.Maps.Style, player);
                         }

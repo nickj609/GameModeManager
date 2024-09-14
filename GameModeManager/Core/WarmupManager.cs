@@ -41,13 +41,13 @@ namespace GameModeManager.Core
             plugin.RegisterEventHandler<EventRoundAnnounceWarmup>(OnAnnounceWarmup);
 
             // Create warmup mode list from config
-            foreach(ModeEntry _mode in _config.GameModes.List)
+            foreach(ModeEntry _mode in _config.Warmup.List)
             {
                 // Create map group list
                 List<MapGroup> mapGroups = new();
 
                 // Create map group from config
-                foreach(string _mapGroup in _config.GameModes.Default.MapGroups)
+                foreach(string _mapGroup in _mode.MapGroups)
                 {
                     MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name == _mapGroup);
 
@@ -58,7 +58,7 @@ namespace GameModeManager.Core
                     }
                     else
                     {
-                        _logger.LogWarning($"Unable to find {_mapGroup} in map group list.");
+                        _logger.LogError($"Unable to find {_mapGroup} in map group list.");
                     }
                 }
 
@@ -67,7 +67,7 @@ namespace GameModeManager.Core
                 _pluginState.WarmupModes.Add(_warmupMode);
             }
 
-             // Set default warmup mode  
+            // Set default warmup mode  
             Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(_config.Warmup.Default.Name, StringComparison.OrdinalIgnoreCase));
 
             if(warmupMode != null)
@@ -76,8 +76,7 @@ namespace GameModeManager.Core
             }
             else
             {
-                _logger.LogWarning($"Unable to find mode {_config.Warmup.Default.Name} in modes list. Using default warmup mode.");
-                _pluginState.WarmupMode = PluginState.DefaultWarmup;
+                _logger.LogError($"Unable to find warmup mode {_config.Warmup.Default.Name} in warmup mode list.");
             }
         }
 
@@ -146,7 +145,7 @@ namespace GameModeManager.Core
                 } 
                 else // If not found, log warning
                 {
-                    _logger.LogWarning($"Warmup mode {modeName} not found.");   
+                    _logger.LogError($"Warmup mode {modeName} not found.");   
                 }           
             }
             return false;

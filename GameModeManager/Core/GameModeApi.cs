@@ -27,7 +27,8 @@ namespace GameModeManager.Core
         public string CurrentMap { get { return _pluginState.CurrentMap.DisplayName; } }
         
         // Define class instance
-        public GameModeApi(PluginState pluginState, ILogger<IGameModeApi> logger, TimeLimitManager timeLimitManager, MenuFactory menuFactory, ServerManager serverManager, WarmupManager warmupManager)
+        public GameModeApi(PluginState pluginState, ILogger<IGameModeApi> logger, TimeLimitManager timeLimitManager, MenuFactory menuFactory, 
+        ServerManager serverManager, WarmupManager warmupManager)
         {
             _logger = logger;
             _pluginState = pluginState;
