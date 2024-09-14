@@ -16,6 +16,7 @@ namespace GameModeManager
     {
         public string Name {get; set;} = "Casual";
         public string Config {get; set;} = "casual.cfg";
+        public string? DefaultMap {get; set;} = null; 
         public List<string> MapGroups {get; set;} = new List<string>(){"mg_active", "mg_comp"};
     }
     
@@ -104,27 +105,31 @@ namespace GameModeManager
         
         public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
         {
-            new ModeEntry() { Name = "Casual", Config = "casual.cfg", MapGroups = new List<string>(){"mg_active", "mg_comp"} },
-            new ModeEntry() { Name = "Competitive", Config = "comp.cfg", MapGroups = new List<string>(){"mg_active", "mg_comp"}},
-            new ModeEntry() { Name = "Wingman", Config = "wingman.cfg", MapGroups = new List<string>(){"mg_active", "mg_comp"}},
-            new ModeEntry() { Name = "Practice", Config = "prac.cfg", MapGroups = new List<string>(){"mg_prac"}},
-            new ModeEntry() { Name = "Deathmatch", Config = "dm.cfg", MapGroups = new List<string>(){"mg_dm"}},
-            new ModeEntry() { Name = "Deathmatch Multicfg", Config = "dm-multicfg.cfg", MapGroups = new List<string>(){"mg_dm"}},
-            new ModeEntry() { Name = "ArmsRace", Config = "armsrace.cfg", MapGroups = new List<string>(){"mg_gg"}},
-            new ModeEntry() { Name = "GunGame", Config = "gg.cfg", MapGroups = new List<string>(){"mg_gg"}},
-            new ModeEntry() { Name = "Retakes", Config = "retake.cfg",  MapGroups = new List<string>(){"mg_retake"}},
-            new ModeEntry() { Name = "Executes", Config = "executes.cfg", MapGroups = new List<string>(){"mg_executes"}},
-            new ModeEntry() { Name = "1v1", Config = "1v1.cfg", MapGroups = new List<string>(){"mg_1v1"}},
-            new ModeEntry() { Name = "Aim", Config = "aim.cfg",  MapGroups = new List<string>(){"mg_aim"}},
-            new ModeEntry() { Name = "Bhop", Config = "bhop.cfg", MapGroups = new List<string>(){"mg_bhop"}},
-            new ModeEntry() { Name = "Surf", Config = "surf.cfg", MapGroups = new List<string>(){"mg_surf"}},
-            new ModeEntry() { Name = "KreedZ", Config = "kz.cfg", MapGroups = new List<string>(){"mg_kz"}},
-            new ModeEntry() { Name = "Awp", Config = "awp.cfg", MapGroups = new List<string>(){"mg_awp"}},
-            new ModeEntry() { Name = "Course", Config = "course.cfg", MapGroups = new List<string>(){"mg_course"}},
-            new ModeEntry() { Name = "Hide N Seek", Config = "hns.cfg", MapGroups = new List<string>(){"mg_hns"}},
-            new ModeEntry() { Name = "Soccer", Config = "soccer.cfg", MapGroups = new List<string>(){"mg_soccer"}},
-            new ModeEntry() { Name = "ScoutzKnivez", Config = "scoutzknivez.cfg", MapGroups = new List<string>(){"mg_scoutzknivez"}},
-            new ModeEntry() { Name = "Minigames", Config = "minigames.cfg", MapGroups = new List<string>(){"mg_minigames"}}
+            new ModeEntry() { Name = "Casual", Config = "casual.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_comp"} },
+            new ModeEntry() { Name = "Deathmatch", Config = "dm.cfg", DefaultMap = "de_assembly", MapGroups = new List<string>(){"mg_dm"}},
+            new ModeEntry() { Name = "ArmsRace", Config = "armsrace.cfg", DefaultMap = "ar_pool_day", MapGroups = new List<string>(){"mg_gg"}},
+            new ModeEntry() { Name = "Competitive", Config = "comp.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_comp"}},
+            new ModeEntry() { Name = "Wingman", Config = "wingman.cfg", DefaultMap = "de_memento", MapGroups = new List<string>(){"mg_active", "mg_comp"}},
+            new ModeEntry() { Name = "Practice", Config = "prac.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_prac"}},
+            new ModeEntry() { Name = "Prefire", Config = "prefire.cfg", DefaultMap = "de_inferno", MapGroups = new List<string>(){"mg_comp"} },
+            new ModeEntry() { Name = "Retakes", Config = "retake.cfg",  DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_retake"}},
+            new ModeEntry() { Name = "Executes", Config = "executes.cfg", DefaultMap = "de_mirage", MapGroups = new List<string>(){"mg_executes"}},
+            new ModeEntry() { Name = "Casual 1.6", Config = "Casual-1.6.cfg", DefaultMap = "3212419403", MapGroups = new List<string>(){"mg_active", "mg_comp"} },
+            new ModeEntry() { Name = "Deathmatch Multicfg", Config = "dm-multicfg.cfg", DefaultMap = "de_mirage", MapGroups = new List<string>(){"mg_dm"}},
+            new ModeEntry() { Name = "GG", Config = "gg.cfg", DefaultMap = "ar_pool_day", MapGroups = new List<string>(){"mg_gg"}},
+            new ModeEntry() { Name = "45", Config = "45.cfg", DefaultMap = "3276886893", MapGroups = new List<string>(){"mg_45"} },
+            new ModeEntry() { Name = "Awp", Config = "awp.cfg", DefaultMap = "3142070597", MapGroups = new List<string>(){"mg_awp"}},
+            new ModeEntry() { Name = "1v1", Config = "1v1.cfg", DefaultMap = "3070253400", MapGroups = new List<string>(){"mg_1v1"}},
+            new ModeEntry() { Name = "Aim", Config = "aim.cfg",  DefaultMap = "3084291314", MapGroups = new List<string>(){"mg_aim"}},
+            new ModeEntry() { Name = "Bhop", Config = "bhop.cfg", DefaultMap = "3088973190", MapGroups = new List<string>(){"mg_bhop"}},
+            new ModeEntry() { Name = "Surf", Config = "surf.cfg", DefaultMap = "3082548297", MapGroups = new List<string>(){"mg_surf"}},
+            new ModeEntry() { Name = "KreedZ", Config = "kz.cfg", DefaultMap = "3086304337", MapGroups = new List<string>(){"mg_kz"}},
+            new ModeEntry() { Name = "Hide N Seek", Config = "hns.cfg", DefaultMap = "3097563690", MapGroups = new List<string>(){"mg_hns"}},
+            new ModeEntry() { Name = "Soccer", Config = "soccer.cfg", DefaultMap = "3070198374", MapGroups = new List<string>(){"mg_soccer"}},
+            new ModeEntry() { Name = "Course", Config = "course.cfg", DefaultMap = "3070455802", MapGroups = new List<string>(){"mg_course"}},
+            new ModeEntry() { Name = "Deathrun", Config = "deathrun.cfg", DefaultMap = "3164611860", MapGroups = new List<string>(){"mg_deathrun"}},
+            new ModeEntry() { Name = "Minigames", Config = "minigames.cfg", DefaultMap = "3082120895", MapGroups = new List<string>(){"mg_minigames"}},
+            new ModeEntry() { Name = "ScoutzKnivez", Config = "scoutzknivez.cfg", DefaultMap = "3073929825", MapGroups = new List<string>(){"mg_scoutzknivez"}},
         };
     }
 

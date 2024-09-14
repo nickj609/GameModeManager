@@ -8,6 +8,7 @@ namespace GameModeManager.Models
         public string Name { get; set; }
         public string Config { get; set; }
         public List<Map> Maps { get; set; }
+        public Map? DefaultMap { get; set; }
         public List<MapGroup> MapGroups { get; set; }
 
         // Define class instances
@@ -17,6 +18,14 @@ namespace GameModeManager.Models
             Config = configFile;
             MapGroups = mapGroups;  
             Maps = CreateMapList(MapGroups);
+        }
+        public Mode(string name, string configFile, string defaultMap, List<MapGroup> mapGroups) 
+        {
+            Name = name;
+            Config = configFile;
+            MapGroups = mapGroups;  
+            Maps = CreateMapList(MapGroups);
+            DefaultMap = Maps.FirstOrDefault(m => m.Name.Equals(defaultMap, StringComparison.OrdinalIgnoreCase) || m.WorkshopId.ToString().Equals(defaultMap, StringComparison.OrdinalIgnoreCase));
         }
 
         // Define method to generate maps from map groups
@@ -41,7 +50,7 @@ namespace GameModeManager.Models
         public bool Equals(Mode? other) 
         {
             if (other == null) return false;
-            return Name == other.Name && Config == other.Config && MapGroups.SequenceEqual(other.MapGroups);
+            return Name == other.Name && Config == other.Config && MapGroups.SequenceEqual(other.MapGroups) && DefaultMap == other.DefaultMap;
         }
 
         // Define method to clear values
@@ -49,6 +58,7 @@ namespace GameModeManager.Models
         {
             Name = "";
             Config = "";
+            DefaultMap = null;
             MapGroups = new List<MapGroup>();
         }
     }
