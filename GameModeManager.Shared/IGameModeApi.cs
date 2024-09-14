@@ -5,7 +5,6 @@ namespace GameModeManager.Shared;
 public interface IGameModeApi
 {
     // Define globals
-    string WarmupTime { get; } 
     string WarmupMode { get; }
     string CurrentMap { get; }
     string CurrentMode { get; }  
@@ -26,7 +25,6 @@ public interface IGameModeApi
     // Schedule warmup api handlers
     public bool isWarmupScheduled();
     public bool ScheduleWarmup(string modeName);
-    public bool ScheduleWarmup(string modeName, float delay);
 
     // Enforce time limit api handlers
     public void EnforceTimeLimit(bool enabled);

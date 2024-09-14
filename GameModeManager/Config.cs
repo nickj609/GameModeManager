@@ -1,5 +1,6 @@
 // Included libraries
 using CounterStrikeSharp.API.Core;
+using GameModeManager.Models;
 using Microsoft.Extensions.Logging;
 
 // Declare namespace
@@ -69,9 +70,14 @@ namespace GameModeManager
     public class WarmupSettings
     {
         public float Time { get; set; } = 60; // Default warmup time
-        public string Folder { get; set; } = "warmup"; // Default warmup folder
         public bool PerMap { get; set; } = false; // Enables or disables per map warmup
-        public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg", MapGroups = new List<string>(){"mg_dm"}};
+        public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Knives Only", Config = $"warmup/knives_only.cfg", MapGroups = new List<string>()}; // Default warmup mode
+
+        public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
+        {
+            new ModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg", MapGroups = new List<string>() },
+            new ModeEntry() { Name = "Knives Only", Config = $"warmup/dm.cfg", MapGroups = new List<string>()}
+        };
     }
     public class RotationSettings
     {

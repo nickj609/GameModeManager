@@ -30,22 +30,13 @@ namespace GameModeManager.Features
 
         // Define admin map menu command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 1, usage: "<mode> <time>",whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+        [CommandHelper(minArgs: 1, usage: "<mode>",whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnWarmupModeCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(_plugin != null)
             {
-                bool enabled = false;
+                bool enabled = _warmupManager.ScheduleWarmup(command.ArgByIndex(1));
 
-                if (command.ArgCount == 1)
-                {
-                    enabled = _warmupManager.ScheduleWarmup(command.ArgByIndex(1));
-                }
-                else if (command.ArgCount > 1)
-                {
-                    enabled = _warmupManager.ScheduleWarmup(command.ArgByIndex(1), int.Parse(command.ArgByIndex(2)));
-                }
-                
                 if(enabled == true)
                 {
                     command.ReplyToCommand($"Warmup mode enabled.");   

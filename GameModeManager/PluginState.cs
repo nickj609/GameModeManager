@@ -26,7 +26,6 @@ namespace GameModeManager
         {
             _config = config;
             RTVEnabled = _config.RTV.Enabled;
-            WarmupTime = _config.Warmup.Time;
             PerMapWarmup = _config.Warmup.PerMap;
             WarmupMode = new Mode(_config.Warmup.Default.Name,_config.Warmup.Default.Config, new List<MapGroup>());
         }
@@ -35,7 +34,6 @@ namespace GameModeManager
         public static string GameDirectory = Path.Join(Server.GameDirectory + "/csgo/");
         public static string ConfigDirectory = Path.Join(GameDirectory + "cfg/");
         public static string SettingsDirectory = Path.Join(ConfigDirectory + "settings/");
-        public static string WarmupDirectory = Path.Join(ConfigDirectory + "warmup/");
 
         // Define static objects
         public static Map DefaultMap = new Map("de_dust2", "Dust 2");
@@ -55,7 +53,6 @@ namespace GameModeManager
         
         // Define dynamic attributes
         public int MapRotations = 0;
-        public float WarmupTime = 60;
         public bool RTVEnabled = false;
         public bool PerMapWarmup = false;
         public Map CurrentMap = DefaultMap;
@@ -64,6 +61,7 @@ namespace GameModeManager
         public Mode WarmupMode = DefaultWarmup;
         public List<Map> Maps = new List<Map>();
         public List<Mode> Modes = new List<Mode>();
+        public List<Mode> WarmupModes = new List<Mode>();
         public List<Setting> Settings = new List<Setting>();
         public List<string> PlayerCommands = new List<string>()
         {

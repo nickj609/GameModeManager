@@ -33,9 +33,52 @@ namespace GameModeManager.Core
         // Load dependencies
         public void OnLoad(Plugin plugin)
         { 
+            // Get plugin instance
             _plugin = plugin;
+
+            // Register event handlers
             plugin.RegisterEventHandler<EventWarmupEnd>(OnWarmupEnd);
             plugin.RegisterEventHandler<EventRoundAnnounceWarmup>(OnAnnounceWarmup);
+
+            // Create warmup mode list from config
+            foreach(ModeEntry _mode in _config.GameModes.List)
+            {
+                // Create map group list
+                List<MapGroup> mapGroups = new();
+
+                // Create map group from config
+                foreach(string _mapGroup in _config.GameModes.Default.MapGroups)
+                {
+                    MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name == _mapGroup);
+
+                    // Add map group to list
+                    if(mapGroup != null)
+                    {
+                        mapGroups.Add(mapGroup);
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Unable to find {_mapGroup} in map group list.");
+                    }
+                }
+
+                // Create warmup mode
+                Mode _warmupMode = new Mode(_mode.Name, _mode.Config, mapGroups);
+                _pluginState.WarmupModes.Add(_warmupMode);
+            }
+
+             // Set default warmup mode  
+            Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(_config.Warmup.Default.Name, StringComparison.OrdinalIgnoreCase));
+
+            if(warmupMode != null)
+            {
+                _pluginState.WarmupMode = warmupMode;
+            }
+            else
+            {
+                _logger.LogWarning($"Unable to find mode {_config.Warmup.Default.Name} in modes list. Using default warmup mode.");
+                _pluginState.WarmupMode = PluginState.DefaultWarmup;
+            }
         }
 
         // Define on warmup end behavior
@@ -72,7 +115,7 @@ namespace GameModeManager.Core
         {
             if (_pluginState.WarmupScheduled)
             {
-                Server.ExecuteCommand($"mp_warmuptime {_config.Warmup.Time}; mp_warmuptime_all_players_connected {_config.Warmup.Time}; mp_warmup_start");
+                Server.ExecuteCommand($"{_pluginState.WarmupMode.Config}");
             }
         }
 
@@ -83,24 +126,18 @@ namespace GameModeManager.Core
         }
 
         //Define reusable methods to schedule warmup mode
-        public bool ScheduleWarmup(string modeName, float time) // Uses custom warmup time
+        public bool ScheduleWarmup(string modeName)
         {
             if(_plugin != null)
             {
                 // Find warmup mode
-                Mode? warmupMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
+                Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
 
                 // If found
                 if(warmupMode != null)
-                {
-                    // Set warmup time
-                    _pluginState.WarmupTime = time;
-                    
-                    // Set warmup config
-                    string _warmupConfig = _config.Warmup.Folder + "/" + warmupMode.Config;
-
+                {   
                     // Set warmup mode
-                    _pluginState.WarmupMode = new Mode(warmupMode.Name, _warmupConfig, warmupMode.MapGroups);
+                    _pluginState.WarmupMode = warmupMode;
 
                     // Schedule warmup
                     _pluginState.WarmupScheduled = true;
@@ -111,38 +148,6 @@ namespace GameModeManager.Core
                 {
                     _logger.LogWarning($"Warmup mode {modeName} not found.");   
                 }           
-            }
-            return false;
-        }
-
-        public bool ScheduleWarmup(string modeName) // Uses config warmup time
-        {
-            if(_plugin != null)
-            {
-                // Find warmup mode
-                Mode? warmupMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
-
-                // If found
-                if(warmupMode != null)
-                {
-                    // Set warmup time
-                    _pluginState.WarmupTime = _config.Warmup.Time;
-                    
-                    // Set warmup config
-                    string _warmupConfig = _config.Warmup.Folder + "/" + warmupMode.Config;
-
-                    // Set warmup mode
-                    _pluginState.WarmupMode = new Mode(warmupMode.Name, _warmupConfig, warmupMode.MapGroups);
-
-                    // Schedule warmup
-                    _pluginState.WarmupScheduled = true;
-
-                    return true;
-                } 
-                else // If not found, log warning
-                {
-                    _logger.LogWarning($"Warmup mode {modeName} not found.");   
-                }         
             }
             return false;
         }

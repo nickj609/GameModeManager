@@ -23,7 +23,6 @@ namespace GameModeManager.Core
 
         // Load plugin states
         public string WarmupMode { get { return _pluginState.WarmupMode.Name; } }
-        public string WarmupTime { get { return _pluginState.WarmupTime.ToString(); } }
         public string CurrentMode { get { return _pluginState.CurrentMode.Name; } } 
         public string CurrentMap { get { return _pluginState.CurrentMap.DisplayName; } }
         
@@ -112,11 +111,6 @@ namespace GameModeManager.Core
         public bool ScheduleWarmup(string modeName)
         {
             return _warmupManager.ScheduleWarmup(modeName);
-        }
-        
-        public bool ScheduleWarmup(string modeName, float time)
-        {
-            return _warmupManager.ScheduleWarmup(modeName, time);
         }
 
         // Enforce time limit api handlers

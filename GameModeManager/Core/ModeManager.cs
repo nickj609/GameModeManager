@@ -34,6 +34,7 @@ namespace GameModeManager.Core
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
+            // Create mode list from config
             foreach(ModeEntry _mode in _config.GameModes.List)
             {
                 // Create map group list
@@ -82,20 +83,6 @@ namespace GameModeManager.Core
             {
                 _logger.LogWarning($"Unable to find mode {_config.GameModes.Default.Name} in modes list. Using default mode.");
                 _pluginState.CurrentMode = PluginState.DefaultMode;
-            }
-            
-            // Set warmup mode  
-            Mode? warmupMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(_config.Warmup.Default.Name, StringComparison.OrdinalIgnoreCase));
-
-            if(warmupMode != null)
-            {
-                _pluginState.WarmupMode = warmupMode;
-                _pluginState.WarmupMode.Config = _config.Warmup.Folder + "/" + _pluginState.WarmupMode.Config;
-            }
-            else
-            {
-                _logger.LogWarning($"Unable to find mode {_config.Warmup.Default.Name} in modes list. Using default warmup mode.");
-                _pluginState.WarmupMode = PluginState.DefaultWarmup;
             }
 
             // Create mode menus
