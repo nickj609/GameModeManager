@@ -61,7 +61,14 @@ namespace GameModeManager.Core
 
                 if(mapGroups.Count > 0)
                 {
-                    gameMode = new Mode(_mode.Name, _mode.Config, mapGroups);
+                    if(_mode.DefaultMap != null)
+                    {
+                        gameMode = new Mode(_mode.Name, _mode.Config, _mode.DefaultMap, mapGroups);
+                    }
+                    else
+                    {
+                        gameMode = new Mode(_mode.Name, _mode.Config, mapGroups);
+                    }
                     _pluginState.Modes.Add(gameMode);
                 }
                 else

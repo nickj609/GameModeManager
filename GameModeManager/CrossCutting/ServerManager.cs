@@ -98,7 +98,22 @@ namespace GameModeManager.CrossCutting
                     // Execute mode config
                     Server.ExecuteCommand($"exec {mode.Config}");
 
+                    // If no default map, set next map to random map
+                    Map nextMap;
+                    if (mode.DefaultMap == null) 
+                    {
+                        nextMap = GetRandomMap();
+                    }
+                    else
+                    {
+                        nextMap = mode.DefaultMap;
+                    }
+
+                    // Change to next map
+                    ChangeMap(nextMap);
+
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+
             }
         }
 
@@ -115,6 +130,20 @@ namespace GameModeManager.CrossCutting
                 {
                     // Execute mode config
                     Server.ExecuteCommand($"exec {mode.Config}");
+
+                    // If no default map, set next map to random map
+                    Map nextMap;
+                    if (mode.DefaultMap == null) 
+                    {
+                        nextMap = GetRandomMap();
+                    }
+                    else
+                    {
+                        nextMap = mode.DefaultMap;
+                    }
+
+                    // Change to next map
+                    ChangeMap(nextMap);
 
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
