@@ -27,8 +27,8 @@ public interface IGameModeApi
     public bool ScheduleWarmup(string modeName);
 
     // Enforce time limit api handlers
-    public void EnforceTimeLimit(bool enabled);
-    public void EnforceCustomTimeLimit(bool enabled, float delay);
+    public void EnforceTimeLimit();
+    public void EnforceTimeLimit(float delay);
 
     // Change mode api handlers
     public void ChangeMode(string modeName);

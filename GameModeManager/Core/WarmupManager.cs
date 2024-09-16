@@ -4,6 +4,8 @@ using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
+using System.Security.AccessControl;
+using GameModeManager.CrossCutting;
 
 // Declare namespace
 namespace GameModeManager.Core
@@ -14,13 +16,15 @@ namespace GameModeManager.Core
         // Define dependencies
         private Plugin? _plugin;
         private PluginState _pluginState;
+        private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<WarmupManager> _logger;
 
         // Define class instance
-        public WarmupManager(PluginState pluginState, ILogger<WarmupManager> logger)
+        public WarmupManager(PluginState pluginState, ILogger<WarmupManager> logger, StringLocalizer localizer)
         {
             _logger = logger;
+            _localizer = localizer;
             _pluginState = pluginState;
         }
 
@@ -37,8 +41,8 @@ namespace GameModeManager.Core
             _plugin = plugin;
 
             // Register event handlers
-            plugin.RegisterEventHandler<EventWarmupEnd>(OnWarmupEnd);
-            plugin.RegisterEventHandler<EventRoundAnnounceWarmup>(OnAnnounceWarmup);
+            plugin.RegisterEventHandler<EventWarmupEnd>(EventWarmupEndHandler);
+            plugin.RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler);
 
             // Create warmup mode list from config
             foreach(ModeEntry _mode in _config.Warmup.List)
@@ -81,12 +85,13 @@ namespace GameModeManager.Core
         }
 
         // Define on warmup end behavior
-        public HookResult OnWarmupEnd(EventWarmupEnd @event, GameEventInfo info)
+        public HookResult EventWarmupEndHandler(EventWarmupEnd @event, GameEventInfo info)
         {
             if (_pluginState.WarmupScheduled)
             {
                 // Execute command to start current mode
                 Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
+                Server.ExecuteCommand($"mp_restartgame 1");
                 Server.PrintToChatAll($"[Server] Mode {_pluginState.CurrentMode.Name} started."); 
 
                 if (_pluginState.PerMapWarmup)
@@ -99,25 +104,17 @@ namespace GameModeManager.Core
         }
 
         // Define on warmup start behavior
-        public HookResult OnAnnounceWarmup(EventRoundAnnounceWarmup @event, GameEventInfo info)
+         public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
         {
             if (_pluginState.WarmupScheduled)
             {
                 // Execute command to start warmup mode
-                Server.PrintToChatAll($"[Server] Warmup mode {_pluginState.WarmupMode.Name} started.");
+                Server.ExecuteCommand($"exec {_pluginState.WarmupMode.Config}");
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix($"Warmup mode {_pluginState.WarmupMode.Name} started."));
             }
             return HookResult.Continue;
         }
-
-        // Define on map start behavior
-        public void OnMapStart (string map)
-        {
-            if (_pluginState.WarmupScheduled)
-            {
-                Server.ExecuteCommand($"{_pluginState.WarmupMode.Config}");
-            }
-        }
-
+    
         //Define reusable method to check if warmup is scheduled
         public bool IsWarmupScheduled()
         {

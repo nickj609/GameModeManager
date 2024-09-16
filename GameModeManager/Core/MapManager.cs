@@ -29,17 +29,19 @@ namespace GameModeManager.Core
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
-            // Register event map transition handler to set current map
-            plugin.RegisterEventHandler<EventMapTransition>((@event, info) =>
-            {
-
-                Map _map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(Server.MapName, StringComparison.OrdinalIgnoreCase)) ?? new Map(Server.MapName);
-                _pluginState.CurrentMap = _map;
-
-                return HookResult.Continue;
-            }, HookMode.Post);  
+            // Register event handler
+            plugin.RegisterEventHandler<EventMapTransition>(EventMapTransitionHandler);
         }
 
+        // Register event map transition handler to set current map
+       public HookResult EventMapTransitionHandler(EventMapTransition @event, GameEventInfo info)
+        {
+            Map _map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(Server.MapName, StringComparison.OrdinalIgnoreCase)) ?? new Map(Server.MapName);
+            _pluginState.CurrentMap = _map;
+
+            return HookResult.Continue;
+        }
+        
         // Define reusable method to update map list
         public void UpdateRTVMapList()
         {  

@@ -65,6 +65,11 @@ namespace GameModeManager.CrossCutting
             }
         }
 
+        public static bool IsServerEmpty()
+        {
+            return ValidPlayerCount(false) == 0;
+        }
+
         // Define method to remove cfg extension from strings
         public static string RemoveCfgExtension(string str)
         {

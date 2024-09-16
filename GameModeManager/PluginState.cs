@@ -51,12 +51,16 @@ namespace GameModeManager
         public static Mode DefaultWarmup = new Mode("Knives Only", "warmup/knives_only.cfg", new List<MapGroup>());
         
         // Define dynamic attributes
+        public int TimeLimit = 120;
         public int MapRotations = 0;
         public bool RTVEnabled = false;
         public bool PerMapWarmup = false;
         public Map CurrentMap = DefaultMap;
         public bool WarmupScheduled = false;
+        public bool TimeLimitEnabled = false;
         public Mode CurrentMode = DefaultMode;
+        public bool TimeLimitCustom = false;
+        public bool TimeLimitScheduled = false;
         public Mode WarmupMode = DefaultWarmup;
         public List<Map> Maps = new List<Map>();
         public List<Mode> Modes = new List<Mode>();

@@ -115,19 +115,19 @@ namespace GameModeManager.Core
         }
 
         // Enforce time limit api handlers
-        public void EnforceTimeLimit(bool enabled)
+        public void EnforceTimeLimit()
         {
             if(_plugin != null)
             {
-                _timeLimitManager.EnforceTimeLimit(enabled);
+                _timeLimitManager.EnforceTimeLimit();
             }
         }
 
-        public void EnforceCustomTimeLimit(bool enabled, float time)
+        public void EnforceTimeLimit(float time)
         {
             if(_plugin != null)
             {
-                _timeLimitManager.EnforceCustomTimeLimit(enabled, time);
+                _timeLimitManager.EnforceTimeLimit(time);
             }
         }
 

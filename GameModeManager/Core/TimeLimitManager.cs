@@ -1,6 +1,7 @@
 ﻿// Included libraries
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
+using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Cvars;
 
@@ -13,11 +14,10 @@ namespace GameModeManager.Core
         // Define dependencies
         private Plugin? _plugin;
         private ConVar? _timeLimit;
-        private ConVar? _warmupTime;
         private GameRules _gameRules;
+        private PluginState _pluginState;
         private ServerManager _serverManager;
         public decimal TimeLimitValue => (decimal)(_timeLimit?.GetPrimitiveValue<float>() ?? 0F) * 60M;
-        public decimal WarmupTimeValue => (decimal)(_warmupTime?.GetPrimitiveValue<float>() ?? 0F) * 60M;
         public bool UnlimitedTime => TimeLimitValue <= 0;
 
         // Calculate time played
@@ -45,17 +45,25 @@ namespace GameModeManager.Core
         }
 
         // Define class instance
-        public TimeLimitManager(GameRules gameRules, ServerManager serverManager)
+        public TimeLimitManager(GameRules gameRules, ServerManager serverManager, PluginState pluginState)
         {
             _gameRules = gameRules;
+            _pluginState = pluginState;
             _serverManager = serverManager;
+
         }
 
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
+            // Load plugin instance
             _plugin = plugin;
+
+            // Load convars
             LoadCvar();
+
+            // Register event handler
+            plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(EventRoundAnnounceMatchStartHandler);
         }
 
         // Define on map start behavior
@@ -68,49 +76,82 @@ namespace GameModeManager.Core
         public void LoadCvar()
         {
             _timeLimit = ConVar.Find("mp_timelimit");
-            _warmupTime = ConVar.Find("mp_warmuptime");
         }
 
-        // Define method to enforce time limit
-        public void EnforceTimeLimit(bool enabled)
+        // Define method to remove timelimit
+
+        public void RemoveTimeLimit()
         {
-            if(enabled && _plugin != null)
+            if(_plugin != null)
             {
-                // Clear previous timers
+                // Clear timers
                 _plugin.Timers.Clear();
 
-                // Enforce time limit
-                _plugin.AddTimer((float)TimeRemaining, () =>
+                // Set plugin state
+                _pluginState.TimeLimitEnabled = false;
+                _pluginState.TimeLimitEnabled = false;
+                _pluginState.TimeLimitScheduled = false;
+            }        
+        }
+
+        // Define methods to enforce time limit
+        public void EnforceTimeLimit()
+        {
+            if(_plugin != null)
+            {
+                if(TimeRemaining != 0 && TimePlayed != 0)
                 {
-                    _serverManager.TriggerRotation();
-                });
-            }
-            else if(!enabled && _plugin != null)
-            {
-                // Clear previous timers
-                _plugin.Timers.Clear();
+                    // Create timer
+                    _plugin.AddTimer((float)TimeRemaining, () =>
+                    {
+                        _serverManager.TriggerRotation();
+                        _pluginState.TimeLimitEnabled = false;
+                    });
+
+                    // Set plugin state
+                    _pluginState.TimeLimitEnabled = true;
+                    _pluginState.TimeLimitScheduled = false;
+                }
             }
         }
 
-        // Define method to enforce custom time limit
-        public void EnforceCustomTimeLimit(bool enabled, float timeLimit)
+        public void EnforceTimeLimit(float timeLimit)
         {
-            if(enabled && _plugin != null)
+            if(_plugin != null)
             {
-                // Clear previous timers
-                _plugin.Timers.Clear();
-
-                // Enforce time limit
+                // Create timer
                 _plugin.AddTimer(timeLimit, () =>
                 {
                     _serverManager.TriggerRotation();
+                    _pluginState.TimeLimitEnabled = false;
                 });
+
+                // Set plugin state
+                _pluginState.TimeLimitCustom = false;
+                _pluginState.TimeLimitEnabled = true;
+                _pluginState.TimeLimitScheduled = false;
             }
-            else if(!enabled && _plugin != null)
+        }
+
+        // Define on match start behavior
+         public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
+        {
+            if (_pluginState.TimeLimitScheduled)
             {
-                // Clear previous timers
-                _plugin.Timers.Clear();
+                if(_pluginState.TimeLimitCustom)
+                {
+                    EnforceTimeLimit(_pluginState.TimeLimit);
+                }
+                else
+                {
+                    EnforceTimeLimit();
+                }
             }
+            else
+            {
+                RemoveTimeLimit();
+            }
+            return HookResult.Continue;
         }
     }
 }

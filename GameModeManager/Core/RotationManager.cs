@@ -12,7 +12,6 @@ namespace GameModeManager.Core
     public class RotationManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin? _plugin;
         private ServerManager _serverManager;
         private Config _config = new Config();
         private TimeLimitManager _timeLimitManager;
@@ -33,15 +32,10 @@ namespace GameModeManager.Core
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
-            // Load plugin
-            _plugin = plugin;
-
-            // Define event game end handler
-            _plugin.RegisterEventHandler<EventCsWinPanelMatch>((@event, info) =>
-            {  
-                _serverManager.TriggerRotation();
-                return HookResult.Continue;
-            }, HookMode.Post);
+            // Register event handlers
+            plugin.RegisterEventHandler<EventCsWinPanelMatch>(EventCsWinPanelMatchHandler);
+            plugin.RegisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnectHandler);
+            plugin.RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler);
 
             // Create mode schedules
             if (_config.Rotation.ModeSchedules)
@@ -67,43 +61,65 @@ namespace GameModeManager.Core
                         _serverManager.TriggerScheduleChange(entry);
 
                         // Update delay for the next occurrence (tomorrow)
-                        delay = targetTime.AddDays(1) - DateTime.Now;
+                        delay = targetTime.AddDays(1) - DateTime.Now;  
                         
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT);
                 }
             }
+        }    
 
+        // Define event game end handler
+        public HookResult EventCsWinPanelMatchHandler(EventCsWinPanelMatch @event, GameEventInfo info)
+        {  
+            _serverManager.TriggerRotation();
+            return HookResult.Continue;
+        }
+
+        // Define event player connect full handler
+        public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
+        {
+            // Check if server empty
+             if(!Extensions.IsServerEmpty())
+            {
+                _timeLimitManager.RemoveTimeLimit();
+            }
+            return HookResult.Continue;
+        }
+
+        // Define event player disconnect handler
+        public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
+        {  
+            // Check if rotation on server empty is enabled
             if(_config.Rotation.WhenServerEmpty)
             {
-                _plugin.RegisterEventHandler<EventPlayerConnect>((@event, info) =>
-                {  
-                    if(Extensions.ValidPlayerCount(false) == 1)
+                // Check if server empty
+                if(Extensions.IsServerEmpty())
+                {
+                    // Check if server is hibernating
+                    if(!Extensions.IsHibernationEnabled())
                     {
-                        if (!_timeLimitManager.UnlimitedTime)
+                        // Disable hibernation
+                        Server.ExecuteCommand("sv_hibernate_when_empty false");
+                    }
+
+                    // Check if custom time limit set
+                    if(_config.Rotation.EnforceCustomTimeLimit)
+                    {
+                        // Enforce custom time limit
+                        _timeLimitManager.EnforceTimeLimit(_config.Rotation.CustomTimeLimit);
+                    }
+                    else
+                    {
+                        // Check if map has an unlimited time set
+                        if(_timeLimitManager.TimeRemaining != 0)
                         {
-                            _timeLimitManager.EnforceTimeLimit(false);
+                            // Enforce time limit
+                            _timeLimitManager.EnforceTimeLimit();
                         }
                     }
-                    return HookResult.Continue;
-                }, HookMode.Post);
-
-                _plugin.RegisterEventHandler<EventPlayerDisconnect>((@event, info) =>
-                {  
-                    if(Extensions.ValidPlayerCount(false) == 0)
-                    {
-                        if(!Extensions.IsHibernationEnabled())
-                        {
-                            Server.ExecuteCommand("sv_hibernate_when_empty false");
-                        }
-
-                        if(!_timeLimitManager.UnlimitedTime)
-                        {
-                            _timeLimitManager.EnforceTimeLimit(true);
-                        }
-                    }
-                    return HookResult.Continue;
-                }, HookMode.Post);
+                }
             }
-        }    
+            return HookResult.Continue;
+        }
     }
 }

@@ -40,9 +40,12 @@ namespace GameModeManager.CrossCutting
         // Define reusable method to change map
         public void ChangeMap(Map nextMap)
         {
-            // Change map
             if (_plugin != null)
             {
+                // Disable warmup scheduler
+                _pluginState.WarmupScheduled = false;
+
+                // Change map
                 _plugin.AddTimer(_config.Maps.Delay, () => 
                 {
                     // If map valid, change map based on map type
@@ -65,9 +68,11 @@ namespace GameModeManager.CrossCutting
         // Define reusable method to change map
         public void ChangeMap(Map nextMap, float delay)
         {
-            // Change map
             if (_plugin != null)
             {
+                // Disable warmup scheduler
+                _pluginState.WarmupScheduled = false;
+
                 _plugin.AddTimer(delay, () => 
                 {
                     // If map valid, change map based on map type
@@ -92,6 +97,9 @@ namespace GameModeManager.CrossCutting
         {
             if (_plugin != null)
             {
+                // Disable warmup scheduler
+                _pluginState.WarmupScheduled = false;
+
                 // Change mode
                 _plugin.AddTimer(_config.GameModes.Delay, () => 
                 {
