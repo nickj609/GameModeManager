@@ -83,7 +83,7 @@ namespace GameModeManager
         public bool Enabled { get; set; } = true; // Enables game rotations
         public bool WhenServerEmpty { get; set; } = false; // Enables rotation on server empty. 
         public bool EnforceCustomTimeLimit { get; set; } = false; // Enables or disables custom time limit
-        public int CustomTimeLimit { get; set; } = 300; // Sets custom time limit in seconds
+        public int CustomTimeLimit { get; set; } = 120; // Sets custom time limit in seconds
         public int Cycle { get; set; } = 0; // 0 for current mode maps, 1 for all maps, 2 for specific map groups
         public List<string> MapGroups { get; set;} = new List<string>(){"mg_active", "mg_comp"}; // Map group list for cycle 2
         public bool ModeRotation { get; set; } = false; // Enables game mode rotations

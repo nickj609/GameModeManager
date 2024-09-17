@@ -4,7 +4,6 @@ using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
-using System.Security.AccessControl;
 using GameModeManager.CrossCutting;
 
 // Declare namespace
@@ -92,7 +91,7 @@ namespace GameModeManager.Core
                 // Execute command to start current mode
                 Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
                 Server.ExecuteCommand($"mp_restartgame 1");
-                Server.PrintToChatAll($"[Server] Mode {_pluginState.CurrentMode.Name} started."); 
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.end.message",  _pluginState.CurrentMode.Name)); 
 
                 if (_pluginState.PerMapWarmup)
                 {
@@ -110,7 +109,7 @@ namespace GameModeManager.Core
             {
                 // Execute command to start warmup mode
                 Server.ExecuteCommand($"exec {_pluginState.WarmupMode.Config}");
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix($"Warmup mode {_pluginState.WarmupMode.Name} started."));
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.start.message",  _pluginState.WarmupMode.Name));
             }
             return HookResult.Continue;
         }
