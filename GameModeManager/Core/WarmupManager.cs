@@ -13,7 +13,6 @@ namespace GameModeManager.Core
     public class WarmupManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin? _plugin;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private Config _config = new Config();
@@ -36,9 +35,6 @@ namespace GameModeManager.Core
         // Load dependencies
         public void OnLoad(Plugin plugin)
         { 
-            // Get plugin instance
-            _plugin = plugin;
-
             // Register event handlers
             plugin.RegisterEventHandler<EventWarmupEnd>(EventWarmupEndHandler);
             plugin.RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler);
@@ -46,15 +42,12 @@ namespace GameModeManager.Core
             // Create warmup mode list from config
             foreach(ModeEntry _mode in _config.Warmup.List)
             {
-                // Create map group list
                 List<MapGroup> mapGroups = new();
 
-                // Create map group from config
                 foreach(string _mapGroup in _mode.MapGroups)
                 {
                     MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name == _mapGroup);
 
-                    // Add map group to list
                     if(mapGroup != null)
                     {
                         mapGroups.Add(mapGroup);
@@ -83,23 +76,10 @@ namespace GameModeManager.Core
             }
         }
 
-        // Define on warmup end behavior
-        public HookResult EventWarmupEndHandler(EventWarmupEnd @event, GameEventInfo info)
+        //Define reusable method to check if warmup is scheduled
+        public bool IsWarmupScheduled()
         {
-            if (_pluginState.WarmupScheduled)
-            {
-                // Execute command to start current mode
-                Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
-                Server.ExecuteCommand($"mp_restartgame 1");
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.end.message",  _pluginState.CurrentMode.Name)); 
-
-                if (_pluginState.PerMapWarmup)
-                {
-                    // Disable warmup scheduler
-                    _pluginState.WarmupScheduled = false;
-                } 
-            }
-            return HookResult.Continue;
+            return _pluginState.WarmupScheduled;
         }
 
         // Define on warmup start behavior
@@ -107,37 +87,43 @@ namespace GameModeManager.Core
         {
             if (_pluginState.WarmupScheduled)
             {
-                // Execute command to start warmup mode
                 Server.ExecuteCommand($"exec {_pluginState.WarmupMode.Config}");
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.start.message",  _pluginState.WarmupMode.Name));
             }
             return HookResult.Continue;
         }
-    
-        //Define reusable method to check if warmup is scheduled
-        public bool IsWarmupScheduled()
+
+        // Define on warmup end behavior
+        public HookResult EventWarmupEndHandler(EventWarmupEnd @event, GameEventInfo info)
         {
-            return _pluginState.WarmupScheduled;
+            if (_pluginState.WarmupScheduled)
+            {
+                Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
+                Server.ExecuteCommand($"mp_restartgame 1");
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.end.message",  _pluginState.CurrentMode.Name)); 
+
+                if (_pluginState.PerMapWarmup)
+                {
+                    _pluginState.WarmupScheduled = false;
+                } 
+            }
+            return HookResult.Continue;
         }
+
 
         //Define reusable methods to schedule warmup mode
         public bool ScheduleWarmup(string modeName)
         {
-            // Find warmup mode
             Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
 
-            // If found
             if(warmupMode != null)
             {   
-                // Set warmup mode
                 _pluginState.WarmupMode = warmupMode;
-
-                // Schedule warmup
                 _pluginState.WarmupScheduled = true;
 
                 return true;
             } 
-            else // If not found, log warning
+            else
             {
                 _logger.LogError($"Warmup mode {modeName} not found.");   
             }           

@@ -12,7 +12,6 @@ namespace GameModeManager.Features
     public class EnforceTimeLimitCommand : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin? _plugin;
         private PluginState _pluginState;
         private Config _config = new Config();
         private TimeLimitManager _timeLimitManager;
@@ -33,8 +32,7 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            _plugin = plugin;
-            _plugin.AddCommand("css_enforcetimelimit", "Forces rotation on time limit end. Default time limit is mp_timelimit.", OnEnforceTimeLimitCommand);
+            plugin.AddCommand("css_enforcetimelimit", "Forces rotation on time limit end. Default time limit is mp_timelimit.", OnEnforceTimeLimitCommand);
 
             if (_config.Commands.TimeLeft)
             {

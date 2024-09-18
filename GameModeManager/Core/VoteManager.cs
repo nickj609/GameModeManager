@@ -48,7 +48,6 @@ namespace GameModeManager.Core
         // Define reusable method to register custom votes
         public void RegisterCustomVotes()
         {
-            // Check if game mode votes are enable
             if(_config.Votes.GameModes)
             {
                 // Add votes to command list
@@ -69,31 +68,31 @@ namespace GameModeManager.Core
 
                     // Create per mode vote
                     _pluginState.CustomVotesApi.Get()?.AddCustomVote(
-                        _modeCommand, // Command to trigger the vote
-                        new List<string>(), // Aliases for the command (optional)
-                        _localizer.Localize("mode.vote.menu-title", _mode.Name), // Description
-                        "No", // Default
-                        30, // Time to vote
+                        _modeCommand, 
+                        new List<string>(), 
+                        _localizer.Localize("mode.vote.menu-title", _mode.Name), 
+                        "No", 
+                        30, 
                         new Dictionary<string, VoteOption> // vote options
                         {
                             { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"exec {_mode.Config}; css_gamemode {_mode.Name}" })},
                             { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
                         },
-                        "center", // Menu style  - "center" or "chat"
-                        -1 // Minimum percentage of votes required (-1 behaves like 50%)
+                        "center", 
+                        -1 
                     ); 
                 }
                 
                 // Register game modes vote
                 _pluginState.CustomVotesApi.Get()?.AddCustomVote(
-                    "changemode", // Command to trigger the vote
-                    new List<string> {"cm"}, // aliases for the command (optional)
-                    _localizer.Localize("modes.vote.menu-title"), // Description
-                    "No", // Default option
-                    30, // Time to vote
-                    _modeOptions, // All options
-                    "center", // Menu style  - "center" or "chat"
-                    -1 // Minimum percentage of votes required (-1 behaves like 50%)
+                    "changemode", 
+                    new List<string> {"cm"}, 
+                    _localizer.Localize("modes.vote.menu-title"), 
+                    "No", 
+                    30, 
+                    _modeOptions, 
+                    "center", 
+                    -1 
                 ); 
 
                 // Set game mode vote flag
@@ -103,8 +102,6 @@ namespace GameModeManager.Core
                 if(_config.Votes.Maps)
                 {
                     RegisterMapVotes();
-
-                    // Set map vote flag
                     MapVote = true;
                 }
             }
@@ -115,19 +112,19 @@ namespace GameModeManager.Core
                 {
                     // Register per-setting vote
                     _pluginState.CustomVotesApi.Get()?.AddCustomVote(
-                        _setting.Name, // Command to trigger the vote
-                        new List<string>(), // Aliases for the command (optional)
-                        _localizer.Localize("setting.vote.menu-title", _setting.DisplayName), // Description
-                        "No", // Default option
-                        30, // Time to vote
-                        new Dictionary<string, VoteOption> // vote options
+                        _setting.Name, 
+                        new List<string>(), 
+                        _localizer.Localize("setting.vote.menu-title", _setting.DisplayName), 
+                        "No", 
+                        30, 
+                        new Dictionary<string, VoteOption> 
                         {
                             { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
                             { "Enable", new VoteOption(_localizer.Localize("menu.enable"), new List<string> { $"exec {_config.Settings.Folder}/{_setting.Enable}" })},
                             { "Disable", new VoteOption(_localizer.Localize("menu.disable"), new List<string>{ $"exec {_config.Settings.Folder}/{_setting.Disable}" })},
                         },
-                        "center", // Menu style  - "center" or "chat"
-                        -1 // Minimum percentage of votes required (-1 behaves like 50%)
+                        "center", 
+                        -1 
                     ); 
                 }
 
@@ -146,28 +143,22 @@ namespace GameModeManager.Core
             foreach (Map _map in _pluginState.CurrentMode.Maps)
             {
                 _pluginState.CustomVotesApi.Get()?.AddCustomVote(
-                    _map.Name, // Command to trigger the vote
-                    new List<string>(), // Aliases for the command (optional)
-                    _localizer.Localize("map.vote.menu-title", _map.Name), // Description
+                    _map.Name, 
+                    new List<string>(), 
+                    _localizer.Localize("map.vote.menu-title", _map.Name), 
                     "No", 
-                    30, // Time to vote
-                    new Dictionary<string, VoteOption> // vote options
+                    30,
+                    new Dictionary<string, VoteOption> 
                     {
                         { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"css_map {_map.Name} {_map.WorkshopId}" })},
                         { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
                     },
-                    "center", // Menu style  - "center" or "chat"
-                    -1 // Minimum percentage of votes required (-1 behaves like 50%)
+                    "center", 
+                    -1 
                 ); 
             }
-
-            // Add vote to command list
             _pluginState.PlayerCommands.Add("!changemap");
-
-            // Update game menu
             _menuFactory.UpdateGameMenu();
-
-            // Set map vote flag
             MapVote = true;
         }
 
@@ -184,11 +175,7 @@ namespace GameModeManager.Core
                 
                 // Remove vote from command list
                 _pluginState.PlayerCommands.Remove("!changemap");
-
-                // Update game menu
                 _menuFactory.UpdateGameMenu();
-
-                // Set map vote flag
                 MapVote = false;
             }
         }

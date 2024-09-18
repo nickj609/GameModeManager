@@ -4,7 +4,6 @@ using GameModeManager.Models;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
-using GameModeManager.Features;
 
 // Declare namespace
 namespace GameModeManager.Core
@@ -13,7 +12,6 @@ namespace GameModeManager.Core
     public class GameModeApi : IGameModeApi, IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin? _plugin;
         private RTVManager _rtvManager;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
@@ -38,12 +36,6 @@ namespace GameModeManager.Core
             _serverManager = serverManager;
             _warmupManager = warmupManager;
             _timeLimitManager = timeLimitManager;
-        }
-
-        // Define on load behavior
-        public void OnLoad(Plugin plugin)
-        {
-            _plugin = plugin;
         }
 
         // Update map menus api handler

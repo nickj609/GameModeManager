@@ -139,7 +139,7 @@ namespace GameModeManager.Core
         }
 
         // Define on match start behavior
-         public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
+        public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
         {
             if (_pluginState.TimeLimitScheduled)
             {

@@ -84,10 +84,7 @@ namespace GameModeManager.Features
                     }
                     else
                     {
-                        // Set mode
                         _pluginState.CurrentMode = _mode;
-
-                        // Update map menus
                         _menuFactory.UpdateMapMenus();
                     }
                 }
@@ -109,7 +106,6 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                // Define variables
                 Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
 
                 if (_mode != null)
@@ -119,7 +115,6 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    // Reply with not found message
                     command.ReplyToCommand($"Can't find mode: {command.ArgByIndex(1)}");
                 }
             }
