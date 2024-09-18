@@ -59,24 +59,12 @@ namespace GameModeManager.Features
                 {
                     if (_status.Equals("enable", StringComparison.OrdinalIgnoreCase)) 
                     {
-                        // Create message
-                        string _message = _localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, _settingName);
-
-                        // Write to chat
-                        Server.PrintToChatAll(_message);
-
-                        // Change game setting
+                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, _settingName));
                         Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_option.Enable}");
                     }
                     else if (_status.Equals("disable", StringComparison.OrdinalIgnoreCase))
                     {
-                        // Create message
-                        string _message = _localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, _settingName);
-
-                        // Write to chat
-                        Server.PrintToChatAll(_message);
-
-                        // Change game setting
+                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, _settingName));
                         Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_option.Disable}");
                     }
                     else
@@ -102,7 +90,6 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                // Open menu
                 _pluginState.SettingsMenu.Title = _localizer.Localize("settings.menu-actions");
                 _menuFactory.OpenMenu(_pluginState.SettingsMenu, _config.Settings.Style, player);
             }

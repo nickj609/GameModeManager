@@ -4,6 +4,7 @@ using GameModeManager.Models;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
+using GameModeManager.Features;
 
 // Declare namespace
 namespace GameModeManager.Core
@@ -13,11 +14,11 @@ namespace GameModeManager.Core
     {
         // Define dependencies
         private Plugin? _plugin;
+        private RTVManager _rtvManager;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private ServerManager _serverManager;
         private WarmupManager _warmupManager;
-        private Config _config = new Config();
         private ILogger<IGameModeApi> _logger;
         private TimeLimitManager _timeLimitManager;
 
@@ -28,20 +29,15 @@ namespace GameModeManager.Core
         
         // Define class instance
         public GameModeApi(PluginState pluginState, ILogger<IGameModeApi> logger, TimeLimitManager timeLimitManager, MenuFactory menuFactory, 
-        ServerManager serverManager, WarmupManager warmupManager)
+        ServerManager serverManager, WarmupManager warmupManager, RTVManager rtvManager)
         {
             _logger = logger;
+            _rtvManager = rtvManager;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
             _serverManager = serverManager;
             _warmupManager = warmupManager;
             _timeLimitManager = timeLimitManager;
-        }
-
-        // Load config
-        public void OnConfigParsed(Config config)
-        {
-            _config = config;
         }
 
         // Define on load behavior
@@ -59,17 +55,20 @@ namespace GameModeManager.Core
         // Trigger rotation api handler
         public void TriggerRotation()
         {
-            if (_plugin != null)
-            {
-                _serverManager.TriggerRotation();
-            }
+            _serverManager.TriggerRotation();
         }
 
         // Enable RTV compatibility api handler
         public void EnableRTV(bool enabled)
         {
-            _pluginState.RTVEnabled = enabled;
-            _config.Rotation.Enabled = !enabled;
+            if(enabled)
+            {
+                _rtvManager.EnableRTV();
+            }
+            else
+            {
+                _rtvManager.DisableRTV();
+            }
         }
 
         // Change map api handler
@@ -78,7 +77,7 @@ namespace GameModeManager.Core
             // Find map
             Map? map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(mapName, StringComparison.OrdinalIgnoreCase));
 
-            if (_plugin != null && map != null)
+            if (map != null)
             {
                 _serverManager.ChangeMap(map);
             }
@@ -94,7 +93,7 @@ namespace GameModeManager.Core
             Map? map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(mapName, StringComparison.OrdinalIgnoreCase));
 
             // Change map
-            if (_plugin != null && map != null)
+            if (map != null)
             {
                 _serverManager.ChangeMap(map, delay);
             }
@@ -117,18 +116,12 @@ namespace GameModeManager.Core
         // Enforce time limit api handlers
         public void EnforceTimeLimit()
         {
-            if(_plugin != null)
-            {
-                _timeLimitManager.EnforceTimeLimit();
-            }
+            _timeLimitManager.EnforceTimeLimit();
         }
 
         public void EnforceTimeLimit(float time)
         {
-            if(_plugin != null)
-            {
-                _timeLimitManager.EnforceTimeLimit(time);
-            }
+            _timeLimitManager.EnforceTimeLimit(time);
         }
 
         // Change mode api handlers
@@ -138,7 +131,7 @@ namespace GameModeManager.Core
             Mode? mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
 
             // Change mode
-            if (mode != null && _plugin != null)
+            if (mode != null)
             {
                 _serverManager.ChangeMode(mode);
             }
@@ -154,7 +147,7 @@ namespace GameModeManager.Core
             Mode? mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
 
             // Change mode
-            if (mode != null && _plugin != null)
+            if (mode != null)
             {
                 _serverManager.ChangeMode(mode, delay);
             }

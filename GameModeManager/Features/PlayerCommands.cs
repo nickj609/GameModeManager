@@ -50,14 +50,12 @@ namespace GameModeManager.Features
         {
             if(player != null && _config.Votes.Enabled && _config.Votes.Maps && !_config.Votes.AllMaps)
             {
-                // Open menu
                 _pluginState.ShowMapMenu.Title = _localizer.Localize("maps.menu-title");
                 _menuFactory.OpenMenu(_pluginState.ShowMapMenu, _config.GameModes.Style, player);
 
             }   
             else if(player != null && _config.Votes.Enabled && _config.Votes.AllMaps)
             {      
-                // Open menu
                 _pluginState.ShowMapsMenu.Title = _localizer.Localize ("modes.menu-title");
                 _menuFactory.OpenMenu(_pluginState.ShowMapsMenu, _config.GameModes.Style, player);
                 
@@ -77,7 +75,6 @@ namespace GameModeManager.Features
             {
                 if(player != null)
                 {
-                    // Open menu
                     _pluginState.ShowModesMenu.Title = _localizer.Localize("modes.menu-title");
                     _menuFactory.OpenMenu(_pluginState.ShowModesMenu, _config.GameModes.Style, player);
                 }
@@ -95,7 +92,6 @@ namespace GameModeManager.Features
         {
             if(player != null && _config.Votes.Enabled && _config.Votes.GameSettings)
             {
-                // Open menu
                 _pluginState.ShowSettingsMenu.Title = _localizer.Localize("settings.menu-title");
                 _menuFactory.OpenMenu(_pluginState.ShowSettingsMenu, _config.Settings.Style, player);
             }
@@ -112,7 +108,6 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                // Open menu
                 _pluginState.GameMenu.Title = _localizer.Localize("game.menu-title");
                 _menuFactory.OpenMenu(_pluginState.GameMenu, _config.Settings.Style, player);
             }
@@ -129,11 +124,7 @@ namespace GameModeManager.Features
         {
             if (player != null)
             {
-                // Create message
-                string _message = _localizer.Localize("currentmap.message", _pluginState.CurrentMap.DisplayName);
-
-                // Write to chat
-                player.PrintToChat(_message);
+                player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.CurrentMap.DisplayName));
             }
             else
             {
@@ -148,11 +139,7 @@ namespace GameModeManager.Features
         {
             if (player != null)
             {
-                // Create message
-                string _message = _localizer.Localize("currentmode.message", _pluginState.CurrentMode.Name);
-
-                // Write to chat
-                player.PrintToChat(_message);
+                player.PrintToChat(_localizer.Localize("currentmode.message", _pluginState.CurrentMode.Name));
             }
             else
             {

@@ -15,7 +15,6 @@ namespace GameModeManager.Features
     public class MapCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin? _plugin;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
@@ -40,22 +39,20 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            _plugin = plugin;
-
             // Enable commands if enabled in the config. 
             if (_config.Commands.Map)
             {
-                _plugin.AddCommand("css_map", "Changes the map to the map specified in the command argument.", OnMapCommand);
+                plugin.AddCommand("css_map", "Changes the map to the map specified in the command argument.", OnMapCommand);
             }
 
             if (_config.Commands.Maps)
             {
-                _plugin.AddCommand("css_maps", "Displays a list of maps from the current mode.", OnMapsCommand);
+                plugin.AddCommand("css_maps", "Displays a list of maps from the current mode.", OnMapsCommand);
             }
 
             if (_config.Commands.AllMaps)
             {
-                _plugin.AddCommand("css_allmaps", "Displays a list of modes and their maps.", OnAllMapsCommand);
+                plugin.AddCommand("css_allmaps", "Displays a list of modes and their maps.", OnAllMapsCommand);
             }
         }
 
@@ -105,21 +102,12 @@ namespace GameModeManager.Features
 
                 if (_foundMap != null)
                 {
-                    // Assign map
                     _newMap = _foundMap; 
                 }
 
-                // Write to chat
+                // Change map
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _newMap.Name));
-
-                if(_plugin != null)
-                {
-                    // Change map
-                    _plugin.AddTimer(_config.Maps.Delay, () => 
-                    {
-                        _serverManager.ChangeMap(_newMap);
-                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-                }
+                _serverManager.ChangeMap(_newMap, _config.Maps.Delay);
             }
             else
             {

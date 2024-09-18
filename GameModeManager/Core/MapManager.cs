@@ -29,7 +29,6 @@ namespace GameModeManager.Core
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
-            // Register event handler
             plugin.RegisterEventHandler<EventMapTransition>(EventMapTransitionHandler);
         }
 

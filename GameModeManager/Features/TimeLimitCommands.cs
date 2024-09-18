@@ -2,8 +2,6 @@
 using GameModeManager.Core;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
-using GameModeManager.CrossCutting;
-using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -15,20 +13,14 @@ namespace GameModeManager.Features
     {
         // Define dependencies
         private Plugin? _plugin;
-        private GameRules _gameRules;
         private PluginState _pluginState;
-        private IStringLocalizer _iLocalizer;
         private Config _config = new Config();
-        private MaxRoundsManager _maxRoundsManager;
         private TimeLimitManager _timeLimitManager;
 
         // Define class instance
-        public EnforceTimeLimitCommand(TimeLimitManager timeLimitManager, PluginState pluginState, GameRules gameRules, IStringLocalizer localizer, MaxRoundsManager maxRoundsManager)
+        public EnforceTimeLimitCommand(TimeLimitManager timeLimitManager, PluginState pluginState)
         {
-            _gameRules = gameRules;
-            _iLocalizer = localizer;
             _pluginState = pluginState;
-            _maxRoundsManager = maxRoundsManager;
             _timeLimitManager = timeLimitManager;
         }
 
@@ -77,8 +69,7 @@ namespace GameModeManager.Features
                     {
                         if (_pluginState.TimeLimitEnabled == true)
                         {
-                            string _message = "Time limit is already enabled. " + GetTimeLimitMessage();
-                            command.ReplyToCommand(_message);
+                            command.ReplyToCommand("Time limit is already enabled. " + _timeLimitManager.GetTimeLimitMessage());
                         }
                         else
                         {
@@ -96,7 +87,6 @@ namespace GameModeManager.Features
                     }
                     else
                     {
-                        // Provide informative error message
                         command.ReplyToCommand("Invalid time limit. Please enter a valid integer.");
                     }
                 }
@@ -104,8 +94,7 @@ namespace GameModeManager.Features
                 {
                     if (_pluginState.TimeLimitEnabled == true)
                     {
-                        string _message = "Time limit is already enabled. " + GetTimeLimitMessage();
-                        command.ReplyToCommand(_message);
+                        command.ReplyToCommand("Time limit is already enabled. " + _timeLimitManager.GetTimeLimitMessage());
                     }
                     else
                     {
@@ -121,8 +110,7 @@ namespace GameModeManager.Features
                             }
                             else
                             {
-                                string _message = GetTimeLimitMessage();
-                                command.ReplyToCommand(_message);
+                                command.ReplyToCommand(_timeLimitManager.GetTimeLimitMessage());
                             }
                         }
                     }
@@ -146,78 +134,7 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnTimeLimitCommand(CCSPlayerController? player, CommandInfo command)
         {
-            // Get timelimit messagge
-            string message = GetTimeLimitMessage();
-
-            // Send message    
-            if (player != null)
-            {
-                command.ReplyToCommand(message);
-            }
-            else
-            {
-                command.ReplyToCommand(message);
-            }
-        }
-        public string GetTimeLimitMessage()
-        {
-            // Define message
-            string _message;
-
-            // Define prefix
-            StringLocalizer _timeLocalizer = new StringLocalizer(_iLocalizer, "timeleft.prefix");
-
-            // If warmup, send general message
-            if (_gameRules.WarmupRunning)
-            {
-                return _timeLocalizer.LocalizeWithPrefix("timeleft.warmup");
-            }
-
-            // Create message based on map conditions
-            if (!_timeLimitManager.UnlimitedTime) // If time not over
-            {
-                if (_timeLimitManager.TimeRemaining > 1)
-                {
-                    // Get remaining time
-                    TimeSpan remaining = TimeSpan.FromSeconds((double)_timeLimitManager.TimeRemaining);
-
-                    // If hours left
-                    if (remaining.Hours > 0)
-                    {
-                        _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
-                    }
-                    else if (remaining.Minutes > 0) // If minutes left
-                    {
-                        _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-time-minute", remaining.Minutes, remaining.Seconds);
-                    }
-                    else // If seconds left
-                    {
-                        _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-time-second", remaining.Seconds);
-                    }
-                }
-                else // If time over
-                {
-                    _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-time-over");
-                }
-            }
-            else if (!_maxRoundsManager.UnlimitedRounds) // If round limit not reached
-            {
-                if (_maxRoundsManager.RemainingRounds > 1) // If remaining rounds more than 1
-                {
-                    _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-rounds", _maxRoundsManager.RemainingRounds);
-                }
-                else // If last round
-                {
-                    _message = _timeLocalizer.LocalizeWithPrefix("timeleft.last-round");
-                }
-            }
-            else // If no time or round limit
-            {
-                _message = _timeLocalizer.LocalizeWithPrefix("timeleft.no-time-limit");
-            }
-
-            // Return message
-            return _message;
+            command.ReplyToCommand(_timeLimitManager.GetTimeLimitMessage());
         }
     }
 }

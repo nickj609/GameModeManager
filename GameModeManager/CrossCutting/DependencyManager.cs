@@ -44,7 +44,6 @@ namespace GameModeManager.CrossCutting
         // Define method to load dependencies
         public void LoadDependencies(Assembly assembly)
         {
-
             var typesToAdd = assembly.GetTypes()
                 .Where(x => x.IsClass)
                 .Where(dependencyType.IsAssignableFrom);

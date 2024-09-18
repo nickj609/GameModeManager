@@ -4,7 +4,6 @@ using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
-using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
@@ -15,26 +14,19 @@ namespace GameModeManager.Core
     {
         // Define dependencies
         private Plugin? _plugin;
-        private GameRules _gameRules;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
-        private IStringLocalizer _iLocalizer;
         private Config _config = new Config();
         private TimeLimitManager _timeLimitManager;
-        private MaxRoundsManager _maxRoundsManager;
 
         // Define class instance
-        public MenuFactory(PluginState pluginState, StringLocalizer stringLocalizer, TimeLimitManager timeLimitManager, 
-        MaxRoundsManager maxRoundsManager, GameRules gameRules, IStringLocalizer iLocalizer, ServerManager serverManager)
+        public MenuFactory(PluginState pluginState, StringLocalizer stringLocalizer, TimeLimitManager timeLimitManager, ServerManager serverManager)
         {
-            _gameRules = gameRules;
-            _iLocalizer = iLocalizer;
             _pluginState = pluginState;
             _localizer = stringLocalizer;
             _serverManager = serverManager;
             _timeLimitManager = timeLimitManager;
-            _maxRoundsManager = maxRoundsManager;
         }
         
         // Load config
@@ -75,10 +67,9 @@ namespace GameModeManager.Core
             // Check if menu type from config is hud or chat menu
             if (menuType.Equals("center", StringComparison.OrdinalIgnoreCase))
             {
-                // Create tmp menu
+                // Create menu
                 CenterHtmlMenu? _hudMenu = menu as CenterHtmlMenu;
 
-                // Open menu
                 if (_hudMenu != null && _plugin != null)
                 {
                     MenuManager.OpenCenterHtmlMenu(_plugin, _player, _hudMenu);
@@ -86,10 +77,9 @@ namespace GameModeManager.Core
             }
             else
             {
-                // Create tmp menu
+                // Create menu
                 ChatMenu? _chatMenu = menu as ChatMenu;
 
-                // Open menu
                 if (_chatMenu != null)
                 {
                     MenuManager.OpenChatMenu(_player, _chatMenu);
@@ -110,15 +100,8 @@ namespace GameModeManager.Core
             {
                 _pluginState.SettingsEnableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
-                    // Create message
-                    string _message = _localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, option.Text);
-                    // Write to chat
-                    Server.PrintToChatAll(_message);
-
-                    // Change game setting
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, option.Text));
                     Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Enable}");
-
-                    // Close menu
                     MenuManager.CloseActiveMenu(player);
                 });
             }
@@ -128,16 +111,8 @@ namespace GameModeManager.Core
             {
                 _pluginState.SettingsDisableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
-                    // Create message
-                    string _message = _localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, option.Text);
-
-                    // Write to chat
-                    Server.PrintToChatAll(_message);
-
-                    // Change game setting
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, option.Text));
                     Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Disable}");
-
-                    // Close menu
                     MenuManager.CloseActiveMenu(player);
                 });
             }
@@ -149,7 +124,6 @@ namespace GameModeManager.Core
 
                 if(player != null)
                 {
-                    // Open sub menu
                     OpenMenu(_pluginState.SettingsEnableMenu, _config.Settings.Style, player);
                 }
             });
@@ -161,9 +135,7 @@ namespace GameModeManager.Core
 
                 if(player != null)
                 {
-                    // Open sub menu
-                    OpenMenu(_pluginState.SettingsDisableMenu, _config.Settings.Style, player);
-                    
+                    OpenMenu(_pluginState.SettingsDisableMenu, _config.Settings.Style, player);   
                 }
             });
             
@@ -185,20 +157,9 @@ namespace GameModeManager.Core
             {
                 _pluginState.ModeMenu.AddMenuOption(_mode.Name, (player, option) =>
                 {
-                    // Create message
-                    string _message = _localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text);
-
-                    // Write to chat
-                    Server.PrintToChatAll(_message);
-
-                    // Close menu
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text));
                     MenuManager.CloseActiveMenu(player);
-
-                    // Change game mode
-                    if(_plugin != null)
-                    {
-                        _serverManager.ChangeMode(_mode);
-                    }
+                    _serverManager.ChangeMode(_mode);
                 });
             }
             // Setup user mode menu
@@ -233,19 +194,9 @@ namespace GameModeManager.Core
                     {
                         subMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                         {
-                            Map _nextMap = _map;
-
-                            // Create message
-                            string _message = _localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _nextMap.Name);
-
-                            // Write to chat
-                            Server.PrintToChatAll(_message);
-
-                            // Close menu
+                            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
                             MenuManager.CloseActiveMenu(player);
-
-                            // Change map
-                            _serverManager.ChangeMap(_nextMap);
+                            _serverManager.ChangeMap(_map);
                         });
                     } 
                     // Open menu
@@ -279,10 +230,7 @@ namespace GameModeManager.Core
                     {
                         subMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                         {
-                            // Close menu
                             MenuManager.CloseActiveMenu(player);
-
-                            // Start vote
                             _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, _map.Name);
                         });
                     }
@@ -303,20 +251,9 @@ namespace GameModeManager.Core
             {
                 _pluginState.MapMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                 {
-                    Map _nextMap = _map;
-
-                    // Create message
-                    string _message = _localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _nextMap.Name);
-
-                    // Write to chat
-                    Server.PrintToChatAll(_message);
-
-                    // Close menu
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
                     MenuManager.CloseActiveMenu(player);
-
-                    // Change map
-                    _serverManager.ChangeMap(_nextMap);
-
+                    _serverManager.ChangeMap(_map);
                 });
             }
 
@@ -368,98 +305,19 @@ namespace GameModeManager.Core
                         case "!currentmode":
                         if (player != null)
                         {
-                            // Create message
-                            string _message = _localizer.Localize("currentmode.message", _pluginState.CurrentMode.Name);
-
-                            // Write to chat
-                            player.PrintToChat(_message);
+                            player.PrintToChat(_localizer.Localize("currentmode.message", _pluginState.CurrentMode.Name));
                         }
                         break;
                         case "!currentmap":
                         if (player != null)
                         {
-                            // Create message
-                            string _message = _localizer.Localize("currentmap.message", _pluginState.CurrentMap.Name);
-
-                            // Write to chat
-                            player.PrintToChat(_message);
+                            player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.CurrentMap.Name));
                         }
                         break;
                         case "!timeleft":
                         if (player != null)
                         {
-                            // Define message
-                            string _message;
-
-                            // Define prefix
-                            StringLocalizer _timeLocalizer = new StringLocalizer(_iLocalizer, "timeleft.prefix");
-
-                            // If warmup, send general message
-                            if (_gameRules.WarmupRunning)
-                            {
-                                if (player != null)
-                                {
-                                    player.PrintToChat(_timeLocalizer.LocalizeWithPrefix("timeleft.warmup"));
-                                }
-                                else
-                                {
-                                    Server.PrintToConsole(_timeLocalizer.LocalizeWithPrefix("timeleft.warmup"));
-                                }
-                                return;
-                            }
-
-                            // Create message based on map conditions
-                            if (!_timeLimitManager.UnlimitedTime) // If time not over
-                            {
-                                if (_timeLimitManager.TimeRemaining > 1)
-                                {
-                                    // Get remaining time
-                                    TimeSpan remaining = TimeSpan.FromSeconds((double)_timeLimitManager.TimeRemaining);
-
-                                    // If hours left
-                                    if (remaining.Hours > 0)
-                                    {
-                                        _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
-                                    }
-                                    else if (remaining.Minutes > 0) // If minutes left
-                                    {
-                                        _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-time-minute", remaining.Minutes, remaining.Seconds);
-                                    }
-                                    else // If seconds left
-                                    {
-                                        _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-time-second", remaining.Seconds);
-                                    }
-                                }
-                                else // If time over
-                                {
-                                    _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-time-over");
-                                }
-                            }
-                            else if (!_maxRoundsManager.UnlimitedRounds) // If round limit not reached
-                            {
-                                if (_maxRoundsManager.RemainingRounds > 1) // If remaining rounds more than 1
-                                {
-                                    _message = _timeLocalizer.LocalizeWithPrefix("timeleft.remaining-rounds", _maxRoundsManager.RemainingRounds);
-                                }
-                                else // If last round
-                                {
-                                    _message = _timeLocalizer.LocalizeWithPrefix("timeleft.last-round");
-                                }
-                            }
-                            else // If no time or round limit
-                            {
-                                _message = _timeLocalizer.LocalizeWithPrefix("timeleft.no-time-limit");
-                            }
-
-                            // Send message    
-                            if (player != null)
-                            {
-                                player.PrintToChat(_message);
-                            }
-                            else
-                            {
-                                Server.PrintToConsole(_message);
-                            }
+                            player.PrintToChat(_timeLimitManager.GetTimeLimitMessage());
                         }
                         break;
                     }

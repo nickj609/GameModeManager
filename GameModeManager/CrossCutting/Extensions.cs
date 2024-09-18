@@ -65,6 +65,7 @@ namespace GameModeManager.CrossCutting
             }
         }
 
+        // Define method to check if server is empty
         public static bool IsServerEmpty()
         {
             return ValidPlayerCount(false) == 0;

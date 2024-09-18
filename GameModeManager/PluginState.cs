@@ -27,6 +27,7 @@ namespace GameModeManager
             _config = config;
             RTVEnabled = _config.RTV.Enabled;
             PerMapWarmup = _config.Warmup.PerMap;
+            RotationsEnabled = _config.Rotation.Enabled; 
         }
 
         // Define static directories (Thanks Kus!)
@@ -60,6 +61,7 @@ namespace GameModeManager
         public bool TimeLimitEnabled = false;
         public Mode CurrentMode = DefaultMode;
         public bool TimeLimitCustom = false;
+        public bool RotationsEnabled = true;
         public bool TimeLimitScheduled = false;
         public Mode WarmupMode = DefaultWarmup;
         public List<Map> Maps = new List<Map>();

@@ -123,27 +123,24 @@ namespace GameModeManager.Core
         //Define reusable methods to schedule warmup mode
         public bool ScheduleWarmup(string modeName)
         {
-            if(_plugin != null)
+            // Find warmup mode
+            Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
+
+            // If found
+            if(warmupMode != null)
+            {   
+                // Set warmup mode
+                _pluginState.WarmupMode = warmupMode;
+
+                // Schedule warmup
+                _pluginState.WarmupScheduled = true;
+
+                return true;
+            } 
+            else // If not found, log warning
             {
-                // Find warmup mode
-                Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
-
-                // If found
-                if(warmupMode != null)
-                {   
-                    // Set warmup mode
-                    _pluginState.WarmupMode = warmupMode;
-
-                    // Schedule warmup
-                    _pluginState.WarmupScheduled = true;
-
-                    return true;
-                } 
-                else // If not found, log warning
-                {
-                    _logger.LogError($"Warmup mode {modeName} not found.");   
-                }           
-            }
+                _logger.LogError($"Warmup mode {modeName} not found.");   
+            }           
             return false;
         }
     }

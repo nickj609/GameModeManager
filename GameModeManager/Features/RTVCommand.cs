@@ -1,8 +1,7 @@
 // Included libraries
-using CounterStrikeSharp.API;
+using GameModeManager.Core;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
-using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Commands;
 
 // Declare namespace
@@ -12,21 +11,14 @@ namespace GameModeManager.Features
     public class RTVCommand : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
+         private RTVManager _rtvManager;
         private PluginState _pluginState;
-        private ILogger<RTVCommand> _logger;
-        private Config _config = new Config();
 
         // Define class instance
-        public RTVCommand(PluginState pluginState, ILogger<RTVCommand> logger)
+        public RTVCommand(PluginState pluginState, RTVManager rtvManager)
         {
-            _logger = logger;
+            _rtvManager = rtvManager;
             _pluginState = pluginState;
-        }
-
-        // Load config
-        public void OnConfigParsed(Config config)
-        {
-            _config = config;
         }
 
         // Define on load behavior
@@ -43,20 +35,11 @@ namespace GameModeManager.Features
             {
                if (command.ArgByIndex(1).Equals("true", StringComparison.OrdinalIgnoreCase) && !_pluginState.RTVEnabled)
                {
-                    _logger.LogInformation($"Enabling RTV...");
-                    Server.ExecuteCommand($"css_plugins load {_config.RTV.Plugin}");
-
-                    _logger.LogInformation($"Disabling game mode and map rotations...");
-                    _pluginState.RTVEnabled = true;
+                    _rtvManager.EnableRTV();
                }
                else if (command.ArgByIndex(1).Equals("false", StringComparison.OrdinalIgnoreCase) && _pluginState.RTVEnabled)
                {
-                
-                    _logger.LogInformation($"Disabling RTV...");
-                    Server.ExecuteCommand($"css_plugins unload {_config.RTV.Plugin}");
-
-                    _logger.LogInformation($"Enabling game mode and map rotations...");
-                    _pluginState.RTVEnabled = false;
+                    _rtvManager.DisableRTV();
                }
                else
                {

@@ -12,7 +12,6 @@ namespace GameModeManager.Features
     public class WarmupCommand : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private Plugin? _plugin;
         private WarmupManager _warmupManager;
 
         // Define class instance
@@ -24,8 +23,7 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            _plugin = plugin;
-            _plugin.AddCommand("css_warmupmode", "Sets current warmup mode.", OnWarmupModeCommand);
+            plugin.AddCommand("css_warmupmode", "Sets current warmup mode.", OnWarmupModeCommand);
         }
 
         // Define admin map menu command handler
@@ -33,19 +31,14 @@ namespace GameModeManager.Features
         [CommandHelper(minArgs: 1, usage: "<mode>",whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnWarmupModeCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(_plugin != null)
+            if(_warmupManager.ScheduleWarmup(command.ArgByIndex(1)))
             {
-                bool enabled = _warmupManager.ScheduleWarmup(command.ArgByIndex(1));
-
-                if(enabled == true)
-                {
-                    command.ReplyToCommand($"Warmup mode enabled.");   
-                } 
-                else
-                {
-                    command.ReplyToCommand($"Warmup mode {command.ArgByIndex(1)} cannot be found."); 
-                }         
-            }
+                command.ReplyToCommand($"Warmup mode enabled.");   
+            } 
+            else
+            {
+                command.ReplyToCommand($"Warmup mode {command.ArgByIndex(1)} cannot be found."); 
+            }         
         }
     }
 }

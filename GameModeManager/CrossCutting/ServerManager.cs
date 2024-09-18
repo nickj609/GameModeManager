@@ -161,7 +161,7 @@ namespace GameModeManager.CrossCutting
         public void TriggerRotation()
         {  
             // Check if rotations are enabled
-            if(_config.Rotation.Enabled)
+            if(_pluginState.RotationsEnabled)
             {
                 // If mode rotations are enabled, change mode on mode interval
                 if (_config.Rotation.ModeRotation && _pluginState.MapRotations != 0 && _pluginState.MapRotations % _config.Rotation.ModeInterval == 0)
@@ -225,7 +225,7 @@ namespace GameModeManager.CrossCutting
                     // Find map group
                     MapGroup? _mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(mapGroup, StringComparison.OrdinalIgnoreCase));
 
-                    // add maps from map group to map list
+                    // Add maps from map group to map list
                     if (_mapGroup != null)
                     {
                         foreach (Map _map in _mapGroup.Maps)

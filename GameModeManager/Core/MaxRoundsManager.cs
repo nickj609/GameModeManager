@@ -145,7 +145,7 @@ namespace GameModeManager.Core
             TWins = oldCtWins;
         }
 
-        // Define method to counrt wins
+        // Define method to count wins
         public void RoundWin(CsTeam team)
         {
             if (team == CsTeam.CounterTerrorist)

@@ -114,13 +114,7 @@ namespace GameModeManager.Features
 
                 if (_mode != null)
                 {
-                    // Create mode message
-                    string _message = _localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name);
-
-                    // Write to chat
-                    Server.PrintToChatAll(_message);
-
-                    // Change mode
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
                     _serverManager.ChangeMode(_mode);
                 }
                 else
@@ -142,7 +136,6 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                // Open menu
                 _pluginState.ModeMenu.Title = _localizer.Localize("modes.menu-title");
                 _menuFactory.OpenMenu(_pluginState.ModeMenu, _config.GameModes.Style, player);
             }
