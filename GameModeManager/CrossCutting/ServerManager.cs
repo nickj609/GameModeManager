@@ -37,6 +37,9 @@ namespace GameModeManager.CrossCutting
             // Disable warmup scheduler
             _pluginState.WarmupScheduled = false;
 
+            // Freeze all players
+            FreezePlayers();
+
             // Display Countdown
             CountdownTimer timer = new CountdownTimer(_config.Maps.Delay, () => 
             {
@@ -59,6 +62,12 @@ namespace GameModeManager.CrossCutting
         // Define reusable method to change map
         public void ChangeMap(Map nextMap, int delay)
         {
+            // Disable warmup scheduler
+            _pluginState.WarmupScheduled = false;
+
+            // Freeze all players
+            FreezePlayers();
+
             // Display Countdown
             CountdownTimer timer = new CountdownTimer(delay, () => 
             {

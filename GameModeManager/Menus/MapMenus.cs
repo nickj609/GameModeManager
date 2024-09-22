@@ -106,8 +106,8 @@ namespace GameModeManager.Menus
             {
                 _pluginState.MapMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                 {
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
                     MenuManager.CloseActiveMenu(player);
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
                     _serverManager.ChangeMap(_map);
                 });
             }
