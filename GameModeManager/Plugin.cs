@@ -1,4 +1,5 @@
 ﻿// Included libraries
+using GameModeManager.Menus;
 using GameModeManager.Core;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
@@ -31,16 +32,16 @@ namespace GameModeManager
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
         // Define dependencies
+        private readonly PlayerMenu _playerMenu;
         private readonly PluginState _pluginState;
         private readonly VoteManager _voteManager;
-        private readonly MenuFactory _menuFactory;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Register dependencies
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager,VoteManager voteManager, MenuFactory menuFactory, PluginState pluginState)
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager,VoteManager voteManager, PlayerMenu playerMenu, PluginState pluginState)
         {
+            _playerMenu = playerMenu;
             _voteManager = voteManager;
-            _menuFactory = menuFactory;
             _pluginState = pluginState;
             _dependencyManager = dependencyManager;
         }
@@ -91,7 +92,7 @@ namespace GameModeManager
             }
             
             // Create game menu
-            _menuFactory.UpdateGameMenu(); 
+            _playerMenu.Load(); 
         }
         // Define method to unload plugin
         public override void Unload(bool hotReload)
