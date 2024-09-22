@@ -1,4 +1,5 @@
 // Included libraries
+using GameModeManager.Timers;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
@@ -11,7 +12,6 @@ namespace GameModeManager.CrossCutting
     public class ServerManager : IPluginDependency<Plugin, Config>
     {
         // Define Dependencies
-        private Plugin? _plugin;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private Config _config = new Config();
@@ -31,130 +31,75 @@ namespace GameModeManager.CrossCutting
             _config = config;
         }
 
-        // Define On Load behavior
-        public void OnLoad(Plugin plugin)
-        {
-            _plugin = plugin;
-        }
-
         // Define reusable method to change map
         public void ChangeMap(Map nextMap)
         {
-            if (_plugin != null)
-            {
-                // Disable warmup scheduler
-                _pluginState.WarmupScheduled = false;
+            // Disable warmup scheduler
+            _pluginState.WarmupScheduled = false;
 
+            // Display Countdown
+            CountdownTimer timer = new CountdownTimer(_config.Maps.Delay, () => 
+            {
                 // Change map
-                _plugin.AddTimer(_config.Maps.Delay, () => 
+                if (Server.IsMapValid(nextMap.Name))
                 {
-                    // If map valid, change map based on map type
-                    if (Server.IsMapValid(nextMap.Name))
-                    {
-                        Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
-                    }
-                    else if (nextMap.WorkshopId != -1)
-                    {
-                        Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
-                    }
-                    else
-                    {
-                        Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
-                    }
-                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-            }
+                    Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
+                }
+                else if (nextMap.WorkshopId != -1)
+                {
+                    Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
+                }
+                else
+                {
+                    Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
+                }
+            }, "Map changing in ");
         }
 
         // Define reusable method to change map
-        public void ChangeMap(Map nextMap, float delay)
+        public void ChangeMap(Map nextMap, int delay)
         {
-            if (_plugin != null)
+            // Display Countdown
+            CountdownTimer timer = new CountdownTimer(delay, () => 
             {
-                // Disable warmup scheduler
-                _pluginState.WarmupScheduled = false;
-
-                _plugin.AddTimer(delay, () => 
+                // Change map
+                if (Server.IsMapValid(nextMap.Name))
                 {
-                    // If map valid, change map based on map type
-                    if (Server.IsMapValid(nextMap.Name))
-                    {
-                        Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
-                    }
-                    else if (nextMap.WorkshopId != -1)
-                    {
-                        Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
-                    }
-                    else
-                    {
-                        Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
-                    }
-                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-            }
+                    Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
+                }
+                else if (nextMap.WorkshopId != -1)
+                {
+                    Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
+                }
+                else
+                {
+                    Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
+                }
+            }, "Map changing in ");
         }
 
         // Define reusable method to change mode
         public void ChangeMode(Mode mode)
         {
-            if (_plugin != null)
+            // Disable warmup scheduler
+            _pluginState.WarmupScheduled = false;
+
+            // Execute mode config
+            Server.ExecuteCommand($"exec {mode.Config}");
+
+            // If no default map, set next map to random map
+            Map nextMap;
+            if (mode.DefaultMap == null) 
             {
-                // Disable warmup scheduler
-                _pluginState.WarmupScheduled = false;
-
-                // Change mode
-                _plugin.AddTimer(_config.GameModes.Delay, () => 
-                {
-                    // Execute mode config
-                    Server.ExecuteCommand($"exec {mode.Config}");
-
-                    // If no default map, set next map to random map
-                    Map nextMap;
-                    if (mode.DefaultMap == null) 
-                    {
-                        nextMap = GetRandomMap();
-                    }
-                    else
-                    {
-                        nextMap = mode.DefaultMap;
-                    }
-
-                    // Change to next map
-                    ChangeMap(nextMap);
-
-                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-
+                nextMap = GetRandomMap();
             }
-        }
-
-        // Define reusable method to change mode with desired map
-        public void ChangeMode(Mode mode, float delay)
-        {
-            if (_plugin != null)
+            else
             {
-                // Disable warmup scheduler
-                _pluginState.WarmupScheduled = false;
-
-                // Change mode
-                _plugin.AddTimer(delay, () => 
-                {
-                    // Execute mode config
-                    Server.ExecuteCommand($"exec {mode.Config}");
-
-                    // If no default map, set next map to random map
-                    Map nextMap;
-                    if (mode.DefaultMap == null) 
-                    {
-                        nextMap = GetRandomMap();
-                    }
-                    else
-                    {
-                        nextMap = mode.DefaultMap;
-                    }
-
-                    // Change to next map
-                    ChangeMap(nextMap);
-
-                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                nextMap = mode.DefaultMap;
             }
+
+            // Change to next map
+            ChangeMap(nextMap);
         }
 
         // Define method to trigger mode and map rotations
@@ -257,5 +202,23 @@ namespace GameModeManager.CrossCutting
             }
             return _randomMap;
         }
+
+        // Define reusable method to freeze all players
+        public void FreezePlayers()
+		{
+            foreach (var player in Extensions.ValidPlayers(true))
+            {
+			    player.Pawn.Value!.Freeze();
+            }
+		}
+
+        // Define reusable method to unfreeze all players
+        public void UnfreezePlayers()
+		{
+            foreach (var player in Extensions.ValidPlayers(true))
+            {
+                player.Pawn.Value!.Unfreeze();
+            }
+		}
     }
 }

@@ -34,7 +34,7 @@ namespace GameModeManager
     // Define map settings
     public class MapSettings
     {
-        public float Delay { get; set; } = 2.0f; // Map change delay in seconds
+        public int Delay { get; set; } = 2; // Map change delay in seconds
         public string Style { get; set; } = "center"; // Changes map menu type 
         public string Default { get; set; } =  "de_dust2"; // Default map on server start
     }
@@ -82,8 +82,7 @@ namespace GameModeManager
     {
         public bool Enabled { get; set; } = true; // Enables game rotations
         public bool WhenServerEmpty { get; set; } = false; // Enables rotation on server empty. 
-        public bool EnforceCustomTimeLimit { get; set; } = false; // Enables or disables custom time limit
-        public int CustomTimeLimit { get; set; } = 120; // Sets custom time limit in seconds
+        public int CustomTimeLimit { get; set; } = 120; // Sets custom time limit in seconds for rotation when server empty
         public int Cycle { get; set; } = 0; // 0 for current mode maps, 1 for all maps, 2 for specific map groups
         public List<string> MapGroups { get; set;} = new List<string>(){"mg_active", "mg_comp"}; // Map group list for cycle 2
         public bool ModeRotation { get; set; } = false; // Enables game mode rotations
@@ -100,7 +99,6 @@ namespace GameModeManager
     // Define game mode settings
     public class GameModeSettings
     {
-        public float Delay { get; set; } = 2.0f; // Game mode change delay in seconds
         public string Style { get; set; } = "center"; // Changes mode menu type (i.e. "chat" or "center")
         public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Casual", Config = "casual.cfg", MapGroups = new List<string>(){"mg_active", "mg_comp"} }; // Default mode on server start
         public string MapGroupFile { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
@@ -112,10 +110,10 @@ namespace GameModeManager
             new ModeEntry() { Name = "ArmsRace", Config = "armsrace.cfg", DefaultMap = "ar_pool_day", MapGroups = new List<string>(){"mg_gg"}},
             new ModeEntry() { Name = "Competitive", Config = "comp.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_comp"}},
             new ModeEntry() { Name = "Wingman", Config = "wingman.cfg", DefaultMap = "de_memento", MapGroups = new List<string>(){"mg_active", "mg_comp"}},
-            new ModeEntry() { Name = "Practice", Config = "prac.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_prac"}},
+            new ModeEntry() { Name = "Practice", Config = "prac.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_comp"}},
             new ModeEntry() { Name = "Prefire", Config = "prefire.cfg", DefaultMap = "de_inferno", MapGroups = new List<string>(){"mg_comp"} },
-            new ModeEntry() { Name = "Retakes", Config = "retake.cfg",  DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_retake"}},
-            new ModeEntry() { Name = "Executes", Config = "executes.cfg", DefaultMap = "de_mirage", MapGroups = new List<string>(){"mg_executes"}},
+            new ModeEntry() { Name = "Retakes", Config = "retake.cfg",  DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_comp"}},
+            new ModeEntry() { Name = "Executes", Config = "executes.cfg", DefaultMap = "de_mirage", MapGroups = new List<string>(){"mg_comp"}},
             new ModeEntry() { Name = "Casual 1.6", Config = "Casual-1.6.cfg", DefaultMap = "3212419403", MapGroups = new List<string>(){"mg_active", "mg_comp"} },
             new ModeEntry() { Name = "Deathmatch Multicfg", Config = "dm-multicfg.cfg", DefaultMap = "de_mirage", MapGroups = new List<string>(){"mg_dm"}},
             new ModeEntry() { Name = "GG", Config = "gg.cfg", DefaultMap = "ar_pool_day", MapGroups = new List<string>(){"mg_gg"}},

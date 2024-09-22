@@ -41,10 +41,6 @@ namespace GameModeManager.Features
                {
                     _rtvManager.DisableRTV();
                }
-               else
-               {
-                    command.ReplyToCommand($"Unexpected argument: {command.ArgByIndex(1)}");
-               }
             }
         }
     }

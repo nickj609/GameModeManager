@@ -1,5 +1,6 @@
 // Included libraries
 using GameModeManager.Core;
+using GameModeManager.Menus;
 using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
@@ -16,9 +17,10 @@ namespace GameModeManager.Features
     public class ModeCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
+        private MapMenus _mapMenus;
         private MapManager _mapManager;
-        private PluginState _pluginState;
         private MenuFactory _menuFactory;
+        private PluginState _pluginState;
         private VoteManager _voteManager;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
@@ -27,9 +29,10 @@ namespace GameModeManager.Features
 
         // Define class instance
         public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, 
-        MapManager mapManager, VoteManager voteManager, ILogger<ModeCommands> logger, ServerManager serverManager)
+        MapManager mapManager, VoteManager voteManager, ILogger<ModeCommands> logger, ServerManager serverManager, MapMenus mapMenus)
         {
             _logger = logger;
+            _mapMenus = mapMenus;
             _localizer = localizer;
             _mapManager = mapManager;
             _pluginState = pluginState;
@@ -53,7 +56,7 @@ namespace GameModeManager.Features
         }
 
         // Define server game mode command handler
-        [CommandHelper(minArgs: 1, usage: "<comp>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "[comp]", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnGameModeCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player == null) 
@@ -77,7 +80,7 @@ namespace GameModeManager.Features
 
                         // Update RTV map list and map menus
                         _mapManager.UpdateRTVMapList();
-                        _menuFactory.UpdateMapMenus();
+                        _mapMenus.UpdateMapMenus();
         
                         // Register map votes for new mode
                         _voteManager.RegisterMapVotes();
@@ -85,7 +88,7 @@ namespace GameModeManager.Features
                     else
                     {
                         _pluginState.CurrentMode = _mode;
-                        _menuFactory.UpdateMapMenus();
+                        _mapMenus.UpdateMapMenus();
                     }
                 }
                 else
@@ -93,15 +96,11 @@ namespace GameModeManager.Features
                     command.ReplyToCommand($"Unable to find game mode {command.ArgByIndex(1)}.");
                 }
             }
-            else
-            {
-                command.ReplyToCommand("css_mode is a server only command.");
-            }
         }
 
         // Define admin change mode command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 1, usage: "<mode>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "[mode]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnModeCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(player != null)
@@ -118,10 +117,6 @@ namespace GameModeManager.Features
                     command.ReplyToCommand($"Can't find mode: {command.ArgByIndex(1)}");
                 }
             }
-            else
-            {
-                command.ReplyToCommand("css_mode is a client only command.");
-            }
         }
 
         // Define admin mode menu command handler
@@ -132,11 +127,7 @@ namespace GameModeManager.Features
             if(player != null)
             {
                 _pluginState.ModeMenu.Title = _localizer.Localize("modes.menu-title");
-                _menuFactory.OpenMenu(_pluginState.ModeMenu, _config.GameModes.Style, player);
-            }
-            else if (player == null)
-            {
-                command.ReplyToCommand("css_modes is a client only command.");
+                _menuFactory.OpenMenu(_pluginState.ModeMenu, player);
             }
         }
     }

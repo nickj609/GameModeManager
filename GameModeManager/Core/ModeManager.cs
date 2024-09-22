@@ -1,4 +1,5 @@
 // Included libraries
+using GameModeManager.Menus;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
@@ -11,18 +12,20 @@ namespace GameModeManager.Core
     {
        // Define dependencies
         private PluginState _pluginState;
+        private readonly MapMenus _mapMenus;
         private ILogger<ModeManager> _logger;
+        private readonly ModeMenus _modeMenus;
         private Config _config = new Config();
         private readonly MapManager _mapManager;
-        private readonly MenuFactory _menuFactory;
 
         // Define class instance
-        public ModeManager(PluginState pluginState, MenuFactory menuFactory, MapManager mapManager, ILogger<ModeManager> logger)
+        public ModeManager(PluginState pluginState, ModeMenus modeMenus, MapMenus mapMenus, MapManager mapManager, ILogger<ModeManager> logger)
         {
             _logger = logger;
+            _mapMenus = mapMenus;
+            _modeMenus = modeMenus;
             _mapManager = mapManager;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
         }
 
         // Load config
@@ -90,8 +93,8 @@ namespace GameModeManager.Core
             }
 
             // Create mode menus
-            _menuFactory.CreateModeMenus();
-            _menuFactory.CreateMapMenus();
+            _mapMenus.Load();
+            _modeMenus.Load();
 
             // Create RTV map list
             _mapManager.UpdateRTVMapList();

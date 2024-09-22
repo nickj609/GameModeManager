@@ -1,5 +1,4 @@
 // Included libraries
-using GameModeManager.Core;
 using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
@@ -64,11 +63,7 @@ namespace GameModeManager.Features
             if(player != null)
             {
                 _pluginState.MapMenu.Title = _localizer.Localize("maps.menu-title");
-                _menuFactory.OpenMenu(_pluginState.MapMenu, _config.GameModes.Style, player);
-            }
-            else
-            {
-                command.ReplyToCommand("css_maps is a client only command.");
+                _menuFactory.OpenMenu(_pluginState.MapMenu, player);
             }
         }
 
@@ -81,24 +76,20 @@ namespace GameModeManager.Features
             if(player != null)
             {
                 _pluginState.MapsMenu.Title = _localizer.Localize("modes.menu-title");
-                _menuFactory.OpenMenu(_pluginState.MapsMenu, _config.GameModes.Style, player);
-            }
-            else
-            {
-                command.ReplyToCommand("css_maps is a client only command.");
+                _menuFactory.OpenMenu(_pluginState.MapsMenu, player);
             }
         }
 
         // Define admin change map command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 1, usage: "<map_name> optional: <workshop id>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "[map name] optional: [workshop id]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(player != null)
             {
                 // Find map
                 Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
-                Map? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase));
+                Map? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || g.WorkshopId.ToString().Equals("{command.ArgByIndex(2)}", StringComparison.OrdinalIgnoreCase));
 
                 if (_foundMap != null)
                 {
@@ -108,10 +99,6 @@ namespace GameModeManager.Features
                 // Change map
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _newMap.Name));
                 _serverManager.ChangeMap(_newMap, _config.Maps.Delay);
-            }
-            else
-            {
-                command.ReplyToCommand("css_map is a client only command.");
             }
         }
     }

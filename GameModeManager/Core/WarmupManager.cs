@@ -110,7 +110,6 @@ namespace GameModeManager.Core
             return HookResult.Continue;
         }
 
-
         //Define reusable methods to schedule warmup mode
         public bool ScheduleWarmup(string modeName)
         {

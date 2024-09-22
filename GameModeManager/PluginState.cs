@@ -79,12 +79,12 @@ namespace GameModeManager
         public BaseMenu MapMenu = new ChatMenu("Map List");
         public BaseMenu MapsMenu = new ChatMenu("Map List");
         public BaseMenu ModeMenu = new ChatMenu("Mode List");
-        public BaseMenu ShowMapMenu = new ChatMenu("Map List");
+        public BaseMenu VoteMapMenu = new ChatMenu("Map List");
         public BaseMenu GameMenu = new ChatMenu("Command List");
-        public BaseMenu ShowMapsMenu = new ChatMenu("Map List");
-        public BaseMenu ShowModesMenu = new ChatMenu("Mode List");
+        public BaseMenu VoteMapsMenu = new ChatMenu("Map List");
+        public BaseMenu VoteModesMenu = new ChatMenu("Mode List");
         public BaseMenu SettingsMenu = new ChatMenu("Setting Actions");
-        public BaseMenu ShowSettingsMenu = new ChatMenu("Settings List");
+        public BaseMenu VoteSettingsMenu = new ChatMenu("Settings List");
         public BaseMenu SettingsEnableMenu = new ChatMenu("Settings List");
         public BaseMenu SettingsDisableMenu = new ChatMenu("Settings List");
 

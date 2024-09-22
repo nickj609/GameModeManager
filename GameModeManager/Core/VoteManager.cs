@@ -1,4 +1,5 @@
 // Included libraries
+using GameModeManager.Menus;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
@@ -20,17 +21,17 @@ namespace GameModeManager.Core
         private bool GameModeVote = false;
 
         // Define dependencies
+        private PlayerMenu _playerMenu;
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private Config _config = new Config();
 
         // Define class instance
-        public VoteManager(PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer)
+        public VoteManager(PluginState pluginState, PlayerMenu playerMenu, StringLocalizer localizer)
         {
             _localizer = localizer;
+            _playerMenu = playerMenu;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
         }
 
         // Load config
@@ -158,7 +159,7 @@ namespace GameModeManager.Core
                 ); 
             }
             _pluginState.PlayerCommands.Add("!changemap");
-            _menuFactory.UpdateGameMenu();
+            _playerMenu.Load();
             MapVote = true;
         }
 
@@ -175,7 +176,7 @@ namespace GameModeManager.Core
                 
                 // Remove vote from command list
                 _pluginState.PlayerCommands.Remove("!changemap");
-                _menuFactory.UpdateGameMenu();
+                _playerMenu.Load();
                 MapVote = false;
             }
         }

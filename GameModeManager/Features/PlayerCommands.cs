@@ -1,8 +1,8 @@
 // Included libraries
-using GameModeManager.Core;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -19,11 +19,11 @@ namespace GameModeManager.Features
         private Config _config = new Config();
 
         // Define class instance
-        public PlayerCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory)
+        public PlayerCommands(PluginState pluginState, IStringLocalizer iLocalizer, MenuFactory menuFactory)
         {
-            _localizer = localizer;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
+            _localizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
         }
 
         // Load config
@@ -50,20 +50,16 @@ namespace GameModeManager.Features
         {
             if(player != null && _config.Votes.Enabled && _config.Votes.Maps && !_config.Votes.AllMaps)
             {
-                _pluginState.ShowMapMenu.Title = _localizer.Localize("maps.menu-title");
-                _menuFactory.OpenMenu(_pluginState.ShowMapMenu, _config.GameModes.Style, player);
+                _pluginState.VoteMapMenu.Title = _localizer.Localize("maps.menu-title");
+                _menuFactory.OpenMenu(_pluginState.VoteMapMenu, player);
 
             }   
             else if(player != null && _config.Votes.Enabled && _config.Votes.AllMaps)
             {      
-                _pluginState.ShowMapsMenu.Title = _localizer.Localize ("modes.menu-title");
-                _menuFactory.OpenMenu(_pluginState.ShowMapsMenu, _config.GameModes.Style, player);
+                _pluginState.VoteMapsMenu.Title = _localizer.Localize ("modes.menu-title");
+                _menuFactory.OpenMenu(_pluginState.VoteMapsMenu, player);
                 
-            } 
-            else
-            {
-                command.ReplyToCommand("css_showmaps is a client only command.");
-            }                
+            }              
         }
 
         // Define show maps menu command handler
@@ -75,13 +71,9 @@ namespace GameModeManager.Features
             {
                 if(player != null)
                 {
-                    _pluginState.ShowModesMenu.Title = _localizer.Localize("modes.menu-title");
-                    _menuFactory.OpenMenu(_pluginState.ShowModesMenu, _config.GameModes.Style, player);
-                }
-                else if (player == null)
-                {
-                    command.ReplyToCommand("css_showmodes is a client only command.");
-                }  
+                    _pluginState.VoteModesMenu.Title = _localizer.Localize("modes.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.VoteModesMenu, player);
+                } 
             }
         }
 
@@ -92,12 +84,8 @@ namespace GameModeManager.Features
         {
             if(player != null && _config.Votes.Enabled && _config.Votes.GameSettings)
             {
-                _pluginState.ShowSettingsMenu.Title = _localizer.Localize("settings.menu-title");
-                _menuFactory.OpenMenu(_pluginState.ShowSettingsMenu, _config.Settings.Style, player);
-            }
-            else if (player == null)
-            {
-                command.ReplyToCommand("css_showsettings is a client only command.");
+                _pluginState.VoteSettingsMenu.Title = _localizer.Localize("settings.menu-title");
+                _menuFactory.OpenMenu(_pluginState.VoteSettingsMenu, player);
             }
         }
 
@@ -109,11 +97,7 @@ namespace GameModeManager.Features
             if(player != null)
             {
                 _pluginState.GameMenu.Title = _localizer.Localize("game.menu-title");
-                _menuFactory.OpenMenu(_pluginState.GameMenu, _config.Settings.Style, player);
-            }
-            else
-            {
-                command.ReplyToCommand("css_game is a client only command.");
+                _menuFactory.OpenMenu(_pluginState.GameMenu, player);
             }
         }
 
@@ -126,10 +110,6 @@ namespace GameModeManager.Features
             {
                 player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.CurrentMap.DisplayName));
             }
-            else
-            {
-                command.ReplyToCommand("css_game is a client only command.");
-            }
         }
 
         // Define current mode command handler
@@ -140,10 +120,6 @@ namespace GameModeManager.Features
             if (player != null)
             {
                 player.PrintToChat(_localizer.Localize("currentmode.message", _pluginState.CurrentMode.Name));
-            }
-            else
-            {
-                command.ReplyToCommand("css_game is a client only command.");
             }
         } 
     }

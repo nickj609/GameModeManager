@@ -2,6 +2,8 @@
 using GameModeManager.Core;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
+using GameModeManager.CrossCutting;
+using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -14,13 +16,17 @@ namespace GameModeManager.Features
         // Define dependencies
         private PluginState _pluginState;
         private Config _config = new Config();
+        private StringLocalizer _timeLeftLocalizer;
         private TimeLimitManager _timeLimitManager;
+        private StringLocalizer _timeLimitLocalizer;
 
         // Define class instance
-        public EnforceTimeLimitCommand(TimeLimitManager timeLimitManager, PluginState pluginState)
+        public EnforceTimeLimitCommand(TimeLimitManager timeLimitManager, PluginState pluginState, IStringLocalizer iLocalizer)
         {
             _pluginState = pluginState;
             _timeLimitManager = timeLimitManager;
+            _timeLeftLocalizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
+            _timeLimitLocalizer = new StringLocalizer(iLocalizer, "timelimit.prefix");
         }
 
         // Load config
@@ -36,7 +42,7 @@ namespace GameModeManager.Features
 
             if (_config.Commands.TimeLeft)
             {
-                plugin.AddCommand("timeleft", "Prints in the chat the timeleft in the current map", OnTimeLimitCommand);
+                plugin.AddCommand("timeleft", "Prints in the chat the timeleft in the current map", OnTimeLeftCommand);
             }
         }
 
@@ -45,14 +51,6 @@ namespace GameModeManager.Features
         [CommandHelper(minArgs: 1, usage: "<true|false> optional: [seconds]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnEnforceTimeLimitCommand(CCSPlayerController? player, CommandInfo command)
         {
-            // Validate argument count
-            if (command.ArgCount < 1 || command.ArgCount > 2)
-            {
-                // Provide informative error message
-                command.ReplyToCommand("Invalid usage. Please use: /enforcetimelimit <true|false> [seconds]");
-                return;
-            }
-
             // Parse boolean argument
             bool enforceTimeLimit = bool.TryParse(command.ArgByIndex(1), out var parsedValue) ? parsedValue : false;
 
@@ -60,14 +58,14 @@ namespace GameModeManager.Features
             if (enforceTimeLimit)
             {
                 // Check if a time limit is provided
-                if (command.ArgCount == 2)
+                if (command.ArgCount == 3)
                 {
                     // Parse integer argument, handling potential exceptions
                     if (int.TryParse(command.ArgByIndex(2), out var seconds))
                     {
                         if (_pluginState.TimeLimitEnabled == true)
                         {
-                            command.ReplyToCommand("Time limit is already enabled. " + _timeLimitManager.GetTimeLimitMessage());
+                            command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.enabled-error"));
                         }
                         else
                         {
@@ -79,20 +77,21 @@ namespace GameModeManager.Features
                             }
                             else
                             {
-                                _timeLimitManager.EnforceTimeLimit(seconds);
+                                _timeLimitManager.EnableTimeLimit(seconds);
+                                command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.enabled"));
                             }
                         }
                     }
                     else
                     {
-                        command.ReplyToCommand("Invalid time limit. Please enter a valid integer.");
+                        command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.value-error"));
                     }
                 }
                 else
                 {
                     if (_pluginState.TimeLimitEnabled == true)
                     {
-                        command.ReplyToCommand("Time limit is already enabled. " + _timeLimitManager.GetTimeLimitMessage());
+                        command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.enabled-error"));
                     }
                     else
                     {
@@ -104,11 +103,12 @@ namespace GameModeManager.Features
                         {
                             if (_timeLimitManager.TimePlayed != 0 && _timeLimitManager.TimeRemaining != 0)
                             {
-                                _timeLimitManager.EnforceTimeLimit();
+                                _timeLimitManager.EnableTimeLimit();
+                                command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.enabled"));
                             }
                             else
                             {
-                                command.ReplyToCommand(_timeLimitManager.GetTimeLimitMessage());
+                                command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix(_timeLimitManager.GetTimeLeftMessage()));
                             }
                         }
                     }
@@ -118,21 +118,21 @@ namespace GameModeManager.Features
             {
                 if(_pluginState.TimeLimitEnabled == true)
                 {
-                    _timeLimitManager.RemoveTimeLimit();
-                    command.ReplyToCommand("Time limit is disabled.");
+                    _timeLimitManager.DisableTimeLimit();
+                    command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.disabled"));
                 }
                 else
                 {
-                    command.ReplyToCommand("Time limit is already disabled.");
+                    command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.disabled-error"));
                 }
             }
         }
 
         // Define time limit command handler
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        public void OnTimeLimitCommand(CCSPlayerController? player, CommandInfo command)
+        public void OnTimeLeftCommand(CCSPlayerController? player, CommandInfo command)
         {
-            command.ReplyToCommand(_timeLimitManager.GetTimeLimitMessage());
+            command.ReplyToCommand(_timeLeftLocalizer.LocalizeWithPrefix(_timeLimitManager.GetTimeLeftMessage()));
         }
     }
 }

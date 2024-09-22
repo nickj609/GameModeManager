@@ -1,4 +1,5 @@
 // Included libraries
+using GameModeManager.Menus;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
@@ -14,14 +15,14 @@ namespace GameModeManager.Core
         private PluginState _pluginState;
         private Config _config = new Config();
         private ILogger<SettingsManager> _logger;
-        private readonly MenuFactory _menuFactory;
+        private readonly SettingMenus _settingMenus;
 
         // Define class instance
-        public SettingsManager(PluginState pluginState, ILogger<SettingsManager> logger, MenuFactory menufactory)
+        public SettingsManager(PluginState pluginState, ILogger<SettingsManager> logger, SettingMenus settingMenus)
         {
             _logger = logger;
             _pluginState = pluginState;
-            _menuFactory = menufactory;
+            _settingMenus = settingMenus;
         }
 
         // Load config
@@ -96,7 +97,7 @@ namespace GameModeManager.Core
                 }
             }
             // Create settings menus
-            _menuFactory.CreateSettingsMenus();
+            _settingMenus.Load();
         }
     }
 }

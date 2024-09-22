@@ -4,6 +4,7 @@ using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
+using TimerFlags = CounterStrikeSharp.API.Modules.Timers.TimerFlags;
  
 // Declare namespace
 namespace GameModeManager.Core
@@ -12,15 +13,15 @@ namespace GameModeManager.Core
     public class RotationManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
+        bool _rotationEnabled = false;
+        private Timer? _rotationTimer;
         private ServerManager _serverManager;
         private Config _config = new Config();
-        private TimeLimitManager _timeLimitManager;
 
         // Define class instance
-        public RotationManager(TimeLimitManager timeLimitManager, ServerManager serverManager)
+        public RotationManager(ServerManager serverManager)
         {
             _serverManager = serverManager;
-            _timeLimitManager = timeLimitManager;
         }
         
         // Load config
@@ -59,7 +60,7 @@ namespace GameModeManager.Core
                         _serverManager.TriggerScheduleChange(entry);
                         delay = targetTime.AddDays(1) - DateTime.Now;  
                         
-                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT);
+                    },TimerFlags.REPEAT);
                 }
             }
         }    
@@ -74,10 +75,7 @@ namespace GameModeManager.Core
         // Define event player connect full handler
         public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
         {
-             if(!Extensions.IsServerEmpty())
-            {
-                _timeLimitManager.RemoveTimeLimit();
-            }
+            _rotationTimer?.Kill();
             return HookResult.Continue;
         }
 
@@ -89,23 +87,21 @@ namespace GameModeManager.Core
             {
                 if(Extensions.IsServerEmpty())
                 {
+                    // Disable server hibernation
                     if(!Extensions.IsHibernationEnabled())
                     {
                         Server.ExecuteCommand("sv_hibernate_when_empty false");
                     }
 
-                    // Check if custom time limit set
-                    if(_config.Rotation.EnforceCustomTimeLimit)
+                    // Create timer
+                    if(!_rotationEnabled)
                     {
-                        _timeLimitManager.EnforceTimeLimit(_config.Rotation.CustomTimeLimit);
-                    }
-                    else
-                    {
-                        // Check if map has an unlimited time set
-                        if(_timeLimitManager.TimeRemaining != 0)
+                        _rotationEnabled = true;
+                        _rotationTimer = new Timer(_config.Rotation.CustomTimeLimit, () =>
                         {
-                            _timeLimitManager.EnforceTimeLimit();
-                        }
+                            _serverManager.TriggerRotation();
+                            _rotationEnabled = false;
+                        },TimerFlags.REPEAT);
                     }
                 }
             }

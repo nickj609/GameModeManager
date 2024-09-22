@@ -1,5 +1,4 @@
 // Included libraries
-using GameModeManager.Core;
 using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
@@ -43,7 +42,7 @@ namespace GameModeManager.Features
 
         // Define admin change setting command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 2, usage: "<enable|disable> <setting name>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "[enable|disable] [setting name]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(player != null)
@@ -77,10 +76,6 @@ namespace GameModeManager.Features
                     command.ReplyToCommand($"Can't find setting: {_settingName}");
                 }
             }
-            else
-            {
-                command.ReplyToCommand("css_settings is a client only command.");
-            }
         }
 
         // Define admin setting menu command handler
@@ -91,11 +86,7 @@ namespace GameModeManager.Features
             if(player != null)
             {
                 _pluginState.SettingsMenu.Title = _localizer.Localize("settings.menu-actions");
-                _menuFactory.OpenMenu(_pluginState.SettingsMenu, _config.Settings.Style, player);
-            }
-            else
-            {
-                command.ReplyToCommand("css_settings is a client only command.");
+                _menuFactory.OpenMenu(_pluginState.SettingsMenu, player);
             }
         }
     }
