@@ -29,5 +29,11 @@
   "timeleft.no-time-limit": "Er is geen tijdslimiet",
   "timeleft.remaining-last-round": "Dit is de laatste ronde",
   "timeleft.remaining-time-over": "De tijd is om, dit is de laatste ronde",
-  "timeleft.warmup": "Commando uitgeschakeld tijdens opwarmen."
+  "timeleft.warmup": "Commando uitgeschakeld tijdens opwarmen.",
+  "timelimit.enabled": "Tijdslimiet {GREEN}ingeschakeld{DEFAULT}.",
+  "timelimit.disabled": "Tijdslimiet {RED}uitgeschakeld{DEFAULT}.",
+  "timelimit.enabled-error": "De tijdslimiet is al {GREEN}ingeschakeld{DEFAULT}.",
+  "timelimit.disabled-error": "De tijdslimiet is al {RED}uitgeschakeld{DEFAULT}.",
+  "timelimit.value-error": "Ongeldige tijdslimiet. Voer een geldig geheel getal in.",
+  "timelimit.prefix": "{RED}[Tijdslimiet]{DEFAULT}"
   }

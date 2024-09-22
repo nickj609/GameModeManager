@@ -29,5 +29,11 @@
   "timeleft.no-time-limit": "Обмежень часу немає",
   "timeleft.last-round": "Це останній раунд",
   "timeleft.time-over": "Час вичерпано, це останній раунд",
-  "timeleft.warmup": "Команда вимкнена під час розігріву"
+  "timeleft.warmup": "Команда вимкнена під час розігріву",
+  "timelimit.enabled": "Обмеження часу {GREEN}активовано{DEFAULT}.",
+  "timelimit.disabled": "Обмеження часу {RED}деактивовано{DEFAULT}.",
+  "timelimit.enabled-error": "Обмеження часу вже {GREEN}активовано{DEFAULT}.",
+  "timelimit.disabled-error": "Обмеження часу вже {RED}деактивовано{DEFAULT}.",
+  "timelimit.value-error": "Неправильне обмеження часу. Будь ласка, введіть правильне ціле число.",
+  "timelimit.prefix": "{RED}[Обмеження часу]{DEFAULT}"
   }

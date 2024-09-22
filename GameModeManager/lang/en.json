@@ -21,7 +21,7 @@
   "setting.vote.menu-title": "Change setting {GOLD}{0}{DEFAULT}?",
   "settings.menu-actions": "Setting Actions",
   "settings.menu-title": "Setting List",
-  "timeleft.prefix": "{red}[Timeleft]{default}",
+  "timeleft.prefix": "{RED}[Timeleft]{DEFAULT}",
   "timeleft.remaining-rounds": "{0} round(s) remaining",
   "timeleft.remaining-time-hour": "Remaining time {0}:{1}:{2}",
   "timeleft.remaining-time-minute": "Remaining time {0} minute(s) and {1} second(s)",
@@ -29,5 +29,11 @@
   "timeleft.no-time-limit": "There is no time limit",
   "timeleft.remaining-last-round": "This is the last round",
   "timeleft.remaining-time-over": "Time is over, this is the last round",
-  "timeleft.warmup": "Command disabled during warmup."
+  "timeleft.warmup": "Command disabled during warmup.",
+  "timelimit.enabled": "Time limit {GREEN}Enabled{DEFAULT}.",
+  "timelimit.disabled": "Time limit {RED}Disabled{DEFAULT}.",
+  "timelimit.enabled-error": "Time limit is already {GREEN}Enabled{DEFAULT}.",
+  "timelimit.disabled-error": "Time limit is already {RED}Disabled{DEFAULT}.",
+  "timelimit.value-error": "Invalid time limit. Please enter a valid integer.",
+  "timelimit.prefix": "{RED}[Timelimit]{DEFAULT}"
 }

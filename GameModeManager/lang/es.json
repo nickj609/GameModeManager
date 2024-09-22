@@ -29,5 +29,11 @@
   "timeleft.no-time-limit": "No hay límite de tiempo",
   "timeleft.remaining-last-round": "Esta es la última ronda",
   "timeleft.remaining-time-over": "El tiempo ha terminado, esta es la última ronda",
-  "timeleft.warmup": "Comando deshabilitado durante el calentamiento."
+  "timeleft.warmup": "Comando deshabilitado durante el calentamiento.",
+  "timelimit.enabled": "Límite de tiempo {GREEN}activado{DEFAULT}.",
+  "timelimit.disabled": "Límite de tiempo {RED}desactivado{DEFAULT}.",
+  "timelimit.enabled-error": "El límite de tiempo ya está {GREEN}habilitado{DEFAULT}.",
+  "timelimit.disabled-error": "El límite de tiempo ya está {RED}deshabilitado{DEFAULT}.",
+  "timelimit.value-error": "Límite de tiempo no válido. Por favor, ingrese un número entero válido.",
+  "timelimit.prefix": "{RED}[Límite de tiempo]{DEFAULT}"
   }

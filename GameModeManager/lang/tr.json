@@ -29,5 +29,11 @@
   "timeleft.no-time-limit": "Zaman sınırı yok",
   "timeleft.last-round": "Bu son tur",
   "timeleft.time-over": "Zaman bitti, bu son tur",
-  "timeleft.warmup": "Isınma sırasında komut devre dışı bırakıldı."
+  "timeleft.warmup": "Isınma sırasında komut devre dışı bırakıldı.",
+  "timelimit.enabled": "Süre sınırı {GREEN}etkin{DEFAULT}.",
+  "timelimit.disabled": "Süre sınırı {RED}devre dışı{DEFAULT}.",
+  "timelimit.enabled-error": "Zaman sınırı zaten {GREEN}etkin{DEFAULT}.",
+  "timelimit.disabled-error": "Zaman sınırı zaten {RED}devre dışı{DEFAULT}.",
+  "timelimit.value-error": "Geçersiz zaman sınırı. Lütfen geçerli bir tamsayı girin.",
+  "timelimit.prefix": "{RED}[Süre sınırı]{DEFAULT}"
   }

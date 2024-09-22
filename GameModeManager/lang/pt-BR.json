@@ -29,5 +29,11 @@
   "timeleft.no-time-limit": "Não há limite de tempo",
   "timeleft.last-round": "Esta é a última rodada",
   "timeleft.time-over": "O tempo acabou, esta é a última rodada",
-  "timeleft.warmup": "Comando desativado durante o aquecimento."
+  "timeleft.warmup": "Comando desativado durante o aquecimento.",
+  "timelimit.enabled": "Limite de tempo {GREEN}ativado{DEFAULT}.",
+  "timelimit.disabled": "Limite de tempo {RED}desativado{DEFAULT}.",
+  "timelimit.enabled-error": "O limite de tempo já está {GREEN}ativado{DEFAULT}.",
+  "timelimit.disabled-error": "O limite de tempo já está {RED}desativado{DEFAULT}.",
+  "timelimit.value-error": "Limite de tempo inválido. Por favor, insira um número inteiro válido.",
+  "timelimit.prefix": "{RED}[Limite de tempo]{DEFAULT}"
   }

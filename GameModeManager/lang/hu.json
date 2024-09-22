@@ -29,5 +29,11 @@
   "timeleft.no-time-limit": "Nincs időkorlát",
   "timeleft.remaining-last-round": "Ez az utolsó forduló",
   "timeleft.remaining-time-over": "Lejárt az idő, ez az utolsó forduló",
-  "timeleft.warmup": "Bemelegítés alatt nem használható ez a parancs."
+  "timeleft.warmup": "Bemelegítés alatt nem használható ez a parancs.",
+  "timelimit.enabled": "Időkorlát {GREEN}aktiválva{DEFAULT}.",
+  "timelimit.disabled": "Időkorlát {RED}deaktiválva{DEFAULT}.",
+  "timelimit.enabled-error": "Az időkorlát már {GREEN}aktiválva van{DEFAULT}.",
+  "timelimit.disabled-error": "Az időkorlát már {RED}inaktív{DEFAULT}.",
+  "timelimit.value-error": "Érvénytelen időkorlát. Kérjük, adjon meg egy érvényes egész számot.",
+  "timelimit.prefix": "{RED}[Időkorlát]{DEFAULT}"
   }

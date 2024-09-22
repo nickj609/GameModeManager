@@ -29,5 +29,11 @@
   "timeleft.no-time-limit": "Nav laika limita",
   "timeleft.last-round": "Šis ir pēdējais raunds",
   "timeleft.time-over": "Laiks ir beidzies, šis ir pēdējāis raunds",
-  "timeleft.warmup": "Komanda nav pieejama warmup laikā."
+  "timeleft.warmup": "Komanda nav pieejama warmup laikā.",
+  "timelimit.enabled": "Laika ierobežojums {GREEN}aktivēts{DEFAULT}.",
+  "timelimit.disabled": "Laika ierobežojums {RED}deaktivēts{DEFAULT}.",
+  "timelimit.enabled-error": "Laika ierobežojums jau ir {GREEN}aktivēts{DEFAULT}.",
+  "timelimit.disabled-error": "Laika ierobežojums jau ir {RED}deaktivēts{DEFAULT}.",
+  "timelimit.value-error": "Nederīgs laika ierobežojums. Lūdzu, ievadiet derīgu veselu skaitli.",
+  "timelimit.prefix": "{RED}[Laika ierobežojums]{DEFAULT}"
   }

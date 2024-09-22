@@ -29,5 +29,11 @@
   "timeleft.no-time-limit": "Nie ma limitu czasowego",
   "timeleft.last-round": "To jest ostatnia runda",
   "timeleft.time-over": "Czas minął, to jest ostatnia runda",
-  "timeleft.warmup": "Komenda wyłączona podczas rozgrzewki."
+  "timeleft.warmup": "Komenda wyłączona podczas rozgrzewki.",
+  "timelimit.enabled": "Limit czasu {GREEN}włączony{DEFAULT}.",
+  "timelimit.disabled": "Limit czasu {RED}wyłączony{DEFAULT}.",
+  "timelimit.enabled-error": "Limit czasu jest już {GREEN}włączony{DEFAULT}.",
+  "timelimit.disabled-error": "Limit czasu jest już {RED}wyłączony{DEFAULT}.",
+  "timelimit.value-error": "Nieprawidłowy limit czasu. Wprowadź prawidłową liczbę całkowitą.",
+  "timelimit.prefix": "{RED}[Limit czasu]{DEFAULT}"
   }
