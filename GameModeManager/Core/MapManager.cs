@@ -26,19 +26,11 @@ namespace GameModeManager.Core
             _config = config;
         }
 
-        // Define on load behavior
-        public void OnLoad(Plugin plugin)
-        { 
-            plugin.RegisterEventHandler<EventMapTransition>(EventMapTransitionHandler);
-        }
-
-        // Register event map transition handler to set current map
-       public HookResult EventMapTransitionHandler(EventMapTransition @event, GameEventInfo info)
+        // Define on map start behavior
+       public void OnMapStart(string map)
         {
             Map _map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(Server.MapName, StringComparison.OrdinalIgnoreCase)) ?? new Map(Server.MapName);
             _pluginState.CurrentMap = _map;
-
-            return HookResult.Continue;
         }
         
         // Define reusable method to update map list

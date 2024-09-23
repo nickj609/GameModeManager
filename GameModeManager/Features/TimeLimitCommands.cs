@@ -1,8 +1,10 @@
 // Included libraries
 using GameModeManager.Core;
+using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -11,18 +13,20 @@ using CounterStrikeSharp.API.Modules.Commands;
 namespace GameModeManager.Features
 {
     // Define class
-    public class EnforceTimeLimitCommand : IPluginDependency<Plugin, Config>
+    public class TimeLimitCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
         private PluginState _pluginState;
         private Config _config = new Config();
+        private ILogger<TimeLimitCommands> _logger;
         private StringLocalizer _timeLeftLocalizer;
         private TimeLimitManager _timeLimitManager;
         private StringLocalizer _timeLimitLocalizer;
 
         // Define class instance
-        public EnforceTimeLimitCommand(TimeLimitManager timeLimitManager, PluginState pluginState, IStringLocalizer iLocalizer)
+        public TimeLimitCommands(TimeLimitManager timeLimitManager, PluginState pluginState, IStringLocalizer iLocalizer, ILogger<TimeLimitCommands> logger)
         {
+            _logger = logger;
             _pluginState = pluginState;
             _timeLimitManager = timeLimitManager;
             _timeLeftLocalizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
@@ -38,7 +42,7 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            plugin.AddCommand("css_enforcetimelimit", "Forces rotation on time limit end. Default time limit is mp_timelimit.", OnEnforceTimeLimitCommand);
+            plugin.AddCommand("timelimit", "Forces rotation on time limit end. Default time limit is mp_timelimit.", OnTimeLimitCommand);
 
             if (_config.Commands.TimeLeft)
             {
@@ -49,13 +53,12 @@ namespace GameModeManager.Features
         // Define admin map menu command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 1, usage: "<true|false> optional: [seconds]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
-        public void OnEnforceTimeLimitCommand(CCSPlayerController? player, CommandInfo command)
+        public void OnTimeLimitCommand(CCSPlayerController? player, CommandInfo command)
         {
             // Parse boolean argument
-            bool enforceTimeLimit = bool.TryParse(command.ArgByIndex(1), out var parsedValue) ? parsedValue : false;
+            bool timeLimit = bool.TryParse(command.ArgByIndex(1), out var parsedValue) ? parsedValue : false;
 
-            // Handle time limit enforcement or removal
-            if (enforceTimeLimit)
+            if (timeLimit)
             {
                 // Check if a time limit is provided
                 if (command.ArgCount == 3)
@@ -74,6 +77,8 @@ namespace GameModeManager.Features
                                 _pluginState.TimeLimit = seconds;
                                 _pluginState.TimeLimitCustom = true;
                                 _pluginState.TimeLimitScheduled = true;
+                                Server.ExecuteCommand($"mp_timelimit {seconds}");
+                                _logger.LogInformation($"Time limit scheduled: mp_timelimit = {_timeLimitManager.TimeRemaining} seconds. Custom time limit = {seconds} seconds");
                             }
                             else
                             {
@@ -98,6 +103,7 @@ namespace GameModeManager.Features
                         if (player == null)
                         {
                             _pluginState.TimeLimitScheduled = true;
+                            _logger.LogInformation($"Time limit scheduled: mp_timelimit = {_timeLimitManager.TimeRemaining} seconds");
                         }
                         else
                         {

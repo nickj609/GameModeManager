@@ -34,7 +34,7 @@ namespace GameModeManager
     // Define map settings
     public class MapSettings
     {
-        public int Delay { get; set; } = 2; // Map change delay in seconds
+        public int Delay { get; set; } = 5; // Map change delay in seconds
         public string Style { get; set; } = "center"; // Changes map menu type 
         public string Default { get; set; } =  "de_dust2"; // Default map on server start
     }
@@ -82,7 +82,7 @@ namespace GameModeManager
     {
         public bool Enabled { get; set; } = true; // Enables game rotations
         public bool WhenServerEmpty { get; set; } = false; // Enables rotation on server empty. 
-        public int CustomTimeLimit { get; set; } = 120; // Sets custom time limit in seconds for rotation when server empty
+        public int CustomTimeLimit { get; set; } = 600; // Sets custom time limit in seconds for rotation when server empty
         public int Cycle { get; set; } = 0; // 0 for current mode maps, 1 for all maps, 2 for specific map groups
         public List<string> MapGroups { get; set;} = new List<string>(){"mg_active", "mg_comp"}; // Map group list for cycle 2
         public bool ModeRotation { get; set; } = false; // Enables game mode rotations

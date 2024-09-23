@@ -36,8 +36,8 @@ namespace GameModeManager.Core
         public void OnLoad(Plugin plugin)
         { 
             // Register event handlers
-            plugin.RegisterEventHandler<EventWarmupEnd>(EventWarmupEndHandler);
-            plugin.RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler);
+            plugin.RegisterEventHandler<EventWarmupEnd>(EventWarmupEndHandler, HookMode.Post);
+            plugin.RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler, HookMode.Post);
 
             // Create warmup mode list from config
             foreach(ModeEntry _mode in _config.Warmup.List)
@@ -76,12 +76,6 @@ namespace GameModeManager.Core
             }
         }
 
-        //Define reusable method to check if warmup is scheduled
-        public bool IsWarmupScheduled()
-        {
-            return _pluginState.WarmupScheduled;
-        }
-
         // Define on warmup start behavior
          public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
         {
@@ -113,20 +107,19 @@ namespace GameModeManager.Core
         //Define reusable methods to schedule warmup mode
         public bool ScheduleWarmup(string modeName)
         {
-            Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
+            Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase) || m.Config.Contains(modeName, StringComparison.OrdinalIgnoreCase));
 
             if(warmupMode != null)
             {   
                 _pluginState.WarmupMode = warmupMode;
                 _pluginState.WarmupScheduled = true;
-
                 return true;
             } 
             else
             {
-                _logger.LogError($"Warmup mode {modeName} not found.");   
-            }           
-            return false;
+                _logger.LogError($"Warmup mode {modeName} not found.");
+                return false;  
+            } 
         }
     }
 }

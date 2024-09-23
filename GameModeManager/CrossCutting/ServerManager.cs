@@ -4,6 +4,7 @@ using CounterStrikeSharp.API;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 // Declare namespace
 namespace GameModeManager.CrossCutting
@@ -12,16 +13,18 @@ namespace GameModeManager.CrossCutting
     public class ServerManager : IPluginDependency<Plugin, Config>
     {
         // Define Dependencies
+        private GameRules _gameRules;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<ServerManager> _logger;
 
         // Define class instance
-        public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer)
+        public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer, GameRules gameRules)
         {
             _logger = logger;
             _localizer = localizer;
+            _gameRules =  gameRules;
             _pluginState = pluginState;
         }
 
@@ -34,8 +37,11 @@ namespace GameModeManager.CrossCutting
         // Define reusable method to change map
         public void ChangeMap(Map nextMap)
         {
-            // Disable warmup scheduler
-            _pluginState.WarmupScheduled = false;
+             // Disable warmup scheduler
+            if (_config.Warmup.PerMap)
+            {
+                _pluginState.WarmupScheduled = false;
+            }
 
             // Freeze all players
             FreezePlayers();
@@ -63,7 +69,10 @@ namespace GameModeManager.CrossCutting
         public void ChangeMap(Map nextMap, int delay)
         {
             // Disable warmup scheduler
-            _pluginState.WarmupScheduled = false;
+            if (_config.Warmup.PerMap)
+            {
+                _pluginState.WarmupScheduled = false;
+            }
 
             // Freeze all players
             FreezePlayers();
@@ -100,15 +109,28 @@ namespace GameModeManager.CrossCutting
             Map nextMap;
             if (mode.DefaultMap == null) 
             {
-                nextMap = GetRandomMap();
+                nextMap = GetRandomMap(mode);
             }
             else
             {
                 nextMap = mode.DefaultMap;
             }
 
-            // Change to next map
-            ChangeMap(nextMap);
+            if(_gameRules.WarmupRunning)
+            {
+                Server.ExecuteCommand($"mp_warmup_end");
+
+                new Timer(1.0f, () =>
+                {
+                    // Change to next map
+                    ChangeMap(nextMap);
+                });
+            }
+            else
+            {
+                // Change to next map
+                ChangeMap(nextMap);
+            }
         }
 
         // Define method to trigger mode and map rotations
@@ -135,7 +157,7 @@ namespace GameModeManager.CrossCutting
                 else // Change map
                 {
                     // Define random map
-                    Map _randomMap = GetRandomMap();
+                    Map _randomMap = GetRandomMap(_pluginState.CurrentMode);
 
                     // Change map
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
@@ -163,7 +185,7 @@ namespace GameModeManager.CrossCutting
         }
 
         // Define reusable method to get random map
-        public Map GetRandomMap()
+        public Map GetRandomMap(Mode currentMode)
         {    
             // Define random map
             Map _randomMap; 
@@ -206,8 +228,8 @@ namespace GameModeManager.CrossCutting
             {
                 // Get a random map from current game mode
                 Random _rnd = new Random();
-                int _randomIndex = _rnd.Next(0, _pluginState.CurrentMode.Maps.Count); 
-                _randomMap = _pluginState.CurrentMode.Maps[_randomIndex];
+                int _randomIndex = _rnd.Next(0, currentMode.Maps.Count); 
+                _randomMap = currentMode.Maps[_randomIndex];
             }
             return _randomMap;
         }

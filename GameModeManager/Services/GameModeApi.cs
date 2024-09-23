@@ -100,7 +100,7 @@ namespace GameModeManager.Services
         // Schedule warmup api handlers 
         public bool isWarmupScheduled()
         {
-            return _warmupManager.IsWarmupScheduled();
+            return _pluginState.WarmupScheduled;
         }
         public bool ScheduleWarmup(string modeName)
         {

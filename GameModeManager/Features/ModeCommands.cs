@@ -61,9 +61,9 @@ namespace GameModeManager.Features
         {
             if (player == null) 
             {
-                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
+                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase) || m.Config.Contains(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase));
                 
-                if(_mode != null)
+                if(_mode != null && _pluginState.CurrentMode != _mode)
                 {
                     _logger.LogInformation($"Current mode: {_pluginState.CurrentMode.Name}");
                     _logger.LogInformation($"New mode: {_mode.Name}");
@@ -93,7 +93,7 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    command.ReplyToCommand($"Unable to find game mode {command.ArgByIndex(1)}.");
+                    _logger.LogError($"Unable to find game mode {command.ArgByIndex(1)}.");
                 }
             }
         }

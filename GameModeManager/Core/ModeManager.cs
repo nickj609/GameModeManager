@@ -1,8 +1,10 @@
 // Included libraries
 using GameModeManager.Menus;
 using GameModeManager.Models;
+using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 // Declare namespace
 namespace GameModeManager.Core
@@ -32,6 +34,16 @@ namespace GameModeManager.Core
          public void OnConfigParsed(Config config)
         {
             _config = config;
+        }
+
+        // Define on map start behavior
+        public void OnMapStart(string map)
+        {
+            new Timer(3.0f, () => 
+            {
+                Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
+                Server.ExecuteCommand("mp_restartgame 1");
+            });
         }
 
         // Define on load behavior

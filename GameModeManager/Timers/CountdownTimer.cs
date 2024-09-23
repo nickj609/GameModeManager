@@ -34,7 +34,7 @@ namespace GameModeManager.Timers
         {
             foreach (CCSPlayerController player in Extensions.ValidPlayers(false))
             {
-                player.PrintToCenterHtml(message + " " + interval.ToString() + "...", 1);
+                player.PrintToCenterAlert(message + " " + interval.ToString() + "...");
             }
 
             interval -= 1.0f;
