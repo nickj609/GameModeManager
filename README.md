@@ -47,6 +47,11 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `css_rtv_enabled <true|false>` - Enables or disables RTV.
 
+- `css_warmupmode <mode>` - Schedules and sets the warmup mode.
+
+- `css_timelimit <true|false> optional: <seconds>` - Enables or disables time limit.
+
+
 </details>
 	
 <details>
@@ -90,7 +95,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 <details>
 <summary>Player Commands</summary>
 
-- `!game` - Displays a **dynamic** menu of all game mode manager commands.
+- `!game` - Displays a **dynamic** menu of all player commands.
 
    ![Screenshot 2024-06-15 202045](https://github.com/nickj609/GameModeManager/assets/32173425/51451ff1-df41-4b51-881a-a8727d5cbffd)
 
@@ -98,37 +103,23 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
    ![Screenshot 2024-06-15 202240](https://github.com/nickj609/GameModeManager/assets/32173425/1d9f9e12-2320-4ab8-a021-c4a5477e533a)
 
-- `!showmaps` - Displays a **dynamic** menu of all per-map votes that can be created.
+- `!changemap` - Displays a **dynamic** menu of all per-map votes that can be created.
 
   > _It only shows maps for the current game mode._
 
    ![image](https://github.com/nickj609/GameModeManager/assets/32173425/1fe0914e-0a48-477c-b5a7-6f57abc391ba)
 
-   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/793e6d64-2b89-4875-8410-cef3982ee8aa)
-
-- `!showallmaps` - Displays a menu of all per-map votes that can be created for all games modes. 
-
 - `!currentmode` - Displays the current game mode.
 
    ![Screenshot 2024-06-15 202302](https://github.com/nickj609/GameModeManager/assets/32173425/b546851b-6e2d-4e3a-a012-be8b4223a8cb)
 
-- `!changemode` - Creates a vote to change the game mode (all modes).
+- `!changemode` - Displays a menu of all per-mode votes that can be created.
 
    ![Screenshot 2024-06-08 212539](https://github.com/nickj609/GameModeManager/assets/32173425/f5e3d915-4c01-45d5-95a2-a40b693e17bb)
 
-   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/d516adef-5ead-445e-9fa3-30a275d80e17)
-
-- `!showmodes` - Displays a menu of all per-mode votes that can be created.
-
-   ![Screenshot 2024-06-08 212831](https://github.com/nickj609/GameModeManager/assets/32173425/8fd7e73f-c2e9-459d-bf33-9878de227f55)
-
-   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/bbca59d5-7ac8-4f16-bcb9-b42941899546)
-
-- `!showsettings` - Displays a menu of all per-setting votes that can be created.
+- `!changesetting` - Displays a menu of all per-setting votes that can be created.
 
    ![Screenshot 2024-06-08 212803](https://github.com/nickj609/GameModeManager/assets/32173425/16a907d1-3bd9-4416-bda6-4d6cc4c55030)
-   
-   ![Screenshot 2024-06-08 213008](https://github.com/nickj609/GameModeManager/assets/32173425/b6a34ec1-277f-4361-bd1c-0e405b20834f)
 
 </details>
 
@@ -150,7 +141,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | Mode                | Changes the RTV mode. (0 = maps from current game mode, 1 = maps from all game modes.)                                                    | 
 | Plugin              | Default path for the desired RTV plugin (i.e. `/addons/counterstrikesharp/plugins/plugin`)                                                | 
 | MapList             | Default path for the maplist.txt file to update when the map group or game mode changes.                                                  | 
-| DefaultMapFormat    | Enables the default format for adding maps to the map list file: `ws:{workshopid}`. When disabled: `{mapname}:{workshopid}`.              |
+| MapFormat           | Enables the default format for adding maps to the map list file: `ws:{workshopid}`. When disabled: `{mapname}:{workshopid}`.              |
 
 ### Map Settings
 | Setting             | Description                                                                                                                               |
@@ -184,10 +175,20 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | AllMaps             | Enables or disables the !allmaps admin command.                                                                                           |
 | TimeLeft            | Enables or disables the !allmaps admin command.                                                                                           |
 
+### Warmup Settings
+| Setting             | Description                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Time                | Default warmup time                                                                                                                       | 
+| PerMap              | Enables ot disables per map warmup (i.e. map configs)                                                                                     | 
+| Default             | Default warmup mode.                                                                                                                      |
+| List                | A customizable list of warmup modes for your server.                                                                                      |
+
 ### Rotation Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables rotations. (Cannot be enabled when RTV is enabled)                                                                                | 
+| WhenServerEmpty     | Enables rotation on server empty.                                                                                                         | 
+| CustomTimeLimit     | Custom time limit for rotations on server empty.                                                                                          | 
 | Cycle               | Changes the rotation cycle. (0 = maps from current mode, 1 = maps from all modes, 2, maps from specific map groups)                       |
 | MapGroups           | Mapgroups to use for rotation cycle 2.                                                                                                    |
 | ModeRotation        | Enables game mode rotation. (Cannot be enabled when ModeSchedule is enabled)                                                              | 
@@ -212,9 +213,9 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 <summary><b>Click to see Default Values</b></summary>
 	
 ```
-// This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2024/06/26 03:02:03
+// This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2024/09/23 12:52:21
 {
-  "Version": 5,
+  "Version": 7,
   "RTV": {
     "Enabled": false,
     "Mode": 0,
@@ -223,7 +224,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
     "MapList": "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"
   },
   "Maps": {
-    "Delay": 2,
+    "Delay": 5,
     "Style": "center",
     "Default": "de_dust2"
   },
@@ -240,19 +241,46 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
     "Style": "center",
     "Folder": "settings"
   },
+  "Warmup": {
+    "Time": 60,
+    "PerMap": false,
+    "Default": {
+      "Name": "Knives Only",
+      "Config": "warmup/knives_only.cfg",
+      "DefaultMap": null,
+      "MapGroups": []
+    },
+    "List": [
+      {
+        "Name": "Deathmatch",
+        "Config": "warmup/dm.cfg",
+        "DefaultMap": null,
+        "MapGroups": []
+      },
+      {
+        "Name": "Knives Only",
+        "Config": "warmup/knives_only.cfg",
+        "DefaultMap": null,
+        "MapGroups": []
+      }
+    ]
+  },
   "Commands": {
     "Map": true,
     "Maps": true,
-    "AllMaps": true,
+    "AllMaps": false,
     "TimeLeft": true
   },
   "Rotation": {
+    "Enabled": true,
+    "WhenServerEmpty": false,
+    "CustomTimeLimit": 600,
     "Cycle": 0,
     "MapGroups": [
       "mg_active",
-      "mg_delta"
+      "mg_comp"
     ],
-    "ModeRotation": true,
+    "ModeRotation": false,
     "ModeInterval": 4,
     "ModeSchedules": false,
     "Schedule": [
@@ -271,52 +299,31 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
     ]
   },
   "GameModes": {
-    "Delay": 2,
     "Style": "center",
-    "Default": "Casual",
+    "Default": {
+      "Name": "Casual",
+      "Config": "casual.cfg",
+      "DefaultMap": null,
+      "MapGroups": [
+        "mg_active",
+        "mg_comp"
+      ]
+    },
     "MapGroupFile": "gamemodes_server.txt",
     "List": [
       {
         "Name": "Casual",
         "Config": "casual.cfg",
+        "DefaultMap": "de_dust2",
         "MapGroups": [
           "mg_active",
-          "mg_delta"
-        ]
-      },
-      {
-        "Name": "Competitive",
-        "Config": "comp.cfg",
-        "MapGroups": [
-          "mg_active",
-          "mg_delta"
-        ]
-      },
-      {
-        "Name": "Wingman",
-        "Config": "wingman.cfg",
-        "MapGroups": [
-          "mg_active",
-          "mg_delta"
-        ]
-      },
-      {
-        "Name": "Practice",
-        "Config": "prac.cfg",
-        "MapGroups": [
-          "mg_prac"
+          "mg_comp"
         ]
       },
       {
         "Name": "Deathmatch",
         "Config": "dm.cfg",
-        "MapGroups": [
-          "mg_dm"
-        ]
-      },
-      {
-        "Name": "Deathmatch Multicfg",
-        "Config": "dm-multicfg.cfg",
+        "DefaultMap": "de_assembly",
         "MapGroups": [
           "mg_dm"
         ]
@@ -324,34 +331,106 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
       {
         "Name": "ArmsRace",
         "Config": "armsrace.cfg",
+        "DefaultMap": "ar_pool_day",
         "MapGroups": [
           "mg_gg"
         ]
       },
       {
-        "Name": "GunGame",
-        "Config": "gg.cfg",
+        "Name": "Competitive",
+        "Config": "comp.cfg",
+        "DefaultMap": "de_dust2",
         "MapGroups": [
-          "mg_gg"
+          "mg_active",
+          "mg_comp"
+        ]
+      },
+      {
+        "Name": "Wingman",
+        "Config": "wingman.cfg",
+        "DefaultMap": "de_memento",
+        "MapGroups": [
+          "mg_active",
+          "mg_comp"
+        ]
+      },
+      {
+        "Name": "Practice",
+        "Config": "prac.cfg",
+        "DefaultMap": "de_dust2",
+        "MapGroups": [
+          "mg_comp"
+        ]
+      },
+      {
+        "Name": "Prefire",
+        "Config": "prefire.cfg",
+        "DefaultMap": "de_inferno",
+        "MapGroups": [
+          "mg_comp"
         ]
       },
       {
         "Name": "Retakes",
         "Config": "retake.cfg",
+        "DefaultMap": "de_dust2",
         "MapGroups": [
-          "mg_retake"
+          "mg_comp"
         ]
       },
       {
         "Name": "Executes",
         "Config": "executes.cfg",
+        "DefaultMap": "de_mirage",
         "MapGroups": [
-          "mg_executes"
+          "mg_comp"
+        ]
+      },
+      {
+        "Name": "Casual 1.6",
+        "Config": "Casual-1.6.cfg",
+        "DefaultMap": "3212419403",
+        "MapGroups": [
+          "mg_active",
+          "mg_comp"
+        ]
+      },
+      {
+        "Name": "Deathmatch Multicfg",
+        "Config": "dm-multicfg.cfg",
+        "DefaultMap": "de_mirage",
+        "MapGroups": [
+          "mg_dm"
+        ]
+      },
+      {
+        "Name": "GG",
+        "Config": "gg.cfg",
+        "DefaultMap": "ar_pool_day",
+        "MapGroups": [
+          "mg_gg"
+        ]
+      },
+      {
+        "Name": "45",
+        "Config": "45.cfg",
+        "DefaultMap": "3276886893",
+        "MapGroups": [
+          "mg_45"
+        ]
+      },
+      {
+        "Name": "Awp",
+        "Config": "awp.cfg",
+        "DefaultMap": "3142070597",
+        "MapGroups": [
+          "mg_awp"
         ]
       },
       {
         "Name": "1v1",
         "Config": "1v1.cfg",
+        "DefaultMap": "3070253400",
         "MapGroups": [
           "mg_1v1"
         ]
@@ -359,6 +438,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
       {
         "Name": "Aim",
         "Config": "aim.cfg",
+        "DefaultMap": "3084291314",
         "MapGroups": [
           "mg_aim"
         ]
@@ -366,6 +446,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
       {
         "Name": "Bhop",
         "Config": "bhop.cfg",
+        "DefaultMap": "3088973190",
         "MapGroups": [
           "mg_bhop"
         ]
@@ -373,6 +454,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
       {
         "Name": "Surf",
         "Config": "surf.cfg",
+        "DefaultMap": "3082548297",
         "MapGroups": [
           "mg_surf"
         ]
@@ -380,27 +462,15 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
       {
         "Name": "KreedZ",
         "Config": "kz.cfg",
+        "DefaultMap": "3086304337",
         "MapGroups": [
           "mg_kz"
         ]
       },
       {
-        "Name": "Awp",
-        "Config": "awp.cfg",
-        "MapGroups": [
-          "mg_awp"
-        ]
-      },
-      {
-        "Name": "Course",
-        "Config": "course.cfg",
-        "MapGroups": [
-          "mg_course"
-        ]
-      },
-      {
         "Name": "Hide N Seek",
         "Config": "hns.cfg",
+        "DefaultMap": "3097563690",
         "MapGroups": [
           "mg_hns"
         ]
@@ -408,15 +478,41 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
       {
         "Name": "Soccer",
         "Config": "soccer.cfg",
+        "DefaultMap": "3070198374",
         "MapGroups": [
           "mg_soccer"
         ]
       },
       {
+        "Name": "Course",
+        "Config": "course.cfg",
+        "DefaultMap": "3070455802",
+        "MapGroups": [
+          "mg_course"
+        ]
+      },
+      {
+        "Name": "Deathrun",
+        "Config": "deathrun.cfg",
+        "DefaultMap": "3164611860",
+        "MapGroups": [
+          "mg_deathrun"
+        ]
+      },
+      {
         "Name": "Minigames",
         "Config": "minigames.cfg",
+        "DefaultMap": "3082120895",
         "MapGroups": [
           "mg_minigames"
+        ]
+      },
+      {
+        "Name": "ScoutzKnivez",
+        "Config": "scoutzknivez.cfg",
+        "DefaultMap": "3073929825",
+        "MapGroups": [
+          "mg_scoutzknivez"
         ]
       }
     ]
@@ -445,15 +541,14 @@ This plugin will display all in-game menus and messaging based on the player's p
   "menu.no": "No",
   "menu.enable": "Enable",
   "menu.disable": "Disable",
-  "mode.show.menu-response": "Say {GREEN}!{0}{DEFAULT} to create a vote.",
+  "warmup.start.message": "Warmup mode {GREEN}{0}{DEFAULT} started.",
+  "warmup.end.message": "Game mode {GREEN}{0}{DEFAULT} started.",
   "mode.vote.menu-title": "Change game mode to {GOLD}{0}{DEFAULT}?",
   "modes.menu-title": "Game Mode List",
   "modes.vote.menu-title": "Change game mode?",
   "map.vote.menu-title": "Change map to {0}?",
   "maps.menu-title": "Map List",
-  "maps.show.menu-response": "Say {GREEN}!{0}{DEFAULT} to create a vote.",
   "setting.vote.menu-title": "Change setting {GOLD}{0}{DEFAULT}?",
-  "setting.show.menu-response": "Say {GREEN}!{0}{DEFAULT} to create a vote.",
   "settings.menu-actions": "Setting Actions",
   "settings.menu-title": "Setting List",
   "timeleft.prefix": "{RED}[Timeleft]{DEFAULT}",
@@ -463,11 +558,80 @@ This plugin will display all in-game menus and messaging based on the player's p
   "timeleft.remaining-time-second": "Remaining time {0} second(s)",
   "timeleft.no-time-limit": "There is no time limit",
   "timeleft.remaining-last-round": "This is the last round",
-  "timeleft.remaining-time-over": "Time is over, this is the last round"
+  "timeleft.remaining-time-over": "Time is over, this is the last round",
+  "timeleft.warmup": "Command disabled during warmup.",
+  "timelimit.enabled": "Time limit {GREEN}Enabled{DEFAULT}.",
+  "timelimit.disabled": "Time limit {RED}Disabled{DEFAULT}.",
+  "timelimit.enabled-error": "Time limit is already {GREEN}Enabled{DEFAULT}.",
+  "timelimit.disabled-error": "Time limit is already {RED}Disabled{DEFAULT}.",
+  "timelimit.value-error": "Invalid time limit. Please enter a valid integer.",
+  "timelimit.prefix": "{RED}[Timelimit]{DEFAULT}"
 }
 ```
 
 </details>
+
+### Shared API
+GameModeManager provides a shared API for other plugins to manage game modes.
+
+```
+public interface IGameModeApi
+{
+    // Define globals
+    string WarmupMode { get; }
+    string CurrentMap { get; }
+    string CurrentMode { get; }  
+
+    // Update map menus api handler
+    public void UpdateMapMenus();
+
+    // Trigger rotation api handler
+    public void TriggerRotation();
+
+    // Enable RTV compatibility api handler
+    public void EnableRTV(bool enabled);
+
+    // Change mode api handlers
+    public void ChangeMode(string modeName);
+
+    // Change map api handlers
+    public void ChangeMap(string mapName);
+    public void ChangeMap(string mapName, int delay);
+
+    // Schedule warmup api handlers
+    public bool isWarmupScheduled();
+    public bool ScheduleWarmup(string modeName);
+
+    // Enforce time limit api handlers
+    public void EnableTimeLimit();
+    public void EnableTimeLimit(int delay);
+
+}
+```
+
+Add a reference to GameModeManager.Shared to your project to get started!
+
+csproj
+```
+<ItemGroup>
+    <Reference Include="CS2-GameModeManager.Shared">
+      <HintPath>..\GameModeManagger.Shared\GameModeManagger.Shared.dll</HintPath>
+    </Reference>
+</ItemGroup>
+```
+
+Below is an example:
+
+plugin
+```
+using GameModeManager.Shared;
+using CounterStrikeSharp.API.Core.Capabilities;
+
+public PluginCapability<ICustomVoteApi> GameModeApi { get; } = new("game_mode:api");
+
+GameModeApi.ChangeMap(mapName);
+GameModeApi.ChangeMap(modeName);
+```
 
 ## Logging
 >[!WARNING]
@@ -517,92 +681,225 @@ To add custom settings, create two configuration files with the `enable_` and `d
 To add game modes, update the JSON key pairs in the configuration file (`csgo/addons/counterstrikesharp/configs/plugins/GameModeManager/GameModeManager.json`).
 
 ```
-"GameModes": 
+"GameModes":
 {
-  "Rotation": true,
-  "Interval": 4,
-  "DefaultMode": "Casual",
-  "Delay": 2,
   "Style": "center",
-  "List": {
-    "Casual": {
-      "casual.cfg": [
+  "Default": {
+    "Name": "Casual",
+    "Config": "casual.cfg",
+    "DefaultMap": null,
+    "MapGroups": [
+      "mg_active",
+      "mg_comp"
+    ]
+  },
+  "MapGroupFile": "gamemodes_server.txt",
+  "List": [
+    {
+      "Name": "Casual",
+      "Config": "casual.cfg",
+      "DefaultMap": "de_dust2",
+      "MapGroups": [
         "mg_active",
-        "mg_hostage"
+        "mg_comp"
       ]
     },
-    "Competitive": {
-      "comp.cfg": [
-        "mg_active",
-        "mg_hostage"
-      ]
-    },
-    "Wingman": {
-      "wingman.cfg": [
-        "mg_wingman"
-      ]
-    },
-    "Deathmatch": {
-      "dm.cfg": [
+    {
+      "Name": "Deathmatch",
+      "Config": "dm.cfg",
+      "DefaultMap": "de_assembly",
+      "MapGroups": [
         "mg_dm"
       ]
     },
-    "Deathmatch Multicfg": {
-      "dm-multicfg.cfg": [
+    {
+      "Name": "ArmsRace",
+      "Config": "armsrace.cfg",
+      "DefaultMap": "ar_pool_day",
+      "MapGroups": [
+        "mg_gg"
+      ]
+    },
+    {
+      "Name": "Competitive",
+      "Config": "comp.cfg",
+      "DefaultMap": "de_dust2",
+      "MapGroups": [
+        "mg_active",
+        "mg_comp"
+      ]
+    },
+    {
+      "Name": "Wingman",
+      "Config": "wingman.cfg",
+      "DefaultMap": "de_memento",
+      "MapGroups": [
+        "mg_active",
+        "mg_comp"
+      ]
+    },
+    {
+      "Name": "Practice",
+      "Config": "prac.cfg",
+      "DefaultMap": "de_dust2",
+      "MapGroups": [
+        "mg_comp"
+      ]
+    },
+    {
+      "Name": "Prefire",
+      "Config": "prefire.cfg",
+      "DefaultMap": "de_inferno",
+      "MapGroups": [
+        "mg_comp"
+      ]
+    },
+    {
+      "Name": "Retakes",
+      "Config": "retake.cfg",
+      "DefaultMap": "de_dust2",
+      "MapGroups": [
+        "mg_comp"
+      ]
+    },
+    {
+      "Name": "Executes",
+      "Config": "executes.cfg",
+      "DefaultMap": "de_mirage",
+      "MapGroups": [
+        "mg_comp"
+      ]
+    },
+    {
+      "Name": "Casual 1.6",
+      "Config": "Casual-1.6.cfg",
+      "DefaultMap": "3212419403",
+      "MapGroups": [
+        "mg_active",
+        "mg_comp"
+      ]
+    },
+    {
+      "Name": "Deathmatch Multicfg",
+      "Config": "dm-multicfg.cfg",
+      "DefaultMap": "de_mirage",
+      "MapGroups": [
         "mg_dm"
       ]
     },
-    "ArmsRace": {
-      "ar.cfg": [
-        "mg_armsrace"
+    {
+      "Name": "GG",
+      "Config": "gg.cfg",
+      "DefaultMap": "ar_pool_day",
+      "MapGroups": [
+        "mg_gg"
       ]
     },
-    "GunGame": {
-      "gg.cfg": [
-        "mg_armsrace"
+    {
+      "Name": "45",
+      "Config": "45.cfg",
+      "DefaultMap": "3276886893",
+      "MapGroups": [
+        "mg_45"
       ]
     },
-    "1v1": {
-      "1v1.cfg": [
-        "mg_1v1"
-      ]
-    },
-    "Aim": {
-      "aim.cfg": [
-        "mg_aim"
-      ]
-    },
-    "Bhop": {
-      "bhop.cfg": [
-        "mg_bhop"
-      ]
-    },
-    "Surf": {
-      "surf.cfg": [
-        "mg_surf"
-      ]
-    },
-    "Awp": {
-      "awp.cfg": [
+    {
+      "Name": "Awp",
+      "Config": "awp.cfg",
+      "DefaultMap": "3142070597",
+      "MapGroups": [
         "mg_awp"
       ]
     },
-    "ScoutzKnivez": {
-      "scoutzknivez.cfg": [
-        "mg_scoutzknivez"
+    {
+      "Name": "1v1",
+      "Config": "1v1.cfg",
+      "DefaultMap": "3070253400",
+      "MapGroups": [
+        "mg_1v1"
       ]
     },
-    "Soccer": {
-      "soccer.cfg": [
+    {
+      "Name": "Aim",
+      "Config": "aim.cfg",
+      "DefaultMap": "3084291314",
+      "MapGroups": [
+        "mg_aim"
+      ]
+    },
+    {
+      "Name": "Bhop",
+      "Config": "bhop.cfg",
+      "DefaultMap": "3088973190",
+      "MapGroups": [
+        "mg_bhop"
+      ]
+    },
+    {
+      "Name": "Surf",
+      "Config": "surf.cfg",
+      "DefaultMap": "3082548297",
+      "MapGroups": [
+        "mg_surf"
+      ]
+    },
+    {
+      "Name": "KreedZ",
+      "Config": "kz.cfg",
+      "DefaultMap": "3086304337",
+      "MapGroups": [
+        "mg_kz"
+      ]
+    },
+    {
+      "Name": "Hide N Seek",
+      "Config": "hns.cfg",
+      "DefaultMap": "3097563690",
+      "MapGroups": [
+        "mg_hns"
+      ]
+    },
+    {
+      "Name": "Soccer",
+      "Config": "soccer.cfg",
+      "DefaultMap": "3070198374",
+      "MapGroups": [
         "mg_soccer"
       ]
     },
-    "HE Only": {
-      "minigames.cfg": [
-        "mg_he"
+    {
+      "Name": "Course",
+      "Config": "course.cfg",
+      "DefaultMap": "3070455802",
+      "MapGroups": [
+        "mg_course"
+      ]
+    },
+    {
+      "Name": "Deathrun",
+      "Config": "deathrun.cfg",
+      "DefaultMap": "3164611860",
+      "MapGroups": [
+        "mg_deathrun"
+      ]
+    },
+    {
+      "Name": "Minigames",
+      "Config": "minigames.cfg",
+      "DefaultMap": "3082120895",
+      "MapGroups": [
+        "mg_minigames"
+      ]
+    },
+    {
+      "Name": "ScoutzKnivez",
+      "Config": "scoutzknivez.cfg",
+      "DefaultMap": "3073929825",
+      "MapGroups": [
+        "mg_scoutzknivez"
       ]
     }
-  }
+  ]
 }
 ```
 
