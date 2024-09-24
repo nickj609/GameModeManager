@@ -74,7 +74,8 @@ namespace GameModeManager.CrossCutting
                 _pluginState.WarmupScheduled = false;
             }
 
-            // Freeze all players
+            // Kick bots and freeze all players
+            Server.ExecuteCommand("bot_kick");
             FreezePlayers();
 
             // Display Countdown
