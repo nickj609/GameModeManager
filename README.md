@@ -182,7 +182,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | Map                 | Enables or disables the !map admin command.                                                                                               | 
 | Maps                | Enables or disables the !maps admin command.                                                                                              | 
 | AllMaps             | Enables or disables the !allmaps admin command.                                                                                           |
-| TimeLeft            | Enables or disables the !allmaps admin command.                                                                                           |
+| TimeLeft            | Enables or disables the !timeleft command.                                                                                           |
 
 ### Warmup Settings
 | Setting             | Description                                                                                                                               |
@@ -208,7 +208,6 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 ### Game Mode Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| Delay               | Delay for changing game modes in seconds.                                                                                                 | 
 | Default             | Default mode on server start (i.e. deathmatch).                                                                                           | 
 | Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      |
 | MapGroupFile        | Map groups file name in `/csgo/`. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).                         | 
