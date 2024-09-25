@@ -1,5 +1,6 @@
 // Included libraries
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Menu;
 using GameModeManager.CrossCutting;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using TimerFlags = CounterStrikeSharp.API.Modules.Timers.TimerFlags;
@@ -34,6 +35,7 @@ namespace GameModeManager.Timers
         {
             foreach (CCSPlayerController player in Extensions.ValidPlayers(false))
             {
+                MenuManager.GetActiveMenus().Clear();
                 player.PrintToCenterAlert(message + " " + interval.ToString() + "...");
             }
 

@@ -61,7 +61,7 @@ namespace GameModeManager.Features
         {
             if (player == null) 
             {
-                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase) || m.Config.Contains(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase));
+               Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
                 
                 if(_mode != null && _pluginState.CurrentMode != _mode)
                 {

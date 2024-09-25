@@ -37,7 +37,26 @@ namespace GameModeManager.CrossCutting
         // Define reusable method to change map
         public void ChangeMap(Map nextMap)
         {
-             // Disable warmup scheduler
+            if(_gameRules.WarmupRunning)
+            {
+                // End warmup
+                Server.ExecuteCommand($"mp_warmup_end");
+                
+                // Delay freeze
+                new Timer(1.5f, () =>
+                {
+                    Server.ExecuteCommand("bot_kick");
+                    FreezePlayers();
+                });
+            }
+            else
+            {
+                // Kick bots and freeze all players
+                Server.ExecuteCommand("bot_kick");
+                FreezePlayers();
+            }
+
+            // Disable warmup scheduler
             if (_config.Warmup.PerMap)
             {
                 _pluginState.WarmupScheduled = false;
@@ -68,15 +87,30 @@ namespace GameModeManager.CrossCutting
         // Define reusable method to change map
         public void ChangeMap(Map nextMap, int delay)
         {
+            if(_gameRules.WarmupRunning)
+            {
+                // End warmup
+                Server.ExecuteCommand($"mp_warmup_end");
+
+                // Delay freeze
+                new Timer(1.3f, () =>
+                {
+                    Server.ExecuteCommand("bot_kick");
+                    FreezePlayers();
+                });
+            }
+            else
+            {
+                // Kick bots and freeze all players
+                Server.ExecuteCommand("bot_kick");
+                FreezePlayers();
+            }
+
             // Disable warmup scheduler
             if (_config.Warmup.PerMap)
             {
                 _pluginState.WarmupScheduled = false;
             }
-
-            // Kick bots and freeze all players
-            Server.ExecuteCommand("bot_kick");
-            FreezePlayers();
 
             // Display Countdown
             CountdownTimer timer = new CountdownTimer(delay, () => 
@@ -95,6 +129,7 @@ namespace GameModeManager.CrossCutting
                     Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
                 }
             }, "Map changing in ");
+
         }
 
         // Define reusable method to change mode
@@ -117,21 +152,12 @@ namespace GameModeManager.CrossCutting
                 nextMap = mode.DefaultMap;
             }
 
-            if(_gameRules.WarmupRunning)
-            {
-                Server.ExecuteCommand($"mp_warmup_end");
+            // Change to next map
+            ChangeMap(nextMap);
 
-                new Timer(1.0f, () =>
-                {
-                    // Change to next map
-                    ChangeMap(nextMap);
-                });
-            }
-            else
-            {
-                // Change to next map
-                ChangeMap(nextMap);
-            }
+            // Set current mode
+            _pluginState.CurrentMode = mode;
+
         }
 
         // Define method to trigger mode and map rotations

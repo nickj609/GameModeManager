@@ -75,7 +75,8 @@ namespace GameModeManager
         public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
         {
             new ModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg", MapGroups = new List<string>() },
-            new ModeEntry() { Name = "Knives Only", Config = $"warmup/knives_only.cfg", MapGroups = new List<string>()}
+            new ModeEntry() { Name = "Knives Only", Config = $"warmup/knives_only.cfg", MapGroups = new List<string>()},
+            new ModeEntry() { Name = "Scoutz Only", Config = $"warmup/scoutz_only.cfg", MapGroups = new List<string>()}
         };
     }
     public class RotationSettings
