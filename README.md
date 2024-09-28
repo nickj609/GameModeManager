@@ -136,7 +136,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 1. Install Metamod:Source and Counter Strike Sharp.
 2. Copy `addons` and `cfg` folders to `/csgo/`.
 3. Make sure your `gamemodes_server.txt` or custom map group file is in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and contains a list of map groups.
-5. If needed, update each game mode configuration file (i.e. comp.cfg) to include `css_gamemode <mode>`.
+4. Update each game mode configuration file (i.e. comp.cfg) to include `css_gamemode <mode>`.
 6. After the first run, update the configuration file `GameModeManager.json` as detailed below.
 
 ## Configuration
@@ -182,7 +182,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | Map                 | Enables or disables the !map admin command.                                                                                               | 
 | Maps                | Enables or disables the !maps admin command.                                                                                              | 
 | AllMaps             | Enables or disables the !allmaps admin command.                                                                                           |
-| TimeLeft            | Enables or disables the !allmaps admin command.                                                                                           |
+| TimeLeft            | Enables or disables the !timeleft command.                                                                                           |
 
 ### Warmup Settings
 | Setting             | Description                                                                                                                               |
@@ -208,7 +208,6 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 ### Game Mode Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| Delay               | Delay for changing game modes in seconds.                                                                                                 | 
 | Default             | Default mode on server start (i.e. deathmatch).                                                                                           | 
 | Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      |
 | MapGroupFile        | Map groups file name in `/csgo/`. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).                         | 
