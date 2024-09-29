@@ -27,6 +27,12 @@ namespace GameModeManager.Menus
             _localizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
         }
 
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
         // Define reusable method to update the game command menu
         public void Load()
         {

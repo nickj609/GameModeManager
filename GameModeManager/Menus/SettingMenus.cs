@@ -25,6 +25,12 @@ namespace GameModeManager.Menus
             _menuFactory = menuFactory;
         }
 
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+        
         // Define on load behavior
         public void Load()
         {

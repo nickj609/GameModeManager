@@ -27,6 +27,12 @@ namespace GameModeManager.Menus
             _serverManager = serverManager;
         }
 
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
         // Define load behavior
         public void Load()
         {

@@ -154,10 +154,6 @@ namespace GameModeManager.CrossCutting
 
             // Change to next map
             ChangeMap(nextMap);
-
-            // Set current mode
-            _pluginState.CurrentMode = mode;
-
         }
 
         // Define method to trigger mode and map rotations
