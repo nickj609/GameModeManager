@@ -29,5 +29,6 @@
         <Exec Command="xcopy /Y /R $(OutDir)*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
         <Exec Command="xcopy /Y /E /R $(ProjectDir)lib\csgo\ $(SolutionDir)bin\Debug\$(TargetFramework)\Public\" />
         <Exec Command="xcopy /Y /R $(ProjectDir)lang\*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang\" />
+        <Exec Command="xcopy /Y /E $(ProjectDir)lib\csgo\addons\counterstrikesharp\shared\WASDSharedAPI\WASDSharedAPI.dll $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
   </Target>
 </Project>
