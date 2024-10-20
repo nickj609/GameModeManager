@@ -65,6 +65,7 @@ namespace GameModeManager
         public bool Maps { get; set; } = true; // Enables or disables !maps admin command 
         public bool AllMaps { get; set; } = false; // Enables or disables !allmaps admin command
         public bool TimeLeft { get; set; } = true; // Enables or disables !timeleft admin command
+        public string Style { get; set; } = "center"; // Changes command menu type (i.e. "chat" or "center")
     }
 
     public class WarmupSettings
@@ -187,7 +188,7 @@ namespace GameModeManager
             }
 
             // Maps settings
-            if (!_config.Maps.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
+            if (!_config.Maps.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
@@ -199,7 +200,7 @@ namespace GameModeManager
             }
 
             // Vote Settings
-            if (_config.Votes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.Votes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
+            if (!_config.Votes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
@@ -236,7 +237,7 @@ namespace GameModeManager
                 throw new Exception("Undefined: Game modes list cannot be empty.");
             }
             
-            if (_config.GameModes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.GameModes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
+            if (_config.GameModes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.GameModes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.GameModes.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");

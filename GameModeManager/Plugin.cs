@@ -32,17 +32,23 @@ namespace GameModeManager
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
         // Define dependencies
+        private readonly MapMenus _mapMenus;
+        private readonly ModeMenus _modeMenus;
         private readonly PlayerMenu _playerMenu;
         private readonly PluginState _pluginState;
         private readonly VoteManager _voteManager;
+        private readonly SettingMenus _settingMenus;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Register dependencies
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager,VoteManager voteManager, PlayerMenu playerMenu, PluginState pluginState)
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager,VoteManager voteManager, PlayerMenu playerMenu, PluginState pluginState, MapMenus mapMenus, SettingMenus settingMenus, ModeMenus modeMenus)
         {
+            _mapMenus = mapMenus;
+            _modeMenus = modeMenus;
             _playerMenu = playerMenu;
             _voteManager = voteManager;
             _pluginState = pluginState;
+            _settingMenus = settingMenus;
             _dependencyManager = dependencyManager;
         }
 
@@ -90,9 +96,29 @@ namespace GameModeManager
                 // Register custom votes
                 _voteManager.RegisterCustomVotes();
             }
-            
-            // Create game menu
-            _playerMenu.Load(); 
+
+            // Check if WASDMenus are enabled
+            if (Config.GameModes.Style.Equals("wasd") || Config.Maps.Style.Equals("wasd") || Config.Settings.Style.Equals("wasd") || Config.Votes.Style.Equals("wasd"))
+            {
+                // Ensure WASDSharedAPI is loaded
+                try
+                {
+                    if (_pluginState.CustomVotesApi.Get() is null)
+                        return;
+                }
+                catch (Exception)
+                {
+                    Logger.LogWarning("WASDSharedAPI plugin not found. WASD menus will not be work.");
+                    return;
+                }
+
+                // Create WASD menus    
+                _mapMenus.LoadWASDMenus();
+                _playerMenu.LoadWASDMenu(); 
+                _modeMenus.LoadWASDMenus();         
+                _settingMenus.LoadWASDMenu();
+
+            }
         }
         // Define method to unload plugin
         public override void Unload(bool hotReload)

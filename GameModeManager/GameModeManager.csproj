@@ -10,9 +10,13 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="lib\Gameloop.Vdf\Gameloop.Vdf.dll" Version="0.6.2" />
-    <Reference Include="CS2-CustomVotes.Shared" Version="1.0.1">
+    <Reference Include="CS2-CustomVotes.Shared" Version="1.1.3">
       <Private>false</Private>
       <HintPath>lib\counterstrikesharp\shared\CS2-CustomVotes.Shared\CS2-CustomVotes.Shared.dll</HintPath>
+    </Reference>
+    <Reference Include="WASDSharedAPI" Version="1.0.2">
+      <Private>false</Private>
+      <HintPath>lib\counterstrikesharp\shared\WASDSharedAPI\WASDSharedAPI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

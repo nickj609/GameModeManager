@@ -79,8 +79,9 @@ namespace GameModeManager.Features
                         _pluginState.CurrentMode = _mode;
 
                         // Update RTV map list and map menus
+                        _mapMenus.UpdateMenus();
+                        _mapMenus.UpdateWASDMenus();
                         _mapManager.UpdateRTVMapList();
-                        _mapMenus.UpdateMapMenus();
         
                         // Register map votes for new mode
                         _voteManager.RegisterMapVotes();
@@ -88,7 +89,8 @@ namespace GameModeManager.Features
                     else
                     {
                         _pluginState.CurrentMode = _mode;
-                        _mapMenus.UpdateMapMenus();
+                        _mapMenus.UpdateMenus();
+                        _mapMenus.UpdateWASDMenus();
                     }
                 }
                 else if (_pluginState.CurrentMode == _mode)
@@ -130,8 +132,15 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                _pluginState.ModeMenu.Title = _localizer.Localize("modes.menu-title");
-                _menuFactory.OpenMenu(_pluginState.ModeMenu, player);
+                if (_config.GameModes.Style.Equals("wasd") && _pluginState.ModeWASDMenu != null)
+                {
+                    _menuFactory.OpenWasdMenu(player, _pluginState.ModeWASDMenu);
+                }
+                else
+                {
+                    _pluginState.ModeMenu.Title = _localizer.Localize("modes.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.ModeMenu, player);
+                }
             }
         }
     }
