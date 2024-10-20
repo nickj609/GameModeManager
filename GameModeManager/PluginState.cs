@@ -1,4 +1,5 @@
 // Included libraries
+using WASDSharedAPI;
 using CS2_CustomVotes.Shared;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
@@ -75,7 +76,20 @@ namespace GameModeManager
         };
         public List<MapGroup> MapGroups = new List<MapGroup>();
 
-        // Define menus
+        // Define WASD menus
+        public IWasdMenu? MapWASDMenu;
+        public IWasdMenu? MapsWASDMenu;
+        public IWasdMenu? ModeWASDMenu;
+        public IWasdMenu? GameWASDMenu;
+        public IWasdMenu? VoteMapWASDMenu;
+        public IWasdMenu? VoteMapsWASDMenu;
+        public IWasdMenu? SettingsWASDMenu;
+        public IWasdMenu? VoteModesWASDMenu;
+        public IWasdMenu? VoteSettingsWASDMenu;
+        public IWasdMenu? SettingsEnableWASDMenu;
+        public IWasdMenu? SettingsDisableWASDMenu;
+
+        // Define base menus
         public BaseMenu MapMenu = new ChatMenu("Map List");
         public BaseMenu MapsMenu = new ChatMenu("Map List");
         public BaseMenu ModeMenu = new ChatMenu("Mode List");
@@ -88,7 +102,9 @@ namespace GameModeManager
         public BaseMenu SettingsEnableMenu = new ChatMenu("Settings List");
         public BaseMenu SettingsDisableMenu = new ChatMenu("Settings List");
 
-        // Define CS2-CustomVotesApi
+        // Define APIs
         public PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
+        public PluginCapability<IWasdMenuManager> WasdMenuManager { get; } = new("wasdmenu:manager");
+
     } 
 }

@@ -50,14 +50,28 @@ namespace GameModeManager.Features
         {
             if(player != null && _config.Votes.Enabled && _config.Votes.Maps && !_config.Votes.AllMaps)
             {
-                _pluginState.VoteMapMenu.Title = _localizer.Localize("maps.menu-title");
-                _menuFactory.OpenMenu(_pluginState.VoteMapMenu, player);
+                if (_config.Votes.Style.Equals("wasd") && _pluginState.VoteMapWASDMenu != null)
+                {
+                    _menuFactory.OpenWasdMenu(player, _pluginState.VoteMapWASDMenu);
+                }
+                else
+                {
+                    _pluginState.VoteMapMenu.Title = _localizer.Localize("maps.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.VoteMapMenu, player);
+                }
 
             }   
             else if(player != null && _config.Votes.Enabled && _config.Votes.AllMaps)
-            {      
-                _pluginState.VoteMapsMenu.Title = _localizer.Localize ("modes.menu-title");
-                _menuFactory.OpenMenu(_pluginState.VoteMapsMenu, player);
+            {     
+                if (_config.Votes.Style.Equals("wasd") && _pluginState.VoteMapsWASDMenu != null)
+                {
+                    _menuFactory.OpenWasdMenu(player, _pluginState.VoteMapsWASDMenu);
+                }
+                else
+                { 
+                    _pluginState.VoteMapsMenu.Title = _localizer.Localize ("modes.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.VoteMapsMenu, player);
+                }
                 
             }              
         }
@@ -71,8 +85,16 @@ namespace GameModeManager.Features
             {
                 if(player != null)
                 {
-                    _pluginState.VoteModesMenu.Title = _localizer.Localize("modes.menu-title");
-                    _menuFactory.OpenMenu(_pluginState.VoteModesMenu, player);
+                    if (_config.Votes.Style.Equals("wasd") && _pluginState.VoteModesWASDMenu != null)
+                    {
+                        _menuFactory.OpenWasdMenu(player, _pluginState.VoteModesWASDMenu);
+                    }
+                    else
+                    {
+                        _pluginState.VoteModesMenu.Title = _localizer.Localize("modes.menu-title");
+                        _menuFactory.OpenMenu(_pluginState.VoteModesMenu, player);
+                        
+                    }
                 } 
             }
         }
@@ -84,8 +106,15 @@ namespace GameModeManager.Features
         {
             if(player != null && _config.Votes.Enabled && _config.Votes.GameSettings)
             {
-                _pluginState.VoteSettingsMenu.Title = _localizer.Localize("settings.menu-title");
-                _menuFactory.OpenMenu(_pluginState.VoteSettingsMenu, player);
+                if (_config.Votes.Style.Equals("wasd") && _pluginState.VoteSettingsWASDMenu != null)
+                {
+                    _menuFactory.OpenWasdMenu(player, _pluginState.VoteSettingsWASDMenu);
+                }
+                else
+                {
+                    _pluginState.VoteSettingsMenu.Title = _localizer.Localize("settings.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.VoteSettingsMenu, player);
+                }
             }
         }
 
@@ -96,8 +125,15 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                _pluginState.GameMenu.Title = _localizer.Localize("game.menu-title");
-                _menuFactory.OpenMenu(_pluginState.GameMenu, player);
+                if (_config.Commands.Style.Equals("wasd") && _pluginState.GameWASDMenu != null)
+                {
+                    _menuFactory.OpenWasdMenu(player, _pluginState.GameWASDMenu);
+                }
+                else
+                {
+                    _pluginState.GameMenu.Title = _localizer.Localize("game.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.GameMenu, player);
+                }
             }
         }
 

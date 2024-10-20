@@ -6,13 +6,17 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.253"/>
+    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.282"/>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="lib\Gameloop.Vdf\Gameloop.Vdf.dll" Version="0.6.2" />
-    <Reference Include="CS2-CustomVotes.Shared" Version="1.0.1">
+    <Reference Include="CS2-CustomVotes.Shared" Version="1.1.3">
       <Private>false</Private>
       <HintPath>lib\counterstrikesharp\shared\CS2-CustomVotes.Shared\CS2-CustomVotes.Shared.dll</HintPath>
+    </Reference>
+    <Reference Include="WASDSharedAPI" Version="1.0.2">
+      <Private>false</Private>
+      <HintPath>lib\counterstrikesharp\shared\WASDSharedAPI\WASDSharedAPI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -25,5 +29,6 @@
         <Exec Command="xcopy /Y /R $(OutDir)*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
         <Exec Command="xcopy /Y /E /R $(ProjectDir)lib\csgo\ $(SolutionDir)bin\Debug\$(TargetFramework)\Public\" />
         <Exec Command="xcopy /Y /R $(ProjectDir)lang\*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang\" />
+        <Exec Command="xcopy /Y /E $(ProjectDir)lib\csgo\addons\counterstrikesharp\shared\WASDSharedAPI\WASDSharedAPI.dll $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
   </Target>
 </Project>
