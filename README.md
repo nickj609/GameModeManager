@@ -29,6 +29,8 @@ This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gam
 
 For creating custom votes, this plugin utilizes the [CS2-CustomVotes](https://github.com/imi-tat0r/CS2-CustomVotes) shared plugin API (licensed under the [MIT License](https://github.com/imi-tat0r/CS2-CustomVotes?tab=MIT-1-ov-file)). 
 
+For creating WASD menus, this plugin utilizes a custom fork of [WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI) shared plugin API (licensed under the [MIT License](https://github.com/Interesting-exe/WASDMenuAPI?tab=MIT-1-ov-file)). 
+
 ## Requirements
 - [Counter-Strike 2](https://www.counter-strike.net/cs2)
 - [Metamod:Source](https://github.com/alliedmodders/metamod-source/) (v1282+)
@@ -157,7 +159,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Delay               | Map change change delay in seconds.                                                                                                       | 
 | Default             | Default map group on server start (i.e. mg_active).                                                                                       | 
-| Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
+| Style               | Changes vote menu type (i.e. "chat", "center" or "wasd").                                                                                         |
 
 ### Vote Settings
 | Setting             | Description                                                                                                                               |
@@ -167,14 +169,14 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | AllMaps             | Enables all maps votes.                                                                                                                    |
 | GameModes           | Enables game mode votes.                                                                                                                  |
 | GameSettings        | Enables game setting votes.                                                                                                               |
-| Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
+| Style               | Changes vote menu type (i.e. "chat", "center" or "wasd").                                                                                         |
 
 ### Game Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables custom game settings.                                                                                                             | 
 | Folder              | Default settings folder within `/csgo/cfg/`.                                                                                              | 
-| Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      | 
+| Style               | Changes setting menu type (i.e. "chat", "center" or "wasd").                                                                                      | 
 
 ### Command Settings
 | Setting             | Description                                                                                                                               |
@@ -209,7 +211,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Default             | Default mode on server start (i.e. deathmatch).                                                                                           | 
-| Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      |
+| Style               | Changes setting menu type (i.e. "chat", "center" or "wasd").                                                                                      |
 | MapGroupFile        | Map groups file name in `/csgo/`. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).                         | 
 | List                | A customizable list of game modes for your server with friendly names for menus.                                                          |  
 
