@@ -112,39 +112,6 @@ namespace GameModeManager.Menus
                     });
                 }
             }
-
-            // Create vote all map(s) menu
-            if (_config.Maps.Style.Equals("wasd") && _config.Votes.Maps)
-            {
-                // Assign menu
-                _pluginState.VoteMapsMenu = _menuFactory.AssignMenu(_config.Maps.Style, "Select a game mode.");
-
-                // Add menu options for each mode in mode list
-                foreach (Mode _mode in _pluginState.Modes)
-                {
-                    _pluginState.VoteMapsMenu.AddMenuOption(_mode.Name, (player, option) =>
-                    {
-                        // Close menu
-                        MenuManager.CloseActiveMenu(player);
-
-                        // Create sub menu
-                        BaseMenu subMenu;
-                        subMenu = _menuFactory.AssignMenu(_config.Maps.Style, _localizer.Localize("maps.menu-title"));
-
-                        // Add menu options for each map in map list
-                        foreach (Map _map in _mode.Maps)
-                        {
-                            subMenu.AddMenuOption(_map.DisplayName, (player, option) =>
-                            {
-                                MenuManager.CloseActiveMenu(player);
-                                _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, _map.Name);
-                            });
-                        }
-                        // Open sub menu
-                        _menuFactory.OpenMenu(subMenu, player);
-                    });
-                }
-            }
         }
 
         // Define reusable method to update the map menu
