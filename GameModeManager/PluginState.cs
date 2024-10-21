@@ -65,7 +65,7 @@ namespace GameModeManager
         public bool RotationsEnabled = true;
         public bool TimeLimitScheduled = false;
         public Mode WarmupMode = DefaultWarmup;
-        public List<Map> Maps = new List<Map>();
+        public List<Map> Maps = new List<Map>(DefaultMaps);
         public List<Mode> Modes = new List<Mode>();
         public List<Mode> WarmupModes = new List<Mode>();
         public List<Setting> Settings = new List<Setting>();
