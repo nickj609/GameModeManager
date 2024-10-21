@@ -61,16 +61,13 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!timelimit <true|false|> optional: <seconds>` - Sets the time limit for the current map.
 
-   ![Screenshot 2024-09-24 171240](https://github.com/user-attachments/assets/1d91ad0e-cf4e-4c87-b221-b36806c0ffe5)
-
-- `!allmaps` - Displays an admin menu for changing the map to any map from any game mode. 
+   ![Screenshot 2024-09-24 171240](https://github.com/user-attachments/assets/1d91ad0e-cf4e-4c87-b221-b36806c0ffe5) 
 
 - `!maps` - Displays an admin menu for changing the map. 
 
-   > _It only shows maps for the current game mode._
+   > _By default, it only shows maps for the current game mode unless AllMaps is set to true._
 
-   ![Screenshot 2024-06-15 214126](https://github.com/nickj609/GameModeManager/assets/32173425/6da6d946-c876-4182-b7d2-8bb4e8d7341f)
-  
+   ![Screenshot 2024-10-20 205255](https://github.com/user-attachments/assets/3bf9e64d-bd2c-4a9c-8075-7c288852fe83)
    ![Screenshot 2024-06-15 215052](https://github.com/nickj609/GameModeManager/assets/32173425/a3d701c6-bba5-446f-90b4-fe849b901a84)
 
 - `!map <map name> <workshop id>` - Changes the map to the map specified.
@@ -79,8 +76,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
    
 - `!modes` - Displays an admin menu for changing the game mode.
 
-   ![Screenshot 2024-06-15 214427](https://github.com/nickj609/GameModeManager/assets/32173425/2c6448e7-b101-423b-a5d0-f93d7775e71f)
-  
+   ![Screenshot 2024-10-20 205327](https://github.com/user-attachments/assets/706ab1f9-74fa-4ffe-a4e4-925fdcfd7716)
    ![image](https://github.com/nickj609/GameModeManager/assets/32173425/3f517755-d3cf-48fd-a331-d0332cfd48b3)
 
 - `!mode <mode name>` - Changes the game mode to the mode specified.
@@ -89,7 +85,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!settings` - Displays an admin menu for enabling or disabling custom game settings.
 
-   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/d0481582-2eb5-4cc9-99cf-51c0dcec2acf)
+   ![Screenshot 2024-10-20 205406](https://github.com/user-attachments/assets/ebb042bf-d423-4047-95f8-33a762c5a9da)
    ![Screenshot 2024-06-15 215321](https://github.com/nickj609/GameModeManager/assets/32173425/882da0f6-36f4-4bc1-b70b-096535526a78)
 
 - `!setting <enable|disable> <setting name>` - Enables or disables a custom game setting.
@@ -103,7 +99,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!game` - Displays a **dynamic** menu of all player commands.
 
-   ![Screenshot 2024-06-15 202045](https://github.com/nickj609/GameModeManager/assets/32173425/51451ff1-df41-4b51-881a-a8727d5cbffd)
+   ![image](https://github.com/user-attachments/assets/5f45876d-7c4b-45a7-95fe-fc96f0dae57f)
 
 - `!currentmap` - Displays the current map. 
 
@@ -111,9 +107,9 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!changemap` - Displays a **dynamic** menu of all per-map votes that can be created.
 
-  > _It only shows maps for the current game mode._
+  > _By default, it only shows maps for the current game mode unless AllMaps is set to true._
 
-   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/1fe0914e-0a48-477c-b5a7-6f57abc391ba)
+   ![Screenshot 2024-10-20 205255](https://github.com/user-attachments/assets/5f5ba46d-72b6-4873-b5b2-f367155543c6)
 
 - `!timeleft` - Displays the timeleft in the current map.
 
@@ -126,11 +122,11 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!changemode` - Displays a menu of all per-mode votes that can be created.
 
-   ![Screenshot 2024-06-08 212539](https://github.com/nickj609/GameModeManager/assets/32173425/f5e3d915-4c01-45d5-95a2-a40b693e17bb)
+   ![Screenshot 2024-10-20 205327](https://github.com/user-attachments/assets/706ab1f9-74fa-4ffe-a4e4-925fdcfd7716)
 
 - `!changesetting` - Displays a menu of all per-setting votes that can be created.
 
-   ![Screenshot 2024-06-08 212803](https://github.com/nickj609/GameModeManager/assets/32173425/16a907d1-3bd9-4416-bda6-4d6cc4c55030)
+   ![Screenshot 2024-10-20 215225](https://github.com/user-attachments/assets/93769872-a4d2-4bee-9470-bffca7796136)
 
 </details>
 
