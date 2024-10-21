@@ -72,7 +72,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!map <map name> <workshop id>` - Changes the map to the map specified.
   
-   > _The worksop ID is *optional* and only required for maps that aren't explicitly set for a given map group._
+   > _The workshop ID is *optional* and only required for maps that aren't explicitly set for a given map group._
    
 - `!modes` - Displays an admin menu for changing the game mode.
 
