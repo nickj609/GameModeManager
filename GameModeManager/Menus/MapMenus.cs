@@ -173,7 +173,7 @@ namespace GameModeManager.Menus
             foreach (Map _map in _pluginState.CurrentMode.Maps)
             {
                 // Add menu option
-                _pluginState.VoteMapMenu.AddMenuOption(_map.DisplayName, (player, option) =>
+                _pluginState.VoteMapWASDMenu?.Add(_map.DisplayName, (player, option) =>
                 {
                     // Close menu
                     _menuFactory.CloseWasdMenu(player);
