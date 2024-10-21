@@ -42,83 +42,92 @@ namespace GameModeManager.Menus
             // Add menu options for each command in the command list
             foreach (string _command in _pluginState.PlayerCommands)
             {
-                _pluginState.GameMenu.AddMenuOption(_command, (player, option) =>
+                switch(_command)
                 {
-                    // Close menu
-                    MenuManager.CloseActiveMenu(player);
-
-                    switch(option.Text)
+                    case "!changemap":
+                    _pluginState.GameMenu.AddMenuOption("Change Map", (player, option) =>
                     {
-                        case "!changemap":
+                        // Close menu
+                        MenuManager.CloseActiveMenu(player);
+
+                        // Open sub menu
                         if (player != null && _config.Votes.Enabled && _config.Votes.Maps && !_config.Votes.AllMaps)
                         {
-                            if (_config.Maps.Style.Equals("wasd") && _pluginState.VoteMapWASDMenu != null)
-                            {
-                                _menuFactory.OpenWasdMenu(player, _pluginState.VoteMapWASDMenu);
-                            }
-                            else
-                            {
-                                _menuFactory.OpenMenu(_pluginState.VoteMapMenu, player);
-                            }
+                            _menuFactory.OpenMenu(_pluginState.VoteMapMenu, player);
                         }
                         else if(player != null && _config.Votes.Enabled && _config.Votes.Maps && _config.Votes.AllMaps)
                         {
-                            if (_config.Maps.Style.Equals("wasd")  && _pluginState.VoteMapsWASDMenu != null)
-                            {
-                                _menuFactory.OpenWasdMenu(player, _pluginState.VoteMapsWASDMenu);
-                            }
-                            else
-                            {
-                                _menuFactory.OpenMenu(_pluginState.VoteMapsMenu, player);
-                            }
+                             _menuFactory.OpenMenu(_pluginState.VoteMapsMenu, player);
                         }
-                        break;
-                        case "!changemode":
+
+                    });
+                    break;
+                    case "!changemode":
+                    _pluginState.GameMenu.AddMenuOption("Change Mode", (player, option) =>
+                    {
+                        // Close menu
+                        MenuManager.CloseActiveMenu(player);
+
+                        // Open sub menu
                         if (player != null && _config.Votes.Enabled && _config.Votes.GameModes)
                         {
-                            if (_config.Maps.Style.Equals("wasd") && _pluginState.VoteModesWASDMenu != null)
-                            {
-                                _menuFactory.OpenWasdMenu(player, _pluginState.VoteModesWASDMenu);
-                            }
-                            else
-                            {
-                                _menuFactory.OpenMenu(_pluginState.VoteModesMenu, player);
-                            }
+                            _menuFactory.OpenMenu(_pluginState.VoteModesMenu, player);
                         }
-                        break;
-                        case "!changesetting":
+                    });
+                    break;
+                    case "!changesetting":
+                    _pluginState.GameMenu.AddMenuOption("Change Setting", (player, option) =>
+                    {
+                        // Close menu
+                        MenuManager.CloseActiveMenu(player);
+
+                        // Open sub menu
                         if (player != null && _config.Votes.Enabled && _config.Votes.GameSettings)
                         {
-                            if (_config.Maps.Style.Equals("wasd") && _pluginState.VoteSettingsWASDMenu != null)
-                            {
-                                _menuFactory.OpenWasdMenu(player, _pluginState.VoteSettingsWASDMenu);
-                            }
-                            else
-                            {
-                                _menuFactory.OpenMenu(_pluginState.VoteSettingsMenu, player);
-                            }
+                            _menuFactory.OpenMenu(_pluginState.VoteSettingsMenu, player);
                         }
-                        break;
-                        case "!currentmode":
+                    });
+                    break;
+                    case "!currentmode":
+                    _pluginState.GameMenu.AddMenuOption("Current Mode", (player, option) =>
+                    {
+                        // Close menu
+                        MenuManager.CloseActiveMenu(player);
+
+                        // Print to chat
                         if (player != null)
                         {
                             player.PrintToChat(_localizer.Localize("currentmode.message", _pluginState.CurrentMode.Name));
                         }
-                        break;
-                        case "!currentmap":
+                    });
+                    break;
+                    case "!currentmap":
+                    _pluginState.GameMenu.AddMenuOption("Current Map", (player, option) =>
+                    {
+                        // Close menu
+                        MenuManager.CloseActiveMenu(player);
+
+                        // Print to chat
                         if (player != null)
                         {
                             player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.CurrentMap.Name));
                         }
-                        break;
-                        case "!timeleft":
+                    });
+                    break;
+                    case "!timeleft":
+                    _pluginState.GameMenu.AddMenuOption("Time Left", (player, option) =>
+                    {
+                        // Close menu
+                        MenuManager.CloseActiveMenu(player);
+
+                        // Print to chat
                         if (player != null)
                         {
                             player.PrintToChat(_localizer.LocalizeWithPrefix(_timeLimitManager.GetTimeLeftMessage()));
                         }
-                        break;
-                    }
-                });
+                    });
+                    break;
+                }
             }
         }
 
@@ -132,83 +141,98 @@ namespace GameModeManager.Menus
                 // Add menu options for each command in the command list
                 foreach (string _command in _pluginState.PlayerCommands)
                 {
-                    _pluginState.GameWASDMenu?.Add(_command, (player, option) =>
+                    switch(_command)
                     {
-                        // Close menu
-                        _menuFactory.CloseWasdMenu(player);
-
-                        switch(option.OptionDisplay)
+                        case "!changemap":
+                        _pluginState.GameWASDMenu?.Add("Change Map", (player, option) =>
                         {
-                            case "!changemap":
-                            if (player != null && _config.Votes.Enabled && _config.Votes.Maps && !_config.Votes.AllMaps)
+                            if (player != null && _config.Votes.Enabled )
                             {
-                                if (_config.Maps.Style.Equals("wasd") && _pluginState.VoteMapWASDMenu != null)
+                                if (_config.Votes.Maps && !_config.Votes.AllMaps)
                                 {
-                                    _menuFactory.OpenWasdMenu(player, _pluginState.VoteMapWASDMenu);
+                                    if (_pluginState.VoteMapsWASDMenu != null)
+                                    {
+                                        _pluginState.VoteMapsWASDMenu.Prev = option.Parent?.Options?.Find(option);
+                                        _menuFactory.OpenWasdMenu(player, _pluginState.VoteMapsWASDMenu);
+                                    }
                                 }
                                 else
                                 {
-                                    _menuFactory.OpenMenu(_pluginState.VoteMapMenu, player);
+                                    if (_pluginState.VoteMapWASDMenu != null)
+                                    {
+                                        _pluginState.VoteMapWASDMenu.Prev = option.Parent?.Options?.Find(option);
+                                        _menuFactory.OpenWasdMenu(player, _pluginState.VoteMapWASDMenu);
+                                    }
                                 }
                             }
-                            else if(player != null && _config.Votes.Enabled && _config.Votes.Maps && _config.Votes.AllMaps)
-                            {
-                                if (_config.Maps.Style.Equals("wasd")  && _pluginState.VoteMapsWASDMenu != null)
-                                {
-                                    _menuFactory.OpenWasdMenu(player, _pluginState.VoteMapsWASDMenu);
-                                }
-                                else
-                                {
-                                    _menuFactory.OpenMenu(_pluginState.VoteMapsMenu, player);
-                                }
-                            }
-                            break;
-                            case "!changemode":
+                        });
+                        break;
+                        case "!changemode":
+                        _pluginState.GameWASDMenu?.Add("Change Mode", (player, option) =>
+                        {
                             if (player != null && _config.Votes.Enabled && _config.Votes.GameModes)
                             {
-                                if (_config.Maps.Style.Equals("wasd") && _pluginState.VoteModesWASDMenu != null)
+                                if (_pluginState.VoteModesWASDMenu != null)
                                 {
+                                    _pluginState.VoteModesWASDMenu.Prev = option.Parent?.Options?.Find(option);
                                     _menuFactory.OpenWasdMenu(player, _pluginState.VoteModesWASDMenu);
                                 }
-                                else
-                                {
-                                    _menuFactory.OpenMenu(_pluginState.VoteModesMenu, player);
-                                }
                             }
-                            break;
-                            case "!changesetting":
+                        });
+                        break;
+                        case "!changesetting":
+                        _pluginState.GameWASDMenu?.Add("Change Setting", (player, option) =>
+                        {
                             if (player != null && _config.Votes.Enabled && _config.Votes.GameSettings)
                             {
-                                if (_config.Maps.Style.Equals("wasd") && _pluginState.VoteSettingsWASDMenu != null)
+                                if (_pluginState.VoteSettingsWASDMenu != null)
                                 {
+                                    _pluginState.VoteSettingsWASDMenu.Prev = option.Parent?.Options?.Find(option);
                                     _menuFactory.OpenWasdMenu(player, _pluginState.VoteSettingsWASDMenu);
                                 }
-                                else
-                                {
-                                    _menuFactory.OpenMenu(_pluginState.VoteSettingsMenu, player);
-                                }
                             }
-                            break;
-                            case "!currentmode":
+                        });
+                        break;
+                        case "!currentmode":
+                        _pluginState.GameWASDMenu?.Add("Current Mode", (player, option) =>
+                        {
+                            // Close menu
+                            _menuFactory.CloseWasdMenu(player);
+
+                            // Print to chat
                             if (player != null)
                             {
                                 player.PrintToChat(_localizer.Localize("currentmode.message", _pluginState.CurrentMode.Name));
                             }
-                            break;
-                            case "!currentmap":
+                        });
+                        break;
+                        case "!currentmap":
+                        _pluginState.GameWASDMenu?.Add("Current Map", (player, option) =>
+                        {
+                            // Close menu
+                            _menuFactory.CloseWasdMenu(player);
+
+                            // Print to chat
                             if (player != null)
                             {
-                                player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.CurrentMap.Name));
+                                player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.CurrentMap.DisplayName));
                             }
-                            break;
-                            case "!timeleft":
+                        });
+                        break;
+                        case "!timeleft":
+                        _pluginState.GameWASDMenu?.Add("Time Left", (player, option) =>
+                        {
+                            // Close menu
+                            _menuFactory.CloseWasdMenu(player);
+
+                            // Print to chat
                             if (player != null)
                             {
                                 player.PrintToChat(_localizer.LocalizeWithPrefix(_timeLimitManager.GetTimeLeftMessage()));
                             }
-                            break;
-                        }
-                    });
+                        });
+                        break;
+                    }
                 }
             }
         }
