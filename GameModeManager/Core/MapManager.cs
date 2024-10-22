@@ -35,12 +35,12 @@ namespace GameModeManager.Core
         // Define reusable method to update map list
         public void UpdateRTVMapList()
         {  
-            if (_config.RTV.Enabled)
+            if (_config.CustomRTV.Enabled)
             {
                 // Get map list
                 List<Map> _mapList;
 
-                if (_config.RTV.Mode == 1)
+                if (_config.CustomRTV.Mode == 1)
                 {
                     _mapList = _pluginState.Maps;
                 }
@@ -50,7 +50,7 @@ namespace GameModeManager.Core
                 }
 
                 // Update map list for RTV Plugin
-                using (StreamWriter writer = new StreamWriter(_config.RTV.MapList))
+                using (StreamWriter writer = new StreamWriter(_config.CustomRTV.MapList))
                 {
                     foreach (Map _map in _mapList)  
                     {
@@ -60,7 +60,7 @@ namespace GameModeManager.Core
                         }
                         else
                         {
-                            if(_config.RTV.MapFormat)
+                            if(_config.CustomRTV.MapFormat)
                             {
                                 writer.WriteLine($"ws:{_map.WorkshopId}");
                             }
@@ -73,7 +73,7 @@ namespace GameModeManager.Core
                 } 
                 
                 // Reload RTV Plugin
-                Server.ExecuteCommand($"css_plugins reload {_config.RTV.Plugin}");
+                Server.ExecuteCommand($"css_plugins reload {_config.CustomRTV.Plugin}");
             }
         }
     }

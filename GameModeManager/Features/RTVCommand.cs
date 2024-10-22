@@ -24,22 +24,40 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            plugin.AddCommand("css_rtv_enabled", "Enables or disables RTV.", OnRTVCommand);
+            plugin.AddCommand("css_custom_rtv", "Enables or disables custom RTV.", OnCustomRTVCommand);
+            plugin.AddCommand("css_rtv_enabled", "Enables or disables RTV.", OnRTVServerCommand);
         }
 
         // Define server rtv command handler
         [CommandHelper(minArgs: 1, usage: "<true|false>", whoCanExecute: CommandUsage.SERVER_ONLY)]
-        public void OnRTVCommand(CCSPlayerController? player, CommandInfo command)
+        public void OnCustomRTVCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null) 
+            {
+               if (command.ArgByIndex(1).Equals("true", StringComparison.OrdinalIgnoreCase) && !_pluginState.CustomRTV)
+               {
+                    _rtvManager.EnableCustomRTV();
+               }
+               else if (command.ArgByIndex(1).Equals("false", StringComparison.OrdinalIgnoreCase) && _pluginState.CustomRTV)
+               {
+                    _rtvManager.DisableCustomRTV();
+               }
+            }
+        }
+
+        // Define server rtv command handler
+        [CommandHelper(minArgs: 1, usage: "<true|false>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnRTVServerCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player == null) 
             {
                if (command.ArgByIndex(1).Equals("true", StringComparison.OrdinalIgnoreCase) && !_pluginState.RTVEnabled)
                {
-                    _rtvManager.EnableRTV();
+                    _pluginState.RTVEnabled = true;
                }
                else if (command.ArgByIndex(1).Equals("false", StringComparison.OrdinalIgnoreCase) && _pluginState.RTVEnabled)
                {
-                    _rtvManager.DisableRTV();
+                    _pluginState.RTVEnabled = false;
                }
             }
         }

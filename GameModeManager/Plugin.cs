@@ -36,8 +36,8 @@ namespace GameModeManager
         private readonly ModeMenus _modeMenus;
         private readonly PlayerMenu _playerMenu;
         private readonly PluginState _pluginState;
-        private readonly VoteManager _voteManager;
         private readonly SettingMenus _settingMenus;
+        private readonly CustomVoteManager _customVoteManager;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Register dependencies
@@ -46,7 +46,7 @@ namespace GameModeManager
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
             _playerMenu = playerMenu;
-            _voteManager = voteManager;
+            _customVoteManager = customVoteManager;
             _pluginState = pluginState;
             _settingMenus = settingMenus;
             _dependencyManager = dependencyManager;
@@ -70,9 +70,9 @@ namespace GameModeManager
         {
             base.OnAllPluginsLoaded(hotReload);
 
-            if (!Config.RTV.Enabled)
+            if (!Config.CustomRTV.Enabled)
             {
-                Server.ExecuteCommand($"css_plugins unload {Config.RTV.Plugin}");
+                Server.ExecuteCommand($"css_plugins unload {Config.CustomRTV.Plugin}");
             }
 
             // Check if custom votes are enabled
@@ -94,7 +94,7 @@ namespace GameModeManager
                 _isCustomVotesLoaded = true;
 
                 // Register custom votes
-                _voteManager.RegisterCustomVotes();
+                _customVoteManager.RegisterCustomVotes();
             }
 
             // Check if WASDMenus are enabled
@@ -131,7 +131,7 @@ namespace GameModeManager
                     // Deregister custom votes
                     try
                     {
-                        _voteManager.DeregisterCustomVotes();
+                        _customVoteManager.DeregisterCustomVotes();
                     }
                     catch (Exception ex)
                     {
