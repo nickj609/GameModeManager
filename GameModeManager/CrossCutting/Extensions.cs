@@ -111,37 +111,5 @@ namespace GameModeManager.CrossCutting
                                     AdminManager.CanPlayerTarget(new SteamID(controller.SteamID),
                                         new SteamID(target.SteamID));
         } 
-        public static void SetHealth(this CCSPlayerController player, int health)
-        {
-            var pawn = player.PlayerPawn.Value;
-            if (pawn != null && pawn.IsValid)
-            {
-                pawn.Health = health;
-            }
-        }
-
-        public static void SetArmor(this CCSPlayerController player, int armorValue)
-        {
-            var pawn = player.PlayerPawn.Value;
-            if (pawn != null && pawn.IsValid)
-            {
-                pawn.ArmorValue = armorValue;
-            }
-        }
-
-        public static void RestockAmmo(this CCSPlayerController player)
-        {
-            var pawn = player.PlayerPawn.Value;
-            if (pawn != null && pawn.IsValid && pawn.WeaponServices != null)
-            {
-                var weapons = pawn.WeaponServices.MyWeapons;
-                foreach (var weapon in weapons)
-                {
-                    if (weapon.Value == null) continue;
-                    weapon.Value.Clip1 = 999;
-                    weapon.Value.Clip2 = 999;
-                }
-            }
-        }
     }
 }

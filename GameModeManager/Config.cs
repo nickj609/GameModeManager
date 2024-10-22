@@ -19,28 +19,14 @@ namespace GameModeManager
         public string? DefaultMap {get; set;} = null; 
         public List<string> MapGroups {get; set;} = new List<string>(){"mg_active", "mg_comp"};
     }
-        // Define RTV settings
+    
+    // Define RTV settings
     public class RTVSettings
     {
-        public bool Enabled { get; set; } = false; // Enables RTV
-        public int Mode { get; set; } = 0; // 0 for current mode maps, 1 for all maps
-        public bool HideHudAfterVote { get; set;} = false; // Hides hud after vote
-        public bool HudMenu { get; set;} = true; // Enabled Hud menu
-        public bool NominationEnabled { get; set;} = true; // Enables nomination
-        public bool EnabledInWarmup { get; set;} = true; // Enables RTV in warmup
-        public int VoteDuration { get; set; } = 10; // Vote duration in seconds
-        public int MapsToShow { get; set; } = 6; // Number of maps to show in RTV menu
-        public int MinRounds { get; set; } = 1; // Number of maps to show in RTV menu
-        public int MinPlayers { get; set; } = 3; // Number of maps to show in RTV menu
-    }
-
-    // Define RTV settings
-    public class CustomRTVSettings
-    {
-        public bool Enabled { get; set; } = false; // Enable custom RTV
+        public bool Enabled { get; set; } = false; // Enable RTV Compatibility
         public int Mode { get; set; } = 0; // 0 for current mode maps, 1 for all maps
         public bool MapFormat { get; set; } = false; // Default file format (ws:<workshop id>). When set to false, uses format <map name>:<workshop id>. 
-        public string Plugin { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // Custom RTV plugin path
+        public string Plugin { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // RTV plugin path
         public string MapList { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"; // Default map list file
         
     }
@@ -85,7 +71,7 @@ namespace GameModeManager
     {
         public float Time { get; set; } = 60; // Default warmup time
         public bool PerMap { get; set; } = false; // Enables or disables per map warmup
-        public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg", MapGroups = new List<string>()}; // Default warmup mode
+        public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Knives Only", Config = $"warmup/knives_only.cfg", MapGroups = new List<string>()}; // Default warmup mode
         public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
         {
             new ModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg", MapGroups = new List<string>() },
@@ -161,7 +147,6 @@ namespace GameModeManager
          public CommandSettings Commands { get; set; } = new();
          public RotationSettings Rotation { get; set; } = new();
          public GameModeSettings GameModes { get; set; } = new();
-         public CustomRTVSettings CustomRTV { get; set; } = new();
     }
 
     // Define plugin class for parsing config
@@ -173,31 +158,31 @@ namespace GameModeManager
         // Parse configuration object data and perform error checking
         public void OnConfigParsed(Config _config)
         {  
-            if(_config.CustomRTV.Enabled) 
+            if(_config.RTV.Enabled) 
             {
                 // Disable game rotations
                 _config.Rotation.Enabled = false;
 
                 // Check if plugin DLL exists
-                if (File.Exists(Path.Join(PluginState.GameDirectory, _config.CustomRTV.Plugin)))
+                if (File.Exists(Path.Join(PluginState.GameDirectory, _config.RTV.Plugin)))
                 {
-                    _config.CustomRTV.Plugin = Path.Join(PluginState.GameDirectory, _config.CustomRTV.Plugin);
+                    _config.RTV.Plugin = Path.Join(PluginState.GameDirectory, _config.RTV.Plugin);
                 }
                 else
                 {
-                    Logger.LogError($"Cannot find RTV 'Plugin': {Path.Join(PluginState.GameDirectory, _config.CustomRTV.Plugin)}");
-                    throw new Exception($"Cannot find RTV 'Plugin': {Path.Join(PluginState.GameDirectory, _config.CustomRTV.Plugin)}");
+                    Logger.LogError($"Cannot find RTV 'Plugin': {Path.Join(PluginState.GameDirectory, _config.RTV.Plugin)}");
+                    throw new Exception($"Cannot find RTV 'Plugin': {Path.Join(PluginState.GameDirectory, _config.RTV.Plugin)}");
                 }
 
                 // Check if maplist exists
-                if (File.Exists(Path.Join(PluginState.GameDirectory, _config.CustomRTV.MapList))) 
+                if (File.Exists(Path.Join(PluginState.GameDirectory, _config.RTV.MapList))) 
                 {
-                    _config.CustomRTV.MapList = Path.Join(PluginState.GameDirectory, _config.CustomRTV.MapList);
+                    _config.RTV.MapList = Path.Join(PluginState.GameDirectory, _config.RTV.MapList);
                 }
                 else
                 {
-                    Logger.LogError($"Cannot find RTV 'MapListFile': {_config.CustomRTV.MapList}");
-                    throw new Exception($"Cannot find RTV 'MapListFile': {_config.CustomRTV.MapList}");
+                    Logger.LogError($"Cannot find RTV 'MapListFile': {_config.RTV.MapList}");
+                    throw new Exception($"Cannot find RTV 'MapListFile': {_config.RTV.MapList}");
                 }
             }
 

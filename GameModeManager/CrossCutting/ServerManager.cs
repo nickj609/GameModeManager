@@ -274,17 +274,5 @@ namespace GameModeManager.CrossCutting
                 player.Pawn.Value!.Unfreeze();
             }
 		}
-
-        // Define reusable method to unfreeze all players
-        public void PrintCenterTextAll(string text)
-        {
-            foreach (var player in Utilities.GetPlayers())
-            {
-                if (player.IsValid)
-                {
-                    player.PrintToCenter(text);
-                }
-            }
-        }
     }
 }
