@@ -34,14 +34,14 @@ namespace GameModeManager
         // Define dependencies
         private readonly PlayerMenu _playerMenu;
         private readonly PluginState _pluginState;
-        private readonly VoteManager _voteManager;
+        private readonly CustomVoteManager _customVoteManager;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Register dependencies
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager,VoteManager voteManager, PlayerMenu playerMenu, PluginState pluginState)
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager,CustomVoteManager customVoteManager, PlayerMenu playerMenu, PluginState pluginState)
         {
             _playerMenu = playerMenu;
-            _voteManager = voteManager;
+            _customVoteManager = customVoteManager;
             _pluginState = pluginState;
             _dependencyManager = dependencyManager;
         }
@@ -64,9 +64,9 @@ namespace GameModeManager
         {
             base.OnAllPluginsLoaded(hotReload);
 
-            if (!Config.RTV.Enabled)
+            if (!Config.CustomRTV.Enabled)
             {
-                Server.ExecuteCommand($"css_plugins unload {Config.RTV.Plugin}");
+                Server.ExecuteCommand($"css_plugins unload {Config.CustomRTV.Plugin}");
             }
 
             // Check if custom votes are enabled
@@ -88,7 +88,7 @@ namespace GameModeManager
                 _isCustomVotesLoaded = true;
 
                 // Register custom votes
-                _voteManager.RegisterCustomVotes();
+                _customVoteManager.RegisterCustomVotes();
             }
             
             // Create game menu
@@ -105,7 +105,7 @@ namespace GameModeManager
                     // Deregister custom votes
                     try
                     {
-                        _voteManager.DeregisterCustomVotes();
+                        _customVoteManager.DeregisterCustomVotes();
                     }
                     catch (Exception ex)
                     {

@@ -53,15 +53,15 @@ namespace GameModeManager.Services
         }
 
         // Enable RTV compatibility api handler
-        public void EnableRTV(bool enabled)
+        public void EnableCustomRTV(bool enabled)
         {
             if(enabled)
             {
-                _rtvManager.EnableRTV();
+                _rtvManager.EnableCustomRTV();
             }
             else
             {
-                _rtvManager.DisableRTV();
+                _rtvManager.DisableCustomRTV();
             }
         }
 
