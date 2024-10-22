@@ -10,13 +10,13 @@
         "dependencies": {
           "CS2-CustomVotes.Shared": "1.0.0",
           "CSSharpUtils": "1.0.1",
-          "CounterStrikeSharp.API": "1.0.253"
+          "CounterStrikeSharp.API": "1.0.282"
         },
         "runtime": {
           "CS2-CustomVotes.dll": {}
         }
       },
-      "CounterStrikeSharp.API/1.0.253": {
+      "CounterStrikeSharp.API/1.0.282": {
         "dependencies": {
           "McMaster.NETCore.Plugins": "1.4.0",
           "Microsoft.CSharp": "4.7.0",
@@ -33,14 +33,14 @@
         },
         "runtime": {
           "lib/net8.0/CounterStrikeSharp.API.dll": {
-            "assemblyVersion": "1.0.253.0",
-            "fileVersion": "1.0.253.0"
+            "assemblyVersion": "1.0.282.0",
+            "fileVersion": "1.0.282.0"
           }
         }
       },
       "CSSharpUtils/1.0.1": {
         "dependencies": {
-          "CounterStrikeSharp.API": "1.0.253"
+          "CounterStrikeSharp.API": "1.0.282"
         },
         "runtime": {
           "lib/net8.0/CSSharpUtils.dll": {
@@ -546,7 +546,7 @@
       },
       "CS2-CustomVotes.Shared/1.0.0": {
         "dependencies": {
-          "CounterStrikeSharp.API": "1.0.253"
+          "CounterStrikeSharp.API": "1.0.282"
         },
         "runtime": {
           "CS2-CustomVotes.Shared.dll": {
@@ -563,12 +563,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "CounterStrikeSharp.API/1.0.253": {
+    "CounterStrikeSharp.API/1.0.282": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-MYEDI5k6LIEhZDZ1m+mOQJzIGR2seq/xu6wR2tGngdNs2MHeng3TAqXDdFjJCfyHLKEmnL2GrNHXyosAIllvZQ==",
-      "path": "counterstrikesharp.api/1.0.253",
-      "hashPath": "counterstrikesharp.api.1.0.253.nupkg.sha512"
+      "sha512": "sha512-oantyRJganDBhUnna0bgBmEXu+3WWCYhEED8zQ1YZecwYCNM/OgTNL2mVXVDPuengBg+jJvwi1tFrOM8PyaIhQ==",
+      "path": "counterstrikesharp.api/1.0.282",
+      "hashPath": "counterstrikesharp.api.1.0.282.nupkg.sha512"
     },
     "CSSharpUtils/1.0.1": {
       "type": "package",

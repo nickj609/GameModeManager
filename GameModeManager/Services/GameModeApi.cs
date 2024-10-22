@@ -43,7 +43,8 @@ namespace GameModeManager.Services
         // Update map menus api handler
         public void UpdateMapMenus()
         {
-            _mapMenus.UpdateMapMenus();
+            _mapMenus.UpdateMenus();
+            _mapMenus.UpdateWASDMenus();
         }
 
         // Trigger rotation api handler

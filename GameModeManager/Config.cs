@@ -49,7 +49,7 @@ namespace GameModeManager
     public class MapSettings
     {
         public int Delay { get; set; } = 5; // Map change delay in seconds
-        public string Style { get; set; } = "center"; // Changes map menu type 
+        public string Style { get; set; } = "wasd"; // Changes map menu type 
         public string Default { get; set; } =  "de_dust2"; // Default map on server start
     }
 
@@ -61,14 +61,14 @@ namespace GameModeManager
         public bool AllMaps { get; set; } = false; // Changes vote to change game to a specific map in all modes
         public bool GameModes { get; set; } = false; // Enables vote to change game mode
         public bool GameSettings { get; set; } = false; // Enables vote to change game setting
-        public string Style { get; set; } = "center"; // Changes vote menu type (i.e. "chat" or "center")
+        public string Style { get; set; } = "wasd"; // Changes vote menu type (i.e. "chat" or "center")
     }
 
     // Define game settings
     public class GameSettings
     {
         public bool Enabled { get; set; } = true; // Enable game settings
-        public string Style { get; set; } = "center"; // Changes settings menu type (i.e. "chat" or "center")
+        public string Style { get; set; } = "wasd"; // Changes settings menu type (i.e. "chat" or "center")
         public string Folder { get; set; } = "settings"; // Default settings folder
     }
 
@@ -79,6 +79,7 @@ namespace GameModeManager
         public bool Maps { get; set; } = true; // Enables or disables !maps admin command 
         public bool AllMaps { get; set; } = false; // Enables or disables !allmaps admin command
         public bool TimeLeft { get; set; } = true; // Enables or disables !timeleft admin command
+        public string Style { get; set; } = "wasd"; // Changes command menu type (i.e. "chat" or "center")
     }
 
     public class WarmupSettings
@@ -114,7 +115,7 @@ namespace GameModeManager
     // Define game mode settings
     public class GameModeSettings
     {
-        public string Style { get; set; } = "center"; // Changes mode menu type (i.e. "chat" or "center")
+        public string Style { get; set; } = "wasd"; // Changes mode menu type (i.e. "chat" or "center")
         public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Casual", Config = "casual.cfg", MapGroups = new List<string>(){"mg_active", "mg_comp"} }; // Default mode on server start
         public string MapGroupFile { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
         
@@ -202,7 +203,7 @@ namespace GameModeManager
             }
 
             // Maps settings
-            if (!_config.Maps.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
+            if (!_config.Maps.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
@@ -214,7 +215,7 @@ namespace GameModeManager
             }
 
             // Vote Settings
-            if (_config.Votes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.Votes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
+            if (!_config.Votes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
@@ -251,7 +252,7 @@ namespace GameModeManager
                 throw new Exception("Undefined: Game modes list cannot be empty.");
             }
             
-            if (_config.GameModes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.GameModes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
+            if (_config.GameModes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.GameModes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.GameModes.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");

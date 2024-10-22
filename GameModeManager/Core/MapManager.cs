@@ -2,7 +2,6 @@
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
-using CounterStrikeSharp.API.Core;
 
 // Declare namespace
 namespace GameModeManager.Core
@@ -29,7 +28,7 @@ namespace GameModeManager.Core
         // Define on map start behavior
        public void OnMapStart(string map)
         {
-            Map _map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(Server.MapName, StringComparison.OrdinalIgnoreCase)) ?? new Map(Server.MapName);
+            Map _map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(map, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(map, StringComparison.OrdinalIgnoreCase)) ?? new Map(map);
             _pluginState.CurrentMap = _map;
         }
         

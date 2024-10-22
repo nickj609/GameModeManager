@@ -32,13 +32,15 @@ namespace GameModeManager.Models
         public List<Map> CreateMapList(List<MapGroup> mapGroups)
         {
             List<Map> _maps = new List<Map>();
+            HashSet<string> uniqueMapNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             foreach (MapGroup mapGroup in mapGroups)
             {
-                foreach(Map map in mapGroup.Maps)
+                foreach (Map map in mapGroup.Maps)
                 {
-                    Map? _map = _maps.FirstOrDefault(m => m.Name.Equals(map.Name, StringComparison.OrdinalIgnoreCase));
-                    if(_map == null)
+                    if (uniqueMapNames.Add(map.Name))
                     {
+                        // Only add the map if its name hasn't been encountered before (case-insensitive)
                         _maps.Add(map);
                     }
                 }

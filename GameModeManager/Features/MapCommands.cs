@@ -62,8 +62,15 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                _pluginState.MapMenu.Title = _localizer.Localize("maps.menu-title");
-                _menuFactory.OpenMenu(_pluginState.MapMenu, player);
+                if (_config.Maps.Style.Equals("wasd") && _pluginState.MapWASDMenu != null)
+                {
+                    _menuFactory.OpenWasdMenu(player, _pluginState.MapWASDMenu);
+                }
+                else
+                {
+                    _pluginState.MapMenu.Title = _localizer.Localize("maps.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.MapMenu, player);
+                }
             }
         }
 
@@ -75,8 +82,15 @@ namespace GameModeManager.Features
 
             if(player != null)
             {
-                _pluginState.MapsMenu.Title = _localizer.Localize("modes.menu-title");
-                _menuFactory.OpenMenu(_pluginState.MapsMenu, player);
+                if (_config.Maps.Style.Equals("wasd") && _pluginState.MapsWASDMenu != null)
+                {
+                    _menuFactory.OpenWasdMenu(player, _pluginState.MapsWASDMenu);
+                }
+                else
+                {
+                    _pluginState.MapsMenu.Title = _localizer.Localize("modes.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.MapsMenu, player);
+                }
             }
         }
 
