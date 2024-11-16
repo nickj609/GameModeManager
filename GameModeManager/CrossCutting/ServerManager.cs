@@ -1,10 +1,10 @@
 // Included libraries
-using GameModeManager.Timers;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
+using CountdownTimer = GameModeManager.Timers.CountdownTimer;
 
 // Declare namespace
 namespace GameModeManager.CrossCutting
@@ -27,13 +27,12 @@ namespace GameModeManager.CrossCutting
             _gameRules =  gameRules;
             _pluginState = pluginState;
         }
-
         // Load config
          public void OnConfigParsed(Config config)
         {
             _config = config;
         }
-
+        
         // Define reusable method to change map
         public void ChangeMap(Map nextMap)
         {
@@ -93,7 +92,7 @@ namespace GameModeManager.CrossCutting
                 Server.ExecuteCommand($"mp_warmup_end");
 
                 // Delay freeze
-                new Timer(1.3f, () =>
+                new Timer(1.2f, () =>
                 {
                     Server.ExecuteCommand("bot_kick");
                     FreezePlayers();
@@ -106,13 +105,8 @@ namespace GameModeManager.CrossCutting
                 FreezePlayers();
             }
 
-            // Disable warmup scheduler
-            if (_config.Warmup.PerMap)
-            {
-                _pluginState.WarmupScheduled = false;
-            }
-
             // Display Countdown
+            _pluginState.CountdownRunning = true;
             CountdownTimer timer = new CountdownTimer(delay, () => 
             {
                 // Change map
@@ -128,6 +122,10 @@ namespace GameModeManager.CrossCutting
                 {
                     Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
                 }
+
+                // Disable countdown flag
+                _pluginState.CountdownRunning = false;
+
             }, "Map changing in ");
 
         }
