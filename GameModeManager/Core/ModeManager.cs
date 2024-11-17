@@ -39,7 +39,7 @@ namespace GameModeManager.Core
         // Define on map start behavior
         public void OnMapStart(string map)
         {
-            new Timer(3.0f, () => 
+            new Timer(3.5f, () => 
             {
                 Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
                 Server.ExecuteCommand("mp_restartgame 1");

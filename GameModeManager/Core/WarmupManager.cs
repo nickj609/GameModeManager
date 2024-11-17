@@ -18,16 +18,14 @@ namespace GameModeManager.Core
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<WarmupManager> _logger;
-        private TimeLimitManager _timeLimitManager;
 
         // Define class instance
-        public WarmupManager(PluginState pluginState, ILogger<WarmupManager> logger, StringLocalizer localizer, GameRules gameRules, TimeLimitManager timeLimitManager)
+        public WarmupManager(PluginState pluginState, ILogger<WarmupManager> logger, StringLocalizer localizer, GameRules gameRules)
         {
             _logger = logger;
             _gameRules = gameRules;
             _localizer = localizer;
             _pluginState = pluginState;
-            _timeLimitManager = timeLimitManager;
         }
 
         // Load config
@@ -81,20 +79,10 @@ namespace GameModeManager.Core
             }
         }
 
-        public void OnMapStart(string map)
-        {
-            _pluginState.WarmupRunning = false;
-            
-            if (Extensions.ValidPlayerCount(false) > 0 && !_gameRules.HasMatchStarted)
-            {
-                StartWarmup(_pluginState.WarmupMode);
-            }
-        }
-
         // Define on warmup start behavior
         public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
         {
-            if (Extensions.ValidPlayerCount(false) > 0 && !_gameRules.HasMatchStarted)
+            if (Extensions.ValidPlayerCount(false) == 1)
             {
                 StartWarmup(_pluginState.WarmupMode);
             }
@@ -112,13 +100,7 @@ namespace GameModeManager.Core
         {
             if (Extensions.IsServerEmpty())
             {
-                EndWarmup();
-
-                if (_pluginState.TimeLimitEnabled)
-                {
-                    _timeLimitManager.DisableTimeLimit();
-                }
-
+                _pluginState.WarmupRunning = false;
             }
             return HookResult.Continue;
         }
@@ -144,7 +126,7 @@ namespace GameModeManager.Core
         //Define reusable method to start warmup
         public void StartWarmup(Mode warmupMode)
         {
-            if (_pluginState.WarmupScheduled && !_pluginState.WarmupRunning)
+            if (_pluginState.WarmupScheduled && !_pluginState.WarmupRunning && !_gameRules.HasMatchStarted)
             {
                 _pluginState.WarmupRunning = true;
                 Server.ExecuteCommand($"exec {warmupMode.Config}");
@@ -155,11 +137,10 @@ namespace GameModeManager.Core
         //Define reusable method to end warmup
         public void EndWarmup()
         {
-           if (_pluginState.WarmupScheduled && _pluginState.WarmupRunning)
+           if (_pluginState.WarmupRunning)
             {
                 Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
                 Server.ExecuteCommand($"mp_warmup_end");
-                Server.ExecuteCommand($"mp_restartgame 1");
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.end.message",  _pluginState.CurrentMode.Name)); 
 
                 if (_pluginState.PerMapWarmup)

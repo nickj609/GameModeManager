@@ -25,23 +25,24 @@ namespace GameModeManager.Models
             Config = configFile;
             MapGroups = mapGroups;  
             Maps = CreateMapList(MapGroups);
-            DefaultMap = Maps.FirstOrDefault(m => m.Name.Equals(defaultMap, StringComparison.OrdinalIgnoreCase) || m.WorkshopId.ToString().Equals(defaultMap, StringComparison.OrdinalIgnoreCase));
+            DefaultMap = Maps.FirstOrDefault(m => m.Name.Equals(defaultMap, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(defaultMap, StringComparison.OrdinalIgnoreCase) || m.WorkshopId.ToString().Equals(defaultMap, StringComparison.OrdinalIgnoreCase));
         }
 
         // Define method to generate maps from map groups
         public List<Map> CreateMapList(List<MapGroup> mapGroups)
         {
             List<Map> _maps = new List<Map>();
-            HashSet<string> uniqueMapNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            List<string> uniqueMapNames = new List<string>();
 
             foreach (MapGroup mapGroup in mapGroups)
             {
                 foreach (Map map in mapGroup.Maps)
                 {
-                    if (uniqueMapNames.Add(map.Name))
+                    if (!uniqueMapNames.Any(m => m.Equals(map.Name, StringComparison.OrdinalIgnoreCase)))
                     {
                         // Only add the map if its name hasn't been encountered before (case-insensitive)
                         _maps.Add(map);
+                        uniqueMapNames.Add(map.Name);
                     }
                 }
             }

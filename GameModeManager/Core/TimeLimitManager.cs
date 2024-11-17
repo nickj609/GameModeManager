@@ -67,6 +67,7 @@ namespace GameModeManager.Core
 
             // Register event handlers
             plugin.RegisterEventHandler<EventGameEnd>(EventGameEndHandler);
+            plugin.RegisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnectHandler);
             plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(EventRoundAnnounceMatchStartHandler);
         }
 
@@ -154,6 +155,19 @@ namespace GameModeManager.Core
             if (_pluginState.TimeLimitEnabled)
             {
                 DisableTimeLimit();
+            }
+            return HookResult.Continue;
+        }
+
+        // Define event player disconnect handler
+        public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
+        {
+            if (Extensions.IsServerEmpty())
+            {
+                if (_pluginState.TimeLimitEnabled)
+                {
+                    DisableTimeLimit();
+                }
             }
             return HookResult.Continue;
         }
