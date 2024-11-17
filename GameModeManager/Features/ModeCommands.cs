@@ -69,9 +69,7 @@ namespace GameModeManager.Features
                     _logger.LogInformation($"New mode: {_mode.Name}");
 
                     if (_config.Votes.Enabled && _config.Votes.Maps)
-                    {
-                        _logger.LogInformation("Regenerating per map votes...");
-                        
+                    {                        
                         // Deregister map votes from old mode
                         _voteManager.DeregisterMapVotes();
 

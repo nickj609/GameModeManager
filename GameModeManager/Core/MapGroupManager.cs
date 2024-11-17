@@ -83,34 +83,52 @@ namespace GameModeManager.Core
                                     long _mapWorkshopId = long.Parse(parts[1]);
                                     string _mapNameFormatted = parts[parts.Length - 1];
 
-                                    // Add map to all maps list if it doesn't already exist
-                                    if (!_pluginState.Maps.Any(m => m.Name == _mapNameFormatted && m.WorkshopId == _mapWorkshopId))
+                                    // Add map to maps lists
+                                    if (!string.IsNullOrEmpty(_mapDisplayName))
                                     {
-                                        if (!string.IsNullOrEmpty(_mapDisplayName))
+                                        // Add to mapgroup map list
+                                        _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
+                                        
+                                        // Add to all maps list only if it doesn't already exist
+                                        if (!_pluginState.Maps.Any(m => m.Name == _mapNameFormatted && m.WorkshopId == _mapWorkshopId))
                                         {
-                                            _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
                                             _pluginState.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
                                         }
-                                        else
+                                    }
+                                    else
+                                    {
+                                        // Add to mapgroup map list
+                                        _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
+
+                                        // Add to all maps list only if it doesn't already exist
+                                        if (!_pluginState.Maps.Any(m => m.Name == _mapNameFormatted && m.WorkshopId == _mapWorkshopId))
                                         {
-                                            _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
                                             _pluginState.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
                                         }
                                     }
                                 }
                                 else
                                 {
-                                    // Add map to all maps list if it doesn't already exist
-                                    if (!_pluginState.Maps.Any(m => m.Name == _mapName))
+                                    // Add map to maps lists
+                                    if (!string.IsNullOrEmpty(_mapDisplayName))
                                     {
-                                        if (!string.IsNullOrEmpty(_mapDisplayName))
+                                        // Add to mapgroup map list
+                                        _group.Maps.Add(new Map(_mapName, _mapDisplayName));
+
+                                        // Add to all maps list only if it doesn't already exist
+                                        if (!_pluginState.Maps.Any(m => m.Name == _mapName))
                                         {
-                                            _group.Maps.Add(new Map(_mapName, _mapDisplayName));
                                             _pluginState.Maps.Add(new Map(_mapName, _mapDisplayName));
                                         }
-                                        else
+                                    }
+                                    else
+                                    {
+                                        // Add to mapgroup map list
+                                        _group.Maps.Add(new Map(_mapName));
+
+                                        // Add to all maps list only if it doesn't already exist
+                                        if (!_pluginState.Maps.Any(m => m.Name == _mapName))
                                         {
-                                            _group.Maps.Add(new Map(_mapName));
                                             _pluginState.Maps.Add(new Map(_mapName));
                                         }
                                     }

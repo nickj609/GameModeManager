@@ -1,10 +1,10 @@
 // Included libraries
-using GameModeManager.Timers;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
+using CountdownTimer = GameModeManager.Timers.CountdownTimer;
 
 // Declare namespace
 namespace GameModeManager.CrossCutting
@@ -13,57 +13,38 @@ namespace GameModeManager.CrossCutting
     public class ServerManager : IPluginDependency<Plugin, Config>
     {
         // Define Dependencies
-        private GameRules _gameRules;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<ServerManager> _logger;
 
         // Define class instance
-        public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer, GameRules gameRules)
+        public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer)
         {
             _logger = logger;
             _localizer = localizer;
-            _gameRules =  gameRules;
             _pluginState = pluginState;
         }
-
         // Load config
          public void OnConfigParsed(Config config)
         {
             _config = config;
         }
-
+        
         // Define reusable method to change map
         public void ChangeMap(Map nextMap)
         {
-            if(_gameRules.WarmupRunning)
+            // Disable warmup
+            _pluginState.WarmupRunning = false;
+            _pluginState.WarmupScheduled = false;
+
+            // Kick bots and freeze all players
+            new Timer(0.5f, () =>
             {
-                // End warmup
-                Server.ExecuteCommand($"mp_warmup_end");
-                
-                // Delay freeze
-                new Timer(1.5f, () =>
-                {
-                    Server.ExecuteCommand("bot_kick");
-                    FreezePlayers();
-                });
-            }
-            else
-            {
-                // Kick bots and freeze all players
                 Server.ExecuteCommand("bot_kick");
                 FreezePlayers();
-            }
+            });
 
-            // Disable warmup scheduler
-            if (_config.Warmup.PerMap)
-            {
-                _pluginState.WarmupScheduled = false;
-            }
-
-            // Freeze all players
-            FreezePlayers();
 
             // Display Countdown
             CountdownTimer timer = new CountdownTimer(_config.Maps.Delay, () => 
@@ -87,32 +68,19 @@ namespace GameModeManager.CrossCutting
         // Define reusable method to change map
         public void ChangeMap(Map nextMap, int delay)
         {
-            if(_gameRules.WarmupRunning)
-            {
-                // End warmup
-                Server.ExecuteCommand($"mp_warmup_end");
+            // Disable warmup
+            _pluginState.WarmupRunning = false;
+            _pluginState.WarmupScheduled = false;
 
-                // Delay freeze
-                new Timer(1.3f, () =>
-                {
-                    Server.ExecuteCommand("bot_kick");
-                    FreezePlayers();
-                });
-            }
-            else
+            // Kick bots and freeze all players
+            new Timer(0.5f, () =>
             {
-                // Kick bots and freeze all players
                 Server.ExecuteCommand("bot_kick");
                 FreezePlayers();
-            }
-
-            // Disable warmup scheduler
-            if (_config.Warmup.PerMap)
-            {
-                _pluginState.WarmupScheduled = false;
-            }
+            });
 
             // Display Countdown
+            _pluginState.CountdownRunning = true;
             CountdownTimer timer = new CountdownTimer(delay, () => 
             {
                 // Change map
@@ -128,16 +96,16 @@ namespace GameModeManager.CrossCutting
                 {
                     Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
                 }
-            }, "Map changing in ");
 
+                // Disable countdown flag
+                _pluginState.CountdownRunning = false;
+
+            }, "Map changing in ");
         }
 
         // Define reusable method to change mode
         public void ChangeMode(Mode mode)
         {
-            // Disable warmup scheduler
-            _pluginState.WarmupScheduled = false;
-
             // Execute mode config
             Server.ExecuteCommand($"exec {mode.Config}");
 

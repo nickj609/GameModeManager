@@ -13,15 +13,17 @@ namespace GameModeManager.Core
     public class WarmupManager : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
+        private GameRules _gameRules;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<WarmupManager> _logger;
 
         // Define class instance
-        public WarmupManager(PluginState pluginState, ILogger<WarmupManager> logger, StringLocalizer localizer)
+        public WarmupManager(PluginState pluginState, ILogger<WarmupManager> logger, StringLocalizer localizer, GameRules gameRules)
         {
             _logger = logger;
+            _gameRules = gameRules;
             _localizer = localizer;
             _pluginState = pluginState;
         }
@@ -37,6 +39,7 @@ namespace GameModeManager.Core
         { 
             // Register event handlers
             plugin.RegisterEventHandler<EventWarmupEnd>(EventWarmupEndHandler, HookMode.Post);
+            plugin.RegisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnectHandler, HookMode.Post);
             plugin.RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler, HookMode.Post);
 
             // Create warmup mode list from config
@@ -77,12 +80,11 @@ namespace GameModeManager.Core
         }
 
         // Define on warmup start behavior
-         public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
+        public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
         {
-            if (_pluginState.WarmupScheduled)
+            if (Extensions.ValidPlayerCount(false) == 1)
             {
-                Server.ExecuteCommand($"exec {_pluginState.WarmupMode.Config}");
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.start.message",  _pluginState.WarmupMode.Name));
+                StartWarmup(_pluginState.WarmupMode);
             }
             return HookResult.Continue;
         }
@@ -90,21 +92,20 @@ namespace GameModeManager.Core
         // Define on warmup end behavior
         public HookResult EventWarmupEndHandler(EventWarmupEnd @event, GameEventInfo info)
         {
-            if (_pluginState.WarmupScheduled)
-            {
-                Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
-                Server.ExecuteCommand($"mp_restartgame 1");
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.end.message",  _pluginState.CurrentMode.Name)); 
-
-                if (_pluginState.PerMapWarmup)
-                {
-                    _pluginState.WarmupScheduled = false;
-                } 
-            }
+            EndWarmup();
             return HookResult.Continue;
         }
 
-        //Define reusable methods to schedule warmup mode
+        public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
+        {
+            if (Extensions.IsServerEmpty())
+            {
+                _pluginState.WarmupRunning = false;
+            }
+            return HookResult.Continue;
+        }
+        
+        //Define reusable method to schedule warmup mode
         public bool ScheduleWarmup(string modeName)
         {
             Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase) || m.Config.Contains(modeName, StringComparison.OrdinalIgnoreCase));
@@ -120,6 +121,35 @@ namespace GameModeManager.Core
                 _logger.LogError($"Warmup mode {modeName} not found.");
                 return false;  
             } 
+        }
+        
+        //Define reusable method to start warmup
+        public void StartWarmup(Mode warmupMode)
+        {
+            if (_pluginState.WarmupScheduled && !_pluginState.WarmupRunning && !_gameRules.HasMatchStarted)
+            {
+                _pluginState.WarmupRunning = true;
+                Server.ExecuteCommand($"exec {warmupMode.Config}");
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.start.message",  warmupMode.Name));
+            }
+        }
+
+        //Define reusable method to end warmup
+        public void EndWarmup()
+        {
+           if (_pluginState.WarmupRunning)
+            {
+                Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
+                Server.ExecuteCommand($"mp_warmup_end");
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.end.message",  _pluginState.CurrentMode.Name)); 
+
+                if (_pluginState.PerMapWarmup)
+                {
+                    _pluginState.WarmupScheduled = false;
+                } 
+
+                _pluginState.WarmupRunning = false;
+            }
         }
     }
 }
