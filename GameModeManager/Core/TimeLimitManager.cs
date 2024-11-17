@@ -65,7 +65,9 @@ namespace GameModeManager.Core
             // Load convars
             LoadCvar();
 
-            // Register event handler
+            // Register event handlers
+            plugin.RegisterEventHandler<EventGameEnd>(EventGameEndHandler);
+            plugin.RegisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnectHandler);
             plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(EventRoundAnnounceMatchStartHandler);
         }
 
@@ -143,6 +145,29 @@ namespace GameModeManager.Core
             else
             {
                 DisableTimeLimit();
+            }
+            return HookResult.Continue;
+        }
+
+        // Define event game end handler
+        public HookResult EventGameEndHandler(EventGameEnd @event, GameEventInfo info)
+        {
+            if (_pluginState.TimeLimitEnabled)
+            {
+                DisableTimeLimit();
+            }
+            return HookResult.Continue;
+        }
+
+        // Define event player disconnect handler
+        public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
+        {
+            if (Extensions.IsServerEmpty())
+            {
+                if (_pluginState.TimeLimitEnabled)
+                {
+                    DisableTimeLimit();
+                }
             }
             return HookResult.Continue;
         }

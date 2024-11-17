@@ -75,7 +75,10 @@ namespace GameModeManager.Core
         // Define event player connect full handler
         public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
         {
-            _rotationTimer?.Kill();
+            if (Extensions.ValidPlayerCount(false) > 0)
+            {
+                _rotationTimer?.Kill();
+            }
             return HookResult.Continue;
         }
 

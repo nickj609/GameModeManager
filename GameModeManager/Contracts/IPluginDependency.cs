@@ -1,4 +1,4 @@
-﻿// Decalre namespace
+﻿// Declare namespace
 namespace GameModeManager.Contracts
 {
     // Define interface

@@ -20,7 +20,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../GameModeManager.Shared\GameModeManager.Shared.csproj" />
+    <ProjectReference Include="..\GameModeManager.Shared\GameModeManager.Shared.csproj" />
   </ItemGroup>
   <Target Name="PublicBuild" AfterTargets="AfterBuild">
         <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang"/>

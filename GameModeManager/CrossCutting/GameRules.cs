@@ -15,6 +15,7 @@ namespace GameModeManager.CrossCutting
         public float GameStartTime => _gameRules?.GameStartTime ?? 0;
         public bool WarmupRunning => _gameRules?.WarmupPeriod ?? false;
         public int TotalRoundsPlayed => _gameRules?.TotalRoundsPlayed ?? 0;
+        public bool HasMatchStarted => _gameRules?.HasMatchStarted ?? false;
         
         // Define on load behavior
         public void OnLoad(Plugin plugin)
