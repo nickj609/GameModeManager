@@ -51,6 +51,10 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `css_warmupmode <mode>` - Schedules and sets the warmup mode.
 
+- `css_endwarmup` - Ends the custom warmup mode.
+
+- `css_startwarmup <mode>` - Starts the custom warmup mode.
+
 - `css_timelimit <true|false> optional: <seconds>` - Enables or disables time limit.
 
 
