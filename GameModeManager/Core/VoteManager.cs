@@ -46,7 +46,7 @@ namespace GameModeManager.Core
             _localizer = new StringLocalizer(plugin.Localizer);
         }
 
-        // Define reusable method to register custom votes
+        // Define method to register custom votes
         public void RegisterCustomVotes()
         {
             if(_config.Votes.GameModes)
@@ -65,7 +65,7 @@ namespace GameModeManager.Core
                 {
                     // Add mode to all modes vote
                     string _modeCommand = Extensions.RemoveCfgExtension(_mode.Config);
-                    _modeOptions.Add(_mode.Name, new VoteOption(_mode.Name, new List<string> { $"exec {_mode.Config}; css_gamemode {_mode.Name}" }));
+                    _modeOptions.Add(_mode.Name, new VoteOption(_mode.Name, new List<string> { $"css_mode {_mode.Name}"}));
 
                     // Create per mode vote
                     _pluginState.CustomVotesApi.Get()?.AddCustomVote(
@@ -76,7 +76,7 @@ namespace GameModeManager.Core
                         30, 
                         new Dictionary<string, VoteOption> // vote options
                         {
-                            { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"exec {_mode.Config}; css_gamemode {_mode.Name}" })},
+                            { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"css_mode {_mode.Name}" })},
                             { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
                         },
                         "center", 
@@ -181,7 +181,7 @@ namespace GameModeManager.Core
             }
         }
 
-        // Define reusable method to deregister custom votes
+        // Define method to deregister custom votes
         public void DeregisterCustomVotes()
         {
             // Deregister all gamemode votes
