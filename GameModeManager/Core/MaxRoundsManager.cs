@@ -26,7 +26,6 @@ namespace GameModeManager.Core
         // Define round parameters
         private int MaxRoundsValue => _maxRounds?.GetPrimitiveValue<int>() ?? 0;
         public bool CanClinch => _canClinch?.GetPrimitiveValue<bool>() ?? true;
-
         public bool UnlimitedRounds => MaxRoundsValue <= 0;
         private bool _lastBeforeHalf = false;
 

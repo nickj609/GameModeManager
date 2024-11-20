@@ -32,7 +32,7 @@ namespace GameModeManager.Core
             _pluginState.CurrentMap = _map;
         }
         
-        // Define reusable method to update map list
+        // Define method to update map list
         public void UpdateRTVMapList()
         {  
             if (_config.RTV.Enabled)

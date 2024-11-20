@@ -105,7 +105,7 @@ namespace GameModeManager.Core
             return HookResult.Continue;
         }
         
-        //Define reusable method to schedule warmup mode
+        //Define method to schedule warmup mode
         public bool ScheduleWarmup(string modeName)
         {
             Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase) || m.Config.Contains(modeName, StringComparison.OrdinalIgnoreCase));
@@ -123,7 +123,7 @@ namespace GameModeManager.Core
             } 
         }
         
-        //Define reusable method to start warmup
+        //Define method to start warmup
         public void StartWarmup(Mode warmupMode)
         {
             if (_pluginState.WarmupScheduled && !_pluginState.WarmupRunning && !_gameRules.HasMatchStarted)
@@ -134,7 +134,7 @@ namespace GameModeManager.Core
             }
         }
 
-        //Define reusable method to end warmup
+        //Define method to end warmup
         public void EndWarmup()
         {
            if (_pluginState.WarmupRunning)

@@ -21,7 +21,7 @@ namespace GameModeManager.Core
             _pluginState = pluginState;
         }
 
-        // Define reusable method to enable RTV
+        // Define method to enable RTV
         public void EnableRTV()
         {
             _logger.LogInformation($"Enabling RTV...");
@@ -31,7 +31,7 @@ namespace GameModeManager.Core
             _logger.LogInformation($"Disabling rotations...");
             _pluginState.RotationsEnabled = false;
         }
-        // Define reusable method to disable RTV
+        // Define method to disable RTV
         public void DisableRTV()
         {
             _logger.LogInformation($"Disabling RTV...");

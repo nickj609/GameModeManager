@@ -31,7 +31,7 @@ namespace GameModeManager.CrossCutting
             _config = config;
         }
         
-        // Define reusable method to change map
+        // Define method to change map
         public void ChangeMap(Map nextMap)
         {
             // Disable warmup
@@ -65,7 +65,7 @@ namespace GameModeManager.CrossCutting
             }, "Map changing in ");
         }
 
-        // Define reusable method to change map
+        // Define method to change map
         public void ChangeMap(Map nextMap, int delay)
         {
             // Disable warmup
@@ -103,9 +103,13 @@ namespace GameModeManager.CrossCutting
             }, "Map changing in ");
         }
 
-        // Define reusable method to change mode
+        // Define method to change mode
         public void ChangeMode(Mode mode)
         {
+            // Log mode change
+            _logger.LogInformation($"Current mode: {_pluginState.CurrentMode.Name}");
+            _logger.LogInformation($"New mode: {mode.Name}");
+            
             // Execute mode config
             Server.ExecuteCommand($"exec {mode.Config}");
 
@@ -175,7 +179,7 @@ namespace GameModeManager.CrossCutting
             }
         }
 
-        // Define reusable method to get random map
+        // Define method to get random map
         public Map GetRandomMap(Mode currentMode)
         {    
             // Define random map
@@ -225,7 +229,7 @@ namespace GameModeManager.CrossCutting
             return _randomMap;
         }
 
-        // Define reusable method to freeze all players
+        // Define method to freeze all players
         public void FreezePlayers()
 		{
             foreach (var player in Extensions.ValidPlayers(true))
@@ -234,7 +238,7 @@ namespace GameModeManager.CrossCutting
             }
 		}
 
-        // Define reusable method to unfreeze all players
+        // Define method to unfreeze all players
         public void UnfreezePlayers()
 		{
             foreach (var player in Extensions.ValidPlayers(true))

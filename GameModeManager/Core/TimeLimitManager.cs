@@ -172,7 +172,7 @@ namespace GameModeManager.Core
             return HookResult.Continue;
         }
 
-        // Define reusable method to get time limit message
+        // Define method to get time limit message
         public string GetTimeLeftMessage()
         {
             // Define message

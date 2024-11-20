@@ -31,14 +31,14 @@ namespace GameModeManager.CrossCutting
             SetGameRulesAsync();
         }
 
-        // Define on round start behavior
+        // Define on round start handler
         public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
         {
             SetGameRules();
             return HookResult.Continue;
         }
 
-        // Define on announce warmup behavior
+        // Define on announce warmup handler
         public HookResult OnAnnounceWarmup(EventRoundAnnounceWarmup @event, GameEventInfo info)
         {
             SetGameRules();

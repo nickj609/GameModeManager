@@ -61,13 +61,11 @@ namespace GameModeManager.Features
         {
             if (player == null) 
             {
-               Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
+                // Find mode
+                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
                 
                 if(_mode != null && _pluginState.CurrentMode != _mode)
-                {
-                    _logger.LogInformation($"Current mode: {_pluginState.CurrentMode.Name}");
-                    _logger.LogInformation($"New mode: {_mode.Name}");
-
+                {   
                     if (_config.Votes.Enabled && _config.Votes.Maps)
                     {                        
                         // Deregister map votes from old mode
@@ -104,22 +102,25 @@ namespace GameModeManager.Features
 
         // Define admin change mode command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 1, usage: "[mode]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "[mode]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnModeCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null)
-            {
-                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
+            // Find mode
+            Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
 
-                if (_mode != null)
+            // Change mode
+            if (_mode != null)
+            {
+                if(player != null)
                 {
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
-                    _serverManager.ChangeMode(_mode);
                 }
-                else
-                {
-                    command.ReplyToCommand($"Can't find mode: {command.ArgByIndex(1)}");
-                }
+
+                _serverManager.ChangeMode(_mode);
+            }
+            else
+            {
+                command.ReplyToCommand($"Can't find mode: {command.ArgByIndex(1)}");
             }
         }
 

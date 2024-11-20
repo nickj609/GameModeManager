@@ -134,7 +134,6 @@ namespace GameModeManager.Core
                                     }
                                 }
                             }
-
                             // Add map group to map group list
                             _pluginState.MapGroups.Add(_group);
                         }

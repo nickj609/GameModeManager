@@ -24,13 +24,13 @@ namespace GameModeManager.Timers
             StartTimer(message);
         }
 
-        // Define resuable method to create timer
+        // Define method to start timer
         private void StartTimer(string message)
         {
             timer = new Timer(1.0f, () => DisplayCountdown(message), TimerFlags.REPEAT);
         }
 
-        // Define resuable method to display countdown
+        // Define method to display countdown
         private void DisplayCountdown(string message)
         {
             foreach (CCSPlayerController player in Extensions.ValidPlayers(false))
@@ -48,7 +48,7 @@ namespace GameModeManager.Timers
             }
         }
 
-        // Define reusable method to stop timer
+        // Define method to stop timer
         private void StopTimer()
         {
             if (timer != null)

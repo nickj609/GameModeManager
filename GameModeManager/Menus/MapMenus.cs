@@ -33,6 +33,45 @@ namespace GameModeManager.Menus
             _config = config;
         }
 
+        // Define load behavior
+        public void Load()
+        {
+            // Create map menus (maps from current game mode)
+            UpdateMenus();
+
+            // Create all maps menu
+            if (_config.Commands.AllMaps)
+            {
+                // Assign menu
+                _pluginState.MapsMenu = _menuFactory.AssignMenu(_config.Maps.Style, "Select a game mode.");
+
+                // Add menu option for each game mode in game mode list
+                foreach (Mode _mode in _pluginState.Modes)
+                {
+                    _pluginState.MapsMenu.AddMenuOption(_mode.Name, (player, option) =>
+                    {
+                        // Create sub menu
+                        BaseMenu subMenu;
+                        subMenu = _menuFactory.AssignMenu(_config.Maps.Style, _localizer.Localize("maps.menu-title"));
+
+                        // Add menu option for each map in map list
+                        foreach (Map _map in _mode.Maps)
+                        {
+                            subMenu.AddMenuOption(_map.DisplayName, (player, option) =>
+                            {
+                                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
+                                MenuManager.CloseActiveMenu(player);
+                                _serverManager.ChangeMap(_map);
+                            });
+                        } 
+                        // Open menu
+                        _menuFactory.OpenMenu(subMenu, player);
+                    });
+                }
+            }
+        }
+
+        // Define method to load WASD menus
         public void LoadWASDMenus()
         {
             // Update map menus
@@ -76,45 +115,8 @@ namespace GameModeManager.Menus
                 }
             }
         }
-        // Define load behavior
-        public void Load()
-        {
-            // Create map menus (maps from current game mode)
-            UpdateMenus();
 
-            // Create all maps menu
-            if (_config.Commands.AllMaps)
-            {
-                // Assign menu
-                _pluginState.MapsMenu = _menuFactory.AssignMenu(_config.Maps.Style, "Select a game mode.");
-
-                // Add menu option for each game mode in game mode list
-                foreach (Mode _mode in _pluginState.Modes)
-                {
-                    _pluginState.MapsMenu.AddMenuOption(_mode.Name, (player, option) =>
-                    {
-                        // Create sub menu
-                        BaseMenu subMenu;
-                        subMenu = _menuFactory.AssignMenu(_config.Maps.Style, _localizer.Localize("maps.menu-title"));
-
-                        // Add menu option for each map in map list
-                        foreach (Map _map in _mode.Maps)
-                        {
-                            subMenu.AddMenuOption(_map.DisplayName, (player, option) =>
-                            {
-                                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
-                                MenuManager.CloseActiveMenu(player);
-                                _serverManager.ChangeMap(_map);
-                            });
-                        } 
-                        // Open menu
-                        _menuFactory.OpenMenu(subMenu, player);
-                    });
-                }
-            }
-        }
-
-        // Define reusable method to update the map menu
+        // Define method to update the map menu
         public void UpdateMenus()
         {
             // Update map menu 
@@ -149,7 +151,7 @@ namespace GameModeManager.Menus
             }  
         }
 
-        // Define reusable method to update the map menu
+        // Define method to update the map menu
         public void UpdateWASDMenus()
         {  
             // Update map menu

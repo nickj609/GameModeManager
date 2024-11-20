@@ -27,7 +27,7 @@ namespace GameModeManager.CrossCutting
             _plugin = plugin;
         }
 
-        // Define reusable method to assign menus
+        // Define method to assign menus
         public BaseMenu AssignMenu(string menuType, string menuName)
         {
             // Create base menu
@@ -47,7 +47,7 @@ namespace GameModeManager.CrossCutting
             return _baseMenu;
         }
 
-        // Define reusable method to open each type of menu
+        // Define method to open each type of menu
         public void OpenMenu(BaseMenu menu, CCSPlayerController player)
         {
             // Check if menu type from config is hud or chat menu

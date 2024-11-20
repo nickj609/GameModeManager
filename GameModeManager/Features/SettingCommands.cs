@@ -54,6 +54,7 @@ namespace GameModeManager.Features
                 // Find game setting
                 Setting? _option = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_settingName, StringComparison.OrdinalIgnoreCase));
 
+                // Change setting
                 if(_option != null) 
                 {
                     if (_status.Equals("enable", StringComparison.OrdinalIgnoreCase)) 

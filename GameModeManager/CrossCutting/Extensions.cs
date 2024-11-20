@@ -53,6 +53,7 @@ namespace GameModeManager.CrossCutting
             return ValidPlayers(considerBots).Length;
         }
 
+        // Define method to check if hibernation is enabled
         public static bool IsHibernationEnabled()
         {
             // Check hibernation state
@@ -87,6 +88,7 @@ namespace GameModeManager.CrossCutting
             }
         }
 
+        // Define methods to freeze and unfreeze a player
         public static void Freeze(this CBasePlayerPawn pawn)
         {
             pawn.MoveType = MoveType_t.MOVETYPE_OBSOLETE;
@@ -101,6 +103,7 @@ namespace GameModeManager.CrossCutting
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_MoveType");
         }  
 
+        // Define method to check if a player can target another player
         public static bool CanTarget(this CCSPlayerController? controller, CCSPlayerController? target)
         {
             if (controller is null || target is null) return true;
