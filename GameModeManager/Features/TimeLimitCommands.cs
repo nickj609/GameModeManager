@@ -42,6 +42,7 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
+            // Add commands
             plugin.AddCommand("timelimit", "Forces rotation on time limit end. Default time limit is mp_timelimit.", OnTimeLimitCommand);
 
             if (_config.Commands.TimeLeft)

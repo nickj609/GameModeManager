@@ -105,6 +105,7 @@ namespace GameModeManager.Menus
             }
         }
 
+        // Define method to load WASD menus
         public void LoadWASDMenu()
         {
              if (_config.Settings.Style.Equals("wasd"))

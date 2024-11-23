@@ -31,7 +31,7 @@ namespace GameModeManager.Core
             _config = config;
         }
         
-        // Define on load behavior (parses settings into setting classes)
+        // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
             if (_config.Settings.Enabled)

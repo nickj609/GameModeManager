@@ -72,6 +72,7 @@ namespace GameModeManager.Menus
             }
         }
         
+        // Define method to load WASD menus
         public void LoadWASDMenus()
         {
             // Create mode menu

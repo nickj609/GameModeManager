@@ -33,7 +33,7 @@ namespace GameModeManager.Menus
             _config = config;
         }
 
-        // Define reusable method to update the game command menu
+        // Define method to update the game command menu
         public void Load()
         {
             // Assign menu

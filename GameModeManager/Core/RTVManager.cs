@@ -48,22 +48,21 @@ namespace GameModeManager.Core
             VotesAlreadyReached = false;
         }
 
-        // Define reusable method to enable custom RTV
-        public void EnableCustomRTV()
+        // Define method to enable custom RTV
+        public void EnableRTV()
         {
-            _logger.LogInformation($"Enabling custom RTV...");
-            Server.ExecuteCommand($"css_plugins load {_config.CustomRTV.Plugin}");
+            _logger.LogInformation($"Enabling RTV...");
             _pluginState.CustomRTV = true;
 
             _logger.LogInformation($"Disabling rotations...");
             _pluginState.RotationsEnabled = false;
         }
-        // Define reusable method to disable RTV
-        public void DisableCustomRTV()
+        
+        // Define method to disable RTV
+        public void DisableRTV()
         {
             _logger.LogInformation($"Disabling RTV...");
-            Server.ExecuteCommand($"css_plugins unload {_config.CustomRTV.Plugin}");
-            _pluginState.CustomRTV = false;
+            _pluginState.RTVEnabled = false;
 
             _logger.LogInformation($"Enabling rotations...");
             _pluginState.RotationsEnabled = true;

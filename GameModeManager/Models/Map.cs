@@ -38,14 +38,14 @@ namespace GameModeManager.Models
             DisplayName = _displayName;
         }
 
-        // Define reusable method to equate values
+        // Define method to equate values
         public bool Equals(Map? other) 
         {
             if (other == null) return false; 
             return Name == other.Name && WorkshopId == other.WorkshopId && DisplayName == other.DisplayName;
         }
 
-        // Define reusable method to clear values
+        // Define method to clear values
         public void Clear()
         {
             Name = "";

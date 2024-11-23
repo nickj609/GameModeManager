@@ -39,7 +39,7 @@ namespace GameModeManager.Core
         // Define on map start behavior
         public void OnMapStart(string map)
         {
-            new Timer(3.0f, () => 
+            new Timer(3.5f, () => 
             {
                 Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
                 Server.ExecuteCommand("mp_restartgame 1");
@@ -49,13 +49,12 @@ namespace GameModeManager.Core
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
-            // Create mode list from config
+            // Create mode list 
             foreach(ModeEntry _mode in _config.GameModes.List)
             {
                 // Create map group list
                 List<MapGroup> mapGroups = new List<MapGroup>();
 
-                // Create map group from config
                 foreach(string _mapGroup in _mode.MapGroups)
                 {
                     MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name == _mapGroup);
@@ -84,6 +83,8 @@ namespace GameModeManager.Core
                     {
                         gameMode = new Mode(_mode.Name, _mode.Config, mapGroups);
                     }
+
+                    // Add mode to list
                     _pluginState.Modes.Add(gameMode);
                 }
                 else

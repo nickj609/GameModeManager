@@ -61,12 +61,14 @@ namespace GameModeManager
         public bool PerMapWarmup = false;
         public Map CurrentMap = DefaultMap;
         public bool WarmupScheduled = false;
+        public bool WarmupRunning = false;
         public bool TimeLimitEnabled = false;
         public Mode CurrentMode = DefaultMode;
         public List<string> MapsOnCoolDown = new();
         public bool TimeLimitCustom = false;
         public bool RotationsEnabled = true;
-         public bool DisableCommands = false;
+        public bool CountdownRunning = false;  
+        public bool DisableCommands = false;
         public bool EofVoteHappening = false;
         public bool TimeLimitScheduled = false;
         public Mode WarmupMode = DefaultWarmup;

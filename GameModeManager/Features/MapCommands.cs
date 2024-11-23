@@ -74,12 +74,11 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define admin map menu command handler
+        // Define admin all maps menu command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnAllMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
-
             if(player != null)
             {
                 if (_config.Maps.Style.Equals("wasd") && _pluginState.MapsWASDMenu != null)
@@ -96,24 +95,26 @@ namespace GameModeManager.Features
 
         // Define admin change map command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 1, usage: "[map name] optional: [workshop id]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "[map name] optional: [workshop id]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
         {
+            // Find map
+            Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
+            Map? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || g.WorkshopId.ToString().Equals("{command.ArgByIndex(2)}", StringComparison.OrdinalIgnoreCase));
+
+            if (_foundMap != null)
+            {
+                _newMap = _foundMap; 
+            }
+
+            // Print to chat
             if(player != null)
             {
-                // Find map
-                Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
-                Map? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || g.WorkshopId.ToString().Equals("{command.ArgByIndex(2)}", StringComparison.OrdinalIgnoreCase));
-
-                if (_foundMap != null)
-                {
-                    _newMap = _foundMap; 
-                }
-
-                // Change map
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _newMap.Name));
-                _serverManager.ChangeMap(_newMap, _config.Maps.Delay);
             }
+
+            // Change map
+            _serverManager.ChangeMap(_newMap, _config.Maps.Delay);
         }
     }
 }

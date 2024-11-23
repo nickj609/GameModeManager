@@ -24,7 +24,7 @@ namespace GameModeManager.CrossCutting
             _localizer = localizer;
         }
 
-        // Define methods for localization
+        // Define methods
         public string LocalizeWithPrefixInternal(string prefix, string key, params object[] args)
         {
             return $"{_localizer[prefix]} {Localize(key, args)}";

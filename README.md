@@ -51,6 +51,10 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `css_warmupmode <mode>` - Schedules and sets the warmup mode.
 
+- `css_endwarmup` - Ends the custom warmup mode.
+
+- `css_startwarmup <mode>` - Starts the custom warmup mode.
+
 - `css_timelimit <true|false> optional: <seconds>` - Enables or disables time limit.
 
 
@@ -336,7 +340,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
       },
       {
         "Name": "ArmsRace",
-        "Config": "armsrace.cfg",
+        "Config": "ar.cfg",
         "DefaultMap": "ar_pool_day",
         "MapGroups": [
           "mg_gg"
@@ -397,8 +401,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
         "Config": "Casual-1.6.cfg",
         "DefaultMap": "3212419403",
         "MapGroups": [
-          "mg_active",
-          "mg_comp"
+          "mg_Casual-1.6"
         ]
       },
       {
@@ -661,9 +664,9 @@ public class Plugin : BasePlugin
 
 ```log
 2024-06-08 22:59:32.827 +00:00 [WARN] plugin:GameModeManager Skipping random_setting.cfg because its missing the correct prefix.
-2024-06-08 23:05:24.421 +00:00 [INFO] plugin:GameModeManager Current mode is Casual.
-2024-06-08 23:05:24.421 +00:00 [INFO] plugin:GameModeManager New mode is Deathmatch.
-2024-06-08 23:05:24.947 +00:00 [INFO] plugin:GameModeManager Regenerating map menus...
+2024-06-08 23:05:24.421 +00:00 [INFO] plugin:GameModeManager Current mode is Deathmatch.
+2024-06-08 23:05:24.421 +00:00 [INFO] plugin:GameModeManager New mode is Casual.
+2024-11-17 23:05:24.532 +00:00 [INFO] plugin:GameModeManager Warmup mode enabled.
 2024-06-08 24:15:47.044 +00:00 [INFO] plugin:GameModeManager Game has ended. Picking random map from current mode...
 ```
 </details>
@@ -731,7 +734,7 @@ To add game modes, update the JSON key pairs in the configuration file (`csgo/ad
     },
     {
       "Name": "ArmsRace",
-      "Config": "armsrace.cfg",
+      "Config": "ar.cfg",
       "DefaultMap": "ar_pool_day",
       "MapGroups": [
         "mg_gg"
@@ -792,8 +795,7 @@ To add game modes, update the JSON key pairs in the configuration file (`csgo/ad
       "Config": "Casual-1.6.cfg",
       "DefaultMap": "3212419403",
       "MapGroups": [
-        "mg_active",
-        "mg_comp"
+        "mg_Casual-1.6"
       ]
     },
     {
@@ -973,7 +975,6 @@ Yes! You can use friendly names for maps by using the following syntax:
 "mg_active"
 {
 	"imagename"			"mapgroup-active"
-	"displayname"			"Casual"
 	"nameID"			"#SFUI_Mapgroup_active"
 	"tooltipID"			"#SFUI_MapGroup_Tooltip_Desc_Active"
 	"tooltipMaps"			""
