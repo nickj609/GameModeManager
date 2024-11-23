@@ -21,7 +21,7 @@ namespace GameModeManager.Features
         private MapManager _mapManager;
         private MenuFactory _menuFactory;
         private PluginState _pluginState;
-        private VoteManager _voteManager;
+        private CustomVoteManager _customVoteManager;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private Config _config = new Config();
@@ -29,7 +29,7 @@ namespace GameModeManager.Features
 
         // Define class instance
         public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, 
-        MapManager mapManager, VoteManager voteManager, ILogger<ModeCommands> logger, ServerManager serverManager, MapMenus mapMenus)
+        MapManager mapManager, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager, MapMenus mapMenus)
         {
             _logger = logger;
             _mapMenus = mapMenus;
@@ -37,7 +37,7 @@ namespace GameModeManager.Features
             _mapManager = mapManager;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
-            _voteManager = voteManager;
+            _customVoteManager = customVoteManager;
             _serverManager = serverManager;
         }
 
@@ -69,7 +69,7 @@ namespace GameModeManager.Features
                     if (_config.Votes.Enabled && _config.Votes.Maps)
                     {                        
                         // Deregister map votes from old mode
-                        _voteManager.DeregisterMapVotes();
+                        _customVoteManager.DeregisterMapVotes();
 
                         // Set mode
                         _pluginState.CurrentMode = _mode;
@@ -80,7 +80,7 @@ namespace GameModeManager.Features
                         _mapManager.UpdateRTVMapList();
         
                         // Register map votes for new mode
-                        _voteManager.RegisterMapVotes();
+                        _customVoteManager.RegisterMapVotes();
                     }
                     else
                     {

@@ -16,7 +16,7 @@ public interface IGameModeApi
     public void TriggerRotation();
 
     // Enable RTV compatibility api handler
-    public void EnableRTV(bool enabled);
+    public void EnableCustomRTV(bool enabled);
 
     // Change mode api handlers
     public void ChangeMode(string modeName);

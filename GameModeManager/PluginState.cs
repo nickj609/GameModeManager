@@ -28,6 +28,7 @@ namespace GameModeManager
             _config = config;
             RTVEnabled = _config.RTV.Enabled;
             PerMapWarmup = _config.Warmup.PerMap;
+            CustomRTV = _config.CustomRTV.Enabled;
             RotationsEnabled = _config.Rotation.Enabled; 
         }
 
@@ -50,11 +51,12 @@ namespace GameModeManager
         public static MapGroup DefaultMapGroup = new MapGroup("mg_active", DefaultMaps);
         public static List<MapGroup> DefaultMapGroups = new List<MapGroup>{DefaultMapGroup};
         public static Mode DefaultMode = new Mode("Casual", "casual.cfg", DefaultMapGroups);
-        public static Mode DefaultWarmup = new Mode("Knives Only", "warmup/knives_only.cfg", new List<MapGroup>());
+        public static Mode DefaultWarmup = new Mode("Deathmatch", "warmup/dm.cfg", new List<MapGroup>());
         
         // Define dynamic attributes
         public int TimeLimit = 120;
         public int MapRotations = 0;
+        public bool CustomRTV = false;
         public bool RTVEnabled = false;
         public bool PerMapWarmup = false;
         public Map CurrentMap = DefaultMap;
@@ -62,9 +64,12 @@ namespace GameModeManager
         public bool WarmupRunning = false;
         public bool TimeLimitEnabled = false;
         public Mode CurrentMode = DefaultMode;
+        public List<string> MapsOnCoolDown = new();
         public bool TimeLimitCustom = false;
         public bool RotationsEnabled = true;
         public bool CountdownRunning = false;  
+        public bool DisableCommands = false;
+        public bool EofVoteHappening = false;
         public bool TimeLimitScheduled = false;
         public Mode WarmupMode = DefaultWarmup;
         public List<Map> Maps = new List<Map>(DefaultMaps);
@@ -99,6 +104,7 @@ namespace GameModeManager
         public BaseMenu GameMenu = new ChatMenu("Command List");
         public BaseMenu VoteMapsMenu = new ChatMenu("Map List");
         public BaseMenu VoteModesMenu = new ChatMenu("Mode List");
+        public BaseMenu NominationMenu = new ChatMenu("Nominations");
         public BaseMenu SettingsMenu = new ChatMenu("Setting Actions");
         public BaseMenu VoteSettingsMenu = new ChatMenu("Settings List");
         public BaseMenu SettingsEnableMenu = new ChatMenu("Settings List");
