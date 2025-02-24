@@ -3,6 +3,7 @@ using GameModeManager.Menus;
 using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
+using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
@@ -39,9 +40,12 @@ namespace GameModeManager.Core
         // Define on map start behavior
         public void OnMapStart(string map)
         {
-            new Timer(3.5f, () => 
+            string _modeConfig = Extensions.RemoveCfgExtension(_pluginState.CurrentMode.Config);
+            string _settingsConfig = $"{_pluginState.CurrentMode.Config}_settings.cfg";
+
+            new Timer(1f, () => 
             {
-                Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
+                Server.ExecuteCommand($"exec {_settingsConfig}");
                 Server.ExecuteCommand("mp_restartgame 1");
             });
         }
