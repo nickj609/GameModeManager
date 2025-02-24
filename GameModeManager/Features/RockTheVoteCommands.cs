@@ -9,7 +9,6 @@ using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
-
 // Declare namespace
 namespace GameModeManager.Features
 {
@@ -17,9 +16,9 @@ namespace GameModeManager.Features
     public class RockTheVoteCommand : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
+        private Plugin? _plugin;
         private GameRules _gameRules;
         private RTVManager _rtvManager;
-        private MenuFactory _menuFactory;
         private PluginState _pluginState;
         private VoteManager _voteManager;
         private StringLocalizer _localizer;
@@ -27,7 +26,7 @@ namespace GameModeManager.Features
         private ILogger<ModeCommands> _logger;
 
         // Define class instance
-        public RockTheVoteCommand(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, ILogger<ModeCommands> logger, RTVManager rtvManager, GameRules gameRules, VoteManager voteManager)
+        public RockTheVoteCommand(PluginState pluginState, StringLocalizer localizer, ILogger<ModeCommands> logger, RTVManager rtvManager, GameRules gameRules, VoteManager voteManager)
         {
             _logger = logger;
             _localizer = localizer;
@@ -35,7 +34,6 @@ namespace GameModeManager.Features
             _rtvManager = rtvManager;
             _voteManager = voteManager;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
         }
 
         // Load config
@@ -47,14 +45,19 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            plugin.AddCommand("css_rtv", "", CommandHandler);
-            plugin.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnected, HookMode.Pre);
+            _plugin = plugin;
 
+            if (_pluginState.RTVEnabled)
+            {
+                plugin.AddCommand("css_rtv", "", OnRTVCommand);
+                plugin.AddCommand("css_rtv_enabled", "Enables or disables custom RTV.", OnRTVEnabledCommand);
+                plugin.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnected, HookMode.Pre);
+            }
         }
-
+        // Define client rtv command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        public void CommandHandler(CCSPlayerController? player, CommandInfo command)
+        public void OnRTVCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player is null)
                 return;
@@ -85,7 +88,7 @@ namespace GameModeManager.Features
                 return;
             }
 
-            VoteResult result = _rtvManager!.AddVote(player.UserId!.Value);
+            VoteResult result = _rtvManager.AddVote(player.UserId!.Value);
             switch (result.Result)
             {
                 case VoteResultEnum.Added:
@@ -100,10 +103,47 @@ namespace GameModeManager.Features
                 case VoteResultEnum.VotesReached:
                     Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("rtv.rocked-the-vote", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.votes-reached"));
-                    _voteManager.StartVote();
+                    
+                    if(command.ArgCount == 2)
+                    {
+                        if (int.TryParse(command.ArgByIndex(1), out var delay))
+                        {
+                            _voteManager.StartVote(delay);
+                        }
+                    }
+                    else
+                    {
+                        _voteManager.StartVote(_config.RTV.VoteDuration);
+                    }
+                    
                     break;
             }
         }
+
+        // Define server rtv command handler
+        [CommandHelper(minArgs: 1, usage: "<true|false>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnRTVEnabledCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null) 
+            {
+               if (command.ArgByIndex(1).Equals("true", StringComparison.OrdinalIgnoreCase) && !_pluginState.RTVEnabled)
+               {
+                    _plugin!.AddCommand("css_rtv", "", OnRTVCommand);
+                    _plugin!.AddCommand("css_rtv_enabled", "Enables or disables custom RTV.", OnRTVEnabledCommand);
+                    _plugin!.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnected, HookMode.Pre);
+                    _rtvManager.EnableRTV();
+               }
+               else if (command.ArgByIndex(1).Equals("false", StringComparison.OrdinalIgnoreCase) && _pluginState.RTVEnabled)
+               {
+                    _plugin!.RemoveCommand("css_rtv", OnRTVCommand);
+                    _plugin!.RemoveCommand("css_rtv_enabled", OnRTVEnabledCommand);
+                    _plugin!.DeregisterEventHandler<EventPlayerDisconnect>(PlayerDisconnected, HookMode.Pre);
+                    _rtvManager.DisableRTV();
+               }
+            }
+        }
+
+        // Define player disconnected event handler
         public HookResult PlayerDisconnected(EventPlayerDisconnect @event, GameEventInfo @eventInfo)
         {
             var player = @event.Userid;

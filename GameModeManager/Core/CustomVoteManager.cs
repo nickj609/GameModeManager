@@ -3,6 +3,7 @@ using GameModeManager.Menus;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
+using Microsoft.Extensions.Logging;
 
 // Copyright (c) 2024 imi-tat0r
 // https://github.com/imi-tat0r/CS2-CustomVotes/
@@ -15,38 +16,28 @@ namespace GameModeManager.Core
     // Define class
     public class CustomVoteManager : IPluginDependency<Plugin, Config>
     {
-        // Define vote flags for deregistration
-        private bool MapVote = false;
-        private bool SettingVote = false;
-        private bool GameModeVote = false;
-
         // Define dependencies
+        private Config _config = new();
         private PlayerMenu _playerMenu;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
-        private Config _config = new Config();
+        private ILogger<VoteManager> _logger;
 
         // Define class instance
-        public CustomVoteManager(PluginState pluginState, PlayerMenu playerMenu, StringLocalizer localizer)
+        public CustomVoteManager(PluginState pluginState, StringLocalizer localizer, RTVManager rtvManager, PlayerMenu playerMenu, ILogger<VoteManager> logger, MenuFactory menuFactory)
         {
+            _logger = logger;
             _localizer = localizer;
             _playerMenu = playerMenu;
             _pluginState = pluginState;
         }
 
-        // Load config
-        public void OnConfigParsed(Config config)
-        {
-            _config = config;
-        }
+        // Define vote flags for deregistration
+        private bool MapVote = false;
+        private bool SettingVote = false;
+        private bool GameModeVote = false;
 
-        // Load dependencies
-        public void OnLoad(Plugin plugin)
-        { 
-            _localizer = new StringLocalizer(plugin.Localizer);
-        }
-
-        // Define reusable method to register custom votes
+        // Define method to register custom votes
         public void RegisterCustomVotes()
         {
             if(_config.Votes.GameModes)
@@ -65,7 +56,7 @@ namespace GameModeManager.Core
                 {
                     // Add mode to all modes vote
                     string _modeCommand = Extensions.RemoveCfgExtension(_mode.Config);
-                    _modeOptions.Add(_mode.Name, new VoteOption(_mode.Name, new List<string> { $"exec {_mode.Config}; css_gamemode {_mode.Name}" }));
+                    _modeOptions.Add(_mode.Name, new VoteOption(_mode.Name, new List<string> { $"css_mode {_mode.Name}"}));
 
                     // Create per mode vote
                     _pluginState.CustomVotesApi.Get()?.AddCustomVote(
@@ -76,7 +67,7 @@ namespace GameModeManager.Core
                         30, 
                         new Dictionary<string, VoteOption> // vote options
                         {
-                            { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"exec {_mode.Config}; css_gamemode {_mode.Name}" })},
+                            { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"css_mode {_mode.Name}" })},
                             { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
                         },
                         "center", 
@@ -181,7 +172,7 @@ namespace GameModeManager.Core
             }
         }
 
-        // Define reusable method to deregister custom votes
+        // Define method to deregister custom votes
         public void DeregisterCustomVotes()
         {
             // Deregister all gamemode votes

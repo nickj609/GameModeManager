@@ -28,7 +28,6 @@ namespace GameModeManager
             _config = config;
             RTVEnabled = _config.RTV.Enabled;
             PerMapWarmup = _config.Warmup.PerMap;
-            CustomRTV = _config.CustomRTV.Enabled;
             RotationsEnabled = _config.Rotation.Enabled; 
         }
 
@@ -54,36 +53,40 @@ namespace GameModeManager
         public static Mode DefaultWarmup = new Mode("Deathmatch", "warmup/dm.cfg", new List<MapGroup>());
         
         // Define dynamic attributes
+        public Map? NextMap;
+        public Mode? NextMode;
         public int TimeLimit = 120;
         public int MapRotations = 0;
-        public bool CustomRTV = false;
+        public string RTVWinner = "";
         public bool RTVEnabled = false;
+        public List<Mode> Modes = new();
         public bool PerMapWarmup = false;
+        public bool WarmupRunning = false;
         public Map CurrentMap = DefaultMap;
         public bool WarmupScheduled = false;
-        public bool WarmupRunning = false;
-        public bool TimeLimitEnabled = false;
-        public Mode CurrentMode = DefaultMode;
-        public List<string> MapsOnCoolDown = new();
         public bool TimeLimitCustom = false;
         public bool RotationsEnabled = true;
-        public bool CountdownRunning = false;  
         public bool DisableCommands = false;
+        public bool TimeLimitEnabled = false;
+        public bool CountdownRunning = false;
+        public bool EofVoteHappened = false;
         public bool EofVoteHappening = false;
+        public Mode CurrentMode = DefaultMode;
         public bool TimeLimitScheduled = false;
         public Mode WarmupMode = DefaultWarmup;
-        public List<Map> Maps = new List<Map>(DefaultMaps);
-        public List<Mode> Modes = new List<Mode>();
-        public List<Mode> WarmupModes = new List<Mode>();
-        public List<Setting> Settings = new List<Setting>();
-        public List<string> PlayerCommands = new List<string>()
+        public List<Mode> WarmupModes = new();
+        public List<Setting> Settings = new();
+        public List<MapGroup> MapGroups = new();
+        public List<string> OptionsOnCoolDown = new();
+        public List<string> PlayerCommands = new()
         {
             "!currentmode",
             "!currentmap"
         };
-        public List<MapGroup> MapGroups = new List<MapGroup>();
-
+        public List<Map> Maps = new List<Map>(DefaultMaps);
+    
         // Define WASD menus
+        public IWasdMenu? RTVWASDMenu;
         public IWasdMenu? MapWASDMenu;
         public IWasdMenu? MapsWASDMenu;
         public IWasdMenu? ModeWASDMenu;
@@ -92,11 +95,15 @@ namespace GameModeManager
         public IWasdMenu? VoteMapsWASDMenu;
         public IWasdMenu? SettingsWASDMenu;
         public IWasdMenu? VoteModesWASDMenu;
+        public IWasdMenu? NominationWASDMenu;
+        public IWasdMenu? NominateMapWASDMenu;
+        public IWasdMenu? NominateModeWASDMenu;
         public IWasdMenu? VoteSettingsWASDMenu;
         public IWasdMenu? SettingsEnableWASDMenu;
         public IWasdMenu? SettingsDisableWASDMenu;
 
         // Define base menus
+        public BaseMenu RTVMenu = new ChatMenu("RTV List");
         public BaseMenu MapMenu = new ChatMenu("Map List");
         public BaseMenu MapsMenu = new ChatMenu("Map List");
         public BaseMenu ModeMenu = new ChatMenu("Mode List");
@@ -105,6 +112,8 @@ namespace GameModeManager
         public BaseMenu VoteMapsMenu = new ChatMenu("Map List");
         public BaseMenu VoteModesMenu = new ChatMenu("Mode List");
         public BaseMenu NominationMenu = new ChatMenu("Nominations");
+        public BaseMenu NominateMapMenu = new ChatMenu("Nominations");
+        public BaseMenu NominateModeMenu = new ChatMenu("Nominations");
         public BaseMenu SettingsMenu = new ChatMenu("Setting Actions");
         public BaseMenu VoteSettingsMenu = new ChatMenu("Settings List");
         public BaseMenu SettingsEnableMenu = new ChatMenu("Settings List");
@@ -113,6 +122,5 @@ namespace GameModeManager
         // Define APIs
         public PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
         public PluginCapability<IWasdMenuManager> WasdMenuManager { get; } = new("wasdmenu:manager");
-
     } 
 }

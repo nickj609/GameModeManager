@@ -103,6 +103,36 @@ namespace GameModeManager.CrossCutting
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_MoveType");
         }  
 
+        // Define method to freeze all players
+        public static void FreezePlayers()
+		{
+            foreach (var player in ValidPlayers(true))
+            {
+			    player.Pawn.Value!.Freeze();
+            }
+		}
+
+        // Define method to unfreeze all players
+        public static void UnfreezePlayers()
+		{
+            foreach (var player in ValidPlayers(true))
+            {
+                player.Pawn.Value!.Unfreeze();
+            }
+		}
+
+        // Define reusable method to unfreeze all players
+        public static void PrintCenterTextAll(string text)
+        {
+            foreach (var player in Utilities.GetPlayers())
+            {
+                if (player.IsValid)
+                {
+                    player.PrintToCenter(text);
+                }
+            }
+        }
+
         // Define method to check if a player can target another player
         public static bool CanTarget(this CCSPlayerController? controller, CCSPlayerController? target)
         {
@@ -113,37 +143,19 @@ namespace GameModeManager.CrossCutting
                                     AdminManager.CanPlayerTarget(new SteamID(controller.SteamID),
                                         new SteamID(target.SteamID));
         } 
-        public static void SetHealth(this CCSPlayerController player, int health)
-        {
-            var pawn = player.PlayerPawn.Value;
-            if (pawn != null && pawn.IsValid)
-            {
-                pawn.Health = health;
-            }
-        }
 
-        public static void SetArmor(this CCSPlayerController player, int armorValue)
+        // Define method to shuffle vote options
+        public static IList<T> Shuffle<T>(Random rng, IList<T> array)
         {
-            var pawn = player.PlayerPawn.Value;
-            if (pawn != null && pawn.IsValid)
+            int n = array.Count;
+            while (n > 1)
             {
-                pawn.ArmorValue = armorValue;
+                int k = rng.Next(n--);
+                T temp = array[n];
+                array[n] = array[k];
+                array[k] = temp;
             }
-        }
-
-        public static void RestockAmmo(this CCSPlayerController player)
-        {
-            var pawn = player.PlayerPawn.Value;
-            if (pawn != null && pawn.IsValid && pawn.WeaponServices != null)
-            {
-                var weapons = pawn.WeaponServices.MyWeapons;
-                foreach (var weapon in weapons)
-                {
-                    if (weapon.Value == null) continue;
-                    weapon.Value.Clip1 = 999;
-                    weapon.Value.Clip2 = 999;
-                }
-            }
+            return array;
         }
     }
 }

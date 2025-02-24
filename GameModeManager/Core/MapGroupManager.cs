@@ -157,5 +157,12 @@ namespace GameModeManager.Core
                 _pluginState.CurrentMap = PluginState.DefaultMap;
             }
         }
+
+        // Define on map start behavior
+       public void OnMapStart(string map)
+        {
+            Map _map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(map, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(map, StringComparison.OrdinalIgnoreCase)) ?? new Map(map);
+            _pluginState.CurrentMap = _map;
+        }
     }
 }

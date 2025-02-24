@@ -3,6 +3,7 @@ using GameModeManager.Menus;
 using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
+using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
@@ -18,15 +19,13 @@ namespace GameModeManager.Core
         private ILogger<ModeManager> _logger;
         private readonly ModeMenus _modeMenus;
         private Config _config = new Config();
-        private readonly MapManager _mapManager;
 
         // Define class instance
-        public ModeManager(PluginState pluginState, ModeMenus modeMenus, MapMenus mapMenus, MapManager mapManager, ILogger<ModeManager> logger)
+        public ModeManager(PluginState pluginState, ModeMenus modeMenus, MapMenus mapMenus, ILogger<ModeManager> logger)
         {
             _logger = logger;
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
-            _mapManager = mapManager;
             _pluginState = pluginState;
         }
 
@@ -39,9 +38,12 @@ namespace GameModeManager.Core
         // Define on map start behavior
         public void OnMapStart(string map)
         {
-            new Timer(3.5f, () => 
+            string _modeConfig = Extensions.RemoveCfgExtension(_pluginState.CurrentMode.Config);
+            string _settingsConfig = $"{_pluginState.CurrentMode.Config}_settings.cfg";
+
+            new Timer(1f, () => 
             {
-                Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
+                Server.ExecuteCommand($"exec {_settingsConfig}");
                 Server.ExecuteCommand("mp_restartgame 1");
             });
         }
@@ -57,7 +59,7 @@ namespace GameModeManager.Core
 
                 foreach(string _mapGroup in _mode.MapGroups)
                 {
-                    MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name == _mapGroup);
+                    MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(_mapGroup, StringComparison.OrdinalIgnoreCase));
 
                     // Add map group to list
                     if(mapGroup != null)
@@ -66,7 +68,7 @@ namespace GameModeManager.Core
                     }
                     else
                     {
-                        _logger.LogError($"Unable to find {_mapGroup} in map group list.");
+                        _logger.LogError($"Cannot find {_mapGroup} in map group list.");
                     }
                 }
 
@@ -89,7 +91,7 @@ namespace GameModeManager.Core
                 }
                 else
                 {
-                    _logger.LogError($"Unable to create map group list.");
+                    _logger.LogError($"Cannot create map group list.");
                 }
             }
                
@@ -102,15 +104,12 @@ namespace GameModeManager.Core
             }
             else
             {
-                _logger.LogError($"Unable to find mode {_config.GameModes.Default.Name} in modes list.");
+                _logger.LogError($"Cannot find mode {_config.GameModes.Default.Name} in modes list.");
             }
 
             // Create mode menus
             _mapMenus.Load();
             _modeMenus.Load();
-
-            // Create RTV map list
-            _mapManager.UpdateRTVMapList();
         }
     }
 }

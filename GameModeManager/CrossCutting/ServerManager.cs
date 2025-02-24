@@ -30,53 +30,22 @@ namespace GameModeManager.CrossCutting
         {
             _config = config;
         }
-        
-        // Define method to change map
-        public void ChangeMap(Map nextMap)
-        {
-            // Disable warmup
-            _pluginState.WarmupRunning = false;
-            _pluginState.WarmupScheduled = false;
-
-            // Kick bots and freeze all players
-            new Timer(0.5f, () =>
-            {
-                Server.ExecuteCommand("bot_kick");
-                FreezePlayers();
-            });
-
-
-            // Display Countdown
-            CountdownTimer timer = new CountdownTimer(_config.Maps.Delay, () => 
-            {
-                // Change map
-                if (Server.IsMapValid(nextMap.Name))
-                {
-                    Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
-                }
-                else if (nextMap.WorkshopId != -1)
-                {
-                    Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
-                }
-                else
-                {
-                    Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
-                }
-            }, "Map changing in ");
-        }
 
         // Define method to change map
         public void ChangeMap(Map nextMap, int delay)
         {
             // Disable warmup
             _pluginState.WarmupRunning = false;
-            _pluginState.WarmupScheduled = false;
+            if(_config.Warmup.PerMap)
+            {
+                _pluginState.WarmupScheduled = false;
+            }
 
             // Kick bots and freeze all players
             new Timer(0.5f, () =>
             {
                 Server.ExecuteCommand("bot_kick");
-                FreezePlayers();
+                Extensions.FreezePlayers();
             });
 
             // Display Countdown
@@ -125,7 +94,7 @@ namespace GameModeManager.CrossCutting
             }
 
             // Change to next map
-            ChangeMap(nextMap);
+            ChangeMap(nextMap, _config.Maps.Delay);
         }
 
         // Define method to trigger mode and map rotations
@@ -156,9 +125,28 @@ namespace GameModeManager.CrossCutting
 
                     // Change map
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
-                    ChangeMap(_randomMap);
+                    ChangeMap(_randomMap, _config.Maps.Delay);
                 }
                 _pluginState.MapRotations++;
+            }
+            else if (_pluginState.RTVEnabled)
+            {
+                // If RTV EofVote happened
+                if (_pluginState.EofVoteHappened && !_config.RTV.ChangeImmediately)
+                {
+                    if(_pluginState.Maps.FirstOrDefault(m => m.Name.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase)) != null && _pluginState.NextMap != null)
+                    {
+                        ChangeMap(_pluginState.NextMap, _config.Maps.Delay);
+                    }
+                    else if (_pluginState.Modes.FirstOrDefault(m => m.Name.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase)) != null && _pluginState.NextMode != null)
+                    {
+                        ChangeMode(_pluginState.NextMode); 
+                    }
+                    else
+                    {
+                        _logger.LogError($"RTV: Map or mode {_pluginState.RTVWinner} not found");
+                    }
+                }
             }
         }
 
@@ -227,36 +215,6 @@ namespace GameModeManager.CrossCutting
                 _randomMap = currentMode.Maps[_randomIndex];
             }
             return _randomMap;
-        }
-
-        // Define method to freeze all players
-        public void FreezePlayers()
-		{
-            foreach (var player in Extensions.ValidPlayers(true))
-            {
-			    player.Pawn.Value!.Freeze();
-            }
-		}
-
-        // Define method to unfreeze all players
-        public void UnfreezePlayers()
-		{
-            foreach (var player in Extensions.ValidPlayers(true))
-            {
-                player.Pawn.Value!.Unfreeze();
-            }
-		}
-
-        // Define reusable method to unfreeze all players
-        public void PrintCenterTextAll(string text)
-        {
-            foreach (var player in Utilities.GetPlayers())
-            {
-                if (player.IsValid)
-                {
-                    player.PrintToCenter(text);
-                }
-            }
         }
     }
 }

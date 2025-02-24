@@ -13,7 +13,7 @@ GameModeManager simplifies server administration for Counter-Strike 2 by providi
 - **Admin menus** for modes, maps, and settings.
 - **Customizable rotation** of maps and game modes.
 - **Player voting** for maps, settings, and game modes.
-- **Seamless integration** with your existing Rock the Vote (RTV) plugin.
+- **Built-in RTV** that can be customized to include modes and maps.
 - **Dynamic map lists and menus** based on the current game mode or all game modes.
 - **Customization options** for rotation schedules, commands, voting styles, and languages.
 
@@ -36,8 +36,8 @@ For creating WASD menus, this plugin utilizes a custom fork of [WASDMenuAPI](htt
 - [Metamod:Source](https://github.com/alliedmodders/metamod-source/) (v1282+)
 - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) (v.197+)
 
-## RTV Plugin Compatibility
-This plugin is compatible with any RTV plugin using a `maplist.txt` file.
+## Built-in RTV Plugin
+This plugin comes with a built-in RTV plugin that can be customized to include maps and modes. The built-in RTV plugin is not enabled by default.
 
 ![Screenshot 2024-03-21 161846](https://github.com/nickj609/GameModeManager/assets/32173425/1e291efb-fe7f-4f0d-bb2c-e21d042bd153)
 
@@ -101,9 +101,17 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 <details>
 <summary>Player Commands</summary>
 
+- `!rtv *optional: <duration>` - Rocks the vote!
+
+- `!nominate <map|mode>` - Nominates a map or game mode for the RTV vote.
+
 - `!game` - Displays a **dynamic** menu of all player commands.
 
    ![image](https://github.com/user-attachments/assets/5f45876d-7c4b-45a7-95fe-fc96f0dae57f)
+
+- `!nextmap` - Displays the next map. 
+
+- `!nextmode` - Displays the next mode. 
 
 - `!currentmap` - Displays the current map. 
 
@@ -118,7 +126,6 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 - `!timeleft` - Displays the timeleft in the current map.
 
    ![Screenshot 2024-09-24 171203](https://github.com/user-attachments/assets/a5aabd36-1a59-4a0d-a7aa-42d40ee1ea4f)
-
 
 - `!currentmode` - Displays the current game mode.
 
@@ -676,7 +683,7 @@ public class Plugin : BasePlugin
 
 | Error/Warning Message                                              | Description                                                                                                              |
 | -------------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------------ | 
-| `Cannot Find`                                                      | Unable to locate the file specified from `GameModeManager.json` config.                                                  | 
+| `Cannot Find`                                                      | Cannot locate the file specified from `GameModeManager.json` config.                                                  | 
 | `Incomplete VDF data`                                              | Your `gamemodes_server.txt` file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
 | `Your config file is too old`                                      | Please backup and remove it from `addons/counterstrikesharp/configs/plugins/GameModeManager` to recreate it.             |
 | `The mapgroup property doesn't exist`                              | The "mapgroup" property cannot be found in your `gamemodes_server.txt` file.                                             | 
