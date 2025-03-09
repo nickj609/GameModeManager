@@ -36,8 +36,8 @@ For creating WASD menus, this plugin utilizes a custom fork of [WASDMenuAPI](htt
 - [Metamod:Source](https://github.com/alliedmodders/metamod-source/) (v1282+)
 - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) (v.197+)
 
-## Built-in RTV Plugin
-This plugin comes with a built-in RTV plugin that can be customized to include maps and modes. The built-in RTV plugin is not enabled by default.
+## RTV Plugin Compatibility
+This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 ![Untitled2](https://github.com/user-attachments/assets/e02c37b6-eadf-4a14-ba4f-6958f1d44a7e)
 
@@ -261,26 +261,11 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 {
   "Version": 8,
   "RTV": {
-    "Enabled": true,
-    "MapMode": 0,
-    "HudMenu": true,
-    "Style": "wasd",
-    "MinRounds": 1,
-    "MinPlayers": 1,
-    "VoteDuration": 60,
-    "OptionsToShow": 6,
-    "VotePercentage": 51,
-    "OptionsInCoolDown": 3,
-    "EndMapVote": true,
-    "IncludeModes": true,
-    "ModeInclusionPercentage": 40,
-    "EnabledInWarmup": true,
-    "HideHudAfterVote": false,
-    "NominationEnabled": true,
-    "MaxNominationWinners": 1,
-    "ChangeImmediately": true,
-    "TriggerRoundsBeforeEnd": 2,
-    "TriggerSecondsBeforeEnd": 120
+    "Enabled": false,
+    "Mode": 0,
+    "MapFormat": false,
+    "Plugin": "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll",
+    "MapList": "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"
   },
   "Maps": {
     "Mode": 0,
@@ -626,41 +611,7 @@ This plugin will display all in-game menus and messaging based on the player's p
   "timelimit.enabled-error": "Time limit is already {GREEN}Enabled{DEFAULT}.",
   "timelimit.disabled-error": "Time limit is already {RED}Disabled{DEFAULT}.",
   "timelimit.value-error": "Invalid time limit. Please enter a valid integer.",
-  "timelimit.prefix": "{RED}[Timelimit]{DEFAULT}",
-  "rtv.prefix": "{red}[RockTheVote]{default}",
-  "votemap.prefix": "{red}[Vote]{default}",
-  "votemap.player-voted": "Player {green}{0}{default} voted in {green}{1}{default}",
-  "votemap.already-voted": "You already vote in {green}{0}{default}",
-  "votemap.in-the-map": "in the map {0}",
-  "votemap.changing-map": "Changing map/mode to {green}{0}",
-  "votemap.changing-map-next-round": "The map/mode will be changed to {green}{0}{default} in the next round...",
-  "general.votes-needed": "({0} voted, {1} needed)",
-  "nominate.nominated": "Player {green}{0}{default} nominated {green}{1}{default}, it now has {2} vote(s)",
-  "nominate.already-nominated": "You already nominated {green}{0}{default}, it has {1} vote(s)",
-  "nominate.menu-title": "Nominate",
-  "general.validation.current": "You can't choose the current map",
-  "general.validation.minimum-rounds": "Minimum rounds to use this command is {0}",
-  "general.validation.warmup": "Command disabled during warmup.",
-  "general.validation.minimum-players": "Minimum players to use this command is {0}",
-  "general.validation.disabled": "Command disabled right now",
-  "general.validation.no-vote": "A vote is required to schedule the next map or mode.",
-  "rtv.rocked-the-vote": "Player {green}{0}{default} wants to rock the vote",
-  "rtv.already-rocked-the-vote": "You already rocked the vote",
-  "rtv.votes-reached": "Number of votes reached, starting vote...",
-  "rtv.disabled": "Rtv is disabled right now",
-  "rtv.you-voted": "You voted in {0}",
-  "rtv.vote-ended": "Vote ended. Next will be {green}{0}{default} ({1:N2}% of {2} vote(s))",
-  "rtv.vote-ended-no-votes": "No votes. Next will be {green}{0}",
-  "general.changing-map": "Changing map to {green}{0}",
-  "general.changing-map-next-round": "The map will be changed to {green}{0}{default} in the next round...",
-  "rtv.hud.menu-title": "Vote for what's next?",
-  "rtv.hud.hud-timer": "<font class='fontSize-l horizontal-center' color='red'>Vote Results: </font><font class='fontSize-m horizontal-center' color='green'> {0}s </font>",
-  "rtv.hud.finished": "Next will be: {green}{0}",
-  "nextmap": "Next will be {green}{0}",
-  "next.decided-by-vote": "Next will be decided by vote.",
-  "general.validation.played-recently": "The map or mode has been played recently.", 
-  "nextmap.message": "{RED}[Next Map]{DEFAULT} {0}",
-  "nextmode.message": "{GREEN}[Next Mode]{DEFAULT} {0}"
+  "timelimit.prefix": "{RED}[Timelimit]{DEFAULT}"
 }
 ```
 
