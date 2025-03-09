@@ -37,7 +37,7 @@ For creating WASD menus, this plugin utilizes a custom fork of [WASDMenuAPI](htt
 - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) (v.197+)
 
 ## Built-in RTV Plugin
-This plugin comes with a built-in RTV plugin that can be customized to include maps and modes. The built-in RTV plugin is not enabled by default.
+This plugin comes with a built-in RTV plugin that can be customized to include maps and modes. The built-in RTV plugin is enabled by default.
 
 ![Untitled2](https://github.com/user-attachments/assets/e02c37b6-eadf-4a14-ba4f-6958f1d44a7e)
 
