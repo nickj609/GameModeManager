@@ -40,20 +40,20 @@ namespace GameModeManager.Services
             _timeLimitManager = timeLimitManager;
         }
 
-        // Update map menus api handler
+        // Define update map menus handler
         public void UpdateMapMenus()
         {
             _mapMenus.UpdateMenus();
             _mapMenus.UpdateWASDMenus();
         }
 
-        // Trigger rotation api handler
+        // Define trigger rotation handler
         public void TriggerRotation()
         {
             _serverManager.TriggerRotation();
         }
 
-        // Enable RTV compatibility api handler
+        // Define RTV compatibility handler
         public void EnableRTV(bool enabled)
         {
             if(enabled)
@@ -63,22 +63,6 @@ namespace GameModeManager.Services
             else
             {
                 _rtvManager.DisableRTV();
-            }
-        }
-
-        // Change map api handler
-        public void ChangeMap(string mapName)
-        {
-            // Find map
-            Map? map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(mapName, StringComparison.OrdinalIgnoreCase));
-
-            if (map != null)
-            {
-                _serverManager.ChangeMap(map);
-            }
-            else
-            {
-                _logger.LogWarning($"Game Mode API: Map {mapName} not found.");
             }
         }
 
@@ -98,7 +82,7 @@ namespace GameModeManager.Services
             }
         }
 
-        // Schedule warmup api handlers 
+        // Define schedule warmup handlers 
         public bool isWarmupScheduled()
         {
             return _pluginState.WarmupScheduled;
@@ -108,7 +92,7 @@ namespace GameModeManager.Services
             return _warmupManager.ScheduleWarmup(modeName);
         }
 
-        // Enforce time limit api handlers
+        // Define time limit handlers
         public void EnableTimeLimit()
         {
             _timeLimitManager.EnableTimeLimit();
@@ -119,13 +103,12 @@ namespace GameModeManager.Services
             _timeLimitManager.EnableTimeLimit(time);
         }
 
-        // Change mode api handlers
+        // Define change mode handlers
         public void ChangeMode(string modeName)
         {
             // Find mode
             Mode? mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
 
-            // Change mode
             if (mode != null)
             {
                 _serverManager.ChangeMode(mode);

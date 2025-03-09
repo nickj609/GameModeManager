@@ -34,54 +34,54 @@ namespace GameModeManager.Menus
         // Define on load behavior
         public void Load()
         {
-                // Assign menus
-                _pluginState.SettingsMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Setting Actions");
-                _pluginState.SettingsEnableMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Settings List");
-                _pluginState.SettingsDisableMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Settings List");
+            // Assign menus
+            _pluginState.SettingsMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Setting Actions");
+            _pluginState.SettingsEnableMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Settings List");
+            _pluginState.SettingsDisableMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Settings List");
 
-                // Add enable menu options
-                foreach (Setting _setting in _pluginState.Settings)
+            // Add enable menu options
+            foreach (Setting _setting in _pluginState.Settings)
+            {
+                _pluginState.SettingsEnableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
-                    _pluginState.SettingsEnableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
-                    {
-                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, option.Text));
-                        Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Enable}");
-                        MenuManager.CloseActiveMenu(player);
-                    });
-                }
-
-                // Add disable menu options
-                foreach (Setting _setting in _pluginState.Settings)
-                {
-                    _pluginState.SettingsDisableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
-                    {
-                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, option.Text));
-                        Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Disable}");
-                        MenuManager.CloseActiveMenu(player);
-                    });
-                }
-
-                // create enable settings sub menu option
-                _pluginState.SettingsMenu.AddMenuOption(_localizer.Localize("menu.enable"), (player, option) =>
-                {
-                    _pluginState.SettingsEnableMenu.Title = _localizer.Localize("settings.menu-title");
-
-                    if(player != null)
-                    {
-                        _menuFactory.OpenMenu(_pluginState.SettingsEnableMenu, player);
-                    }
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, option.Text));
+                    Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Enable}");
+                    MenuManager.CloseActiveMenu(player);
                 });
+            }
 
-                // Create disable settings menu sub menu option
-                _pluginState.SettingsMenu.AddMenuOption(_localizer.Localize("menu.disable"), (player, option) =>
+            // Add disable menu options
+            foreach (Setting _setting in _pluginState.Settings)
+            {
+                _pluginState.SettingsDisableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
-                    _pluginState.SettingsDisableMenu.Title = _localizer.Localize("settings.menu-title");
-
-                    if(player != null)
-                    {
-                        _menuFactory.OpenMenu(_pluginState.SettingsDisableMenu, player);   
-                    }
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, option.Text));
+                    Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Disable}");
+                    MenuManager.CloseActiveMenu(player);
                 });
+            }
+
+            // create enable settings sub menu option
+            _pluginState.SettingsMenu.AddMenuOption(_localizer.Localize("menu.enable"), (player, option) =>
+            {
+                _pluginState.SettingsEnableMenu.Title = _localizer.Localize("settings.menu-title");
+
+                if(player != null)
+                {
+                    _menuFactory.OpenMenu(_pluginState.SettingsEnableMenu, player);
+                }
+            });
+
+            // Create disable settings menu sub menu option
+            _pluginState.SettingsMenu.AddMenuOption(_localizer.Localize("menu.disable"), (player, option) =>
+            {
+                _pluginState.SettingsDisableMenu.Title = _localizer.Localize("settings.menu-title");
+
+                if(player != null)
+                {
+                    _menuFactory.OpenMenu(_pluginState.SettingsDisableMenu, player);   
+                }
+            });
             
             // Create user settings menu
             if (_config.Votes.GameSettings)
@@ -105,6 +105,7 @@ namespace GameModeManager.Menus
             }
         }
 
+        // Define method to load WASD menus
         public void LoadWASDMenu()
         {
              if (_config.Settings.Style.Equals("wasd"))

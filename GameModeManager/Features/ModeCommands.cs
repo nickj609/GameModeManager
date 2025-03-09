@@ -18,27 +18,24 @@ namespace GameModeManager.Features
     {
         // Define dependencies
         private MapMenus _mapMenus;
-        private MapManager _mapManager;
         private MenuFactory _menuFactory;
         private PluginState _pluginState;
-        private VoteManager _voteManager;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private Config _config = new Config();
         private ILogger<ModeCommands> _logger;
+        private CustomVoteManager _customVoteManager;
 
         // Define class instance
-        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, 
-        MapManager mapManager, VoteManager voteManager, ILogger<ModeCommands> logger, ServerManager serverManager, MapMenus mapMenus)
+        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager, MapMenus mapMenus)
         {
             _logger = logger;
             _mapMenus = mapMenus;
             _localizer = localizer;
-            _mapManager = mapManager;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
-            _voteManager = voteManager;
             _serverManager = serverManager;
+            _customVoteManager = customVoteManager;
         }
 
         // Load config
@@ -50,8 +47,16 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
-            plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
+            if (_config.Commands.Mode)
+            {
+                plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
+            }
+
+            if (_config.Commands.Modes)
+            {
+                plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
+            }
+
             plugin.AddCommand("css_gamemode", "Sets the current game mode.", OnGameModeCommand);
         }
 
@@ -61,30 +66,25 @@ namespace GameModeManager.Features
         {
             if (player == null) 
             {
-               Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
+                // Find mode
+                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
                 
                 if(_mode != null && _pluginState.CurrentMode != _mode)
-                {
-                    _logger.LogInformation($"Current mode: {_pluginState.CurrentMode.Name}");
-                    _logger.LogInformation($"New mode: {_mode.Name}");
-
+                {   
                     if (_config.Votes.Enabled && _config.Votes.Maps)
-                    {
-                        _logger.LogInformation("Regenerating per map votes...");
-                        
+                    {                        
                         // Deregister map votes from old mode
-                        _voteManager.DeregisterMapVotes();
+                        _customVoteManager.DeregisterMapVotes();
 
                         // Set mode
                         _pluginState.CurrentMode = _mode;
 
-                        // Update RTV map list and map menus
+                        // Update map menus
                         _mapMenus.UpdateMenus();
                         _mapMenus.UpdateWASDMenus();
-                        _mapManager.UpdateRTVMapList();
         
                         // Register map votes for new mode
-                        _voteManager.RegisterMapVotes();
+                        _customVoteManager.RegisterMapVotes();
                     }
                     else
                     {
@@ -99,29 +99,32 @@ namespace GameModeManager.Features
                 }
                 else if (_mode == null)
                 {
-                    _logger.LogError($"Unable to find game mode {command.ArgByIndex(1)}.");
+                    _logger.LogError($"Cannot find game mode {command.ArgByIndex(1)}.");
                 }
             }
         }
 
         // Define admin change mode command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 1, usage: "[mode]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "[mode]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnModeCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null)
-            {
-                Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
+            // Find mode
+            Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
 
-                if (_mode != null)
+            // Change mode
+            if (_mode != null)
+            {
+                if(player != null)
                 {
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
-                    _serverManager.ChangeMode(_mode);
                 }
-                else
-                {
-                    command.ReplyToCommand($"Can't find mode: {command.ArgByIndex(1)}");
-                }
+
+                _serverManager.ChangeMode(_mode);
+            }
+            else
+            {
+                command.ReplyToCommand($"Can't find mode: {command.ArgByIndex(1)}");
             }
         }
 

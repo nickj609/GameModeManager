@@ -35,12 +35,27 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
+            // Add default player commands
             plugin.AddCommand("css_game", "Displays list of player commands", OnGameCommand);
             plugin.AddCommand("css_currentmap", "Displays current map.", OnCurrentMapCommand);
             plugin.AddCommand("css_currentmode", "Displays current map.", OnCurrentModeCommand);
-            plugin.AddCommand("css_changemap", "Displays the vote map menu.", OnChangeMapCommand);
-            plugin.AddCommand("css_changemode", "Displays the vote mode menu", OnChangeModeCommand);
-            plugin.AddCommand("css_changesetting", "Displays the vote setting menu", OnChangeSettingCommand);
+
+            // Add vote commands
+            if(_config.Votes.Enabled)
+            {
+                if (_config.Votes.Maps)
+                {
+                    plugin.AddCommand("css_changemap", "Displays the vote map menu.", OnChangeMapCommand);
+                }
+                if (_config.Votes.GameModes)
+                {
+                    plugin.AddCommand("css_changemode", "Displays the vote mode menu", OnChangeModeCommand);
+                }
+                if (_config.Votes.GameSettings)
+                {
+                    plugin.AddCommand("css_changesetting", "Displays the vote setting menu", OnChangeSettingCommand);
+                }
+            }
         }
 
         // Define show maps menu command handler
@@ -48,20 +63,7 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _config.Votes.Enabled && _config.Votes.Maps && !_config.Votes.AllMaps)
-            {
-                if (_config.Votes.Style.Equals("wasd") && _pluginState.VoteMapWASDMenu != null)
-                {
-                    _menuFactory.OpenWasdMenu(player, _pluginState.VoteMapWASDMenu);
-                }
-                else
-                {
-                    _pluginState.VoteMapMenu.Title = _localizer.Localize("maps.menu-title");
-                    _menuFactory.OpenMenu(_pluginState.VoteMapMenu, player);
-                }
-
-            }   
-            else if(player != null && _config.Votes.Enabled && _config.Votes.AllMaps)
+            if(player != null && _config.Maps.Mode == 1)
             {     
                 if (_config.Votes.Style.Equals("wasd") && _pluginState.VoteMapsWASDMenu != null)
                 {
@@ -74,6 +76,18 @@ namespace GameModeManager.Features
                 }
                 
             }              
+            else if(player != null && _config.Maps.Mode == 0)
+            {
+                if (_config.Votes.Style.Equals("wasd") && _pluginState.VoteMapWASDMenu != null)
+                {
+                    _menuFactory.OpenWasdMenu(player, _pluginState.VoteMapWASDMenu);
+                }
+                else
+                {
+                    _pluginState.VoteMapMenu.Title = _localizer.Localize("maps.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.VoteMapMenu, player);
+                }
+            }   
         }
 
         // Define show maps menu command handler
@@ -81,22 +95,19 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeModeCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(_config.Votes.Enabled && _config.Votes.GameModes)
+            if(player != null)
             {
-                if(player != null)
+                if (_config.Votes.Style.Equals("wasd") && _pluginState.VoteModesWASDMenu != null)
                 {
-                    if (_config.Votes.Style.Equals("wasd") && _pluginState.VoteModesWASDMenu != null)
-                    {
-                        _menuFactory.OpenWasdMenu(player, _pluginState.VoteModesWASDMenu);
-                    }
-                    else
-                    {
-                        _pluginState.VoteModesMenu.Title = _localizer.Localize("modes.menu-title");
-                        _menuFactory.OpenMenu(_pluginState.VoteModesMenu, player);
-                        
-                    }
-                } 
-            }
+                    _menuFactory.OpenWasdMenu(player, _pluginState.VoteModesWASDMenu);
+                }
+                else
+                {
+                    _pluginState.VoteModesMenu.Title = _localizer.Localize("modes.menu-title");
+                    _menuFactory.OpenMenu(_pluginState.VoteModesMenu, player);
+                    
+                }
+            } 
         }
 
         // Define show maps menu command handler
@@ -104,7 +115,7 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeSettingCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _config.Votes.Enabled && _config.Votes.GameSettings)
+            if(player != null)
             {
                 if (_config.Votes.Style.Equals("wasd") && _pluginState.VoteSettingsWASDMenu != null)
                 {

@@ -13,7 +13,7 @@ GameModeManager simplifies server administration for Counter-Strike 2 by providi
 - **Admin menus** for modes, maps, and settings.
 - **Customizable rotation** of maps and game modes.
 - **Player voting** for maps, settings, and game modes.
-- **Seamless integration** with your existing Rock the Vote (RTV) plugin.
+- **Built-in RTV** that can be customized to include modes and maps.
 - **Dynamic map lists and menus** based on the current game mode or all game modes.
 - **Customization options** for rotation schedules, commands, voting styles, and languages.
 
@@ -29,15 +29,17 @@ This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gam
 
 For creating custom votes, this plugin utilizes the [CS2-CustomVotes](https://github.com/imi-tat0r/CS2-CustomVotes) shared plugin API (licensed under the [MIT License](https://github.com/imi-tat0r/CS2-CustomVotes?tab=MIT-1-ov-file)). 
 
+For creating WASD menus, this plugin utilizes a custom fork of [WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI) shared plugin API (licensed under the [MIT License](https://github.com/Interesting-exe/WASDMenuAPI?tab=MIT-1-ov-file)). 
+
 ## Requirements
 - [Counter-Strike 2](https://www.counter-strike.net/cs2)
 - [Metamod:Source](https://github.com/alliedmodders/metamod-source/) (v1282+)
 - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) (v.197+)
 
-## RTV Plugin Compatibility
-This plugin is compatible with any RTV plugin using a `maplist.txt` file.
+## Built-in RTV Plugin
+This plugin comes with a built-in RTV plugin that can be customized to include maps and modes. The built-in RTV plugin is not enabled by default.
 
-![Screenshot 2024-03-21 161846](https://github.com/nickj609/GameModeManager/assets/32173425/1e291efb-fe7f-4f0d-bb2c-e21d042bd153)
+![Untitled2](https://github.com/user-attachments/assets/e02c37b6-eadf-4a14-ba4f-6958f1d44a7e)
 
 ## Commands
 <details>
@@ -47,7 +49,13 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `css_rtv_enabled <true|false>` - Enables or disables RTV.
 
+- `css_rtv_duration <seconds>` - Sets the RTV vote duration.
+
 - `css_warmupmode <mode>` - Schedules and sets the warmup mode.
+
+- `css_endwarmup` - Ends the custom warmup mode.
+
+- `css_startwarmup <mode>` - Starts the custom warmup mode.
 
 - `css_timelimit <true|false> optional: <seconds>` - Enables or disables time limit.
 
@@ -59,26 +67,22 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!timelimit <true|false|> optional: <seconds>` - Sets the time limit for the current map.
 
-   ![Screenshot 2024-09-24 171240](https://github.com/user-attachments/assets/1d91ad0e-cf4e-4c87-b221-b36806c0ffe5)
-
-- `!allmaps` - Displays an admin menu for changing the map to any map from any game mode. 
+   ![Screenshot 2024-09-24 171240](https://github.com/user-attachments/assets/1d91ad0e-cf4e-4c87-b221-b36806c0ffe5) 
 
 - `!maps` - Displays an admin menu for changing the map. 
 
-   > _It only shows maps for the current game mode._
+   > _Depending on map mode, it shows maps for the current game mode or all modes._
 
-   ![Screenshot 2024-06-15 214126](https://github.com/nickj609/GameModeManager/assets/32173425/6da6d946-c876-4182-b7d2-8bb4e8d7341f)
-  
+   ![Screenshot 2024-10-20 205255](https://github.com/user-attachments/assets/3bf9e64d-bd2c-4a9c-8075-7c288852fe83)
    ![Screenshot 2024-06-15 215052](https://github.com/nickj609/GameModeManager/assets/32173425/a3d701c6-bba5-446f-90b4-fe849b901a84)
 
 - `!map <map name> <workshop id>` - Changes the map to the map specified.
   
-   > _The worksop ID is *optional* and only required for maps that aren't explicitly set for a given map group._
+   > _The workshop ID is *optional* and only required for maps that aren't explicitly set for a given map group._
    
 - `!modes` - Displays an admin menu for changing the game mode.
 
-   ![Screenshot 2024-06-15 214427](https://github.com/nickj609/GameModeManager/assets/32173425/2c6448e7-b101-423b-a5d0-f93d7775e71f)
-  
+   ![Screenshot 2024-10-20 205327](https://github.com/user-attachments/assets/706ab1f9-74fa-4ffe-a4e4-925fdcfd7716)
    ![image](https://github.com/nickj609/GameModeManager/assets/32173425/3f517755-d3cf-48fd-a331-d0332cfd48b3)
 
 - `!mode <mode name>` - Changes the game mode to the mode specified.
@@ -87,7 +91,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!settings` - Displays an admin menu for enabling or disabling custom game settings.
 
-   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/d0481582-2eb5-4cc9-99cf-51c0dcec2acf)
+   ![Screenshot 2024-10-20 205406](https://github.com/user-attachments/assets/ebb042bf-d423-4047-95f8-33a762c5a9da)
    ![Screenshot 2024-06-15 215321](https://github.com/nickj609/GameModeManager/assets/32173425/882da0f6-36f4-4bc1-b70b-096535526a78)
 
 - `!setting <enable|disable> <setting name>` - Enables or disables a custom game setting.
@@ -99,9 +103,22 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 <details>
 <summary>Player Commands</summary>
 
+- `!rtv` - Rocks the vote!
+
+  ![Untitled3](https://github.com/user-attachments/assets/e2515257-517a-48c9-b17c-071a8c14fc98)
+
+
+- `!nominate <map|mode>` - Nominates a map or game mode for the RTV vote.
+
+   ![Untitled](https://github.com/user-attachments/assets/7cf31114-d36f-44bb-bc9a-ffea6fbebd77)
+
 - `!game` - Displays a **dynamic** menu of all player commands.
 
-   ![Screenshot 2024-06-15 202045](https://github.com/nickj609/GameModeManager/assets/32173425/51451ff1-df41-4b51-881a-a8727d5cbffd)
+   ![image](https://github.com/user-attachments/assets/5f45876d-7c4b-45a7-95fe-fc96f0dae57f)
+
+- `!nextmap` - Displays the next map. 
+
+- `!nextmode` - Displays the next mode. 
 
 - `!currentmap` - Displays the current map. 
 
@@ -109,14 +126,13 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!changemap` - Displays a **dynamic** menu of all per-map votes that can be created.
 
-  > _It only shows maps for the current game mode._
+  > _Depending on map mode, it shows maps for the current game mode or all modes._
 
-   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/1fe0914e-0a48-477c-b5a7-6f57abc391ba)
+   ![Screenshot 2024-10-20 205255](https://github.com/user-attachments/assets/5f5ba46d-72b6-4873-b5b2-f367155543c6)
 
 - `!timeleft` - Displays the timeleft in the current map.
 
    ![Screenshot 2024-09-24 171203](https://github.com/user-attachments/assets/a5aabd36-1a59-4a0d-a7aa-42d40ee1ea4f)
-
 
 - `!currentmode` - Displays the current game mode.
 
@@ -124,11 +140,11 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 
 - `!changemode` - Displays a menu of all per-mode votes that can be created.
 
-   ![Screenshot 2024-06-08 212539](https://github.com/nickj609/GameModeManager/assets/32173425/f5e3d915-4c01-45d5-95a2-a40b693e17bb)
+   ![Screenshot 2024-10-20 205327](https://github.com/user-attachments/assets/706ab1f9-74fa-4ffe-a4e4-925fdcfd7716)
 
 - `!changesetting` - Displays a menu of all per-setting votes that can be created.
 
-   ![Screenshot 2024-06-08 212803](https://github.com/nickj609/GameModeManager/assets/32173425/16a907d1-3bd9-4416-bda6-4d6cc4c55030)
+   ![Screenshot 2024-10-20 215225](https://github.com/user-attachments/assets/93769872-a4d2-4bee-9470-bffca7796136)
 
 </details>
 
@@ -147,42 +163,62 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables RTV compatibility.                                                                                                                |
-| Mode                | Changes the RTV mode. (0 = maps from current game mode, 1 = maps from all game modes.)                                                    | 
-| Plugin              | Default path for the desired RTV plugin (i.e. `/addons/counterstrikesharp/plugins/plugin`)                                                | 
-| MapList             | Default path for the maplist.txt file to update when the map group or game mode changes.                                                  | 
-| MapFormat           | Enables the default format for adding maps to the map list file: `ws:{workshopid}`. When disabled: `{mapname}:{workshopid}`.              |
+| PerMap              | Enables per map RTV configuration                                                                                                         |
+| MapMode             | Changes the RTV map mode. (0 = maps from current game mode, 1 = maps from all game modes.)                                                | 
+| HudMenu             | Enables the HUD Menu                                                                                                                      | 
+| Style               | Changes vote menu type (i.e. "chat", "center" or "wasd").                                                                                 |
+| MinRounds           | Minimum number of rounds for RTV                                                                                                          |
+| MinPlayers          | Minimum number of players for RTV                                                                                                         |
+| VoteDuration        | Vote duration in seconds                                                                                                                  |
+| OptionsToShow       | Number of options to show in RTV list                                                                                                     |
+| VotePercentage      | Number of options to show in RTV list                                                                                                     |
+| OptionsInCoolDown   | Number of Options in cool down                                                                                                            |
+| EndMapVote          | Enables end map vote                                                                                                                      |
+| IncludeModes        | Includes modes in RTV list                                                                                                                |
+| ModePercentage      | Percent of modes in RTV list                                                                                                              |
+| EnabledInWarmup     | Enables RTV in warmup                                                                                                                     |
+| HideHudAfterVote    | Hides hud after vote                                                                                                                      |
+| NominationEnabled   | Enables nominating maps and/or modes                                                                                                      |
+| MaxNominationWinners | Sets max nomination winners                                                                                                              |
+| ChangeImmediately     | Enables change map/mode immediately                                                                                                     |
+| TriggerRoundsBeforeEnd | Sets rounds before end for trigger vote                                                                                                |
+| TriggerSecondsBeforeEnd | Sets seconds before end for trigger vote                                                                                              |
+
 
 ### Map Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Mode                | Changes the map mode. (0 = maps from current game mode, 1 = maps from all game modes.)                                                    |
 | Delay               | Map change change delay in seconds.                                                                                                       | 
 | Default             | Default map group on server start (i.e. mg_active).                                                                                       | 
-| Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
+| Style               | Changes map menu type (i.e. "chat", "center" or "wasd").                                                                                  |
 
 ### Vote Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables voting.                                                                                                                           | 
 | Maps                | Enables map votes.                                                                                                                        | 
-| AllMaps             | Enables all maps votes.                                                                                                                    |
+| Style               | Changes vote menu type (i.e. "chat", "center" or "wasd").                                                                                 |
 | GameModes           | Enables game mode votes.                                                                                                                  |
 | GameSettings        | Enables game setting votes.                                                                                                               |
-| Style               | Changes vote menu type (i.e. "chat" or "center").                                                                                         |
 
 ### Game Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables custom game settings.                                                                                                             | 
 | Folder              | Default settings folder within `/csgo/cfg/`.                                                                                              | 
-| Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      | 
+| Style               | Changes game setting menu type (i.e. "chat", "center" or "wasd").                                                                         | 
 
 ### Command Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Map                 | Enables or disables the !map admin command.                                                                                               | 
 | Maps                | Enables or disables the !maps admin command.                                                                                              | 
-| AllMaps             | Enables or disables the !allmaps admin command.                                                                                           |
-| TimeLeft            | Enables or disables the !timeleft command.                                                                                           |
+| Mode                | Enables or disables the !mode admin command.                                                                                              | 
+| Modes               | Enables or disables the !modes admin command.                                                                                             | 
+| TimeLeft            | Enables or disables the !timeleft command.                                                                                                |
+| TimeLimit           | Enables or disables the !timelimit admin command.                                                                                         |
+| Style               | Changes command menu type (i.e. "chat", "center" or "wasd").                                                                              | 
 
 ### Warmup Settings
 | Setting             | Description                                                                                                                               |
@@ -196,10 +232,10 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables rotations. (Cannot be enabled when RTV is enabled)                                                                                | 
-| WhenServerEmpty     | Enables rotation on server empty.                                                                                                         | 
-| CustomTimeLimit     | Custom time limit for rotations on server empty.                                                                                          | 
 | Cycle               | Changes the rotation cycle. (0 = maps from current mode, 1 = maps from all modes, 2, maps from specific map groups)                       |
 | MapGroups           | Mapgroups to use for rotation cycle 2.                                                                                                    |
+| WhenServerEmpty     | Enables rotation on server empty.                                                                                                         | 
+| CustomTimeLimit     | Custom time limit for rotations on server empty.                                                                                          | 
 | ModeRotation        | Enables game mode rotation. (Cannot be enabled when ModeSchedule is enabled)                                                              | 
 | ModeInterval        | Changes game mode every x map rotations. (If ModeRotation is enabled)                                                                     | 
 | ModeSchedule        | Enables mode schedules. (Cannot be enabled when ModeRotations is enabled)                                                                 | 
@@ -209,7 +245,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Default             | Default mode on server start (i.e. deathmatch).                                                                                           | 
-| Style               | Changes setting menu type (i.e. "chat" or "center").                                                                                      |
+| Style               | Changes setting menu type (i.e. "chat", "center" or "wasd").                                                                              |
 | MapGroupFile        | Map groups file name in `/csgo/`. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).                         | 
 | List                | A customizable list of game modes for your server with friendly names for menus.                                                          |  
 
@@ -221,73 +257,89 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
 <summary><b>Click to see Default Values</b></summary>
 	
 ```json
-// This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2024/09/23 12:52:21
+// This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2025/03/02 04:47:52
 {
-  "Version": 7,
+  "Version": 8,
   "RTV": {
-    "Enabled": false,
-    "Mode": 0,
-    "MapFormat": false,
-    "Plugin": "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll",
-    "MapList": "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"
+    "Enabled": true,
+    "MapMode": 0,
+    "HudMenu": true,
+    "Style": "wasd",
+    "MinRounds": 1,
+    "MinPlayers": 1,
+    "VoteDuration": 60,
+    "OptionsToShow": 6,
+    "VotePercentage": 51,
+    "OptionsInCoolDown": 3,
+    "EndMapVote": true,
+    "IncludeModes": true,
+    "ModeInclusionPercentage": 40,
+    "EnabledInWarmup": true,
+    "HideHudAfterVote": false,
+    "NominationEnabled": true,
+    "MaxNominationWinners": 1,
+    "ChangeImmediately": true,
+    "TriggerRoundsBeforeEnd": 2,
+    "TriggerSecondsBeforeEnd": 120
   },
   "Maps": {
+    "Mode": 0,
     "Delay": 5,
-    "Style": "center",
+    "Style": "wasd",
     "Default": "de_dust2"
   },
   "Votes": {
     "Enabled": false,
     "Maps": false,
-    "AllMaps": false,
+    "Style": "wasd",
     "GameModes": false,
-    "GameSettings": false,
-    "Style": "center"
+    "GameSettings": false
   },
   "Settings": {
     "Enabled": true,
-    "Style": "center",
+    "Style": "wasd",
     "Folder": "settings"
   },
   "Warmup": {
     "Time": 60,
     "PerMap": false,
     "Default": {
-      "Name": "Knives Only",
-      "Config": "warmup/knives_only.cfg",
-      "DefaultMap": null,
-      "MapGroups": []
+      "Name": "Deathmatch",
+      "Config": "warmup/dm.cfg"
     },
     "List": [
       {
         "Name": "Deathmatch",
-        "Config": "warmup/dm.cfg",
-        "DefaultMap": null,
-        "MapGroups": []
+        "Config": "warmup/dm.cfg"
       },
       {
         "Name": "Knives Only",
-        "Config": "warmup/knives_only.cfg",
-        "DefaultMap": null,
-        "MapGroups": []
+        "Config": "warmup/knives_only.cfg"
+      },
+      {
+        "Name": "Scoutz Only",
+        "Config": "warmup/scoutz_only.cfg"
       }
     ]
   },
   "Commands": {
     "Map": true,
     "Maps": true,
-    "AllMaps": false,
-    "TimeLeft": true
+    "Mode": true,
+    "Modes": true,
+    "TimeLeft": true,
+    "TimeLimit": true,
+    "Style": "wasd"
   },
   "Rotation": {
     "Enabled": true,
-    "WhenServerEmpty": false,
-    "CustomTimeLimit": 600,
     "Cycle": 0,
     "MapGroups": [
       "mg_active",
       "mg_comp"
     ],
+    "WhenServerEmpty": false,
+    "CustomTimeLimit": 600,
     "ModeRotation": false,
     "ModeInterval": 4,
     "ModeSchedules": false,
@@ -307,7 +359,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
     ]
   },
   "GameModes": {
-    "Style": "center",
+    "Style": "wasd",
     "Default": {
       "Name": "Casual",
       "Config": "casual.cfg",
@@ -337,8 +389,8 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
         ]
       },
       {
-        "Name": "ArmsRace",
-        "Config": "armsrace.cfg",
+        "Name": "Armsrace",
+        "Config": "ar.cfg",
         "DefaultMap": "ar_pool_day",
         "MapGroups": [
           "mg_gg"
@@ -399,8 +451,7 @@ This plugin is compatible with any RTV plugin using a `maplist.txt` file.
         "Config": "Casual-1.6.cfg",
         "DefaultMap": "3212419403",
         "MapGroups": [
-          "mg_active",
-          "mg_comp"
+          "mg_Casual-1.6"
         ]
       },
       {
@@ -549,6 +600,8 @@ This plugin will display all in-game menus and messaging based on the player's p
   "menu.no": "No",
   "menu.enable": "Enable",
   "menu.disable": "Disable",
+  "menu.maps": "Maps",
+  "menu.modes": "Modes",
   "warmup.start.message": "Warmup mode {GREEN}{0}{DEFAULT} started.",
   "warmup.end.message": "Game mode {GREEN}{0}{DEFAULT} started.",
   "mode.vote.menu-title": "Change game mode to {GOLD}{0}{DEFAULT}?",
@@ -573,7 +626,41 @@ This plugin will display all in-game menus and messaging based on the player's p
   "timelimit.enabled-error": "Time limit is already {GREEN}Enabled{DEFAULT}.",
   "timelimit.disabled-error": "Time limit is already {RED}Disabled{DEFAULT}.",
   "timelimit.value-error": "Invalid time limit. Please enter a valid integer.",
-  "timelimit.prefix": "{RED}[Timelimit]{DEFAULT}"
+  "timelimit.prefix": "{RED}[Timelimit]{DEFAULT}",
+  "rtv.prefix": "{red}[RockTheVote]{default}",
+  "votemap.prefix": "{red}[Vote]{default}",
+  "votemap.player-voted": "Player {green}{0}{default} voted in {green}{1}{default}",
+  "votemap.already-voted": "You already vote in {green}{0}{default}",
+  "votemap.in-the-map": "in the map {0}",
+  "votemap.changing-map": "Changing map/mode to {green}{0}",
+  "votemap.changing-map-next-round": "The map/mode will be changed to {green}{0}{default} in the next round...",
+  "general.votes-needed": "({0} voted, {1} needed)",
+  "nominate.nominated": "Player {green}{0}{default} nominated {green}{1}{default}, it now has {2} vote(s)",
+  "nominate.already-nominated": "You already nominated {green}{0}{default}, it has {1} vote(s)",
+  "nominate.menu-title": "Nominate",
+  "general.validation.current": "You can't choose the current map",
+  "general.validation.minimum-rounds": "Minimum rounds to use this command is {0}",
+  "general.validation.warmup": "Command disabled during warmup.",
+  "general.validation.minimum-players": "Minimum players to use this command is {0}",
+  "general.validation.disabled": "Command disabled right now",
+  "general.validation.no-vote": "A vote is required to schedule the next map or mode.",
+  "rtv.rocked-the-vote": "Player {green}{0}{default} wants to rock the vote",
+  "rtv.already-rocked-the-vote": "You already rocked the vote",
+  "rtv.votes-reached": "Number of votes reached, starting vote...",
+  "rtv.disabled": "Rtv is disabled right now",
+  "rtv.you-voted": "You voted in {0}",
+  "rtv.vote-ended": "Vote ended. Next will be {green}{0}{default} ({1:N2}% of {2} vote(s))",
+  "rtv.vote-ended-no-votes": "No votes. Next will be {green}{0}",
+  "general.changing-map": "Changing map to {green}{0}",
+  "general.changing-map-next-round": "The map will be changed to {green}{0}{default} in the next round...",
+  "rtv.hud.menu-title": "Vote for what's next?",
+  "rtv.hud.hud-timer": "<font class='fontSize-l horizontal-center' color='red'>Vote Results: </font><font class='fontSize-m horizontal-center' color='green'> {0}s </font>",
+  "rtv.hud.finished": "Next will be: {green}{0}",
+  "nextmap": "Next will be {green}{0}",
+  "next.decided-by-vote": "Next will be decided by vote.",
+  "general.validation.played-recently": "The map or mode has been played recently.", 
+  "nextmap.message": "{RED}[Next Map]{DEFAULT} {0}",
+  "nextmode.message": "{GREEN}[Next Mode]{DEFAULT} {0}"
 }
 ```
 
@@ -663,9 +750,9 @@ public class Plugin : BasePlugin
 
 ```log
 2024-06-08 22:59:32.827 +00:00 [WARN] plugin:GameModeManager Skipping random_setting.cfg because its missing the correct prefix.
-2024-06-08 23:05:24.421 +00:00 [INFO] plugin:GameModeManager Current mode is Casual.
-2024-06-08 23:05:24.421 +00:00 [INFO] plugin:GameModeManager New mode is Deathmatch.
-2024-06-08 23:05:24.947 +00:00 [INFO] plugin:GameModeManager Regenerating map menus...
+2024-06-08 23:05:24.421 +00:00 [INFO] plugin:GameModeManager Current mode is Deathmatch.
+2024-06-08 23:05:24.421 +00:00 [INFO] plugin:GameModeManager New mode is Casual.
+2024-11-17 23:05:24.532 +00:00 [INFO] plugin:GameModeManager Warmup mode enabled.
 2024-06-08 24:15:47.044 +00:00 [INFO] plugin:GameModeManager Game has ended. Picking random map from current mode...
 ```
 </details>
@@ -675,7 +762,7 @@ public class Plugin : BasePlugin
 
 | Error/Warning Message                                              | Description                                                                                                              |
 | -------------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------------ | 
-| `Cannot Find`                                                      | Unable to locate the file specified from `GameModeManager.json` config.                                                  | 
+| `Cannot Find`                                                      | Cannot locate the file specified from `GameModeManager.json` config.                                                  | 
 | `Incomplete VDF data`                                              | Your `gamemodes_server.txt` file is not formatted properly in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).| 
 | `Your config file is too old`                                      | Please backup and remove it from `addons/counterstrikesharp/configs/plugins/GameModeManager` to recreate it.             |
 | `The mapgroup property doesn't exist`                              | The "mapgroup" property cannot be found in your `gamemodes_server.txt` file.                                             | 
@@ -733,7 +820,7 @@ To add game modes, update the JSON key pairs in the configuration file (`csgo/ad
     },
     {
       "Name": "ArmsRace",
-      "Config": "armsrace.cfg",
+      "Config": "ar.cfg",
       "DefaultMap": "ar_pool_day",
       "MapGroups": [
         "mg_gg"
@@ -794,8 +881,7 @@ To add game modes, update the JSON key pairs in the configuration file (`csgo/ad
       "Config": "Casual-1.6.cfg",
       "DefaultMap": "3212419403",
       "MapGroups": [
-        "mg_active",
-        "mg_comp"
+        "mg_Casual-1.6"
       ]
     },
     {
@@ -975,7 +1061,6 @@ Yes! You can use friendly names for maps by using the following syntax:
 "mg_active"
 {
 	"imagename"			"mapgroup-active"
-	"displayname"			"Casual"
 	"nameID"			"#SFUI_Mapgroup_active"
 	"tooltipID"			"#SFUI_MapGroup_Tooltip_Desc_Active"
 	"tooltipMaps"			""
