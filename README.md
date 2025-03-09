@@ -71,7 +71,7 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 
 - `!maps` - Displays an admin menu for changing the map. 
 
-   > _By default, it only shows maps for the current game mode unless AllMaps is set to true._
+   > _Depending on map mode, it shows maps for the current game mode or all modes._
 
    ![Screenshot 2024-10-20 205255](https://github.com/user-attachments/assets/3bf9e64d-bd2c-4a9c-8075-7c288852fe83)
    ![Screenshot 2024-06-15 215052](https://github.com/nickj609/GameModeManager/assets/32173425/a3d701c6-bba5-446f-90b4-fe849b901a84)
@@ -126,7 +126,7 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 
 - `!changemap` - Displays a **dynamic** menu of all per-map votes that can be created.
 
-  > _By default, it only shows maps for the current game mode unless AllMaps is set to true._
+  > _Depending on map mode, it shows maps for the current game mode or all modes._
 
    ![Screenshot 2024-10-20 205255](https://github.com/user-attachments/assets/5f5ba46d-72b6-4873-b5b2-f367155543c6)
 
