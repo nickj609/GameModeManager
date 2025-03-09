@@ -15,6 +15,7 @@ namespace GameModeManager.CrossCutting
         public float GameStartTime => _gameRules?.GameStartTime ?? 0;
         public bool WarmupRunning => _gameRules?.WarmupPeriod ?? false;
         public int TotalRoundsPlayed => _gameRules?.TotalRoundsPlayed ?? 0;
+        public bool HasMatchStarted => _gameRules?.HasMatchStarted ?? false;
         
         // Define on load behavior
         public void OnLoad(Plugin plugin)
@@ -30,14 +31,14 @@ namespace GameModeManager.CrossCutting
             SetGameRulesAsync();
         }
 
-        // Define on round start behavior
+        // Define on round start handler
         public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
         {
             SetGameRules();
             return HookResult.Continue;
         }
 
-        // Define on announce warmup behavior
+        // Define on announce warmup handler
         public HookResult OnAnnounceWarmup(EventRoundAnnounceWarmup @event, GameEventInfo info)
         {
             SetGameRules();

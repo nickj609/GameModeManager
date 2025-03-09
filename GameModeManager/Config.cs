@@ -19,23 +19,45 @@ namespace GameModeManager
         public string? DefaultMap {get; set;} = null; 
         public List<string> MapGroups {get; set;} = new List<string>(){"mg_active", "mg_comp"};
     }
-    
+
+    public class WarmupModeEntry
+    {
+        public string Name {get; set;} = "Deathmatch";
+        public string Config {get; set;} = "warmup/dm.cfg";
+    }
+
     // Define RTV settings
     public class RTVSettings
     {
-        public bool Enabled { get; set; } = false; // Enable RTV Compatibility
-        public int Mode { get; set; } = 0; // 0 for current mode maps, 1 for all maps
-        public bool MapFormat { get; set; } = false; // Default file format (ws:<workshop id>). When set to false, uses format <map name>:<workshop id>. 
-        public string Plugin { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll"; // RTV plugin path
-        public string MapList { get; set; } = "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"; // Default map list file
-        
+        public bool Enabled { get; set; } = true; // Enables RTV
+        public bool PerMap { get; set; } = false; // Enables per map RTV configuration
+        public int MapMode { get; set; } = 0; // 0 for current mode maps, 1 for all maps
+        public bool HudMenu { get; set;} = false; // Enables hud menu
+        public string Style { get; set; } = "wasd"; // Changes vote menu type (i.e. "chat", "center" or "wasd")
+        public int MinRounds { get; set; } = 1; // Minimum number of rounds for RTV
+        public int MinPlayers { get; set; } = 3; // Minimum number of players for RTV
+        public int VoteDuration { get; set; } = 60; // Vote duration in seconds
+        public int OptionsToShow { get; set; } = 6; // Number of options to show in RTV list
+        public int VotePercentage { get; set; } = 51; // Vote percentage
+        public ushort OptionsInCoolDown { get; set; } = 3; // Options in cool down
+        public bool EndMapVote { get; set; } = true; // Enables end map vote
+        public bool IncludeModes { get; set; } = true; // Includes modes in RTV list
+        public int ModePercentage { get; set; } = 40; // Sets percent of modes in RTV list
+        public bool EnabledInWarmup { get; set;} = false; // Enables RTV in warmup
+        public bool HideHudAfterVote { get; set;} = false; // Hides hud after vote
+        public bool NominationEnabled { get; set;} = true; // Enables nomination
+        public int MaxNominationWinners { get; set;} = 1; // Sets max nomination winners
+        public bool ChangeImmediately { get; set; } = false; // Enables change map/mode immediately
+        public int TriggerRoundsBeforeEnd { get; set; } = 2; // Sets rounds before end for trigger vote
+        public int TriggerSecondsBeforeEnd { get; set; } = 120; // Sets seconds before end for trigger vote
     }
 
     // Define map settings
     public class MapSettings
     {
+        public int Mode { get; set; } = 0; // 0 for current mode maps, 1 for all maps
         public int Delay { get; set; } = 5; // Map change delay in seconds
-        public string Style { get; set; } = "center"; // Changes map menu type 
+        public string Style { get; set; } = "wasd"; // Changes map menu type 
         public string Default { get; set; } =  "de_dust2"; // Default map on server start
     }
 
@@ -43,18 +65,17 @@ namespace GameModeManager
     public class VoteSettings
     {
         public bool Enabled { get; set; } = false; // Enables CS2-CustomVotes compatibility
-        public bool Maps { get; set; } = false; // Enables vote to change game to a specific map in the current mode
-        public bool AllMaps { get; set; } = false; // Changes vote to change game to a specific map in all modes
+        public bool Maps { get; set; } = false; // Enables vote to change map
+        public string Style { get; set; } = "wasd"; // Changes vote menu type (i.e. "chat", "center" or "wasd")
         public bool GameModes { get; set; } = false; // Enables vote to change game mode
         public bool GameSettings { get; set; } = false; // Enables vote to change game setting
-        public string Style { get; set; } = "center"; // Changes vote menu type (i.e. "chat" or "center")
     }
 
     // Define game settings
     public class GameSettings
     {
         public bool Enabled { get; set; } = true; // Enable game settings
-        public string Style { get; set; } = "center"; // Changes settings menu type (i.e. "chat" or "center")
+        public string Style { get; set; } = "wasd"; // Changes settings menu type (i.e. "chat", "center" or "wasd")
         public string Folder { get; set; } = "settings"; // Default settings folder
     }
 
@@ -63,29 +84,32 @@ namespace GameModeManager
     {
         public bool Map { get; set; } = true; // Enables or disables !map admin command
         public bool Maps { get; set; } = true; // Enables or disables !maps admin command 
-        public bool AllMaps { get; set; } = false; // Enables or disables !allmaps admin command
+        public bool Mode { get; set; } = true; // Enables or disables !mode admin command
+        public bool Modes { get; set; } = true; // Enables or disables !modes admin command 
         public bool TimeLeft { get; set; } = true; // Enables or disables !timeleft admin command
+        public bool TimeLimit { get; set; } = true; // Enables or disables !timelimit admin command
+        public string Style { get; set; } = "wasd"; // Changes command menu type (i.e. "chat", "center" or "wasd")
     }
 
     public class WarmupSettings
     {
         public float Time { get; set; } = 60; // Default warmup time
         public bool PerMap { get; set; } = false; // Enables or disables per map warmup
-        public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Knives Only", Config = $"warmup/knives_only.cfg", MapGroups = new List<string>()}; // Default warmup mode
-        public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
+        public WarmupModeEntry Default { get; set; } = new WarmupModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg"}; // Default warmup mode
+        public List<WarmupModeEntry> List { get; set; } = new List<WarmupModeEntry>()
         {
-            new ModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg", MapGroups = new List<string>() },
-            new ModeEntry() { Name = "Knives Only", Config = $"warmup/knives_only.cfg", MapGroups = new List<string>()},
-            new ModeEntry() { Name = "Scoutz Only", Config = $"warmup/scoutz_only.cfg", MapGroups = new List<string>()}
+            new WarmupModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg"},
+            new WarmupModeEntry() { Name = "Knives Only", Config = $"warmup/knives_only.cfg"},
+            new WarmupModeEntry() { Name = "Scoutz Only", Config = $"warmup/scoutz_only.cfg"}
         };
     }
     public class RotationSettings
     {
         public bool Enabled { get; set; } = true; // Enables game rotations
-        public bool WhenServerEmpty { get; set; } = false; // Enables rotation on server empty. 
-        public int CustomTimeLimit { get; set; } = 600; // Sets custom time limit in seconds for rotation when server empty
         public int Cycle { get; set; } = 0; // 0 for current mode maps, 1 for all maps, 2 for specific map groups
         public List<string> MapGroups { get; set;} = new List<string>(){"mg_active", "mg_comp"}; // Map group list for cycle 2
+        public bool WhenServerEmpty { get; set; } = false; // Enables rotation on server empty. 
+        public int CustomTimeLimit { get; set; } = 600; // Sets custom time limit in seconds for rotation when server empty
         public bool ModeRotation { get; set; } = false; // Enables game mode rotations
         public int ModeInterval { get; set; } = 4; // Changes mode every x map rotations
         public bool ModeSchedules {get; set;} = false; // Enables or disables mode schedules
@@ -100,7 +124,7 @@ namespace GameModeManager
     // Define game mode settings
     public class GameModeSettings
     {
-        public string Style { get; set; } = "center"; // Changes mode menu type (i.e. "chat" or "center")
+        public string Style { get; set; } = "wasd"; // Changes mode menu type (i.e. "chat", "center" or "wasd")
         public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Casual", Config = "casual.cfg", MapGroups = new List<string>(){"mg_active", "mg_comp"} }; // Default mode on server start
         public string MapGroupFile { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
         
@@ -108,14 +132,14 @@ namespace GameModeManager
         {
             new ModeEntry() { Name = "Casual", Config = "casual.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_comp"} },
             new ModeEntry() { Name = "Deathmatch", Config = "dm.cfg", DefaultMap = "de_assembly", MapGroups = new List<string>(){"mg_dm"}},
-            new ModeEntry() { Name = "ArmsRace", Config = "armsrace.cfg", DefaultMap = "ar_pool_day", MapGroups = new List<string>(){"mg_gg"}},
+            new ModeEntry() { Name = "Armsrace", Config = "ar.cfg", DefaultMap = "ar_pool_day", MapGroups = new List<string>(){"mg_gg"}},
             new ModeEntry() { Name = "Competitive", Config = "comp.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_comp"}},
             new ModeEntry() { Name = "Wingman", Config = "wingman.cfg", DefaultMap = "de_memento", MapGroups = new List<string>(){"mg_active", "mg_comp"}},
             new ModeEntry() { Name = "Practice", Config = "prac.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_comp"}},
             new ModeEntry() { Name = "Prefire", Config = "prefire.cfg", DefaultMap = "de_inferno", MapGroups = new List<string>(){"mg_comp"} },
             new ModeEntry() { Name = "Retakes", Config = "retake.cfg",  DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_comp"}},
             new ModeEntry() { Name = "Executes", Config = "executes.cfg", DefaultMap = "de_mirage", MapGroups = new List<string>(){"mg_comp"}},
-            new ModeEntry() { Name = "Casual 1.6", Config = "Casual-1.6.cfg", DefaultMap = "3212419403", MapGroups = new List<string>(){"mg_active", "mg_comp"} },
+            new ModeEntry() { Name = "Casual 1.6", Config = "Casual-1.6.cfg", DefaultMap = "3212419403", MapGroups = new List<string>(){"mg_Casual-1.6"} },
             new ModeEntry() { Name = "Deathmatch Multicfg", Config = "dm-multicfg.cfg", DefaultMap = "de_mirage", MapGroups = new List<string>(){"mg_dm"}},
             new ModeEntry() { Name = "GG", Config = "gg.cfg", DefaultMap = "ar_pool_day", MapGroups = new List<string>(){"mg_gg"}},
             new ModeEntry() { Name = "45", Config = "45.cfg", DefaultMap = "3276886893", MapGroups = new List<string>(){"mg_45"} },
@@ -138,7 +162,7 @@ namespace GameModeManager
     public class Config : IBasePluginConfig
     {
         // Create config from classes
-         public int Version { get; set; } = 7;
+         public int Version { get; set; } = 8;
          public RTVSettings RTV { get; set; } = new();
          public MapSettings Maps { get; set; } = new();
          public VoteSettings Votes { get; set; } = new();
@@ -158,39 +182,11 @@ namespace GameModeManager
         // Parse configuration object data and perform error checking
         public void OnConfigParsed(Config _config)
         {  
-            if(_config.RTV.Enabled) 
-            {
-                // Disable game rotations
-                _config.Rotation.Enabled = false;
-
-                // Check if plugin DLL exists
-                if (File.Exists(Path.Join(PluginState.GameDirectory, _config.RTV.Plugin)))
-                {
-                    _config.RTV.Plugin = Path.Join(PluginState.GameDirectory, _config.RTV.Plugin);
-                }
-                else
-                {
-                    Logger.LogError($"Cannot find RTV 'Plugin': {Path.Join(PluginState.GameDirectory, _config.RTV.Plugin)}");
-                    throw new Exception($"Cannot find RTV 'Plugin': {Path.Join(PluginState.GameDirectory, _config.RTV.Plugin)}");
-                }
-
-                // Check if maplist exists
-                if (File.Exists(Path.Join(PluginState.GameDirectory, _config.RTV.MapList))) 
-                {
-                    _config.RTV.MapList = Path.Join(PluginState.GameDirectory, _config.RTV.MapList);
-                }
-                else
-                {
-                    Logger.LogError($"Cannot find RTV 'MapListFile': {_config.RTV.MapList}");
-                    throw new Exception($"Cannot find RTV 'MapListFile': {_config.RTV.MapList}");
-                }
-            }
-
             // Maps settings
-            if (!_config.Maps.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
+            if (!_config.Maps.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase)) 
             {
-                Logger.LogError("Invalid: Style must be 'center' or 'chat'");
-                throw new Exception("Invalid: Style must be 'center' or 'chat'");
+                Logger.LogError("Invalid: Style must be 'center', 'chat', or 'wasd'");
+                throw new Exception("Invalid: Style must be 'center', 'chat', or 'wasd'");
             }
             if (String.IsNullOrEmpty(_config.Maps.Default)) 
             {
@@ -199,10 +195,10 @@ namespace GameModeManager
             }
 
             // Vote Settings
-            if (_config.Votes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.Votes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
+            if (!_config.Votes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
             {
-                Logger.LogError("Invalid: Style must be 'center' or 'chat'");
-                throw new Exception("Invalid: Style must be 'center' or 'chat'");
+                Logger.LogError("Invalid: Style must be 'center', 'chat', or 'wasd'");
+                throw new Exception("Invalid: Style must be 'center', 'chat', or 'wasd'");
             }
 
             // Game Settings
@@ -236,7 +232,7 @@ namespace GameModeManager
                 throw new Exception("Undefined: Game modes list cannot be empty.");
             }
             
-            if (_config.GameModes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.GameModes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase)) 
+            if (_config.GameModes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.GameModes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.GameModes.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase)) 
             {
                 Logger.LogError("Invalid: Style must be 'center' or 'chat'");
                 throw new Exception("Invalid: Style must be 'center' or 'chat'");
@@ -265,7 +261,7 @@ namespace GameModeManager
             }
 
             // Config version check
-            if (_config.Version < 7)
+            if (_config.Version < 8)
             {
                 throw new Exception("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it");
             }

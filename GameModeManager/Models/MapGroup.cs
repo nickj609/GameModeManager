@@ -21,14 +21,14 @@ namespace GameModeManager.Models
             Maps = _maps; 
         }
 
-        // Define reusable method to equate values
+        // Define method to equate values
         public bool Equals(MapGroup? other) 
         {
             if(other == null) return false;
             return Name == other.Name && Maps.SequenceEqual(other.Maps);
         }
 
-        // Define reusable method to clear values
+        // Define method to clear values
         public void Clear()
         {
             Name = "";

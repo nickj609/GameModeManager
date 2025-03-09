@@ -54,6 +54,7 @@ namespace GameModeManager.Features
                 // Find game setting
                 Setting? _option = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_settingName, StringComparison.OrdinalIgnoreCase));
 
+                // Change setting
                 if(_option != null) 
                 {
                     if (_status.Equals("enable", StringComparison.OrdinalIgnoreCase)) 
@@ -85,8 +86,15 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                _pluginState.SettingsMenu.Title = _localizer.Localize("settings.menu-actions");
-                _menuFactory.OpenMenu(_pluginState.SettingsMenu, player);
+                if (_config.Settings.Style.Equals("wasd") && _pluginState.SettingsWASDMenu != null)
+                {
+                    _menuFactory.OpenWasdMenu(player, _pluginState.SettingsWASDMenu);
+                }
+                else
+                {
+                    _pluginState.SettingsMenu.Title = _localizer.Localize("settings.menu-actions");
+                    _menuFactory.OpenMenu(_pluginState.SettingsMenu, player);
+                }
             }
         }
     }

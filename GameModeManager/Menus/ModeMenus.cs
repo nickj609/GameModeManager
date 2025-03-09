@@ -36,7 +36,7 @@ namespace GameModeManager.Menus
         // Define on load behavior
         public void Load()
         {
-            // Assign menu
+            // Create/assign mode menu
             _pluginState.ModeMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
 
             // Add menu option for each game mode in game mode list
@@ -49,31 +49,73 @@ namespace GameModeManager.Menus
                     _serverManager.ChangeMode(_mode);
                 });
             }
-            // Setup user mode menu
-            if(_config.Votes.GameModes)
+
+            // Create vote mode menu
+            if (_config.Votes.GameModes)
             {
-                CreateVoteModesMenu();
+                // Assign menu
+                _pluginState.VoteModesMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
+
+                // Add vote menu option for each game mode in game mode list
+                foreach (Mode _mode in _pluginState.Modes)
+                {
+                    // Add menu option
+                    _pluginState.VoteModesMenu.AddMenuOption(_mode.Name, (player, option) =>
+                    {
+                        // Close menu
+                        MenuManager.CloseActiveMenu(player);
+
+                        // Start vote
+                        _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, Extensions.RemoveCfgExtension(_mode.Config));
+                    });
+                }
             }
         }
         
-        // Define resuable method to create show modes menu
-        public void CreateVoteModesMenu()
+        // Define method to load WASD menus
+        public void LoadWASDMenus()
         {
-            // Assign menu
-            _pluginState.VoteModesMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
-
-            foreach (Mode _mode in _pluginState.Modes)
+            // Create mode menu
+            if (_config.GameModes.Style.Equals("wasd"))
             {
-                // Add menu option
-                _pluginState.VoteModesMenu.AddMenuOption(_mode.Name, (player, option) =>
-                {
-                    // Close menu
-                    MenuManager.CloseActiveMenu(player);
+                // Assign menu
+                _pluginState.ModeWASDMenu = _menuFactory.AssignWasdMenu("Game Mode List");
 
-                    // Start vote
-                    _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, Extensions.RemoveCfgExtension(_mode.Config));
-                });
+                // Add menu option for each game mode in game mode list
+                foreach (Mode _mode in _pluginState.Modes)
+                {
+                    _pluginState.ModeWASDMenu?.Add(_mode.Name, (player, option) =>
+                    {
+                        // Close menu
+                       _menuFactory.CloseWasdMenu(player);
+
+                        // Change mode
+                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
+                        _serverManager.ChangeMode(_mode);
+                    });
+                }
             }
+
+            if (_config.GameModes.Style.Equals("wasd") && _config.Votes.GameModes)
+            {
+                // Assign menu
+                _pluginState.VoteModesWASDMenu = _menuFactory.AssignWasdMenu("Game Mode List");
+
+                // Add vote menu option for each game mode in game mode list
+                foreach (Mode _mode in _pluginState.Modes)
+                {
+                    // Add menu option
+                    _pluginState.VoteModesWASDMenu?.Add(_mode.Name, (player, option) =>
+                    {
+                        // Close menu
+                        _menuFactory.CloseWasdMenu(player);
+
+                        // Start vote
+                        _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, Extensions.RemoveCfgExtension(_mode.Config));
+                    });
+                }
+            }
+
         }
     }
 }

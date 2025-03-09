@@ -1,10 +1,10 @@
 // Included libraries
-using GameModeManager.Timers;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
+using CountdownTimer = GameModeManager.Timers.CountdownTimer;
 
 // Declare namespace
 namespace GameModeManager.CrossCutting
@@ -13,106 +13,57 @@ namespace GameModeManager.CrossCutting
     public class ServerManager : IPluginDependency<Plugin, Config>
     {
         // Define Dependencies
-        private GameRules _gameRules;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<ServerManager> _logger;
 
         // Define class instance
-        public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer, GameRules gameRules)
+        public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer)
         {
             _logger = logger;
             _localizer = localizer;
-            _gameRules =  gameRules;
             _pluginState = pluginState;
         }
 
         // Load config
-         public void OnConfigParsed(Config config)
+        public void OnConfigParsed(Config config)
         {
             _config = config;
         }
 
-        // Define reusable method to change map
-        public void ChangeMap(Map nextMap)
-        {
-            if(_gameRules.WarmupRunning)
-            {
-                // End warmup
-                Server.ExecuteCommand($"mp_warmup_end");
-                
-                // Delay freeze
-                new Timer(1.5f, () =>
-                {
-                    Server.ExecuteCommand("bot_kick");
-                    FreezePlayers();
-                });
-            }
-            else
-            {
-                // Kick bots and freeze all players
-                Server.ExecuteCommand("bot_kick");
-                FreezePlayers();
-            }
-
-            // Disable warmup scheduler
-            if (_config.Warmup.PerMap)
-            {
-                _pluginState.WarmupScheduled = false;
-            }
-
-            // Freeze all players
-            FreezePlayers();
-
-            // Display Countdown
-            CountdownTimer timer = new CountdownTimer(_config.Maps.Delay, () => 
-            {
-                // Change map
-                if (Server.IsMapValid(nextMap.Name))
-                {
-                    Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
-                }
-                else if (nextMap.WorkshopId != -1)
-                {
-                    Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
-                }
-                else
-                {
-                    Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
-                }
-            }, "Map changing in ");
-        }
-
-        // Define reusable method to change map
+        // Define method to change map
         public void ChangeMap(Map nextMap, int delay)
         {
-            if(_gameRules.WarmupRunning)
-            {
-                // End warmup
-                Server.ExecuteCommand($"mp_warmup_end");
-
-                // Delay freeze
-                new Timer(1.3f, () =>
-                {
-                    Server.ExecuteCommand("bot_kick");
-                    FreezePlayers();
-                });
-            }
-            else
-            {
-                // Kick bots and freeze all players
-                Server.ExecuteCommand("bot_kick");
-                FreezePlayers();
-            }
-
-            // Disable warmup scheduler
-            if (_config.Warmup.PerMap)
+            // Disable warmup
+            _pluginState.WarmupRunning = false;
+            if(_config.Warmup.PerMap)
             {
                 _pluginState.WarmupScheduled = false;
             }
 
+            // Kick bots and freeze all players
+            new Timer(0.5f, () =>
+            {
+                Server.ExecuteCommand("bot_kick");
+                Extensions.FreezePlayers();
+            });
+
+            // Revert RTV settings
+            if (_pluginState.RTVEnabled && _config.RTV.PerMap)
+            {
+                _pluginState.RTVDuration = _config.RTV.VoteDuration;
+                _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
+                _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
+
+                if(_pluginState.NominationEnabled)
+                {
+                    _pluginState.MaxNominationWinners = _config.RTV.MaxNominationWinners;
+                }
+            }
+
             // Display Countdown
+            _pluginState.CountdownRunning = true;
             CountdownTimer timer = new CountdownTimer(delay, () => 
             {
                 // Change map
@@ -128,15 +79,51 @@ namespace GameModeManager.CrossCutting
                 {
                     Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
                 }
-            }, "Map changing in ");
 
+                // Disable countdown flag
+                _pluginState.CountdownRunning = false;
+
+            }, "Map changing in ");
         }
 
-        // Define reusable method to change mode
+        // Define method to change mode
         public void ChangeMode(Mode mode)
         {
-            // Disable warmup scheduler
-            _pluginState.WarmupScheduled = false;
+            // Log mode change
+            _logger.LogInformation($"Current mode: {_pluginState.CurrentMode.Name}");
+            _logger.LogInformation($"New mode: {mode.Name}");
+
+            // If RTV enabled
+            if (_pluginState.RTVEnabled)
+            {
+                // Revert RTV settings
+                _pluginState.RTVDuration = _config.RTV.VoteDuration;
+                _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
+                _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
+
+                // Add mode to cooldown
+                if(_config.RTV.IncludeModes)
+                {
+                    if (_pluginState.InCoolDown == 0)
+                    {
+                        _pluginState.OptionsOnCoolDown.Clear();
+                    }
+                    else
+                    {
+                        if (_pluginState.OptionsOnCoolDown.Count > _pluginState.InCoolDown)
+                        {
+                            _pluginState.OptionsOnCoolDown.RemoveAt(0);
+                        }
+
+                        _pluginState.OptionsOnCoolDown.Add(mode.Name.Trim());
+                    }
+                }
+
+                if(_pluginState.NominationEnabled)
+                {
+                    _pluginState.MaxNominationWinners = _config.RTV.MaxNominationWinners;
+                }
+            }
 
             // Execute mode config
             Server.ExecuteCommand($"exec {mode.Config}");
@@ -153,7 +140,7 @@ namespace GameModeManager.CrossCutting
             }
 
             // Change to next map
-            ChangeMap(nextMap);
+            ChangeMap(nextMap, _config.Maps.Delay);
         }
 
         // Define method to trigger mode and map rotations
@@ -184,9 +171,28 @@ namespace GameModeManager.CrossCutting
 
                     // Change map
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
-                    ChangeMap(_randomMap);
+                    ChangeMap(_randomMap, _config.Maps.Delay);
                 }
                 _pluginState.MapRotations++;
+            }
+            else if (_pluginState.RTVEnabled)
+            {
+                // If RTV EofVote happened
+                if (_pluginState.EofVoteHappened && !_config.RTV.ChangeImmediately)
+                {
+                    if(_pluginState.Maps.FirstOrDefault(m => m.DisplayName.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase)) != null && _pluginState.NextMap != null)
+                    {
+                        ChangeMap(_pluginState.NextMap, _config.Maps.Delay);
+                    }
+                    else if (_pluginState.Modes.FirstOrDefault(m => m.Name.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase)) != null && _pluginState.NextMode != null)
+                    {
+                        ChangeMode(_pluginState.NextMode); 
+                    }
+                    else
+                    {
+                        _logger.LogError($"RTV: Map or mode {_pluginState.RTVWinner} not found");
+                    }
+                }
             }
         }
 
@@ -207,7 +213,7 @@ namespace GameModeManager.CrossCutting
             }
         }
 
-        // Define reusable method to get random map
+        // Define method to get random map
         public Map GetRandomMap(Mode currentMode)
         {    
             // Define random map
@@ -256,23 +262,5 @@ namespace GameModeManager.CrossCutting
             }
             return _randomMap;
         }
-
-        // Define reusable method to freeze all players
-        public void FreezePlayers()
-		{
-            foreach (var player in Extensions.ValidPlayers(true))
-            {
-			    player.Pawn.Value!.Freeze();
-            }
-		}
-
-        // Define reusable method to unfreeze all players
-        public void UnfreezePlayers()
-		{
-            foreach (var player in Extensions.ValidPlayers(true))
-            {
-                player.Pawn.Value!.Unfreeze();
-            }
-		}
     }
 }

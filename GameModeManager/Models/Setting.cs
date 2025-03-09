@@ -29,21 +29,21 @@ namespace GameModeManager.Models
             DisplayName = FormatSettingName(name);
         }
 
-        // Define reusable method to format settings names
+        // Define method to format settings names
         private string FormatSettingName(string name)
         {
                 name = name.Replace("_", " ");
                 return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(name); 
         }
 
-        // Define reusable method to equate settings
+        // Define method to equate settings
         public bool Equals(Setting? other) 
         {
             if (other == null) return false; 
             return Name == other.Name && Enable == other.Enable && Disable == other.Disable && DisplayName == other.DisplayName;
         }
 
-        // Define reusable method to clear values
+        // Define method to clear values
         public void Clear()
         {
             Name = "";

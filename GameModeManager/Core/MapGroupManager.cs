@@ -80,39 +80,63 @@ namespace GameModeManager.Core
                                 {
                                     // Separate workshop ID from map name
                                     string[] parts = _mapName.Split('/');
-                                    long _mapWorkshopId = long.Parse(parts[1]); 
+                                    long _mapWorkshopId = long.Parse(parts[1]);
                                     string _mapNameFormatted = parts[parts.Length - 1];
 
-                                    // Add map to all maps list
+                                    // Add map to maps lists
                                     if (!string.IsNullOrEmpty(_mapDisplayName))
                                     {
+                                        // Add to mapgroup map list
                                         _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
-                                        _pluginState.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
+                                        
+                                        // Add to all maps list only if it doesn't already exist
+                                        if (!_pluginState.Maps.Any(m => m.Name == _mapNameFormatted && m.WorkshopId == _mapWorkshopId))
+                                        {
+                                            _pluginState.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
+                                        }
                                     }
                                     else
                                     {
+                                        // Add to mapgroup map list
                                         _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
-                                        _pluginState.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
+
+                                        // Add to all maps list only if it doesn't already exist
+                                        if (!_pluginState.Maps.Any(m => m.Name == _mapNameFormatted && m.WorkshopId == _mapWorkshopId))
+                                        {
+                                            _pluginState.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
+                                        }
                                     }
                                 }
                                 else
                                 {
-                                    // Add map to all maps list
+                                    // Add map to maps lists
                                     if (!string.IsNullOrEmpty(_mapDisplayName))
                                     {
+                                        // Add to mapgroup map list
                                         _group.Maps.Add(new Map(_mapName, _mapDisplayName));
-                                        _pluginState.Maps.Add(new Map(_mapName));
+
+                                        // Add to all maps list only if it doesn't already exist
+                                        if (!_pluginState.Maps.Any(m => m.Name == _mapName))
+                                        {
+                                            _pluginState.Maps.Add(new Map(_mapName, _mapDisplayName));
+                                        }
                                     }
                                     else
                                     {
+                                        // Add to mapgroup map list
                                         _group.Maps.Add(new Map(_mapName));
-                                        _pluginState.Maps.Add(new Map(_mapName));
+
+                                        // Add to all maps list only if it doesn't already exist
+                                        if (!_pluginState.Maps.Any(m => m.Name == _mapName))
+                                        {
+                                            _pluginState.Maps.Add(new Map(_mapName));
+                                        }
                                     }
                                 }
                             }
                             // Add map group to map group list
                             _pluginState.MapGroups.Add(_group);
-                        }  
+                        }
                         else
                         {
                             _logger.LogError($"Mapgroup {_mapGroup.Key} found, but the 'maps' property is missing or incomplete.");
@@ -132,6 +156,13 @@ namespace GameModeManager.Core
             {
                 _pluginState.CurrentMap = PluginState.DefaultMap;
             }
+        }
+
+        // Define on map start behavior
+       public void OnMapStart(string map)
+        {
+            Map _map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(map, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(map, StringComparison.OrdinalIgnoreCase)) ?? new Map(map);
+            _pluginState.CurrentMap = _map;
         }
     }
 }
