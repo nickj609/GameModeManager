@@ -38,31 +38,15 @@ namespace GameModeManager.Core
         public void OnLoad(Plugin plugin)
         { 
             // Register event handlers
-            plugin.RegisterEventHandler<EventWarmupEnd>(EventWarmupEndHandler, HookMode.Post);
+            plugin.RegisterEventHandler<EventWarmupEnd>(EventWarmupEndHandler, HookMode.Pre);
             plugin.RegisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnectHandler, HookMode.Post);
             plugin.RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler, HookMode.Post);
 
             // Create warmup mode list from config
-            foreach(ModeEntry _mode in _config.Warmup.List)
+            foreach(WarmupModeEntry _mode in _config.Warmup.List)
             {
-                List<MapGroup> mapGroups = new();
-
-                foreach(string _mapGroup in _mode.MapGroups)
-                {
-                    MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name == _mapGroup);
-
-                    if(mapGroup != null)
-                    {
-                        mapGroups.Add(mapGroup);
-                    }
-                    else
-                    {
-                        _logger.LogError($"Unable to find {_mapGroup} in map group list.");
-                    }
-                }
-
                 // Create warmup mode
-                Mode _warmupMode = new Mode(_mode.Name, _mode.Config, mapGroups);
+                Mode _warmupMode = new Mode(_mode.Name, _mode.Config, new List<MapGroup>());
                 _pluginState.WarmupModes.Add(_warmupMode);
             }
 
@@ -100,7 +84,11 @@ namespace GameModeManager.Core
         {
             if (Extensions.IsServerEmpty())
             {
-                _pluginState.WarmupRunning = false;
+                if (_pluginState.WarmupRunning)
+                {
+                    _pluginState.WarmupRunning = false;
+                    Server.ExecuteCommand("mp_warmup_end");
+                }
             }
             return HookResult.Continue;
         }
@@ -140,7 +128,7 @@ namespace GameModeManager.Core
            if (_pluginState.WarmupRunning)
             {
                 Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
-                Server.ExecuteCommand($"mp_warmup_end");
+                Server.ExecuteCommand($"mp_restartgame 1; mp_warmup_end");
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.end.message",  _pluginState.CurrentMode.Name)); 
 
                 if (_pluginState.PerMapWarmup)

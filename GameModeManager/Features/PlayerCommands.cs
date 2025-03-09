@@ -63,7 +63,7 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _config.Votes.AllMaps)
+            if(player != null && _config.Maps.Mode == 1)
             {     
                 if (_config.Votes.Style.Equals("wasd") && _pluginState.VoteMapsWASDMenu != null)
                 {
@@ -76,7 +76,7 @@ namespace GameModeManager.Features
                 }
                 
             }              
-            else if(player != null && !_config.Votes.AllMaps)
+            else if(player != null && _config.Maps.Mode == 0)
             {
                 if (_config.Votes.Style.Equals("wasd") && _pluginState.VoteMapWASDMenu != null)
                 {
@@ -87,9 +87,7 @@ namespace GameModeManager.Features
                     _pluginState.VoteMapMenu.Title = _localizer.Localize("maps.menu-title");
                     _menuFactory.OpenMenu(_pluginState.VoteMapMenu, player);
                 }
-
             }   
-
         }
 
         // Define show maps menu command handler

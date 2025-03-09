@@ -18,27 +18,24 @@ namespace GameModeManager.Features
     {
         // Define dependencies
         private MapMenus _mapMenus;
-        private MapManager _mapManager;
         private MenuFactory _menuFactory;
         private PluginState _pluginState;
-        private VoteManager _voteManager;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private Config _config = new Config();
         private ILogger<ModeCommands> _logger;
+        private CustomVoteManager _customVoteManager;
 
         // Define class instance
-        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, 
-        MapManager mapManager, VoteManager voteManager, ILogger<ModeCommands> logger, ServerManager serverManager, MapMenus mapMenus)
+        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager, MapMenus mapMenus)
         {
             _logger = logger;
             _mapMenus = mapMenus;
             _localizer = localizer;
-            _mapManager = mapManager;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
-            _voteManager = voteManager;
             _serverManager = serverManager;
+            _customVoteManager = customVoteManager;
         }
 
         // Load config
@@ -50,8 +47,16 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
-            plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
+            if (_config.Commands.Mode)
+            {
+                plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
+            }
+
+            if (_config.Commands.Modes)
+            {
+                plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
+            }
+
             plugin.AddCommand("css_gamemode", "Sets the current game mode.", OnGameModeCommand);
         }
 
@@ -69,18 +74,17 @@ namespace GameModeManager.Features
                     if (_config.Votes.Enabled && _config.Votes.Maps)
                     {                        
                         // Deregister map votes from old mode
-                        _voteManager.DeregisterMapVotes();
+                        _customVoteManager.DeregisterMapVotes();
 
                         // Set mode
                         _pluginState.CurrentMode = _mode;
 
-                        // Update RTV map list and map menus
+                        // Update map menus
                         _mapMenus.UpdateMenus();
                         _mapMenus.UpdateWASDMenus();
-                        _mapManager.UpdateRTVMapList();
         
                         // Register map votes for new mode
-                        _voteManager.RegisterMapVotes();
+                        _customVoteManager.RegisterMapVotes();
                     }
                     else
                     {
@@ -95,7 +99,7 @@ namespace GameModeManager.Features
                 }
                 else if (_mode == null)
                 {
-                    _logger.LogError($"Unable to find game mode {command.ArgByIndex(1)}.");
+                    _logger.LogError($"Cannot find game mode {command.ArgByIndex(1)}.");
                 }
             }
         }

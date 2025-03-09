@@ -1,7 +1,6 @@
 ﻿// Included libraries
-using GameModeManager.Menus;
 using GameModeManager.Core;
-using CounterStrikeSharp.API;
+using GameModeManager.Menus;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
@@ -26,8 +25,9 @@ namespace GameModeManager
     public partial class Plugin : BasePlugin
     {
         // Define plugin parameters
+        public static Plugin? Instance;
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "1.0.50";
+        public override string ModuleVersion => "1.0.52";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
@@ -36,25 +36,30 @@ namespace GameModeManager
         private readonly ModeMenus _modeMenus;
         private readonly PlayerMenu _playerMenu;
         private readonly PluginState _pluginState;
-        private readonly VoteManager _voteManager;
         private readonly SettingMenus _settingMenus;
+        private readonly NominateMenus _nominateMenus;
+        private readonly CustomVoteManager _customVoteManager;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Register dependencies
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager,VoteManager voteManager, PlayerMenu playerMenu, PluginState pluginState, MapMenus mapMenus, SettingMenus settingMenus, ModeMenus modeMenus)
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager, CustomVoteManager customVoteManager, PlayerMenu playerMenu, PluginState pluginState, MapMenus mapMenus, SettingMenus settingMenus, ModeMenus modeMenus, NominateMenus nominateMenus)
         {
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
             _playerMenu = playerMenu;
-            _voteManager = voteManager;
+            _customVoteManager = customVoteManager;
             _pluginState = pluginState;
             _settingMenus = settingMenus;
+            _nominateMenus = nominateMenus;
             _dependencyManager = dependencyManager;
         }
 
         // Define on load behavior
         public override void Load(bool hotReload)
         {   
+            // Set instance
+            Instance = this;
+
             // Load dependencies
             _dependencyManager.OnPluginLoad(this);
 
@@ -69,11 +74,6 @@ namespace GameModeManager
         public override void OnAllPluginsLoaded(bool hotReload)
         {
             base.OnAllPluginsLoaded(hotReload);
-
-            if (!Config.RTV.Enabled)
-            {
-                Server.ExecuteCommand($"css_plugins unload {Config.RTV.Plugin}");
-            }
 
             // Check if custom votes are enabled
             if (Config.Votes.Enabled)
@@ -94,7 +94,7 @@ namespace GameModeManager
                 _isCustomVotesLoaded = true;
 
                 // Register custom votes
-                _voteManager.RegisterCustomVotes();
+                _customVoteManager.RegisterCustomVotes();
             }
 
             // Check if WASDMenus are enabled
@@ -117,7 +117,7 @@ namespace GameModeManager
                 _playerMenu.LoadWASDMenu(); 
                 _modeMenus.LoadWASDMenus();         
                 _settingMenus.LoadWASDMenu();
-
+                _nominateMenus.LoadWASDMenu();
             }
         }
         // Define method to unload plugin
@@ -131,7 +131,7 @@ namespace GameModeManager
                     // Deregister custom votes
                     try
                     {
-                        _voteManager.DeregisterCustomVotes();
+                        _customVoteManager.DeregisterCustomVotes();
                     }
                     catch (Exception ex)
                     {

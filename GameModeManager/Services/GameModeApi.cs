@@ -66,22 +66,6 @@ namespace GameModeManager.Services
             }
         }
 
-        // Define change map handlers
-        public void ChangeMap(string mapName)
-        {
-            // Find map
-            Map? map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(mapName, StringComparison.OrdinalIgnoreCase));
-
-            if (map != null)
-            {
-                _serverManager.ChangeMap(map);
-            }
-            else
-            {
-                _logger.LogWarning($"Game Mode API: Map {mapName} not found.");
-            }
-        }
-
         public void ChangeMap(string mapName, int delay)
         {
             // Find map

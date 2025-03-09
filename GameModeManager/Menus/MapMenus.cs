@@ -40,7 +40,7 @@ namespace GameModeManager.Menus
             UpdateMenus();
 
             // Create all maps menu
-            if (_config.Commands.AllMaps)
+            if (_config.Maps.Mode == 1)
             {
                 // Assign menu
                 _pluginState.MapsMenu = _menuFactory.AssignMenu(_config.Maps.Style, "Select a game mode.");
@@ -61,7 +61,7 @@ namespace GameModeManager.Menus
                             {
                                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
                                 MenuManager.CloseActiveMenu(player);
-                                _serverManager.ChangeMap(_map);
+                                _serverManager.ChangeMap(_map, _config.Maps.Delay);
                             });
                         } 
                         // Open menu
@@ -81,7 +81,7 @@ namespace GameModeManager.Menus
             }
 
             // Create all map(s) menu
-            if (_config.Maps.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase) && _config.Commands.AllMaps)
+            if (_config.Maps.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase) && _config.Maps.Mode == 1)
             {
                 // Assign menu
                 _pluginState.MapWASDMenu = _menuFactory.AssignWasdMenu("Map List");
@@ -93,7 +93,7 @@ namespace GameModeManager.Menus
                     {
                         _menuFactory.CloseWasdMenu(player);
                         Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
-                        _serverManager.ChangeMap(_map);
+                        _serverManager.ChangeMap(_map, _config.Maps.Delay);
                     });
                 }
             }
@@ -129,7 +129,7 @@ namespace GameModeManager.Menus
                 {
                     MenuManager.CloseActiveMenu(player);
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
-                    _serverManager.ChangeMap(_map);
+                    _serverManager.ChangeMap(_map, _config.Maps.Delay);
                 });
             }
 
@@ -164,7 +164,7 @@ namespace GameModeManager.Menus
                 {
                     _menuFactory.CloseWasdMenu(player);
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
-                    _serverManager.ChangeMap(_map);
+                    _serverManager.ChangeMap(_map, _config.Maps.Delay);
                 });
             }
 

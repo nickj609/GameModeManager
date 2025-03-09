@@ -48,11 +48,6 @@ namespace GameModeManager.Features
             {
                 plugin.AddCommand("css_maps", "Displays a list of maps from the current mode.", OnMapsCommand);
             }
-
-            if (_config.Commands.AllMaps)
-            {
-                plugin.AddCommand("css_allmaps", "Displays a list of modes and their maps.", OnAllMapsCommand);
-            }
         }
 
         // Define admin map menu command handler
@@ -64,31 +59,30 @@ namespace GameModeManager.Features
             {
                 if (_config.Maps.Style.Equals("wasd") && _pluginState.MapWASDMenu != null)
                 {
-                    _menuFactory.OpenWasdMenu(player, _pluginState.MapWASDMenu);
+                    if (_config.Maps.Mode == 0 && _pluginState.MapWASDMenu != null)
+                    {
+                        _menuFactory.OpenWasdMenu(player, _pluginState.MapWASDMenu);
+                    }
+                    else if (_config.Maps.Mode == 1 && _pluginState.MapsWASDMenu != null)
+                    {
+                        _menuFactory.OpenWasdMenu(player, _pluginState.MapsWASDMenu);
+                    }
+                    else
+                    {
+                        _menuFactory.OpenMenu(_pluginState.MapMenu, player);
+                    }
                 }
                 else
                 {
                     _pluginState.MapMenu.Title = _localizer.Localize("maps.menu-title");
-                    _menuFactory.OpenMenu(_pluginState.MapMenu, player);
-                }
-            }
-        }
-
-        // Define admin all maps menu command handler
-        [RequiresPermissions("@css/changemap")]
-        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        public void OnAllMapsCommand(CCSPlayerController? player, CommandInfo command)
-        {
-            if(player != null)
-            {
-                if (_config.Maps.Style.Equals("wasd") && _pluginState.MapsWASDMenu != null)
-                {
-                    _menuFactory.OpenWasdMenu(player, _pluginState.MapsWASDMenu);
-                }
-                else
-                {
-                    _pluginState.MapsMenu.Title = _localizer.Localize("modes.menu-title");
-                    _menuFactory.OpenMenu(_pluginState.MapsMenu, player);
+                    if (_config.Maps.Mode == 0)
+                    {
+                        _menuFactory.OpenMenu(_pluginState.MapMenu, player);
+                    }
+                    else
+                    {
+                        _menuFactory.OpenMenu(_pluginState.MapsMenu, player);
+                    }
                 }
             }
         }

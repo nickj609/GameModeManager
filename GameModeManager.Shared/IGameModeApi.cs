@@ -18,11 +18,10 @@ public interface IGameModeApi
     // Enable RTV compatibility api handler
     public void EnableRTV(bool enabled);
 
-    // Change mode api handlers
+    // Change mode api handler
     public void ChangeMode(string modeName);
 
-    // Change map api handlers
-    public void ChangeMap(string mapName);
+    // Change map api handler
     public void ChangeMap(string mapName, int delay);
 
     // Schedule warmup api handlers
