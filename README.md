@@ -266,7 +266,7 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
     "HudMenu": true,
     "Style": "wasd",
     "MinRounds": 1,
-    "MinPlayers": 1,
+    "MinPlayers": 3,
     "VoteDuration": 60,
     "OptionsToShow": 6,
     "VotePercentage": 51,
@@ -278,7 +278,7 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
     "HideHudAfterVote": false,
     "NominationEnabled": true,
     "MaxNominationWinners": 1,
-    "ChangeImmediately": true,
+    "ChangeImmediately": false,
     "TriggerRoundsBeforeEnd": 2,
     "TriggerSecondsBeforeEnd": 120
   },
