@@ -39,9 +39,9 @@ namespace GameModeManager.Core
         public void OnMapStart(string map)
         {
             string _modeConfig = Extensions.RemoveCfgExtension(_pluginState.CurrentMode.Config);
-            string _settingsConfig = $"{_pluginState.CurrentMode.Config}_settings.cfg";
+            string _settingsConfig = $"{_modeConfig}_settings.cfg";
 
-            new Timer(1f, () => 
+            new Timer(.5f, () => 
             {
                 Server.ExecuteCommand($"exec {_settingsConfig}");
                 Server.ExecuteCommand("mp_restartgame 1");
