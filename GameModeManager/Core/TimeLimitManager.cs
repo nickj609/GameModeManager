@@ -1,4 +1,5 @@
-﻿using CounterStrikeSharp.API;
+﻿// Included libraries
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
@@ -6,26 +7,29 @@ using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Cvars;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+// Declare namespace
 namespace GameModeManager.Core
 {
+    // Define class
     public class TimeLimitManager : IPluginDependency<Plugin, Config>
     {
-        private Timer? _timer;
-        private ConVar? _timeLimit;
+        // Define dependencies
         private readonly GameRules _gameRules;
-        private Config _config = new();
         private readonly PluginState _pluginState;
         private readonly StringLocalizer _localizer;
         private readonly ServerManager _serverManager;
         private readonly MaxRoundsManager _maxRoundsManager;
 
+        // Define variables
+        private Timer? _timer;
+        private ConVar? _timeLimit;
+        private Config _config = new();
         public decimal TimeLimitValue => (decimal)(_timeLimit?.GetPrimitiveValue<float>() ?? 0F) * 60M;
         public bool UnlimitedTime => TimeLimitValue <= 0;
-
         public decimal TimePlayed => _gameRules.WarmupRunning ? 0 : (decimal)(Server.CurrentTime - _gameRules.GameStartTime);
-
         public decimal TimeRemaining => UnlimitedTime || TimePlayed > TimeLimitValue ? 0 : TimeLimitValue - TimePlayed;
 
+        // Define class instance
         public TimeLimitManager(GameRules gameRules, ServerManager serverManager, PluginState pluginState, MaxRoundsManager maxRoundsManager, IStringLocalizer iLocalizer)
         {
             _gameRules = gameRules;
@@ -35,11 +39,13 @@ namespace GameModeManager.Core
             _localizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
         }
 
+        // Load config
         public void OnConfigParsed(Config config)
         {
             _config = config;
         }
 
+        // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
             if (_config.Commands.TimeLimit)
@@ -51,16 +57,19 @@ namespace GameModeManager.Core
             }
         }
 
+        // Define on map start behavior
         public void OnMapStart(string map)
         {
             LoadCvar();
         }
 
+        // Function to load timelimit
         public void LoadCvar()
         {
             _timeLimit = ConVar.Find("mp_timelimit");
         }
 
+        // Function to disable time limit
         public void DisableTimeLimit()
         {
             if (_timer != null)
@@ -73,6 +82,7 @@ namespace GameModeManager.Core
             }
         }
 
+        // Functions to enable time limit
         public void EnableTimeLimit()
         {
             _pluginState.TimeLimitEnabled = true;
@@ -98,41 +108,7 @@ namespace GameModeManager.Core
             });
         }
 
-        public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
-        {
-            if (_pluginState.TimeLimitScheduled)
-            {
-                if (_pluginState.TimeLimitCustom)
-                {
-                    EnableTimeLimit(_pluginState.TimeLimit);
-                }
-                else
-                {
-                    EnableTimeLimit();
-                }
-            }
-            else
-            {
-                DisableTimeLimit();
-            }
-            return HookResult.Continue;
-        }
-
-        public HookResult EventGameEndHandler(EventGameEnd @event, GameEventInfo info)
-        {
-            DisableTimeLimit();
-            return HookResult.Continue;
-        }
-
-        public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
-        {
-            if (Extensions.IsServerEmpty())
-            {
-                DisableTimeLimit();
-            }
-            return HookResult.Continue;
-        }
-
+        // Functions to get time left message
         public string GetTimeLeftMessage()
         {
             string _message;
@@ -183,6 +159,42 @@ namespace GameModeManager.Core
             }
 
             return _message;
+        }
+
+        // Construct handlers to enable and disable time limit
+        public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
+        {
+            if (_pluginState.TimeLimitScheduled)
+            {
+                if (_pluginState.TimeLimitCustom)
+                {
+                    EnableTimeLimit(_pluginState.TimeLimit);
+                }
+                else
+                {
+                    EnableTimeLimit();
+                }
+            }
+            else
+            {
+                DisableTimeLimit();
+            }
+            return HookResult.Continue;
+        }
+
+        public HookResult EventGameEndHandler(EventGameEnd @event, GameEventInfo info)
+        {
+            DisableTimeLimit();
+            return HookResult.Continue;
+        }
+
+        public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
+        {
+            if (Extensions.IsServerEmpty())
+            {
+                DisableTimeLimit();
+            }
+            return HookResult.Continue;
         }
     }
 }

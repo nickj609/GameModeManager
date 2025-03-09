@@ -55,14 +55,18 @@ namespace GameModeManager
         // Define dynamic attributes
         public Map? NextMap;
         public Mode? NextMode;
+        public int InCoolDown = 0;
         public int TimeLimit = 120;
+        public int RTVDuration = 60;
         public int MapRotations = 0;
         public string RTVWinner = "";
         public bool RTVEnabled = false;
         public List<Mode> Modes = new();
         public bool PerMapWarmup = false;
+        public int RTVRoundsBeforeEnd = 2;
         public bool WarmupRunning = false;
         public Map CurrentMap = DefaultMap;
+        public int MaxNominationWinners = 1;
         public bool WarmupScheduled = false;
         public bool TimeLimitCustom = false;
         public bool RotationsEnabled = true;
@@ -71,6 +75,8 @@ namespace GameModeManager
         public bool CountdownRunning = false;
         public bool EofVoteHappened = false;
         public bool EofVoteHappening = false;
+        public int RTVSecondsBeforeEnd = 120;
+        public bool NominationEnabled = true;
         public Mode CurrentMode = DefaultMode;
         public bool TimeLimitScheduled = false;
         public Mode WarmupMode = DefaultWarmup;

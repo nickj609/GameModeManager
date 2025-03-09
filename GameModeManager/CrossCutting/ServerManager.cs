@@ -25,8 +25,9 @@ namespace GameModeManager.CrossCutting
             _localizer = localizer;
             _pluginState = pluginState;
         }
+
         // Load config
-         public void OnConfigParsed(Config config)
+        public void OnConfigParsed(Config config)
         {
             _config = config;
         }
@@ -47,6 +48,19 @@ namespace GameModeManager.CrossCutting
                 Server.ExecuteCommand("bot_kick");
                 Extensions.FreezePlayers();
             });
+
+            // Revert RTV settings
+            if (_pluginState.RTVEnabled && _config.RTV.PerMap)
+            {
+                _pluginState.RTVDuration = _config.RTV.VoteDuration;
+                _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
+                _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
+
+                if(_pluginState.NominationEnabled)
+                {
+                    _pluginState.MaxNominationWinners = _config.RTV.MaxNominationWinners;
+                }
+            }
 
             // Display Countdown
             _pluginState.CountdownRunning = true;
@@ -78,7 +92,39 @@ namespace GameModeManager.CrossCutting
             // Log mode change
             _logger.LogInformation($"Current mode: {_pluginState.CurrentMode.Name}");
             _logger.LogInformation($"New mode: {mode.Name}");
-            
+
+            // If RTV enabled
+            if (_pluginState.RTVEnabled)
+            {
+                // Revert RTV settings
+                _pluginState.RTVDuration = _config.RTV.VoteDuration;
+                _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
+                _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
+
+                // Add mode to cooldown
+                if(_config.RTV.IncludeModes)
+                {
+                    if (_pluginState.InCoolDown == 0)
+                    {
+                        _pluginState.OptionsOnCoolDown.Clear();
+                    }
+                    else
+                    {
+                        if (_pluginState.OptionsOnCoolDown.Count > _pluginState.InCoolDown)
+                        {
+                            _pluginState.OptionsOnCoolDown.RemoveAt(0);
+                        }
+
+                        _pluginState.OptionsOnCoolDown.Add(mode.Name.Trim());
+                    }
+                }
+
+                if(_pluginState.NominationEnabled)
+                {
+                    _pluginState.MaxNominationWinners = _config.RTV.MaxNominationWinners;
+                }
+            }
+
             // Execute mode config
             Server.ExecuteCommand($"exec {mode.Config}");
 
@@ -134,7 +180,7 @@ namespace GameModeManager.CrossCutting
                 // If RTV EofVote happened
                 if (_pluginState.EofVoteHappened && !_config.RTV.ChangeImmediately)
                 {
-                    if(_pluginState.Maps.FirstOrDefault(m => m.Name.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase)) != null && _pluginState.NextMap != null)
+                    if(_pluginState.Maps.FirstOrDefault(m => m.DisplayName.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase)) != null && _pluginState.NextMap != null)
                     {
                         ChangeMap(_pluginState.NextMap, _config.Maps.Delay);
                     }

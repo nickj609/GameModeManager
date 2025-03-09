@@ -29,21 +29,24 @@ namespace GameModeManager
     // Define RTV settings
     public class RTVSettings
     {
-        public bool Enabled { get; set; } = false; // Enables RTV
+        public bool Enabled { get; set; } = true; // Enables RTV
+        public bool PerMap { get; set; } = false; // Enables per map RTV configuration
         public int MapMode { get; set; } = 0; // 0 for current mode maps, 1 for all maps
-        public bool HudMenu { get; set;} = true; // Enabled Hud menu
+        public bool HudMenu { get; set;} = false; // Enables hud menu
         public string Style { get; set; } = "wasd"; // Changes vote menu type (i.e. "chat", "center" or "wasd")
         public int MinRounds { get; set; } = 1; // Minimum number of rounds for RTV
         public int MinPlayers { get; set; } = 3; // Minimum number of players for RTV
-        public int VoteDuration { get; set; } = 10; // Vote duration in seconds
+        public int VoteDuration { get; set; } = 60; // Vote duration in seconds
         public int OptionsToShow { get; set; } = 6; // Number of options to show in RTV list
         public int VotePercentage { get; set; } = 51; // Vote percentage
         public ushort OptionsInCoolDown { get; set; } = 3; // Options in cool down
         public bool EndMapVote { get; set; } = true; // Enables end map vote
         public bool IncludeModes { get; set; } = true; // Includes modes in RTV list
-        public bool EnabledInWarmup { get; set;} = true; // Enables RTV in warmup
+        public int ModePercentage { get; set; } = 40; // Sets percent of modes in RTV list
+        public bool EnabledInWarmup { get; set;} = false; // Enables RTV in warmup
         public bool HideHudAfterVote { get; set;} = false; // Hides hud after vote
         public bool NominationEnabled { get; set;} = true; // Enables nomination
+        public int MaxNominationWinners { get; set;} = 1; // Sets max nomination winners
         public bool ChangeImmediately { get; set; } = false; // Enables change map/mode immediately
         public int TriggerRoundsBeforeEnd { get; set; } = 2; // Sets rounds before end for trigger vote
         public int TriggerSecondsBeforeEnd { get; set; } = 120; // Sets seconds before end for trigger vote

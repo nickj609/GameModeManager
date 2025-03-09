@@ -36,19 +36,16 @@ namespace GameModeManager.Core
         }
         
         // Define variables
-        private ushort InCoolDown = 0;
         private List<int> votes = new();
         private float VotePercentage = 0F;
         public int VoteCount => votes.Count;
         public bool VotesAlreadyReached { get; set; } = false;
-        public Dictionary<int, List<string>> Nominations = new();
         public int RequiredVotes { get => (int)Math.Round(Extensions.ValidPlayerCount() * VotePercentage); }
 
         // Load config
         public void OnConfigParsed(Config config)
         {
             _config = config;
-            InCoolDown = config.RTV.OptionsInCoolDown;
             VotePercentage = _config.RTV.VotePercentage / 100F;
         }
 
@@ -66,23 +63,10 @@ namespace GameModeManager.Core
         // Define on map start behavior 
         public void OnMapStart(string _mapName)
         {
-            votes.Clear();
-            Nominations.Clear();
-            VotesAlreadyReached = false;
-
-            var map = Server.MapName;
-            if(map is not null)
+            if(_pluginState.RTVEnabled)
             {
-                if (InCoolDown == 0)
-                {
-                        _pluginState.OptionsOnCoolDown.Clear();
-                    return;
-                }
-
-                if ( _pluginState.OptionsOnCoolDown.Count > InCoolDown)
-                    _pluginState.OptionsOnCoolDown.RemoveAt(0);
-
-                    _pluginState.OptionsOnCoolDown.Add(map.Trim().ToLower());
+                votes.Clear();
+                VotesAlreadyReached = false;
             }
         }
 
@@ -97,7 +81,7 @@ namespace GameModeManager.Core
 
             // Update player menu
             _pluginState.PlayerCommands.Add("!rtv");
-            if(_config.RTV.NominationEnabled)
+            if(_pluginState.NominationEnabled)
             {
                 _pluginState.PlayerCommands.Add("!nominate");
             }
@@ -121,7 +105,7 @@ namespace GameModeManager.Core
 
             // Update player menu
             _pluginState.PlayerCommands.Remove("!rtv");
-            if(_config.RTV.NominationEnabled)
+            if(_pluginState.NominationEnabled)
             {
                 _pluginState.PlayerCommands.Remove("!nominate");
             }
@@ -144,11 +128,16 @@ namespace GameModeManager.Core
         public VoteResult AddVote(int userId)
         {
             if (VotesAlreadyReached)
+            {
                 return new VoteResult(VoteResultEnum.VotesAlreadyReached, VoteCount, RequiredVotes);
+            }
 
             VoteResultEnum? result = null;
+
             if (votes.IndexOf(userId) != -1)
+            {
                 result = VoteResultEnum.AlreadyAddedBefore;
+            }
             else
             {
                 votes.Add(userId);
@@ -172,72 +161,6 @@ namespace GameModeManager.Core
                 votes.RemoveAt(index);
         }
 
-        // Define reusable method to check if map is in cooldown
-        public bool IsOptionInCooldown(string option)
-        {
-            return _pluginState.OptionsOnCoolDown.IndexOf(option) > -1;
-        }
-        
-        public List<string> NominationWinners()
-        {
-            if (Nominations.Count == 0)
-                return new List<string>();
-
-            var rawNominations = Nominations
-                .Select(x => x.Value)
-                .Aggregate((acc, x) => acc.Concat(x).ToList());
-
-            return rawNominations
-                .Distinct()
-                .Select(map => new KeyValuePair<string, int>(map, rawNominations.Count(x => x == map)))
-                .OrderByDescending(x => x.Value)
-                .Select(x => x.Key)
-                .ToList();
-        }
-
-        public void Nominate(CCSPlayerController player, string option)
-        {
-            if (option.Equals(Server.MapName, StringComparison.OrdinalIgnoreCase))
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current-map"));
-                return;
-            }
-
-            if (option.Equals(_pluginState.CurrentMode.Name, StringComparison.OrdinalIgnoreCase))
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current-mode"));
-                return;
-            }
-
-            if (IsOptionInCooldown(option))
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.map-played-recently"));
-                return;
-            }
-
-            if (_pluginState.Maps!.Select(x => x.Name).FirstOrDefault(x => x == option) is null)
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.invalid-map"));
-                return;
-
-            }
-
-            var userId = player.UserId!.Value;
-            if (!Nominations.ContainsKey(userId))
-                Nominations[userId] = new();
-
-            bool alreadyVoted = Nominations[userId].IndexOf(option) != -1;
-            if (!alreadyVoted)
-                Nominations[userId].Add(option);
-
-            var totalVotes = Nominations.Select(x => x.Value.Where(y => y == option).Count()).Sum();
-
-            if (!alreadyVoted)
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("nominate.nominated", player.PlayerName, option, totalVotes));
-            else
-                player.PrintToChat(_localizer.LocalizeWithPrefix("nominate.already-nominated", option, totalVotes));
-        }
-
         // Define next map command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
@@ -247,11 +170,11 @@ namespace GameModeManager.Core
             {
                 if (_pluginState.NextMap != null && _pluginState.NextMode == null)
                 {
-                    player.PrintToChat(_localizer.Localize("nextmap.message", _pluginState.NextMap.DisplayName));
+                    player.PrintToChat(_localizer.Localize("rtv.nextmap.message", _pluginState.NextMap.DisplayName));
                 }
                 else if (_pluginState.NextMap == null && _pluginState.NextMode != null)
                 {
-                    player.PrintToChat(_localizer.Localize("nextmap.message", "Random"));
+                    player.PrintToChat(_localizer.Localize("rtv.nextmap.message", "Random"));
                 }
                 else
                 {
@@ -269,11 +192,11 @@ namespace GameModeManager.Core
             {
                 if (_pluginState.NextMode != null)
                 {
-                    player.PrintToChat(_localizer.Localize("nextmode.message", _pluginState.NextMode.Name));
+                    player.PrintToChat(_localizer.Localize("rtv.nextmode.message", _pluginState.NextMode.Name));
                 }
                 else if (_pluginState.NextMap != null && _pluginState.NextMode == null)
                 {
-                    player.PrintToChat(_localizer.Localize("nextmode.message", _pluginState.CurrentMode.Name));
+                    player.PrintToChat(_localizer.Localize("rtv.nextmode.message", _pluginState.CurrentMode.Name));
                 }
                 else
                 {

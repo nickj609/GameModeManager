@@ -32,6 +32,12 @@ namespace GameModeManager.Core
             _pluginState = pluginState;
         }
 
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
         // Define vote flags for deregistration
         private bool MapVote = false;
         private bool SettingVote = false;

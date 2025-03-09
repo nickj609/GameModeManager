@@ -27,7 +27,7 @@ namespace GameModeManager
         // Define plugin parameters
         public static Plugin? Instance;
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "1.0.51";
+        public override string ModuleVersion => "1.0.52";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
@@ -36,13 +36,13 @@ namespace GameModeManager
         private readonly ModeMenus _modeMenus;
         private readonly PlayerMenu _playerMenu;
         private readonly PluginState _pluginState;
-        private readonly CustomVoteManager _customVoteManager;
         private readonly SettingMenus _settingMenus;
-        private readonly NominationMenus _nominationMenus;
+        private readonly NominateMenus _nominateMenus;
+        private readonly CustomVoteManager _customVoteManager;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Register dependencies
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager, CustomVoteManager customVoteManager, PlayerMenu playerMenu, PluginState pluginState, MapMenus mapMenus, SettingMenus settingMenus, ModeMenus modeMenus, NominationMenus nominationMenus)
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager, CustomVoteManager customVoteManager, PlayerMenu playerMenu, PluginState pluginState, MapMenus mapMenus, SettingMenus settingMenus, ModeMenus modeMenus, NominateMenus nominateMenus)
         {
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
@@ -50,7 +50,7 @@ namespace GameModeManager
             _customVoteManager = customVoteManager;
             _pluginState = pluginState;
             _settingMenus = settingMenus;
-            _nominationMenus = nominationMenus;
+            _nominateMenus = nominateMenus;
             _dependencyManager = dependencyManager;
         }
 
@@ -117,7 +117,7 @@ namespace GameModeManager
                 _playerMenu.LoadWASDMenu(); 
                 _modeMenus.LoadWASDMenus();         
                 _settingMenus.LoadWASDMenu();
-                _nominationMenus.LoadWASDMenu();
+                _nominateMenus.LoadWASDMenu();
             }
         }
         // Define method to unload plugin

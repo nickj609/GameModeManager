@@ -11,28 +11,32 @@ using CounterStrikeSharp.API.Modules.Commands;
 namespace GameModeManager.Features
 {
     // Define class
-    public class NominationCommand : IPluginDependency<Plugin, Config>
+    public class NominateCommands : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
         private GameRules _gameRules;
-        private RTVManager _rtvManager;
         private MenuFactory _menuFactory;
         private PluginState _pluginState;
         private VoteManager _voteManager;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<ModeCommands> _logger;
+        private NominateManager _nominateManager;
+        private MaxRoundsManager _maxRoundsManager;
+        private TimeLimitManager _timeLimitManager;
 
         // Define class instance
-        public NominationCommand(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, ILogger<ModeCommands> logger, RTVManager rtvManager, GameRules gameRules, VoteManager voteManager)
+        public NominateCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, ILogger<ModeCommands> logger, NominateManager nominateManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager)
         {
             _logger = logger;
             _localizer = localizer;
             _gameRules = gameRules;
-            _rtvManager = rtvManager;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
             _voteManager = voteManager;
+            _nominateManager = nominateManager;
+            _maxRoundsManager = maxRoundsManager;
+            _timeLimitManager = timeLimitManager;
         }
 
         // Load config
@@ -44,32 +48,38 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            if (_config.RTV.Enabled)
+            if (_pluginState.RTVEnabled)
             {
-                if (_config.RTV.NominationEnabled)
+                if (_pluginState.NominationEnabled)
                 {
-                    plugin.AddCommand("css_nominate", "Nominates a map or game mode.", CommandHandler);
+                    plugin.AddCommand("css_nominate", "Nominates a map or game mode.", OnNominateCommand);
+                    plugin.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnected, HookMode.Pre);
                 }
             }
-            plugin.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnected, HookMode.Pre);
         }
 
         // Define command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        public void CommandHandler(CCSPlayerController? player, CommandInfo command)
+        public void OnNominateCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player != null)
             {
-                string option = command.GetArg(1).Trim().ToLower();
-                option = option.ToLower().Trim();
+                // Check if RTV vote happened already
+                if (_pluginState.EofVoteHappened)
+                {
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.schedule-change"));
+                    return;
+                }
 
-                if (_pluginState.DisableCommands || !_config.RTV.NominationEnabled)
+                // Check if disabled
+                if (_pluginState.DisableCommands || !_pluginState.NominationEnabled || _pluginState.EofVoteHappening)
                 {
                     player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
                     return;
                 }
 
+                // Check if warmup
                 if (_gameRules.WarmupRunning)
                 {
                     if (!_config.RTV.EnabledInWarmup)
@@ -78,20 +88,25 @@ namespace GameModeManager.Features
                         return;
                     }
                 }
-                else if (_config.RTV.MinRounds > 0 && _config.RTV.MinRounds > _gameRules.TotalRoundsPlayed)
+                else if (_timeLimitManager.UnlimitedTime && !_maxRoundsManager.UnlimitedRounds && _config.RTV.MinRounds > 0 && _config.RTV.MinRounds > _gameRules.TotalRoundsPlayed)
                 {
                     player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-rounds", _config.RTV.MinRounds));
                     return;
                 }
 
+                // Check if meets minimum players
                 if (Extensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
                 {
                     player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.RTV.MinPlayers));
                     return;
                 }
 
+                // Get option
+                string option = command.GetArg(1);
+
+                // If no option provided, display menu
                 if (string.IsNullOrEmpty(option))
-                {
+                {  
                     if (_config.RTV.IncludeModes)
                     {
                         if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase) && _pluginState.NominationWASDMenu != null)
@@ -119,7 +134,7 @@ namespace GameModeManager.Features
                 {
                     if (_voteManager.OptionExists(option))
                     {
-                        _rtvManager.Nominate(player, option);
+                        _nominateManager.Nominate(player, option);
                     }
                     else
                     {
@@ -130,6 +145,45 @@ namespace GameModeManager.Features
             return;
         }
 
+         // Define server nominate command handler
+        [CommandHelper(minArgs: 1, usage: "<true|false>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnNominateEnabledCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null)
+            {
+                if (command.ArgByIndex(1).Equals("true", StringComparison.OrdinalIgnoreCase) && !_pluginState.NominationEnabled)
+                {
+                    _pluginState.NominationEnabled = true;
+                }
+                else if (command.ArgByIndex(1).Equals("false", StringComparison.OrdinalIgnoreCase) && _pluginState.NominationEnabled)
+                {
+                    _pluginState.NominationEnabled = false;
+                }
+                else
+                {
+                    command.ReplyToCommand("Valid options are true or false.");
+                }
+
+            }
+        }
+
+        // Define server max nominations command handler
+        [CommandHelper(minArgs: 1, usage: "<Number>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnMaxNominationCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null)
+            {
+                if (int.TryParse(command.ArgByIndex(1), out var max))
+                {
+                    _pluginState.MaxNominationWinners = max;
+                }
+                else
+                {
+                    command.ReplyToCommand("Please specify a number.");
+                }
+            }
+        }
+
         // Define event handler
         public HookResult PlayerDisconnected(EventPlayerDisconnect @event, GameEventInfo @eventInfo)
         {
@@ -138,9 +192,14 @@ namespace GameModeManager.Features
             if (player != null)
             {
                 int userId = player.UserId!.Value;
-                if (!_rtvManager.Nominations.ContainsKey(userId))
+                if (_nominateManager.ModeNominations.ContainsKey(userId))
                 {
-                    _rtvManager.Nominations.Remove(userId);
+                    _nominateManager.ModeNominations.Remove(userId);
+                }
+
+                if (_nominateManager.MapNominations.ContainsKey(userId))
+                {
+                    _nominateManager.MapNominations.Remove(userId);
                 }
             }
             return HookResult.Continue;

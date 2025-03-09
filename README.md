@@ -49,6 +49,8 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 
 - `css_rtv_enabled <true|false>` - Enables or disables RTV.
 
+- `css_rtv_duration <seconds>` - Sets the RTV vote duration.
+
 - `css_warmupmode <mode>` - Schedules and sets the warmup mode.
 
 - `css_endwarmup` - Ends the custom warmup mode.
@@ -101,7 +103,7 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 <details>
 <summary>Player Commands</summary>
 
-- `!rtv *optional: <duration>` - Rocks the vote!
+- `!rtv` - Rocks the vote!
 
 - `!nominate <map|mode>` - Nominates a map or game mode for the RTV vote.
 
@@ -156,42 +158,62 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables RTV compatibility.                                                                                                                |
-| Mode                | Changes the RTV mode. (0 = maps from current game mode, 1 = maps from all game modes.)                                                    | 
-| Plugin              | Default path for the desired RTV plugin (i.e. `/addons/counterstrikesharp/plugins/plugin`)                                                | 
-| MapList             | Default path for the maplist.txt file to update when the map group or game mode changes.                                                  | 
-| MapFormat           | Enables the default format for adding maps to the map list file: `ws:{workshopid}`. When disabled: `{mapname}:{workshopid}`.              |
+| PerMap              | Enables per map RTV configuration                                                                                                         |
+| MapMode             | Changes the RTV map mode. (0 = maps from current game mode, 1 = maps from all game modes.)                                                | 
+| HudMenu             | Enables the HUD Menu                                                                                                                      | 
+| Style               | Changes vote menu type (i.e. "chat", "center" or "wasd").                                                                                 |
+| MinRounds           | Minimum number of rounds for RTV                                                                                                          |
+| MinPlayers          | Minimum number of players for RTV                                                                                                         |
+| VoteDuration        | Vote duration in seconds                                                                                                                  |
+| OptionsToShow       | Number of options to show in RTV list                                                                                                     |
+| VotePercentage      | Number of options to show in RTV list                                                                                                     |
+| OptionsInCoolDown   | Number of Options in cool down                                                                                                            |
+| EndMapVote          | Enables end map vote                                                                                                                      |
+| IncludeModes        | Includes modes in RTV list                                                                                                                |
+| ModePercentage      | Percent of modes in RTV list                                                                                                              |
+| EnabledInWarmup     | Enables RTV in warmup                                                                                                                     |
+| HideHudAfterVote    | Hides hud after vote                                                                                                                      |
+| NominationEnabled   | Enables nominating maps and/or modes                                                                                                      |
+| MaxNominationWinners | Sets max nomination winners                                                                                                              |
+| ChangeImmediately     | Enables change map/mode immediately                                                                                                     |
+| TriggerRoundsBeforeEnd | Sets rounds before end for trigger vote                                                                                                |
+| TriggerSecondsBeforeEnd | Sets seconds before end for trigger vote                                                                                              |
+
 
 ### Map Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Mode                | Changes the map mode. (0 = maps from current game mode, 1 = maps from all game modes.)                                                    |
 | Delay               | Map change change delay in seconds.                                                                                                       | 
 | Default             | Default map group on server start (i.e. mg_active).                                                                                       | 
-| Style               | Changes vote menu type (i.e. "chat", "center" or "wasd").                                                                                         |
+| Style               | Changes map menu type (i.e. "chat", "center" or "wasd").                                                                                  |
 
 ### Vote Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables voting.                                                                                                                           | 
 | Maps                | Enables map votes.                                                                                                                        | 
-| AllMaps             | Enables all maps votes.                                                                                                                    |
+| Style               | Changes vote menu type (i.e. "chat", "center" or "wasd").                                                                                 |
 | GameModes           | Enables game mode votes.                                                                                                                  |
 | GameSettings        | Enables game setting votes.                                                                                                               |
-| Style               | Changes vote menu type (i.e. "chat", "center" or "wasd").                                                                                         |
 
 ### Game Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables custom game settings.                                                                                                             | 
 | Folder              | Default settings folder within `/csgo/cfg/`.                                                                                              | 
-| Style               | Changes setting menu type (i.e. "chat", "center" or "wasd").                                                                                      | 
+| Style               | Changes game setting menu type (i.e. "chat", "center" or "wasd").                                                                         | 
 
 ### Command Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Map                 | Enables or disables the !map admin command.                                                                                               | 
 | Maps                | Enables or disables the !maps admin command.                                                                                              | 
-| AllMaps             | Enables or disables the !allmaps admin command.                                                                                           |
-| TimeLeft            | Enables or disables the !timeleft command.                                                                                           |
+| Mode                | Enables or disables the !mode admin command.                                                                                              | 
+| Modes               | Enables or disables the !modes admin command.                                                                                             | 
+| TimeLeft            | Enables or disables the !timeleft command.                                                                                                |
+| TimeLimit           | Enables or disables the !timelimit admin command.                                                                                         |
+| Style               | Changes command menu type (i.e. "chat", "center" or "wasd").                                                                              | 
 
 ### Warmup Settings
 | Setting             | Description                                                                                                                               |
@@ -205,10 +227,10 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables rotations. (Cannot be enabled when RTV is enabled)                                                                                | 
-| WhenServerEmpty     | Enables rotation on server empty.                                                                                                         | 
-| CustomTimeLimit     | Custom time limit for rotations on server empty.                                                                                          | 
 | Cycle               | Changes the rotation cycle. (0 = maps from current mode, 1 = maps from all modes, 2, maps from specific map groups)                       |
 | MapGroups           | Mapgroups to use for rotation cycle 2.                                                                                                    |
+| WhenServerEmpty     | Enables rotation on server empty.                                                                                                         | 
+| CustomTimeLimit     | Custom time limit for rotations on server empty.                                                                                          | 
 | ModeRotation        | Enables game mode rotation. (Cannot be enabled when ModeSchedule is enabled)                                                              | 
 | ModeInterval        | Changes game mode every x map rotations. (If ModeRotation is enabled)                                                                     | 
 | ModeSchedule        | Enables mode schedules. (Cannot be enabled when ModeRotations is enabled)                                                                 | 
@@ -218,7 +240,7 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Default             | Default mode on server start (i.e. deathmatch).                                                                                           | 
-| Style               | Changes setting menu type (i.e. "chat", "center" or "wasd").                                                                                      |
+| Style               | Changes setting menu type (i.e. "chat", "center" or "wasd").                                                                              |
 | MapGroupFile        | Map groups file name in `/csgo/`. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).                         | 
 | List                | A customizable list of game modes for your server with friendly names for menus.                                                          |  
 
@@ -230,73 +252,89 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 <summary><b>Click to see Default Values</b></summary>
 	
 ```json
-// This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2024/09/23 12:52:21
+// This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2025/03/02 04:47:52
 {
-  "Version": 7,
+  "Version": 8,
   "RTV": {
-    "Enabled": false,
-    "Mode": 0,
-    "MapFormat": false,
-    "Plugin": "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll",
-    "MapList": "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt"
+    "Enabled": true,
+    "MapMode": 0,
+    "HudMenu": true,
+    "Style": "wasd",
+    "MinRounds": 1,
+    "MinPlayers": 1,
+    "VoteDuration": 60,
+    "OptionsToShow": 6,
+    "VotePercentage": 51,
+    "OptionsInCoolDown": 3,
+    "EndMapVote": true,
+    "IncludeModes": true,
+    "ModeInclusionPercentage": 40,
+    "EnabledInWarmup": true,
+    "HideHudAfterVote": false,
+    "NominationEnabled": true,
+    "MaxNominationWinners": 1,
+    "ChangeImmediately": true,
+    "TriggerRoundsBeforeEnd": 2,
+    "TriggerSecondsBeforeEnd": 120
   },
   "Maps": {
+    "Mode": 0,
     "Delay": 5,
-    "Style": "center",
+    "Style": "wasd",
     "Default": "de_dust2"
   },
   "Votes": {
     "Enabled": false,
     "Maps": false,
-    "AllMaps": false,
+    "Style": "wasd",
     "GameModes": false,
-    "GameSettings": false,
-    "Style": "center"
+    "GameSettings": false
   },
   "Settings": {
     "Enabled": true,
-    "Style": "center",
+    "Style": "wasd",
     "Folder": "settings"
   },
   "Warmup": {
     "Time": 60,
     "PerMap": false,
     "Default": {
-      "Name": "Knives Only",
-      "Config": "warmup/knives_only.cfg",
-      "DefaultMap": null,
-      "MapGroups": []
+      "Name": "Deathmatch",
+      "Config": "warmup/dm.cfg"
     },
     "List": [
       {
         "Name": "Deathmatch",
-        "Config": "warmup/dm.cfg",
-        "DefaultMap": null,
-        "MapGroups": []
+        "Config": "warmup/dm.cfg"
       },
       {
         "Name": "Knives Only",
-        "Config": "warmup/knives_only.cfg",
-        "DefaultMap": null,
-        "MapGroups": []
+        "Config": "warmup/knives_only.cfg"
+      },
+      {
+        "Name": "Scoutz Only",
+        "Config": "warmup/scoutz_only.cfg"
       }
     ]
   },
   "Commands": {
     "Map": true,
     "Maps": true,
-    "AllMaps": false,
-    "TimeLeft": true
+    "Mode": true,
+    "Modes": true,
+    "TimeLeft": true,
+    "TimeLimit": true,
+    "Style": "wasd"
   },
   "Rotation": {
     "Enabled": true,
-    "WhenServerEmpty": false,
-    "CustomTimeLimit": 600,
     "Cycle": 0,
     "MapGroups": [
       "mg_active",
       "mg_comp"
     ],
+    "WhenServerEmpty": false,
+    "CustomTimeLimit": 600,
     "ModeRotation": false,
     "ModeInterval": 4,
     "ModeSchedules": false,
@@ -316,7 +354,7 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
     ]
   },
   "GameModes": {
-    "Style": "center",
+    "Style": "wasd",
     "Default": {
       "Name": "Casual",
       "Config": "casual.cfg",
@@ -346,7 +384,7 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
         ]
       },
       {
-        "Name": "ArmsRace",
+        "Name": "Armsrace",
         "Config": "ar.cfg",
         "DefaultMap": "ar_pool_day",
         "MapGroups": [
@@ -557,6 +595,8 @@ This plugin will display all in-game menus and messaging based on the player's p
   "menu.no": "No",
   "menu.enable": "Enable",
   "menu.disable": "Disable",
+  "menu.maps": "Maps",
+  "menu.modes": "Modes",
   "warmup.start.message": "Warmup mode {GREEN}{0}{DEFAULT} started.",
   "warmup.end.message": "Game mode {GREEN}{0}{DEFAULT} started.",
   "mode.vote.menu-title": "Change game mode to {GOLD}{0}{DEFAULT}?",
@@ -581,7 +621,41 @@ This plugin will display all in-game menus and messaging based on the player's p
   "timelimit.enabled-error": "Time limit is already {GREEN}Enabled{DEFAULT}.",
   "timelimit.disabled-error": "Time limit is already {RED}Disabled{DEFAULT}.",
   "timelimit.value-error": "Invalid time limit. Please enter a valid integer.",
-  "timelimit.prefix": "{RED}[Timelimit]{DEFAULT}"
+  "timelimit.prefix": "{RED}[Timelimit]{DEFAULT}",
+  "rtv.prefix": "{red}[RockTheVote]{default}",
+  "votemap.prefix": "{red}[Vote]{default}",
+  "votemap.player-voted": "Player {green}{0}{default} voted in {green}{1}{default}",
+  "votemap.already-voted": "You already vote in {green}{0}{default}",
+  "votemap.in-the-map": "in the map {0}",
+  "votemap.changing-map": "Changing map/mode to {green}{0}",
+  "votemap.changing-map-next-round": "The map/mode will be changed to {green}{0}{default} in the next round...",
+  "general.votes-needed": "({0} voted, {1} needed)",
+  "nominate.nominated": "Player {green}{0}{default} nominated {green}{1}{default}, it now has {2} vote(s)",
+  "nominate.already-nominated": "You already nominated {green}{0}{default}, it has {1} vote(s)",
+  "nominate.menu-title": "Nominate",
+  "general.validation.current": "You can't choose the current map",
+  "general.validation.minimum-rounds": "Minimum rounds to use this command is {0}",
+  "general.validation.warmup": "Command disabled during warmup.",
+  "general.validation.minimum-players": "Minimum players to use this command is {0}",
+  "general.validation.disabled": "Command disabled right now",
+  "general.validation.no-vote": "A vote is required to schedule the next map or mode.",
+  "rtv.rocked-the-vote": "Player {green}{0}{default} wants to rock the vote",
+  "rtv.already-rocked-the-vote": "You already rocked the vote",
+  "rtv.votes-reached": "Number of votes reached, starting vote...",
+  "rtv.disabled": "Rtv is disabled right now",
+  "rtv.you-voted": "You voted in {0}",
+  "rtv.vote-ended": "Vote ended. Next will be {green}{0}{default} ({1:N2}% of {2} vote(s))",
+  "rtv.vote-ended-no-votes": "No votes. Next will be {green}{0}",
+  "general.changing-map": "Changing map to {green}{0}",
+  "general.changing-map-next-round": "The map will be changed to {green}{0}{default} in the next round...",
+  "rtv.hud.menu-title": "Vote for what's next?",
+  "rtv.hud.hud-timer": "<font class='fontSize-l horizontal-center' color='red'>Vote Results: </font><font class='fontSize-m horizontal-center' color='green'> {0}s </font>",
+  "rtv.hud.finished": "Next will be: {green}{0}",
+  "nextmap": "Next will be {green}{0}",
+  "next.decided-by-vote": "Next will be decided by vote.",
+  "general.validation.played-recently": "The map or mode has been played recently.", 
+  "nextmap.message": "{RED}[Next Map]{DEFAULT} {0}",
+  "nextmode.message": "{GREEN}[Next Mode]{DEFAULT} {0}"
 }
 ```
 

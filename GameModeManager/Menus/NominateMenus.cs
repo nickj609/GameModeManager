@@ -2,30 +2,33 @@
 using GameModeManager.Core;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
+using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
 namespace GameModeManager.Menus
 {
     // Define class
-    public class NominationMenus : IPluginDependency<Plugin, Config>
+    public class NominateMenus : IPluginDependency<Plugin, Config>
     {
         // Define dependencies
-        private RTVManager _rtvManager;
         private VoteManager _voteManager;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private Config _config = new Config();
+        private ILogger<NominateMenus> _logger;
+        private NominateManager _nominateManager;
 
         // Define class instance
-        public NominationMenus(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, VoteManager voteManager, RTVManager rtvManager)
+        public NominateMenus(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, VoteManager voteManager, NominateManager nominateManager, ILogger<NominateMenus> logger)
         {
+            _logger = logger;
             _localizer = localizer;
-            _rtvManager = rtvManager;
             _voteManager = voteManager;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
+            _nominateManager = nominateManager;
         }
 
         // Load config
@@ -33,11 +36,11 @@ namespace GameModeManager.Menus
         {
             _config = config;
         }
-        
+
         // Define on load behavior
         public void Load()
         {
-            if(_config.RTV.Enabled)
+            if(_pluginState.RTVEnabled)
             {
                 // Assign menus
                 _pluginState.NominationMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
@@ -52,29 +55,30 @@ namespace GameModeManager.Menus
                 {
                     if (_voteManager.OptionExists(optionName))
                     {
-                        string? map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(optionName, StringComparison.OrdinalIgnoreCase))?.Name;
-                        string? mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(optionName, StringComparison.OrdinalIgnoreCase))?.Name;
 
-                        if (map != null)
+                        if (_voteManager.OptionType(optionName) == "map")
                         {
                             _pluginState.NominateMapMenu.AddMenuOption(optionName, (player, option) =>
                             {
-                                _rtvManager.Nominate(player, optionName);
+                                _nominateManager.Nominate(player, optionName);
                                 MenuManager.CloseActiveMenu(player);
                             });
                         }
-
-                        if (mode != null)
+                        else if (_voteManager.OptionType(optionName) == "mode")
                         {   
                             _pluginState.NominateModeMenu.AddMenuOption(optionName, (player, option) =>
                             {
-                                _rtvManager.Nominate(player, optionName);
+                                _nominateManager.Nominate(player, optionName);
                                 MenuManager.CloseActiveMenu(player);
                             });
                         }
+                        else
+                        {
+                            _logger.LogDebug($"Unable to identify option type for option {optionName}.");
+                        }
                     }
                 }
-
+                
                 // create map sub menu option
                 _pluginState.NominationMenu.AddMenuOption("Map", (player, option) =>
                 {
@@ -99,25 +103,10 @@ namespace GameModeManager.Menus
             }
         }
 
-        // Define on map start behavior
-        public void OnMapStart(string map)
-        {
-            if(_pluginState.RTVEnabled)
-            {
-                if(_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
-                {
-                    LoadWASDMenu();
-                }
-                else
-                {
-                    Load();
-                }
-            }
-        }
         // Define method to load WASD menus
         public void LoadWASDMenu()
         {
-            if(_config.RTV.Enabled)
+            if(_pluginState.RTVEnabled)
             {
                 if (_config.RTV.Style.Equals("wasd"))
                 {
@@ -134,43 +123,45 @@ namespace GameModeManager.Menus
                     {
                         if (_voteManager.OptionExists(optionName))
                         {
-                            string? map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(optionName, StringComparison.OrdinalIgnoreCase))?.Name;
-                            string? mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(optionName, StringComparison.OrdinalIgnoreCase))?.Name;
-
-                            if (map != null)
+                            if (_voteManager.OptionType(optionName) == "map")
                             {
                                 _pluginState.NominateMapWASDMenu?.Add(optionName, (player, option) =>
                                 {
-                                    _rtvManager.Nominate(player, optionName);
+                                    _nominateManager.Nominate(player, optionName);
                                     _menuFactory.CloseWasdMenu(player);
                                 });
                             }
-
-                            if (mode != null)
-                            {   
+                            else if (_voteManager.OptionType(optionName) == "mode")
+                            {
                                 _pluginState.NominateModeWASDMenu?.Add(optionName, (player, option) =>
                                 {
-                                    _rtvManager.Nominate(player, optionName);
+                                    _nominateManager.Nominate(player, optionName);
                                     _menuFactory.CloseWasdMenu(player);
                                 });
+                            }
+                            else
+                            {
+                                _logger.LogDebug($"Unable to identify option type for option {optionName}.");
                             }
                         }
                     }
 
                     // create map sub menu option
-                    _pluginState.NominationWASDMenu?.Add(_localizer.Localize("menu.enable"), (player, option) =>
+                    _pluginState.NominationWASDMenu?.Add(_localizer.Localize("menu.maps"), (player, option) =>
                     {
                         if(_pluginState.NominateMapWASDMenu != null)
                         {
+                            _pluginState.NominateMapWASDMenu.Prev = option.Parent?.Options?.Find(option);
                             _menuFactory.OpenWasdSubMenu(player, _pluginState.NominateMapWASDMenu);
                         }
                     });
 
                     // Create mode sub menu option
-                    _pluginState.NominationWASDMenu?.Add(_localizer.Localize("menu.disable"), (player, option) =>
+                    _pluginState.NominationWASDMenu?.Add(_localizer.Localize("menu.modes"), (player, option) =>
                     {
                         if(_pluginState.NominateModeWASDMenu != null)
                         {
+                            _pluginState.NominateModeWASDMenu.Prev = option.Parent?.Options?.Find(option);
                             _menuFactory.OpenWasdSubMenu(player, _pluginState.NominateModeWASDMenu);
                         }
                     });

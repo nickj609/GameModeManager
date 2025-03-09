@@ -127,11 +127,11 @@ namespace GameModeManager.Menus
                         {
                             if (_pluginState.NextMap != null && _pluginState.NextMode == null)
                             {
-                                player.PrintToChat(_localizer.Localize("nextmap.message", _pluginState.NextMap.DisplayName));
+                                player.PrintToChat(_localizer.Localize("rtv.nextmap.message", _pluginState.NextMap.DisplayName));
                             }
                             else if (_pluginState.NextMap == null && _pluginState.NextMode != null)
                             {
-                                player.PrintToChat(_localizer.Localize("nextmap.message", "Random"));
+                                player.PrintToChat(_localizer.Localize("rtv.nextmap.message", "Random"));
                             }
                             else
                             {
@@ -151,11 +151,11 @@ namespace GameModeManager.Menus
                         {
                             if (_pluginState.NextMode != null)
                             {
-                                player.PrintToChat(_localizer.Localize("nextmode.message", _pluginState.NextMode.Name));
+                                player.PrintToChat(_localizer.Localize("rtv.nextmode.message", _pluginState.NextMode.Name));
                             }
                             else if (_pluginState.NextMap != null && _pluginState.NextMode == null)
                             {
-                                player.PrintToChat(_localizer.Localize("nextmode.message", _pluginState.CurrentMode.Name));
+                                player.PrintToChat(_localizer.Localize("rtv.nextmode.message", _pluginState.CurrentMode.Name));
                             }
                             else
                             {
@@ -184,7 +184,7 @@ namespace GameModeManager.Menus
                         // Open nomination menu
                         if (player != null)
                         {
-                            if (_pluginState.DisableCommands || !_config.RTV.NominationEnabled)
+                            if (_pluginState.DisableCommands || !_pluginState.NominationEnabled)
                             {
                                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
                                 return;

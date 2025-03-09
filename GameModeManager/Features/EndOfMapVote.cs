@@ -32,8 +32,8 @@ namespace GameModeManager.Features
         {
             _timeLimit = timeLimit;
             _maxRounds = maxRounds;
-            _pluginState = pluginState;
             _gameRules = gameRules;
+            _pluginState = pluginState;
             _voteManager = voteManager;
         }
 
@@ -41,6 +41,8 @@ namespace GameModeManager.Features
         public void OnConfigParsed(Config config)
         {
             _config = config;
+            _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
+            _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
         }
 
         // Define on load behavior
@@ -101,17 +103,17 @@ namespace GameModeManager.Features
                 return false;
             }
 
-            if (_maxRounds.RemainingRounds <= _config.RTV.TriggerRoundsBeforeEnd)
+            if (_maxRounds.RemainingRounds <= _pluginState.RTVRoundsBeforeEnd)
             {
                 return true;
             }
 
-            return _maxRounds.CanClinch && _maxRounds.RemainingWins <= _config.RTV.TriggerRoundsBeforeEnd;
+            return _maxRounds.CanClinch && _maxRounds.RemainingWins <= _pluginState.RTVRoundsBeforeEnd;
         }
 
         bool CheckTimeLeft()
         {
-            return !_timeLimit.UnlimitedTime && _timeLimit.TimeRemaining <= _config.RTV.TriggerSecondsBeforeEnd;
+            return !_timeLimit.UnlimitedTime && _timeLimit.TimeRemaining <= _pluginState.RTVSecondsBeforeEnd;
         }
 
         public void StartVote()
@@ -119,7 +121,7 @@ namespace GameModeManager.Features
             KillTimer();
             if (_config.RTV.EndMapVote)
             {
-                _voteManager.StartVote(_config.RTV.VoteDuration);
+                _voteManager.StartVote(_pluginState.RTVDuration);
             }
         }
 

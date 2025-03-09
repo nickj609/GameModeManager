@@ -122,7 +122,7 @@ namespace GameModeManager.CrossCutting
 		}
 
         // Define reusable method to unfreeze all players
-        public static void PrintCenterTextAll(string text)
+        public static void PrintCenterTextAll(string text, int duration)
         {
             foreach (var player in Utilities.GetPlayers())
             {
