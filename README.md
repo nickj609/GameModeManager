@@ -39,7 +39,7 @@ For creating WASD menus, this plugin utilizes a custom fork of [WASDMenuAPI](htt
 ## Built-in RTV Plugin
 This plugin comes with a built-in RTV plugin that can be customized to include maps and modes. The built-in RTV plugin is not enabled by default.
 
-![Screenshot 2024-03-21 161846](https://github.com/nickj609/GameModeManager/assets/32173425/1e291efb-fe7f-4f0d-bb2c-e21d042bd153)
+![Untitled2](https://github.com/user-attachments/assets/e02c37b6-eadf-4a14-ba4f-6958f1d44a7e)
 
 ## Commands
 <details>
@@ -105,7 +105,12 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 
 - `!rtv` - Rocks the vote!
 
+  ![Untitled3](https://github.com/user-attachments/assets/e2515257-517a-48c9-b17c-071a8c14fc98)
+
+
 - `!nominate <map|mode>` - Nominates a map or game mode for the RTV vote.
+
+   ![Untitled](https://github.com/user-attachments/assets/7cf31114-d36f-44bb-bc9a-ffea6fbebd77)
 
 - `!game` - Displays a **dynamic** menu of all player commands.
 
