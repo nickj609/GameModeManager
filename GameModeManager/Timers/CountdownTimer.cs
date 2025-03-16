@@ -11,7 +11,7 @@ namespace GameModeManager.Timers
     // Define class
     public class CountdownTimer
     {
-        // Define dependencies
+        // Define class dependencies
         private Timer? timer;
         private float interval;
         private Action? callback;
@@ -24,13 +24,12 @@ namespace GameModeManager.Timers
             StartTimer(message);
         }
 
-        // Define method to start timer
+        // Define class methods
         private void StartTimer(string message)
         {
             timer = new Timer(1.0f, () => DisplayCountdown(message), TimerFlags.REPEAT);
         }
 
-        // Define method to display countdown
         private void DisplayCountdown(string message)
         {
             foreach (CCSPlayerController player in Extensions.ValidPlayers(false))
@@ -43,13 +42,11 @@ namespace GameModeManager.Timers
 
             if (interval <= 0.0f)
             {
-                StopTimer();
+                KillTimer();
                 callback?.Invoke();
             }
         }
-
-        // Define method to stop timer
-        private void StopTimer()
+        private void KillTimer()
         {
             if (timer != null)
             {

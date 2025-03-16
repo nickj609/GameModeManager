@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
+using GameModeManager.Menus;
 
 // Declare namespace
 namespace GameModeManager.Features
@@ -15,8 +16,9 @@ namespace GameModeManager.Features
     // Define class
     public class RTVCommands : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private Plugin? _plugin;
+        private VoteMenus _voteMenus;
         private GameRules _gameRules;
         private RTVManager _rtvManager;
         private PluginState _pluginState;
@@ -26,11 +28,13 @@ namespace GameModeManager.Features
         private ILogger<ModeCommands> _logger;
         private MaxRoundsManager _maxRoundsManager;
         private TimeLimitManager _timeLimitManager;
+        private VoteOptionManager _voteOptionManager;
 
         // Define class instance
-        public RTVCommands(PluginState pluginState, StringLocalizer localizer, ILogger<ModeCommands> logger, RTVManager rtvManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager)
+        public RTVCommands(PluginState pluginState, StringLocalizer localizer, ILogger<ModeCommands> logger, RTVManager rtvManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManager, VoteMenus voteMenus)
         {
             _logger = logger;
+            _voteMenus = voteMenus;
             _localizer = localizer;
             _gameRules = gameRules;
             _rtvManager = rtvManager;
@@ -38,6 +42,7 @@ namespace GameModeManager.Features
             _pluginState = pluginState;
             _maxRoundsManager = maxRoundsManager;
             _timeLimitManager = timeLimitManager; 
+            _voteOptionManager = voteOptionManager;
         }
 
         // Load config
@@ -51,7 +56,6 @@ namespace GameModeManager.Features
         public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
-
             _plugin.AddCommand("css_rtv_enabled", "Enables or disables RTV.", OnRTVEnabledCommand);
 
             if (_pluginState.RTVEnabled)
@@ -68,15 +72,14 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVDurationCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player != null)
-            {
-                return;
-            }  
-
-            if (int.TryParse(command.ArgByIndex(1), out var duration))
-            {
-                _pluginState.RTVDuration = duration;
+            if (player == null)
+            {  
+                if (int.TryParse(command.ArgByIndex(1), out var duration))
+                {
+                    _pluginState.RTVDuration = duration;
+                }
             }
+            return;
         }
 
         // Define client rtv command handler
@@ -84,15 +87,14 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVSecondsBeforeEndCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player != null)
+            if (player == null)
             {
-                return;
-            }  
-
-            if (int.TryParse(command.ArgByIndex(1), out var seconds))
-            {
-                _pluginState.RTVSecondsBeforeEnd = seconds;
+                if (int.TryParse(command.ArgByIndex(1), out var seconds))
+                {
+                    _pluginState.RTVSecondsBeforeEnd = seconds;
+                }
             }
+            return;
         }
 
         // Define client rtv command handler
@@ -100,15 +102,14 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVRoundsBeforeEndCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player != null)
-            {
-                return;
-            }  
-
-            if (int.TryParse(command.ArgByIndex(1), out var rounds))
-            {
-                _pluginState.RTVRoundsBeforeEnd = rounds;
+            if (player == null)
+            { 
+                if (int.TryParse(command.ArgByIndex(1), out var rounds))
+                {
+                    _pluginState.RTVRoundsBeforeEnd = rounds;
+                }
             }
+            return;
         }
 
         // Define client rtv command handler
@@ -116,67 +117,68 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnRTVCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player is null)
+            if (player != null)
             {
-                return;
-            }
-
-            if (_pluginState.EofVoteHappened)
-            {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.schedule-change"));
-                return;
-            }
-
-            if (_pluginState.DisableCommands || !_config.RTV.Enabled)
-            {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
-                return;
-            }
-
-            if (_gameRules.WarmupRunning)
-            {
-                if (!_config.RTV.EnabledInWarmup)
+                if (_pluginState.EofVoteHappened)
                 {
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.schedule-change"));
                     return;
                 }
-            }
-            else if (_timeLimitManager.UnlimitedTime && !_maxRoundsManager.UnlimitedRounds && _config.RTV.MinRounds > 0 && _config.RTV.MinRounds > _gameRules.TotalRoundsPlayed)
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-rounds", _config.RTV.MinRounds));
-                return;
-            }
 
-            if (Extensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
-            {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.RTV.MinPlayers));
-                return;
-            }
+                if (_pluginState.DisableCommands || !_config.RTV.Enabled)
+                {
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
+                    return;
+                }
 
-            if (_pluginState.NextMap != null & _pluginState.NextMap != null)
-            {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
-                return;
-            }
+                if (_gameRules.WarmupRunning)
+                {
+                    if (!_config.RTV.EnabledInWarmup)
+                    {
+                        player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                        return;
+                    }
+                }
+                else if (_timeLimitManager.UnlimitedTime && !_maxRoundsManager.UnlimitedRounds && _config.RTV.MinRounds > 0 && _config.RTV.MinRounds > _gameRules.TotalRoundsPlayed)
+                {
+                    player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-rounds", _config.RTV.MinRounds));
+                    return;
+                }
 
-            VoteResult result = _rtvManager.AddVote(player.UserId!.Value);
-            switch (result.Result)
-            {
-                case VoteResultEnum.Added:
-                    Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("rtv.rocked-the-vote", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
-                    break;
-                case VoteResultEnum.AlreadyAddedBefore:
-                    player.PrintToChat($"{_localizer.LocalizeWithPrefix("rtv.already-rocked-the-vote")} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
-                    break;
-                case VoteResultEnum.VotesAlreadyReached:
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.disabled"));
-                    break;
-                case VoteResultEnum.VotesReached:
-                    Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("rtv.rocked-the-vote", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.votes-reached"));
-                    _voteManager.StartVote(_pluginState.RTVDuration);
-                    break;
+                if (Extensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
+                {
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.RTV.MinPlayers));
+                    return;
+                }
+
+                if (_pluginState.NextMap != null & _pluginState.NextMap != null)
+                {
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
+                    return;
+                }
+
+                VoteResult result = _rtvManager.AddVote(player.UserId!.Value);
+                switch (result.Result)
+                {
+                    case VoteResultEnum.Added:
+                        Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("rtv.rocked-the-vote", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
+                        break;
+                    case VoteResultEnum.AlreadyAddedBefore:
+                        player.PrintToChat($"{_localizer.LocalizeWithPrefix("rtv.already-rocked-the-vote")} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
+                        break;
+                    case VoteResultEnum.VotesAlreadyReached:
+                        player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.disabled"));
+                        break;
+                    case VoteResultEnum.VotesReached:
+                        Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("rtv.rocked-the-vote", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
+                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.votes-reached"));
+                        _voteOptionManager.LoadOptions();
+                        _voteMenus.Load(_voteOptionManager.ScrambleOptions());
+                        _voteManager.StartVote(_pluginState.RTVDuration);
+                        break;
+                }
             }
+            return;
         }
 
         // Define server rtv command handler
@@ -213,8 +215,9 @@ namespace GameModeManager.Features
         {
             var player = @event.Userid;
             if (player?.UserId != null)
+            {
                 _rtvManager!.RemoveVote(player.UserId.Value);
-
+            }
             return HookResult.Continue;
         }
     }

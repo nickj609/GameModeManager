@@ -12,7 +12,7 @@ namespace GameModeManager.Features
     // Define class
     public class PlayerCommands : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
@@ -58,7 +58,7 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define show maps menu command handler
+        // Define command handlers
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeMapCommand(CCSPlayerController? player, CommandInfo command)
@@ -90,7 +90,6 @@ namespace GameModeManager.Features
             }   
         }
 
-        // Define show maps menu command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeModeCommand(CCSPlayerController? player, CommandInfo command)
@@ -110,7 +109,6 @@ namespace GameModeManager.Features
             } 
         }
 
-        // Define show maps menu command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeSettingCommand(CCSPlayerController? player, CommandInfo command)
@@ -129,7 +127,6 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define game menu command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnGameCommand(CCSPlayerController? player, CommandInfo command)
@@ -148,7 +145,6 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define current map command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnCurrentMapCommand(CCSPlayerController? player, CommandInfo command)
@@ -159,7 +155,6 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define current mode command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnCurrentModeCommand(CCSPlayerController? player, CommandInfo command)

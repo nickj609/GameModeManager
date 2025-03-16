@@ -11,7 +11,7 @@ namespace GameModeManager.Menus
     // Define class
     public class SettingMenus : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
          private StringLocalizer _localizer;
@@ -34,7 +34,6 @@ namespace GameModeManager.Menus
         // Define on load behavior
         public void Load()
         {
-            // Assign menus
             _pluginState.SettingsMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Setting Actions");
             _pluginState.SettingsEnableMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Settings List");
             _pluginState.SettingsDisableMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Settings List");
@@ -86,7 +85,6 @@ namespace GameModeManager.Menus
             // Create user settings menu
             if (_config.Votes.GameSettings)
             {
-                // Assign menu
                 _pluginState.VoteSettingsMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Setting List");
                 
                 // Add menu options
@@ -110,7 +108,6 @@ namespace GameModeManager.Menus
         {
              if (_config.Settings.Style.Equals("wasd"))
             {
-                // Assign menus
                 _pluginState.SettingsWASDMenu = _menuFactory.AssignWasdMenu("Setting Actions");
                 _pluginState.SettingsEnableWASDMenu = _menuFactory.AssignWasdMenu("Settings List");
                 _pluginState.SettingsDisableWASDMenu = _menuFactory.AssignWasdMenu("Settings List");
@@ -168,13 +165,11 @@ namespace GameModeManager.Menus
                 // Create user settings menu
                 if (_config.Votes.GameSettings)
                 {
-                    // Assign menu
                     _pluginState.VoteSettingsWASDMenu = _menuFactory.AssignWasdMenu("Setting List");
 
                     // Add menu options
                     foreach (Setting _setting in _pluginState.Settings)
                     {
-                        // Create menu option
                         _pluginState.VoteSettingsWASDMenu?.Add(_setting.DisplayName, (player, option) =>
                         {
                             // Close menu

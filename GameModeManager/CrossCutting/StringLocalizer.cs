@@ -7,7 +7,7 @@ namespace GameModeManager.CrossCutting
     // Define class
     public class StringLocalizer
     {
-        // Define dependencies
+        // Define class dependencies
         private readonly string _prefix;
         private IStringLocalizer _localizer;
 
@@ -24,7 +24,7 @@ namespace GameModeManager.CrossCutting
             _localizer = localizer;
         }
 
-        // Define methods
+        // Define class methods
         public string LocalizeWithPrefixInternal(string prefix, string key, params object[] args)
         {
             return $"{_localizer[prefix]} {Localize(key, args)}";

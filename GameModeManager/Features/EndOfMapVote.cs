@@ -13,19 +13,14 @@ namespace GameModeManager.Features
     // Define class
     public class EndOfMapVote : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
-        private Timer? _timer;
+        // Define class dependencies
+        private Plugin? _plugin;
         private GameRules _gameRules;
         private Config _config = new();
         private PluginState _pluginState;
         private VoteManager _voteManager;
         private TimeLimitManager _timeLimit;
         private MaxRoundsManager _maxRounds;
-
-        // Define class properties
-        private bool deathMatch => _gameMode?.GetPrimitiveValue<int>() == 2 && _gameType?.GetPrimitiveValue<int>() == 1;
-        private ConVar? _gameType;
-        private ConVar? _gameMode;
 
         // Define class instance
         public EndOfMapVote(TimeLimitManager timeLimit, MaxRoundsManager maxRounds, PluginState pluginState, GameRules gameRules, VoteManager voteManager)
@@ -36,6 +31,12 @@ namespace GameModeManager.Features
             _pluginState = pluginState;
             _voteManager = voteManager;
         }
+
+        // Define class properties
+        private Timer? timer;
+        private ConVar? gameType;
+        private ConVar? gameMode;
+        private bool deathMatch => gameMode?.GetPrimitiveValue<int>() == 2 && gameType?.GetPrimitiveValue<int>() == 1;
 
         // Load config
         public void OnConfigParsed(Config config)
@@ -48,54 +49,42 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            _gameMode = ConVar.Find("game_mode");
-            _gameType = ConVar.Find("game_type");
+            _plugin = plugin;
 
-            void MaybeStartTimer()
-            {
-                KillTimer();
-                if (!_timeLimit.UnlimitedTime && _config.RTV.EndMapVote)
-                {
-                    _timer = plugin.AddTimer(1.0F, () =>
-                    {
-                        if (_gameRules is not null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimit.TimeRemaining > 0)
-                        {
-                            if (CheckTimeLeft())
-                                StartVote();
-                        }
-                    }, TimerFlags.REPEAT);
-                }
-            }
-
-            plugin.RegisterEventHandler<EventRoundStart>((ev, info) =>
-            {
-
-                if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds() && _config.RTV.EndMapVote)
-                {
-                    StartVote();
-                }
-                else if (deathMatch)
-                {
-                    MaybeStartTimer();
-                }
-
-                return HookResult.Continue;
-            });
-
-            plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>((ev, info) =>
-            {
-                MaybeStartTimer();
-                return HookResult.Continue;
-            });
+            // Register event handlers
+            plugin.RegisterEventHandler<EventRoundStart>(EventRoundStartHandler);
+            plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(EventRoundAnnounceMatchStartHandler);
         }
 
         // Define on map start behavior
         public void OnMapStart(string map)
         {
             KillTimer();
+            gameMode = ConVar.Find("game_mode");
+            gameType = ConVar.Find("game_type");
         }
 
         // Define class methods
+        void KillTimer()
+        {
+            timer?.Kill();
+            timer = null;
+        }
+
+         public void StartVote()
+        {
+            KillTimer();
+            if (_config.RTV.EndMapVote)
+            {
+                _voteManager.StartVote(_pluginState.RTVDuration);
+            }
+        }
+
+        bool CheckTimeLeft()
+        {
+            return !_timeLimit.UnlimitedTime && _timeLimit.TimeRemaining <= _pluginState.RTVSecondsBeforeEnd;
+        }
+
         bool CheckMaxRounds()
         {
             if (_maxRounds.UnlimitedRounds)
@@ -111,24 +100,39 @@ namespace GameModeManager.Features
             return _maxRounds.CanClinch && _maxRounds.RemainingWins <= _pluginState.RTVRoundsBeforeEnd;
         }
 
-        bool CheckTimeLeft()
-        {
-            return !_timeLimit.UnlimitedTime && _timeLimit.TimeRemaining <= _pluginState.RTVSecondsBeforeEnd;
-        }
-
-        public void StartVote()
+        public void StartTimer()
         {
             KillTimer();
-            if (_config.RTV.EndMapVote)
+            if (!_timeLimit.UnlimitedTime && _config.RTV.EndMapVote)
             {
-                _voteManager.StartVote(_pluginState.RTVDuration);
+                timer = _plugin?.AddTimer(1.0F, () =>
+                {
+                    if (_gameRules is not null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimit.TimeRemaining > 0)
+                    {
+                        if (CheckTimeLeft())
+                            StartVote();
+                    }
+                }, TimerFlags.REPEAT);
             }
         }
 
-        void KillTimer()
+        // Define class event handlers
+        public HookResult EventRoundStartHandler(EventRoundStart @event, GameEventInfo info)
         {
-            _timer?.Kill();
-            _timer = null;
+            if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds() && _config.RTV.EndMapVote)
+            {
+                StartVote();
+            }
+            else if (deathMatch)
+            {
+                StartTimer();
+            }
+            return HookResult.Continue;  
+        }
+        public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
+        {
+                StartTimer();
+                return HookResult.Continue;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace GameModeManager.Core
     // Define class
     public class WarmupManager : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private GameRules _gameRules;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
@@ -32,68 +32,42 @@ namespace GameModeManager.Core
         public void OnConfigParsed(Config config)
         {
             _config = config;
+            _pluginState.PerMapWarmup = _config.Warmup.PerMap;
         }
 
         // Load dependencies
         public void OnLoad(Plugin plugin)
         { 
-            // Register event handlers
-            plugin.RegisterEventHandler<EventWarmupEnd>(EventWarmupEndHandler, HookMode.Pre);
-            plugin.RegisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnectHandler, HookMode.Post);
-            plugin.RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler, HookMode.Post);
-
-            // Create warmup mode list from config
-            foreach(WarmupModeEntry _mode in _config.Warmup.List)
+            if (_config.Warmup.Enabled)
             {
-                // Create warmup mode
-                Mode _warmupMode = new Mode(_mode.Name, _mode.Config, new List<MapGroup>());
-                _pluginState.WarmupModes.Add(_warmupMode);
-            }
+                // Register event handlers
+                plugin.RegisterEventHandler<EventWarmupEnd>(EventWarmupEndHandler, HookMode.Pre);
+                plugin.RegisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnectHandler, HookMode.Post);
+                plugin.RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler, HookMode.Post);
 
-            // Set default warmup mode  
-            Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(_config.Warmup.Default.Name, StringComparison.OrdinalIgnoreCase));
-
-            if(warmupMode != null)
-            {
-                _pluginState.WarmupMode = warmupMode;
-            }
-            else
-            {
-                _logger.LogError($"Unable to find warmup mode {_config.Warmup.Default.Name} in warmup mode list.");
-            }
-        }
-
-        // Define on warmup start behavior
-        public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
-        {
-            if (Extensions.ValidPlayerCount(false) == 1)
-            {
-                StartWarmup(_pluginState.WarmupMode);
-            }
-            return HookResult.Continue;
-        }
-
-        // Define on warmup end behavior
-        public HookResult EventWarmupEndHandler(EventWarmupEnd @event, GameEventInfo info)
-        {
-            EndWarmup();
-            return HookResult.Continue;
-        }
-
-        public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
-        {
-            if (Extensions.IsServerEmpty())
-            {
-                if (_pluginState.WarmupRunning)
+                // Create warmup mode list from config
+                foreach(WarmupModeEntry _mode in _config.Warmup.List)
                 {
-                    _pluginState.WarmupRunning = false;
-                    Server.ExecuteCommand("mp_warmup_end");
+                    // Create warmup mode
+                    Mode _warmupMode = new Mode(_mode.Name, _mode.Config, new List<MapGroup>());
+                    _pluginState.WarmupModes.Add(_warmupMode);
+                }
+
+                // Set default warmup mode  
+                Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(_config.Warmup.Default.Name, StringComparison.OrdinalIgnoreCase));
+
+                if(warmupMode != null)
+                {
+                    _pluginState.WarmupMode = warmupMode;
+                }
+                else
+                {
+                    _logger.LogError($"Unable to find warmup mode {_config.Warmup.Default.Name} in warmup mode list.");
                 }
             }
-            return HookResult.Continue;
         }
         
-        //Define method to schedule warmup mode
+        // Define method to schedule warmup mode
         public bool ScheduleWarmup(string modeName)
         {
             Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase) || m.Config.Contains(modeName, StringComparison.OrdinalIgnoreCase));
@@ -111,7 +85,7 @@ namespace GameModeManager.Core
             } 
         }
         
-        //Define method to start warmup
+        // Define method to start warmup
         public void StartWarmup(Mode warmupMode)
         {
             if (_pluginState.WarmupScheduled && !_pluginState.WarmupRunning && !_gameRules.HasMatchStarted)
@@ -122,7 +96,7 @@ namespace GameModeManager.Core
             }
         }
 
-        //Define method to end warmup
+        // Define method to end warmup
         public void EndWarmup()
         {
            if (_pluginState.WarmupRunning)
@@ -138,6 +112,35 @@ namespace GameModeManager.Core
 
                 _pluginState.WarmupRunning = false;
             }
+        }
+
+        // Define event handlers
+        public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
+        {
+            if (Extensions.ValidPlayerCount(false) == 1)
+            {
+                StartWarmup(_pluginState.WarmupMode);
+            }
+            return HookResult.Continue;
+        }
+
+        public HookResult EventWarmupEndHandler(EventWarmupEnd @event, GameEventInfo info)
+        {
+            EndWarmup();
+            return HookResult.Continue;
+        }
+
+        public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
+        {
+            if (Extensions.IsServerEmpty())
+            {
+                if (_pluginState.WarmupRunning)
+                {
+                    _pluginState.WarmupRunning = false;
+                    Server.ExecuteCommand("mp_warmup_end");
+                }
+            }
+            return HookResult.Continue;
         }
     }
 }

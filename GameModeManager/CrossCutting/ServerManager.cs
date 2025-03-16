@@ -12,7 +12,7 @@ namespace GameModeManager.CrossCutting
     // Define class
     public class ServerManager : IPluginDependency<Plugin, Config>
     {
-        // Define Dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private Config _config = new Config();
@@ -79,7 +79,6 @@ namespace GameModeManager.CrossCutting
                 {
                     Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
                 }
-
                 // Disable countdown flag
                 _pluginState.CountdownRunning = false;
 
@@ -114,7 +113,6 @@ namespace GameModeManager.CrossCutting
                         {
                             _pluginState.OptionsOnCoolDown.RemoveAt(0);
                         }
-
                         _pluginState.OptionsOnCoolDown.Add(mode.Name.Trim());
                     }
                 }
@@ -138,7 +136,6 @@ namespace GameModeManager.CrossCutting
             {
                 nextMap = mode.DefaultMap;
             }
-
             // Change to next map
             ChangeMap(nextMap, _config.Maps.Delay);
         }
@@ -152,7 +149,6 @@ namespace GameModeManager.CrossCutting
                 // If mode rotations are enabled, change mode on mode interval
                 if (_config.Rotation.ModeRotation && _pluginState.MapRotations != 0 && _pluginState.MapRotations % _config.Rotation.ModeInterval == 0)
                 {  
-                    // Log information
                     _logger.LogInformation("Game has ended. Picking random game mode...");
             
                     // Get random game mode
@@ -164,9 +160,8 @@ namespace GameModeManager.CrossCutting
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing mode..."));  
                     ChangeMode(_randomMode);
                 }
-                else // Change map
+                else
                 {
-                    // Define random map
                     Map _randomMap = GetRandomMap(_pluginState.CurrentMode);
 
                     // Change map
@@ -180,17 +175,13 @@ namespace GameModeManager.CrossCutting
                 // If RTV EofVote happened
                 if (_pluginState.EofVoteHappened && !_config.RTV.ChangeImmediately)
                 {
-                    if(_pluginState.Maps.FirstOrDefault(m => m.DisplayName.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase)) != null && _pluginState.NextMap != null)
+                    if(_pluginState.NextMap != null)
                     {
                         ChangeMap(_pluginState.NextMap, _config.Maps.Delay);
                     }
-                    else if (_pluginState.Modes.FirstOrDefault(m => m.Name.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase)) != null && _pluginState.NextMode != null)
+                    else if (_pluginState.NextMode != null)
                     {
                         ChangeMode(_pluginState.NextMode); 
-                    }
-                    else
-                    {
-                        _logger.LogError($"RTV: Map or mode {_pluginState.RTVWinner} not found");
                     }
                 }
             }
@@ -199,10 +190,8 @@ namespace GameModeManager.CrossCutting
         // Define method to trigger schedule change
         public void TriggerScheduleChange(ScheduleEntry state)
         {
-            // Find mode
             Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(state.Mode, StringComparison.OrdinalIgnoreCase));
 
-            // Change mode
             if (_mode != null)
             {
                 // Check if current mode is different from target mode
@@ -216,10 +205,8 @@ namespace GameModeManager.CrossCutting
         // Define method to get random map
         public Map GetRandomMap(Mode currentMode)
         {    
-            // Define random map
             Map _randomMap; 
 
-            // Set random map
             if (_config.Rotation.Cycle == 2) // If cycle = 2, select from specified map groups in config
             {
                 // Create map list
@@ -227,7 +214,6 @@ namespace GameModeManager.CrossCutting
 
                 foreach (string mapGroup in _config.Rotation.MapGroups)
                 {
-                    // Find map group
                     MapGroup? _mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(mapGroup, StringComparison.OrdinalIgnoreCase));
 
                     // Add maps from map group to map list
@@ -253,9 +239,9 @@ namespace GameModeManager.CrossCutting
                 _randomMap = _pluginState.Maps[_randomIndex];
             
             }
-            else // Select from current mode
+            else
             {
-                // Get a random map from current game mode
+                // Get a random map from current mode
                 Random _rnd = new Random();
                 int _randomIndex = _rnd.Next(0, currentMode.Maps.Count); 
                 _randomMap = currentMode.Maps[_randomIndex];

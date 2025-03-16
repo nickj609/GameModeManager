@@ -15,7 +15,7 @@ namespace GameModeManager.Features
     // Define class
     public class TimeLimitCommands : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private Config _config = new Config();
         private ILogger<TimeLimitCommands> _logger;
@@ -42,12 +42,10 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            // Add commands
             if (_config.Commands.TimeLimit)
             {
                 plugin.AddCommand("timelimit", "Forces rotation on time limit end. Default time limit is mp_timelimit.", OnTimeLimitCommand);
             }
-
             if (_config.Commands.TimeLeft)
             {
                 plugin.AddCommand("timeleft", "Prints in the chat the timeleft in the current map", OnTimeLeftCommand);

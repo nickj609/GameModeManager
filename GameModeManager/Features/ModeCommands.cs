@@ -16,7 +16,7 @@ namespace GameModeManager.Features
     // Define class
     public class ModeCommands : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private MapMenus _mapMenus;
         private MenuFactory _menuFactory;
         private PluginState _pluginState;
@@ -51,7 +51,6 @@ namespace GameModeManager.Features
             {
                 plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
             }
-
             if (_config.Commands.Modes)
             {
                 plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
@@ -66,7 +65,6 @@ namespace GameModeManager.Features
         {
             if (player == null) 
             {
-                // Find mode
                 Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
                 
                 if(_mode != null && _pluginState.CurrentMode != _mode)
@@ -109,10 +107,8 @@ namespace GameModeManager.Features
         [CommandHelper(minArgs: 1, usage: "[mode]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnModeCommand(CCSPlayerController? player, CommandInfo command)
         {
-            // Find mode
             Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
 
-            // Change mode
             if (_mode != null)
             {
                 if(player != null)

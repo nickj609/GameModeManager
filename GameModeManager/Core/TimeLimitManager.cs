@@ -13,21 +13,13 @@ namespace GameModeManager.Core
     // Define class
     public class TimeLimitManager : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
+        private Config _config = new();
         private readonly GameRules _gameRules;
         private readonly PluginState _pluginState;
         private readonly StringLocalizer _localizer;
         private readonly ServerManager _serverManager;
         private readonly MaxRoundsManager _maxRoundsManager;
-
-        // Define variables
-        private Timer? _timer;
-        private ConVar? _timeLimit;
-        private Config _config = new();
-        public decimal TimeLimitValue => (decimal)(_timeLimit?.GetPrimitiveValue<float>() ?? 0F) * 60M;
-        public bool UnlimitedTime => TimeLimitValue <= 0;
-        public decimal TimePlayed => _gameRules.WarmupRunning ? 0 : (decimal)(Server.CurrentTime - _gameRules.GameStartTime);
-        public decimal TimeRemaining => UnlimitedTime || TimePlayed > TimeLimitValue ? 0 : TimeLimitValue - TimePlayed;
 
         // Define class instance
         public TimeLimitManager(GameRules gameRules, ServerManager serverManager, PluginState pluginState, MaxRoundsManager maxRoundsManager, IStringLocalizer iLocalizer)
@@ -38,6 +30,14 @@ namespace GameModeManager.Core
             _maxRoundsManager = maxRoundsManager;
             _localizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
         }
+
+        // Define class properties
+        private Timer? timer;
+        private ConVar? timeLimit;
+        private decimal timeLimitValue => (decimal)(timeLimit?.GetPrimitiveValue<float>() ?? 0F) * 60M;
+        public bool UnlimitedTime => timeLimitValue <= 0;
+        public decimal TimePlayed => _gameRules.WarmupRunning ? 0 : (decimal)(Server.CurrentTime - _gameRules.GameStartTime);
+        public decimal TimeRemaining => UnlimitedTime || TimePlayed > timeLimitValue ? 0 : timeLimitValue - TimePlayed;
 
         // Load config
         public void OnConfigParsed(Config config)
@@ -63,35 +63,35 @@ namespace GameModeManager.Core
             LoadCvar();
         }
 
-        // Function to load timelimit
+        // Define method to load cvars
         public void LoadCvar()
         {
-            _timeLimit = ConVar.Find("mp_timelimit");
+            timeLimit = ConVar.Find("mp_timelimit");
         }
 
-        // Function to disable time limit
+        // Define method to disable time limit
         public void DisableTimeLimit()
         {
-            if (_timer != null)
+            if (timer != null)
             {
-                _timer.Kill();
-                _timer = null; // Clear the reference
+                timer.Kill();
+                timer = null;
                 _pluginState.TimeLimitCustom = false;
                 _pluginState.TimeLimitEnabled = false;
                 _pluginState.TimeLimitScheduled = false;
             }
         }
 
-        // Functions to enable time limit
+        // Define methods to enable time limit
         public void EnableTimeLimit()
         {
             _pluginState.TimeLimitEnabled = true;
             _pluginState.TimeLimitScheduled = false;
-            _timer = new Timer((float)TimeRemaining, () =>
+            timer = new Timer((float)TimeRemaining, () =>
             {
                 _serverManager.TriggerRotation();
-                _pluginState.TimeLimitEnabled = false; // Disable after rotation
-                _timer = null; // Clear timer reference
+                _pluginState.TimeLimitEnabled = false;
+                timer = null; 
             });
         }
 
@@ -100,15 +100,15 @@ namespace GameModeManager.Core
             _pluginState.TimeLimitCustom = false;
             _pluginState.TimeLimitEnabled = true;
             _pluginState.TimeLimitScheduled = false;
-            _timer = new Timer(timeLimit, () =>
+            timer = new Timer(timeLimit, () =>
             {
                 _serverManager.TriggerRotation();
-                _pluginState.TimeLimitEnabled = false; // Disable after rotation
-                _timer = null; // Clear timer reference
+                _pluginState.TimeLimitEnabled = false;
+                timer = null; 
             });
         }
 
-        // Functions to get time left message
+        // Define method to get timeleft message
         public string GetTimeLeftMessage()
         {
             string _message;
@@ -161,7 +161,7 @@ namespace GameModeManager.Core
             return _message;
         }
 
-        // Construct handlers to enable and disable time limit
+        // Define event handlers
         public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
         {
             if (_pluginState.TimeLimitScheduled)

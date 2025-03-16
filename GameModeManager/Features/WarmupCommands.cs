@@ -13,7 +13,7 @@ namespace GameModeManager.Features
     // Define class
     public class WarmupCommand : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private WarmupManager _warmupManager;
         private ILogger<WarmupCommand> _logger;
@@ -29,9 +29,9 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            plugin.AddCommand("css_warmupmode", "Sets current warmup mode.", OnWarmupModeCommand);
-            plugin.AddCommand("css_startwarmup", "Starts warmup.", OnStartWarmupCommand);
             plugin.AddCommand("css_endwarmup", "Ends warmup.", OnEndWarmupCommand);
+            plugin.AddCommand("css_startwarmup", "Starts warmup.", OnStartWarmupCommand);
+            plugin.AddCommand("css_warmupmode", "Sets current warmup mode.", OnWarmupModeCommand);
         }
 
         // Define warmup mode command handler
@@ -59,7 +59,7 @@ namespace GameModeManager.Features
             }
         }
 
-         // Define admin start warmup command handler
+        // Define admin start warmup command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 0, usage: "*optional <mode>",whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnStartWarmupCommand(CCSPlayerController? player, CommandInfo command)
@@ -87,7 +87,7 @@ namespace GameModeManager.Features
             }
         }
 
-         // Define admin end warmup command handler
+        // Define admin end warmup command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnEndWarmupCommand(CCSPlayerController? player, CommandInfo command)

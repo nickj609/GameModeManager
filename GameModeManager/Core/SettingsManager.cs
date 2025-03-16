@@ -11,7 +11,7 @@ namespace GameModeManager.Core
     // Define class
     public class SettingsManager : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private Config _config = new Config();
         private ILogger<SettingsManager> _logger;
@@ -44,10 +44,8 @@ namespace GameModeManager.Core
 
                     if (_cfgFiles.Length != 0)
                     {
-                        // Process each file
                         foreach (string _file in _cfgFiles)
                         {
-                            // Get setting name
                             string _name = Path.GetFileNameWithoutExtension(_file);
                             string _fileName = Path.GetFileName(_file);
 
@@ -57,15 +55,14 @@ namespace GameModeManager.Core
 
                             if (_match.Success) 
                             {
-                                // Create new setting name
                                 _name = _name.Substring(_match.Length);
 
                                 // Find existing setting if it's already in the list
                                 var _setting = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_name, StringComparison.OrdinalIgnoreCase));
-
+                                
+                                // Create a new setting if not found
                                 if (_setting == null)
                                 {
-                                    // Create a new setting if not found
                                     _setting = new Setting(_name);
                                     _pluginState.Settings.Add(_setting);
                                 }

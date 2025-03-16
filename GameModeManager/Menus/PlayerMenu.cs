@@ -11,7 +11,7 @@ namespace GameModeManager.Menus
     // Define class
     public class PlayerMenu : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private GameRules _gameRules;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
@@ -38,7 +38,6 @@ namespace GameModeManager.Menus
         // Define method to update the game command menu
         public void Load()
         {
-            // Assign menu
             _pluginState.GameMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Game Commands");
 
             // Add menu options for each command in the command list

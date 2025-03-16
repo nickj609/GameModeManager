@@ -11,7 +11,7 @@ namespace GameModeManager.Menus
     // Define class
     public class MapMenus : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
@@ -42,7 +42,6 @@ namespace GameModeManager.Menus
             // Create all maps menu
             if (_config.Maps.Mode == 1)
             {
-                // Assign menu
                 _pluginState.MapsMenu = _menuFactory.AssignMenu(_config.Maps.Style, "Select a game mode.");
 
                 // Add menu option for each game mode in game mode list
@@ -83,7 +82,6 @@ namespace GameModeManager.Menus
             // Create all map(s) menu
             if (_config.Maps.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase) && _config.Maps.Mode == 1)
             {
-                // Assign menu
                 _pluginState.MapWASDMenu = _menuFactory.AssignWasdMenu("Map List");
 
                 // Add menu options for each map in the new map list
@@ -101,7 +99,6 @@ namespace GameModeManager.Menus
             // Create vote all map(s) menu
             if (_config.Maps.Style.Equals("wasd") && _config.Votes.Maps)
             {
-                // Assign menu
                 _pluginState.VoteMapsWASDMenu = _menuFactory.AssignWasdMenu("Map List");
 
                 // Add menu options for each map in map list
@@ -139,7 +136,6 @@ namespace GameModeManager.Menus
             // Add menu options for each map in the current mode map list
             foreach (Map _map in _pluginState.CurrentMode.Maps)
             {
-                // Add menu option
                 _pluginState.VoteMapMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                 {
                     // Close menu

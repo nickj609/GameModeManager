@@ -13,30 +13,30 @@ namespace GameModeManager.Features
     // Define class
     public class NominateCommands : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private GameRules _gameRules;
         private MenuFactory _menuFactory;
         private PluginState _pluginState;
-        private VoteManager _voteManager;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<ModeCommands> _logger;
         private NominateManager _nominateManager;
         private MaxRoundsManager _maxRoundsManager;
         private TimeLimitManager _timeLimitManager;
+        private VoteOptionManager _voteOptionManager;
 
         // Define class instance
-        public NominateCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, ILogger<ModeCommands> logger, NominateManager nominateManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager)
+        public NominateCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, ILogger<ModeCommands> logger, NominateManager nominateManager, GameRules gameRules, VoteOptionManager voteOptionManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager)
         {
             _logger = logger;
             _localizer = localizer;
             _gameRules = gameRules;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
-            _voteManager = voteManager;
             _nominateManager = nominateManager;
             _maxRoundsManager = maxRoundsManager;
             _timeLimitManager = timeLimitManager;
+            _voteOptionManager = voteOptionManager;
         }
 
         // Load config
@@ -132,7 +132,7 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    if (_voteManager.OptionExists(option))
+                    if (_voteOptionManager.OptionExists(option))
                     {
                         _nominateManager.Nominate(player, option);
                     }
@@ -145,7 +145,7 @@ namespace GameModeManager.Features
             return;
         }
 
-         // Define server nominate command handler
+         // Define command handlers
         [CommandHelper(minArgs: 1, usage: "<true|false>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnNominateEnabledCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -167,7 +167,6 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define server max nominations command handler
         [CommandHelper(minArgs: 1, usage: "<Number>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnMaxNominationCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -184,7 +183,6 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define event handler
         public HookResult PlayerDisconnected(EventPlayerDisconnect @event, GameEventInfo @eventInfo)
         {
             var player = @event.Userid;

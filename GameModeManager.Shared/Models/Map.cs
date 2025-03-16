@@ -4,7 +4,7 @@ namespace GameModeManager.Shared.Models
     // Define class
     public class Map : IEquatable<Map>
     {
-        // Define parameters
+        // Define class properties
         public string Name { get; set; }
         public long WorkshopId { get; set; }
         public string DisplayName { get; set; }
@@ -38,14 +38,13 @@ namespace GameModeManager.Shared.Models
             DisplayName = _displayName;
         }
 
-        // Define method to equate values
+        // Define class methods
         public bool Equals(Map? other) 
         {
             if (other == null) return false; 
             return Name == other.Name && WorkshopId == other.WorkshopId && DisplayName == other.DisplayName;
         }
 
-        // Define method to clear values
         public void Clear()
         {
             Name = "";

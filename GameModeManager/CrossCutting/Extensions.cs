@@ -56,7 +56,6 @@ namespace GameModeManager.CrossCutting
         // Define method to check if hibernation is enabled
         public static bool IsHibernationEnabled()
         {
-            // Check hibernation state
             var conVar = ConVar.Find("sv_hibernate_when_empty");
 
             if (conVar != null)
@@ -121,7 +120,7 @@ namespace GameModeManager.CrossCutting
             }
 		}
 
-        // Define reusable method to unfreeze all players
+        // Define method to unfreeze all players
         public static void PrintCenterTextAll(string text, int duration)
         {
             foreach (var player in Utilities.GetPlayers())

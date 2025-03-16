@@ -11,7 +11,7 @@ namespace GameModeManager.Menus
     // Define class
     public class ModeMenus : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
@@ -36,7 +36,6 @@ namespace GameModeManager.Menus
         // Define on load behavior
         public void Load()
         {
-            // Create/assign mode menu
             _pluginState.ModeMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
 
             // Add menu option for each game mode in game mode list
@@ -53,13 +52,11 @@ namespace GameModeManager.Menus
             // Create vote mode menu
             if (_config.Votes.GameModes)
             {
-                // Assign menu
                 _pluginState.VoteModesMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
 
                 // Add vote menu option for each game mode in game mode list
                 foreach (Mode _mode in _pluginState.Modes)
                 {
-                    // Add menu option
                     _pluginState.VoteModesMenu.AddMenuOption(_mode.Name, (player, option) =>
                     {
                         // Close menu
@@ -78,7 +75,6 @@ namespace GameModeManager.Menus
             // Create mode menu
             if (_config.GameModes.Style.Equals("wasd"))
             {
-                // Assign menu
                 _pluginState.ModeWASDMenu = _menuFactory.AssignWasdMenu("Game Mode List");
 
                 // Add menu option for each game mode in game mode list
@@ -98,13 +94,11 @@ namespace GameModeManager.Menus
 
             if (_config.GameModes.Style.Equals("wasd") && _config.Votes.GameModes)
             {
-                // Assign menu
                 _pluginState.VoteModesWASDMenu = _menuFactory.AssignWasdMenu("Game Mode List");
 
                 // Add vote menu option for each game mode in game mode list
                 foreach (Mode _mode in _pluginState.Modes)
                 {
-                    // Add menu option
                     _pluginState.VoteModesWASDMenu?.Add(_mode.Name, (player, option) =>
                     {
                         // Close menu
@@ -115,7 +109,6 @@ namespace GameModeManager.Menus
                     });
                 }
             }
-
         }
     }
 }

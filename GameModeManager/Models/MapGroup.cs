@@ -4,7 +4,7 @@ namespace GameModeManager.Models
     // Define class
     public class MapGroup : IEquatable<MapGroup>
     {
-        // Define parameters
+        // Define class properties
         public string Name { get; set; }
         public List<Map> Maps { get; set; }
 
@@ -21,14 +21,13 @@ namespace GameModeManager.Models
             Maps = _maps; 
         }
 
-        // Define method to equate values
+        // Define class methods
         public bool Equals(MapGroup? other) 
         {
             if(other == null) return false;
             return Name == other.Name && Maps.SequenceEqual(other.Maps);
         }
 
-        // Define method to clear values
         public void Clear()
         {
             Name = "";

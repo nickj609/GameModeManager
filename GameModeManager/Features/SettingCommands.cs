@@ -13,7 +13,7 @@ namespace GameModeManager.Features
     // Define class
     public class SettingCommands : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
@@ -40,21 +40,17 @@ namespace GameModeManager.Features
             plugin.AddCommand("css_settings", "Shows a list of game settings.", OnSettingsCommand);
         }
 
-        // Define admin change setting command handler
+        // Define command handlers
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 1, usage: "[enable|disable] [setting name]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(player != null)
             {
-                // Get args
                 string _status = $"{command.ArgByIndex(1)}";
                 string _settingName = $"{command.ArgByIndex(2)}";
-
-                // Find game setting
                 Setting? _option = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_settingName, StringComparison.OrdinalIgnoreCase));
 
-                // Change setting
                 if(_option != null) 
                 {
                     if (_status.Equals("enable", StringComparison.OrdinalIgnoreCase)) 
@@ -79,7 +75,6 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define admin setting menu command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingsCommand(CCSPlayerController? player, CommandInfo command)

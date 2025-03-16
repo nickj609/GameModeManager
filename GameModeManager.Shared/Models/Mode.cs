@@ -4,7 +4,7 @@ namespace GameModeManager.Shared.Models
     // Define class
     public class Mode : IEquatable<Mode>
     {
-        // Define parameters
+        // Define class properties
         public string Name { get; set; }
         public string Config { get; set; }
         public List<Map> Maps { get; set; }
@@ -28,7 +28,7 @@ namespace GameModeManager.Shared.Models
             DefaultMap = Maps.FirstOrDefault(m => m.Name.Equals(defaultMap, StringComparison.OrdinalIgnoreCase) || m.WorkshopId.ToString().Equals(defaultMap, StringComparison.OrdinalIgnoreCase)) ?? new Map("psuedorandom");
         }
 
-        // Define method to generate maps from map groups
+        // Define class methods
         public List<Map> CreateMapList(List<MapGroup> mapGroups)
         {
             List<Map> _maps = new List<Map>();
@@ -46,14 +46,12 @@ namespace GameModeManager.Shared.Models
             return _maps;
         }
 
-        // Define method to equate values
         public bool Equals(Mode? other) 
         {
             if (other == null) return false;
             return Name == other.Name && Config == other.Config && MapGroups.SequenceEqual(other.MapGroups) && DefaultMap == other.DefaultMap;
         }
 
-        // Define method to clear values
         public void Clear()
         {
             Name = "";

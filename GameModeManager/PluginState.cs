@@ -13,30 +13,15 @@ namespace GameModeManager
     // Define class
     public class PluginState : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
-        private Config _config = new Config();
-
         // Define class instance
-        public PluginState()
-        {
-
-        }
-
-        // Load config
-        public void OnConfigParsed(Config config)
-        {
-            _config = config;
-            RTVEnabled = _config.RTV.Enabled;
-            PerMapWarmup = _config.Warmup.PerMap;
-            RotationsEnabled = _config.Rotation.Enabled; 
-        }
+        public PluginState(){}
 
         // Define static directories (Thanks Kus!)
         public static string GameDirectory = Path.Join(Server.GameDirectory + "/csgo/");
         public static string ConfigDirectory = Path.Join(GameDirectory + "cfg/");
         public static string SettingsDirectory = Path.Join(ConfigDirectory + "settings/");
 
-        // Define static objects
+        // Define static properties
         public static Map DefaultMap = new Map("de_dust2", "Dust 2");
         public static List<Map> DefaultMaps = new List<Map>()
         {
@@ -52,7 +37,7 @@ namespace GameModeManager
         public static Mode DefaultMode = new Mode("Casual", "casual.cfg", DefaultMapGroups);
         public static Mode DefaultWarmup = new Mode("Deathmatch", "warmup/dm.cfg", new List<MapGroup>());
         
-        // Define dynamic attributes
+        // Define dynamic properties
         public Map? NextMap;
         public Mode? NextMode;
         public int InCoolDown = 0;
@@ -83,6 +68,7 @@ namespace GameModeManager
         public List<Mode> WarmupModes = new();
         public List<Setting> Settings = new();
         public List<MapGroup> MapGroups = new();
+        public Dictionary<string, int> Votes = new();
         public List<string> OptionsOnCoolDown = new();
         public List<string> PlayerCommands = new()
         {

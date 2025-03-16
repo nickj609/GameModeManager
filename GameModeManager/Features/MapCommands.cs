@@ -13,7 +13,7 @@ namespace GameModeManager.Features
     // Define class
     public class MapCommands : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
@@ -38,12 +38,10 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            // Enable commands if enabled in the config. 
             if (_config.Commands.Map)
             {
                 plugin.AddCommand("css_map", "Changes the map to the map specified in the command argument.", OnMapCommand);
             }
-
             if (_config.Commands.Maps)
             {
                 plugin.AddCommand("css_maps", "Displays a list of maps from the current mode.", OnMapsCommand);
@@ -92,7 +90,6 @@ namespace GameModeManager.Features
         [CommandHelper(minArgs: 1, usage: "[map name] optional: [workshop id]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            // Find map
             Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
             Map? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || g.WorkshopId.ToString().Equals("{command.ArgByIndex(2)}", StringComparison.OrdinalIgnoreCase));
 

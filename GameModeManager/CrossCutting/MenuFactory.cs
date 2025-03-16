@@ -10,7 +10,7 @@ namespace GameModeManager.CrossCutting
     // Define class
     public class MenuFactory : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private Plugin? _plugin;
         private PluginState _pluginState;
         public static IWasdMenuManager? _wasdMenuManager;
@@ -27,13 +27,11 @@ namespace GameModeManager.CrossCutting
             _plugin = plugin;
         }
 
-        // Define method to assign menus
+        // Define method to assign chat and center html menus
         public BaseMenu AssignMenu(string menuType, string menuName)
         {
-            // Create base menu
             BaseMenu _baseMenu;
 
-            // Assign chat or hud menu based on config
             if (menuType.Equals("center", StringComparison.OrdinalIgnoreCase) && _plugin != null)
             {
                 _baseMenu = new CenterHtmlMenu(menuName, _plugin);
@@ -42,15 +40,12 @@ namespace GameModeManager.CrossCutting
             {
                 _baseMenu = new ChatMenu(menuName);
             }
-
-            // Return assigned menu
             return _baseMenu;
         }
 
-        // Define method to open each type of menu
+        // Define method to open a chat or center html menu
         public void OpenMenu(BaseMenu menu, CCSPlayerController player)
         {
-            // Check if menu type from config is hud or chat menu
             if (_plugin != null)
             {
                 switch (menu)
@@ -65,11 +60,14 @@ namespace GameModeManager.CrossCutting
             }
         }
 
+        // Define method to assign a wasd menu
         public IWasdMenu? AssignWasdMenu(string menuName)
         {
             IWasdMenu? menu = _pluginState.WasdMenuManager.Get()?.CreateMenu(menuName);
             return menu;
         }
+
+        // Define methods to open and close wasd menus
         public void OpenWasdMenu(CCSPlayerController player, IWasdMenu menu)
         {
             _pluginState.WasdMenuManager.Get()?.OpenMainMenu(player, menu);

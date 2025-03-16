@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.282"/>
+    <PackageReference Include="CounterStrikeSharp.API" Version="[1.0.282, )"/>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="lib\Gameloop.Vdf\Gameloop.Vdf.dll" Version="0.6.2" />
