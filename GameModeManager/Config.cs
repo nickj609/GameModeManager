@@ -260,7 +260,7 @@ namespace GameModeManager
             }
 
             // Config version check
-            if (_config.Version < 8)
+            if (_config.Version < 9)
             {
                 throw new Exception("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it");
             }

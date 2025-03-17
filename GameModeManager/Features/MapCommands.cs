@@ -1,9 +1,12 @@
 // Included libraries
+using WASDSharedAPI;
+using GameModeManager.Menus;
 using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -14,6 +17,7 @@ namespace GameModeManager.Features
     public class MapCommands : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
+        private MapMenus _mapMenus;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
@@ -21,8 +25,9 @@ namespace GameModeManager.Features
         private Config _config = new Config();
 
         // Define class instance
-        public MapCommands(PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer, ServerManager serverManager)
+        public MapCommands(PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer, ServerManager serverManager, MapMenus mapMenus)
         {
+            _mapMenus = mapMenus;
             _localizer = localizer;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
@@ -55,31 +60,42 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                if (_config.Maps.Style.Equals("wasd") && _pluginState.MapWASDMenu != null)
+                if (_config.Maps.Style.Equals("wasd"))
                 {
-                    if (_config.Maps.Mode == 0 && _pluginState.MapWASDMenu != null)
+                    if (_config.Maps.Mode == 0)
                     {
-                        _menuFactory.OpenWasdMenu(player, _pluginState.MapWASDMenu);
+                        IWasdMenu? menu;
+                        menu = _mapMenus.GetWasdMenu("CurrentMode");
+
+                        if(menu != null)
+                        {
+                            _menuFactory.OpenWasdMenu(player, menu);
+                        }
                     }
-                    else if (_config.Maps.Mode == 1 && _pluginState.MapsWASDMenu != null)
+                    else if (_config.Maps.Mode == 1)
                     {
-                        _menuFactory.OpenWasdMenu(player, _pluginState.MapsWASDMenu);
-                    }
-                    else
-                    {
-                        _menuFactory.OpenMenu(_pluginState.MapMenu, player);
+                        IWasdMenu? menu;
+                        menu = _mapMenus.GetWasdMenu("All");
+
+                        if(menu != null)
+                        {
+                            _menuFactory.OpenWasdMenu(player, menu);
+                        }
                     }
                 }
                 else
                 {
-                    _pluginState.MapMenu.Title = _localizer.Localize("maps.menu-title");
                     if (_config.Maps.Mode == 0)
                     {
-                        _menuFactory.OpenMenu(_pluginState.MapMenu, player);
+                        BaseMenu menu;
+                        menu = _mapMenus.GetMenu("CurrentMode");
+                        _menuFactory.OpenMenu(menu, player);
                     }
                     else
                     {
-                        _menuFactory.OpenMenu(_pluginState.MapsMenu, player);
+                        BaseMenu menu;
+                        menu = _mapMenus.GetMenu("All");
+                        _menuFactory.OpenMenu(menu, player);
                     }
                 }
             }

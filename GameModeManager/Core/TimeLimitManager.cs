@@ -35,9 +35,9 @@ namespace GameModeManager.Core
         private Timer? timer;
         private ConVar? timeLimit;
         private decimal timeLimitValue => (decimal)(timeLimit?.GetPrimitiveValue<float>() ?? 0F) * 60M;
-        public bool UnlimitedTime => timeLimitValue <= 0;
-        public decimal TimePlayed => _gameRules.WarmupRunning ? 0 : (decimal)(Server.CurrentTime - _gameRules.GameStartTime);
-        public decimal TimeRemaining => UnlimitedTime || TimePlayed > timeLimitValue ? 0 : timeLimitValue - TimePlayed;
+        private bool unlimitedTime => timeLimitValue <= 0;
+        private decimal timePlayed => _gameRules.WarmupRunning ? 0 : (decimal)(Server.CurrentTime - _gameRules.GameStartTime);
+        private decimal timeRemaining => unlimitedTime || timePlayed > timeLimitValue ? 0 : timeLimitValue - timePlayed;
 
         // Load config
         public void OnConfigParsed(Config config)
@@ -61,6 +61,22 @@ namespace GameModeManager.Core
         public void OnMapStart(string map)
         {
             LoadCvar();
+        }
+
+        // Define methods to get values
+        public bool UnlimitedTime()
+        {
+            return unlimitedTime;
+        }
+
+        public decimal TimePlayed()
+        {
+            return timePlayed;
+        }
+
+        public decimal TimeRemaining()
+        {
+            return timeRemaining;
         }
 
         // Define method to load cvars
@@ -87,7 +103,7 @@ namespace GameModeManager.Core
         {
             _pluginState.TimeLimitEnabled = true;
             _pluginState.TimeLimitScheduled = false;
-            timer = new Timer((float)TimeRemaining, () =>
+            timer = new Timer((float)timeRemaining, () =>
             {
                 _serverManager.TriggerRotation();
                 _pluginState.TimeLimitEnabled = false;
@@ -118,11 +134,11 @@ namespace GameModeManager.Core
                 return _localizer.Localize("timeleft.warmup");
             }
 
-            if (!UnlimitedTime)
+            if (!unlimitedTime)
             {
-                if (TimeRemaining > 1)
+                if (timeRemaining > 1)
                 {
-                    TimeSpan remaining = TimeSpan.FromSeconds((double)TimeRemaining);
+                    TimeSpan remaining = TimeSpan.FromSeconds((double)timeRemaining);
 
                     if (remaining.Hours > 0)
                     {

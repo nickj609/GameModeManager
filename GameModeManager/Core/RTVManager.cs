@@ -5,6 +5,7 @@ using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -26,12 +27,12 @@ namespace GameModeManager.Core
         private ILogger<WarmupManager> _logger;
 
         // Define class instance
-        public RTVManager(PluginState pluginState, ILogger<WarmupManager> logger, StringLocalizer localizer, PlayerMenu playerMenu)
+        public RTVManager(PluginState pluginState, ILogger<WarmupManager> logger, IStringLocalizer iLocalizer, PlayerMenu playerMenu)
         {
             _logger = logger;
-            _localizer = localizer;
             _playerMenu = playerMenu;
             _pluginState = pluginState;
+            _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
         }
         
         // Define class properties
@@ -130,7 +131,7 @@ namespace GameModeManager.Core
                 return new VoteResult(VoteResultEnum.VotesAlreadyReached, VoteCount, RequiredVotes);
             }
 
-            VoteResultEnum? result = null;
+            VoteResultEnum? result;
 
             if (Votes.IndexOf(userId) != -1)
             {
@@ -168,15 +169,15 @@ namespace GameModeManager.Core
             {
                 if (_pluginState.NextMap != null && _pluginState.NextMode == null)
                 {
-                    player.PrintToChat(_localizer.Localize("rtv.nextmap.message", _pluginState.NextMap.DisplayName));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmap.message", _pluginState.NextMap.DisplayName));
                 }
                 else if (_pluginState.NextMap == null && _pluginState.NextMode != null)
                 {
-                    player.PrintToChat(_localizer.Localize("rtv.nextmap.message", "Random"));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmap.message", "Random"));
                 }
                 else
                 {
-                    player.PrintToChat(_localizer.Localize("general.validation.no-vote"));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.no-vote"));
                 }
             }
         }
@@ -190,15 +191,15 @@ namespace GameModeManager.Core
             {
                 if (_pluginState.NextMode != null)
                 {
-                    player.PrintToChat(_localizer.Localize("rtv.nextmode.message", _pluginState.NextMode.Name));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmode.message", _pluginState.NextMode.Name));
                 }
                 else if (_pluginState.NextMap != null && _pluginState.NextMode == null)
                 {
-                    player.PrintToChat(_localizer.Localize("rtv.nextmode.message", _pluginState.CurrentMode.Name));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmode.message", _pluginState.CurrentMode.Name));
                 }
                 else
                 {
-                    player.PrintToChat(_localizer.Localize("general.validation.no-vote"));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.no-vote"));
                 }
             }
         } 

@@ -1,11 +1,16 @@
 // Included libraries
+using WASDSharedAPI;
 using GameModeManager.Core;
+using GameModeManager.Menus;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
+using Microsoft.Extensions.Localization;
+using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
+
 
 // Declare namespace
 namespace GameModeManager.Features
@@ -16,8 +21,10 @@ namespace GameModeManager.Features
         // Define class dependencies
         private GameRules _gameRules;
         private MenuFactory _menuFactory;
+        private VoteManager _voteManager;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
+        private NominateMenus _nominateMenus;
         private Config _config = new Config();
         private ILogger<ModeCommands> _logger;
         private NominateManager _nominateManager;
@@ -26,17 +33,19 @@ namespace GameModeManager.Features
         private VoteOptionManager _voteOptionManager;
 
         // Define class instance
-        public NominateCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, ILogger<ModeCommands> logger, NominateManager nominateManager, GameRules gameRules, VoteOptionManager voteOptionManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager)
+        public NominateCommands(PluginState pluginState, IStringLocalizer iLocalizer, MenuFactory menuFactory, ILogger<ModeCommands> logger, NominateManager nominateManager, GameRules gameRules, VoteOptionManager voteOptionManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, NominateMenus nominateMenus, VoteManager voteManager)
         {
             _logger = logger;
-            _localizer = localizer;
             _gameRules = gameRules;
+            _voteManager = voteManager;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
+            _nominateMenus = nominateMenus;
             _nominateManager = nominateManager;
             _maxRoundsManager = maxRoundsManager;
             _timeLimitManager = timeLimitManager;
             _voteOptionManager = voteOptionManager;
+            _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
         }
 
         // Load config
@@ -68,7 +77,20 @@ namespace GameModeManager.Features
                 // Check if RTV vote happened already
                 if (_pluginState.EofVoteHappened)
                 {
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.schedule-change"));
+                    if (!_timeLimitManager.UnlimitedTime())
+                    {
+                        string timeleft = _voteManager.GetTimeLeft();
+                        player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.schedule-change", timeleft));
+                    }
+                    else if (!_maxRoundsManager.UnlimitedRounds)
+                    {
+                        string roundsleft = _voteManager.GetRoundsLeft();
+                        player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.schedule-change", roundsleft));
+                    }
+                    else
+                    {
+                        _logger.LogError("RTV: No timelimit or max rounds is set for the current map/mode");
+                    }
                     return;
                 }
 
@@ -88,7 +110,7 @@ namespace GameModeManager.Features
                         return;
                     }
                 }
-                else if (_timeLimitManager.UnlimitedTime && !_maxRoundsManager.UnlimitedRounds && _config.RTV.MinRounds > 0 && _config.RTV.MinRounds > _gameRules.TotalRoundsPlayed)
+                else if (_timeLimitManager.UnlimitedTime() && !_maxRoundsManager.UnlimitedRounds && _config.RTV.MinRounds > 0 && _config.RTV.MinRounds > _gameRules.TotalRoundsPlayed)
                 {
                     player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-rounds", _config.RTV.MinRounds));
                     return;
@@ -109,24 +131,40 @@ namespace GameModeManager.Features
                 {  
                     if (_config.RTV.IncludeModes)
                     {
-                        if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase) && _pluginState.NominationWASDMenu != null)
+                        if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
                         {
-                            _menuFactory.OpenWasdMenu(player, _pluginState.NominationWASDMenu);
+                            IWasdMenu? menu;
+                            menu = _nominateMenus.GetWasdMenu("All");
+
+                            if (menu != null)
+                            {
+                                _menuFactory.OpenWasdMenu(player, menu);
+                            }
                         }
                         else
                         {
-                            _menuFactory.OpenMenu(_pluginState.NominationMenu, player);
+                            BaseMenu menu;
+                            menu = _nominateMenus.GetMenu("All");
+                            _menuFactory.OpenMenu(menu, player);
                         }
                     }
                     else
                     {
-                        if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase) && _pluginState.NominateMapWASDMenu != null)
+                        if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
                         {
-                            _menuFactory.OpenWasdMenu(player, _pluginState.NominateMapWASDMenu);
+                            IWasdMenu? menu;
+                            menu = _nominateMenus.GetWasdMenu("Map");
+
+                            if (menu != null)
+                            {
+                                _menuFactory.OpenWasdMenu(player, menu);
+                            }
                         }
                         else
                         {
-                            _menuFactory.OpenMenu(_pluginState.NominateMapMenu, player);
+                            BaseMenu menu;
+                            menu = _nominateMenus.GetMenu("Map");
+                            _menuFactory.OpenMenu(menu, player);
                         }
                     }
                 }

@@ -6,6 +6,7 @@ using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Timers;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
@@ -19,7 +20,6 @@ namespace GameModeManager.Core
         private Plugin? _plugin;
         private Config _config = new();
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private ILogger<VoteManager> _logger;
@@ -28,16 +28,15 @@ namespace GameModeManager.Core
         private VoteOptionManager _voteOptionManager;
 
         // Define class instance
-        public VoteManager(PluginState pluginState, StringLocalizer localizer, ILogger<VoteManager> logger, ServerManager serverManager, TimeLimitManager timeLimitManager, MaxRoundsManager maxRoundsManager, VoteOptionManager voteOptionManager, MenuFactory menuFactory)
+        public VoteManager(PluginState pluginState, IStringLocalizer iLocalizer, ILogger<VoteManager> logger, ServerManager serverManager, TimeLimitManager timeLimitManager, MaxRoundsManager maxRoundsManager, VoteOptionManager voteOptionManager)
         {
             _logger = logger;
-            _localizer = localizer;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
             _serverManager = serverManager;
             _timeLimitManager = timeLimitManager;
             _maxRoundsManager = maxRoundsManager;
             _voteOptionManager = voteOptionManager;
+            _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
         }   
 
         // Define class properties
@@ -100,120 +99,15 @@ namespace GameModeManager.Core
                 EndVote();
             }
         }
-
-        private string GetRoundsLeft()
-        {
-            string _message;
-
-            if (_maxRoundsManager.RemainingRounds > 1)
-            {
-                _message = _localizer.Localize("rtv.remaining-rounds", _maxRoundsManager.RemainingRounds);
-            }
-            else
-            {
-                 _message = _localizer.Localize("rtv.remaining-last-round");
-            }
-            return _message;
-        }
-
-        private string GetTimeLeft()
-        {
-            string _message;
-
-            if (_timeLimitManager.TimeRemaining > 1)
-            {
-                TimeSpan remaining = TimeSpan.FromSeconds((double)_timeLimitManager.TimeRemaining);
-
-                if (remaining.Hours > 0)
-                {
-                    _message = _localizer.Localize("rtv.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
-                }
-                else if (remaining.Minutes > 0)
-                {
-                    _message = _localizer.Localize("rtv.remaining-time-minute", remaining.Minutes, remaining.Seconds);
-                }
-                else
-                {
-                    _message = _localizer.Localize("rtv.remaining-time-second", remaining.Seconds);
-                }
-            }
-            else
-            {
-                _message = _localizer.Localize("rtv.remaining-last-round");
-            }
-            return _message;
-        }
-
-        private void VoteResults()
-        {
-            int index = 1;
-            StringBuilder stringBuilder = new();
-            stringBuilder.AppendFormat($"<b>{_localizer.Localize("rtv.hud.hud-timer", timeLeft)}</b>");
-
-            if (timeLeft >= 0)
-            {
-                if (!_config.RTV.HudMenu)
-                {
-                    foreach (var kv in _pluginState.Votes.OrderByDescending(x => x.Value).Take(VoteOptionManager.MAX_OPTIONS_HUD_MENU))
-                    {
-                        stringBuilder.AppendFormat($"<br>{kv.Key} <font color='green'>({kv.Value})</font>");
-                    }
-                }
-                else
-                {
-                    foreach (var kv in _pluginState.Votes.Take(VoteOptionManager.MAX_OPTIONS_HUD_MENU))
-                    {
-                        stringBuilder.AppendFormat($"<br><font color='yellow'>!{index++}</font> {kv.Key} <font color='green'>({kv.Value})</font>");
-                    }   
-                }
-
-                // Display results
-                foreach (CCSPlayerController player in Extensions.ValidPlayers().Where(x => !voted.Contains(x.UserId!.Value)))
-                {
-                    player.PrintToCenterHtml(stringBuilder.ToString());
-                }
-            }
-            else
-            {
-                if (_pluginState.EofVoteHappened == true)
-                {
-                    // Display winner
-                    foreach (CCSPlayerController player in Extensions.ValidPlayers())
-                    {
-                        player.PrintToCenterHtml(_localizer.Localize("rtv.hud.finished", _pluginState.RTVWinner));
-                    }
-                }
-            }
-        }   
-
+   
         public void StartVote(int delay)
         {
             _pluginState.EofVoteHappening = true;
-            _pluginState.Votes.Clear();
             voted.Clear();
             
             // Get player count and register listener
             canVote = Extensions.ValidPlayerCount();
             _plugin?.RegisterListener<Listeners.OnTick>(VoteResults);
-
-            // Display vote menu
-            if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
-            {
-                foreach (var player in Extensions.ValidPlayers())
-                {
-                    if (_pluginState.RTVWASDMenu != null)
-                    {
-                        _menuFactory.OpenWasdMenu(player, _pluginState.RTVWASDMenu);
-                    }
-                }
-            }
-            else
-            {
-                foreach (var player in Extensions.ValidPlayers())
-                {
-                    _menuFactory.OpenMenu(_pluginState.RTVMenu, player);
-                }
-            }
 
             // Start timer
             timeLeft = delay;
@@ -271,7 +165,7 @@ namespace GameModeManager.Core
                 }
                 else
                 {
-                    if (!_timeLimitManager.UnlimitedTime)
+                    if (!_timeLimitManager.UnlimitedTime())
                     {
                         string timeleft = GetTimeLeft();
                         Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.schedule-change", timeleft));
@@ -298,7 +192,7 @@ namespace GameModeManager.Core
                 }
                 else
                 {
-                    if (!_timeLimitManager.UnlimitedTime)
+                    if (!_timeLimitManager.UnlimitedTime())
                     {
                         string timeleft = GetTimeLeft();
                         Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.schedule-change", timeleft));
@@ -321,5 +215,90 @@ namespace GameModeManager.Core
             _pluginState.EofVoteHappened = true;
             _pluginState.EofVoteHappening = false;
         }
+
+        public string GetRoundsLeft()
+        {
+            string _message;
+
+            if (_maxRoundsManager.RemainingRounds > 1)
+            {
+                _message = _localizer.Localize("rtv.remaining-rounds", _maxRoundsManager.RemainingRounds);
+            }
+            else
+            {
+                 _message = _localizer.Localize("rtv.remaining-last-round");
+            }
+            return _message;
+        }
+
+        public string GetTimeLeft()
+        {
+            string _message;
+
+            if (_timeLimitManager.TimeRemaining() > 1)
+            {
+                TimeSpan remaining = TimeSpan.FromSeconds((double)_timeLimitManager.TimeRemaining());
+
+                if (remaining.Hours > 0)
+                {
+                    _message = _localizer.Localize("rtv.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
+                }
+                else if (remaining.Minutes > 0)
+                {
+                    _message = _localizer.Localize("rtv.remaining-time-minute", remaining.Minutes, remaining.Seconds);
+                }
+                else
+                {
+                    _message = _localizer.Localize("rtv.remaining-time-second", remaining.Seconds);
+                }
+            }
+            else
+            {
+                _message = _localizer.Localize("rtv.remaining-last-round");
+            }
+            return _message;
+        }
+
+        public void VoteResults()
+        {
+            int index = 1;
+            StringBuilder stringBuilder = new();
+            stringBuilder.AppendFormat($"<b>{_localizer.Localize("rtv.hud.hud-timer", timeLeft)}</b>");
+
+            if (timeLeft >= 0)
+            {
+                if (!_config.RTV.HudMenu)
+                {
+                    foreach (var kv in _pluginState.Votes.OrderByDescending(x => x.Value).Take(VoteOptionManager.MAX_OPTIONS_HUD_MENU))
+                    {
+                        stringBuilder.AppendFormat($"<br>{kv.Key} <font color='green'>({kv.Value})</font>");
+                    }
+                }
+                else
+                {
+                    foreach (var kv in _pluginState.Votes.Take(VoteOptionManager.MAX_OPTIONS_HUD_MENU))
+                    {
+                        stringBuilder.AppendFormat($"<br><font color='yellow'>!{index++}</font> {kv.Key} <font color='green'>({kv.Value})</font>");
+                    }   
+                }
+
+                // Display results
+                foreach (CCSPlayerController player in Extensions.ValidPlayers().Where(x => !voted.Contains(x.UserId!.Value)))
+                {
+                    player.PrintToCenterHtml(stringBuilder.ToString());
+                }
+            }
+            else
+            {
+                if (_pluginState.EofVoteHappened == true)
+                {
+                    // Display winner
+                    foreach (CCSPlayerController player in Extensions.ValidPlayers())
+                    {
+                        player.PrintToCenterHtml(_localizer.Localize("rtv.hud.finished", _pluginState.RTVWinner));
+                    }
+                }
+            }
+        } 
     }
 }

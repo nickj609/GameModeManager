@@ -1,9 +1,12 @@
 // Included libraries
+using WASDSharedAPI;
+using GameModeManager.Menus;
 using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -16,15 +19,17 @@ namespace GameModeManager.Features
         // Define class dependencies
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
+        private SettingMenus _settingMenus;
         private StringLocalizer _localizer;
         private Config _config = new Config();
 
         // Define class instance
-        public SettingCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory)
+        public SettingCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, SettingMenus settingMenus)
         {
             _localizer = localizer;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
+            _settingMenus = settingMenus;
         }
 
         // Load config
@@ -36,8 +41,11 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            plugin.AddCommand("css_setting", "Changes the game setting.", OnSettingCommand);
-            plugin.AddCommand("css_settings", "Shows a list of game settings.", OnSettingsCommand);
+            if(_config.Settings.Enabled)
+            {
+                plugin.AddCommand("css_setting", "Changes the game setting.", OnSettingCommand);
+                plugin.AddCommand("css_settings", "Shows a list of game settings.", OnSettingsCommand);
+            }
         }
 
         // Define command handlers
@@ -81,14 +89,26 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                if (_config.Settings.Style.Equals("wasd") && _pluginState.SettingsWASDMenu != null)
-                {
-                    _menuFactory.OpenWasdMenu(player, _pluginState.SettingsWASDMenu);
+                if (_config.Settings.Style.Equals("wasd"))
+                {  
+                    IWasdMenu? menu;
+                    menu = _settingMenus.GetWasdMenu("Main Menu");
+
+                    if(menu != null)
+                    {
+                        _menuFactory.OpenWasdMenu(player, menu);
+                    }
                 }
                 else
                 {
-                    _pluginState.SettingsMenu.Title = _localizer.Localize("settings.menu-actions");
-                    _menuFactory.OpenMenu(_pluginState.SettingsMenu, player);
+                    BaseMenu menu;
+                    menu = _settingMenus.GetMenu("Main Menu");
+
+                    if (menu != null)
+                    {
+                         menu.Title = _localizer.Localize("settings.menu-actions");
+                        _menuFactory.OpenMenu(menu, player);
+                    }
                 }
             }
         }

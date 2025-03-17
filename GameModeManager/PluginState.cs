@@ -4,7 +4,6 @@ using CS2_CustomVotes.Shared;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
-using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Core.Capabilities;
 
 // Declare namespace
@@ -75,41 +74,7 @@ namespace GameModeManager
             "!currentmode",
             "!currentmap"
         };
-        public List<Map> Maps = new List<Map>(DefaultMaps);
-    
-        // Define WASD menus
-        public IWasdMenu? RTVWASDMenu;
-        public IWasdMenu? MapWASDMenu;
-        public IWasdMenu? MapsWASDMenu;
-        public IWasdMenu? ModeWASDMenu;
-        public IWasdMenu? GameWASDMenu;
-        public IWasdMenu? VoteMapWASDMenu;
-        public IWasdMenu? VoteMapsWASDMenu;
-        public IWasdMenu? SettingsWASDMenu;
-        public IWasdMenu? VoteModesWASDMenu;
-        public IWasdMenu? NominationWASDMenu;
-        public IWasdMenu? NominateMapWASDMenu;
-        public IWasdMenu? NominateModeWASDMenu;
-        public IWasdMenu? VoteSettingsWASDMenu;
-        public IWasdMenu? SettingsEnableWASDMenu;
-        public IWasdMenu? SettingsDisableWASDMenu;
-
-        // Define base menus
-        public BaseMenu RTVMenu = new ChatMenu("RTV List");
-        public BaseMenu MapMenu = new ChatMenu("Map List");
-        public BaseMenu MapsMenu = new ChatMenu("Map List");
-        public BaseMenu ModeMenu = new ChatMenu("Mode List");
-        public BaseMenu VoteMapMenu = new ChatMenu("Map List");
-        public BaseMenu GameMenu = new ChatMenu("Command List");
-        public BaseMenu VoteMapsMenu = new ChatMenu("Map List");
-        public BaseMenu VoteModesMenu = new ChatMenu("Mode List");
-        public BaseMenu NominationMenu = new ChatMenu("Nominations");
-        public BaseMenu NominateMapMenu = new ChatMenu("Nominations");
-        public BaseMenu NominateModeMenu = new ChatMenu("Nominations");
-        public BaseMenu SettingsMenu = new ChatMenu("Setting Actions");
-        public BaseMenu VoteSettingsMenu = new ChatMenu("Settings List");
-        public BaseMenu SettingsEnableMenu = new ChatMenu("Settings List");
-        public BaseMenu SettingsDisableMenu = new ChatMenu("Settings List");
+        public List<Map> Maps = [.. DefaultMaps];
 
         // Define APIs
         public PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");

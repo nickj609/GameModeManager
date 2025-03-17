@@ -52,8 +52,11 @@ namespace GameModeManager.Features
             _plugin = plugin;
 
             // Register event handlers
-            plugin.RegisterEventHandler<EventRoundStart>(EventRoundStartHandler);
-            plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(EventRoundAnnounceMatchStartHandler);
+            if(_config.RTV.Enabled)
+            {
+                plugin.RegisterEventHandler<EventRoundStart>(EventRoundStartHandler);
+                plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(EventRoundAnnounceMatchStartHandler);
+            }
         }
 
         // Define on map start behavior
@@ -74,7 +77,7 @@ namespace GameModeManager.Features
          public void StartVote()
         {
             KillTimer();
-            if (_config.RTV.EndMapVote)
+            if (_config.RTV.EndMapVote && !_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
             {
                 _voteManager.StartVote(_pluginState.RTVDuration);
             }
@@ -82,7 +85,7 @@ namespace GameModeManager.Features
 
         bool CheckTimeLeft()
         {
-            return !_timeLimit.UnlimitedTime && _timeLimit.TimeRemaining <= _pluginState.RTVSecondsBeforeEnd;
+            return !_timeLimit.UnlimitedTime() && _timeLimit.TimeRemaining() <= _pluginState.RTVSecondsBeforeEnd;
         }
 
         bool CheckMaxRounds()
@@ -103,11 +106,11 @@ namespace GameModeManager.Features
         public void StartTimer()
         {
             KillTimer();
-            if (!_timeLimit.UnlimitedTime && _config.RTV.EndMapVote)
+            if (!_timeLimit.UnlimitedTime() && _config.RTV.EndMapVote)
             {
                 timer = _plugin?.AddTimer(1.0F, () =>
                 {
-                    if (_gameRules is not null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimit.TimeRemaining > 0)
+                    if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimit.TimeRemaining() > 0)
                     {
                         if (CheckTimeLeft())
                             StartVote();
@@ -119,13 +122,16 @@ namespace GameModeManager.Features
         // Define class event handlers
         public HookResult EventRoundStartHandler(EventRoundStart @event, GameEventInfo info)
         {
-            if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds() && _config.RTV.EndMapVote)
+            if(!_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
             {
-                StartVote();
-            }
-            else if (deathMatch)
-            {
-                StartTimer();
+                if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds() && _config.RTV.EndMapVote)
+                {
+                    StartVote();
+                }
+                else if (deathMatch)
+                {
+                    StartTimer();
+                }
             }
             return HookResult.Continue;  
         }

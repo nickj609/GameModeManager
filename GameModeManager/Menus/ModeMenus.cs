@@ -1,4 +1,5 @@
 // Included libraries
+using WASDSharedAPI;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
@@ -27,21 +28,52 @@ namespace GameModeManager.Menus
             _serverManager = serverManager;
         }
 
+        // Define class properties
+        private IWasdMenu? modeWasdMenu;
+        private IWasdMenu? voteModesWasdMenu;
+        private BaseMenu modeMenu = new ChatMenu("Mode List");
+        private BaseMenu voteModesMenu = new ChatMenu("Mode List");
+
         // Load config
         public void OnConfigParsed(Config config)
         {
             _config = config;
         }
 
+        // Define methods to get menus
+        public BaseMenu GetMenu(string Name)
+        {
+            if (Name.Equals("Vote"))
+            {
+                return voteModesMenu;
+            }
+            else
+            {
+                return modeMenu;
+            }
+        }
+
+        public IWasdMenu? GetWasdMenu(string Name)
+        {
+            if (Name.Equals("Vote"))
+            {
+                return voteModesWasdMenu;
+            }
+            else
+            {
+                return modeWasdMenu;
+            }
+        }
+
         // Define on load behavior
         public void Load()
         {
-            _pluginState.ModeMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
+            modeMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
 
             // Add menu option for each game mode in game mode list
             foreach (Mode _mode in _pluginState.Modes)
             {
-                _pluginState.ModeMenu.AddMenuOption(_mode.Name, (player, option) =>
+                modeMenu.AddMenuOption(_mode.Name, (player, option) =>
                 {
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text));
                     MenuManager.CloseActiveMenu(player);
@@ -52,12 +84,12 @@ namespace GameModeManager.Menus
             // Create vote mode menu
             if (_config.Votes.GameModes)
             {
-                _pluginState.VoteModesMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
+                voteModesMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
 
                 // Add vote menu option for each game mode in game mode list
                 foreach (Mode _mode in _pluginState.Modes)
                 {
-                    _pluginState.VoteModesMenu.AddMenuOption(_mode.Name, (player, option) =>
+                    voteModesMenu.AddMenuOption(_mode.Name, (player, option) =>
                     {
                         // Close menu
                         MenuManager.CloseActiveMenu(player);
@@ -75,12 +107,12 @@ namespace GameModeManager.Menus
             // Create mode menu
             if (_config.GameModes.Style.Equals("wasd"))
             {
-                _pluginState.ModeWASDMenu = _menuFactory.AssignWasdMenu("Game Mode List");
+                modeWasdMenu = _menuFactory.AssignWasdMenu("Game Mode List");
 
                 // Add menu option for each game mode in game mode list
                 foreach (Mode _mode in _pluginState.Modes)
                 {
-                    _pluginState.ModeWASDMenu?.Add(_mode.Name, (player, option) =>
+                    modeWasdMenu?.Add(_mode.Name, (player, option) =>
                     {
                         // Close menu
                        _menuFactory.CloseWasdMenu(player);
@@ -94,12 +126,12 @@ namespace GameModeManager.Menus
 
             if (_config.GameModes.Style.Equals("wasd") && _config.Votes.GameModes)
             {
-                _pluginState.VoteModesWASDMenu = _menuFactory.AssignWasdMenu("Game Mode List");
+                voteModesWasdMenu = _menuFactory.AssignWasdMenu("Game Mode List");
 
                 // Add vote menu option for each game mode in game mode list
                 foreach (Mode _mode in _pluginState.Modes)
                 {
-                    _pluginState.VoteModesWASDMenu?.Add(_mode.Name, (player, option) =>
+                    voteModesWasdMenu?.Add(_mode.Name, (player, option) =>
                     {
                         // Close menu
                         _menuFactory.CloseWasdMenu(player);

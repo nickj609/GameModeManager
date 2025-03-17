@@ -1,14 +1,17 @@
 // Included libraries
+using WASDSharedAPI;
 using GameModeManager.Core;
+using GameModeManager.Menus;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
+using Microsoft.Extensions.Localization;
+using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
-using GameModeManager.Menus;
 
 // Declare namespace
 namespace GameModeManager.Features
@@ -18,11 +21,12 @@ namespace GameModeManager.Features
     {
         // Define class dependencies
         private Plugin? _plugin;
-        private VoteMenus _voteMenus;
+        private RTVMenus _rtvMenus;
         private GameRules _gameRules;
         private RTVManager _rtvManager;
         private PluginState _pluginState;
         private VoteManager _voteManager;
+        private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<ModeCommands> _logger;
@@ -31,18 +35,19 @@ namespace GameModeManager.Features
         private VoteOptionManager _voteOptionManager;
 
         // Define class instance
-        public RTVCommands(PluginState pluginState, StringLocalizer localizer, ILogger<ModeCommands> logger, RTVManager rtvManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManager, VoteMenus voteMenus)
+        public RTVCommands(PluginState pluginState, IStringLocalizer iLocalizer, ILogger<ModeCommands> logger, RTVManager rtvManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManager, RTVMenus rtvMenus, MenuFactory menuFactory)
         {
             _logger = logger;
-            _voteMenus = voteMenus;
-            _localizer = localizer;
+            _rtvMenus = rtvMenus;
             _gameRules = gameRules;
             _rtvManager = rtvManager;
             _voteManager = voteManager;
             _pluginState = pluginState;
+            _menuFactory = menuFactory;
             _maxRoundsManager = maxRoundsManager;
             _timeLimitManager = timeLimitManager; 
             _voteOptionManager = voteOptionManager;
+            _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
         }
 
         // Load config
@@ -56,11 +61,11 @@ namespace GameModeManager.Features
         public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
-            _plugin.AddCommand("css_rtv_enabled", "Enables or disables RTV.", OnRTVEnabledCommand);
 
-            if (_pluginState.RTVEnabled)
+            if (_config.RTV.Enabled)
             {
                 _plugin.AddCommand("css_rtv", "", OnRTVCommand);
+                _plugin.AddCommand("css_rtv_enabled", "Enables or disables RTV.", OnRTVEnabledCommand);
                 _plugin.AddCommand("css_rtv_duration", "Sets the duration of the RTV vote", OnRTVDurationCommand);
                 _plugin.AddCommand("css_rtv_roundsbeforeend", "Sets the rounds before end that the vote starts", OnRTVRoundsBeforeEndCommand);
                 _plugin.AddCommand("css_rtv_secondsbeforeend", "Sets the seconds before end that the vote starts", OnRTVSecondsBeforeEndCommand);
@@ -139,7 +144,7 @@ namespace GameModeManager.Features
                         return;
                     }
                 }
-                else if (_timeLimitManager.UnlimitedTime && !_maxRoundsManager.UnlimitedRounds && _config.RTV.MinRounds > 0 && _config.RTV.MinRounds > _gameRules.TotalRoundsPlayed)
+                else if (_timeLimitManager.UnlimitedTime() && !_maxRoundsManager.UnlimitedRounds && _config.RTV.MinRounds > 0 && _config.RTV.MinRounds > _gameRules.TotalRoundsPlayed)
                 {
                     player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-rounds", _config.RTV.MinRounds));
                     return;
@@ -170,11 +175,44 @@ namespace GameModeManager.Features
                         player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.disabled"));
                         break;
                     case VoteResultEnum.VotesReached:
+                        // Display to chat
                         Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("rtv.rocked-the-vote", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
                         Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.votes-reached"));
+
+                        // Load Options
                         _voteOptionManager.LoadOptions();
-                        _voteMenus.Load(_voteOptionManager.ScrambleOptions());
+                        _rtvMenus.Load(_voteOptionManager.ScrambleOptions());
+
+                        // Start vote
                         _voteManager.StartVote(_pluginState.RTVDuration);
+
+                        // Display vote menu
+                        if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
+                        {
+                            foreach (var validPlayer in Extensions.ValidPlayers())
+                            {
+                                IWasdMenu? menu;
+                                menu = _rtvMenus.GetWasdMenu();
+
+                                if (menu != null)
+                                {
+                                    _menuFactory.OpenWasdMenu(validPlayer, menu);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach (var validPlayer in Extensions.ValidPlayers())
+                            {
+                                BaseMenu menu;
+                                menu = _rtvMenus.GetMenu();
+
+                                if (menu != null)
+                                {
+                                    _menuFactory.OpenMenu(menu, validPlayer);
+                                }
+                            }
+                        }
                         break;
                 }
             }

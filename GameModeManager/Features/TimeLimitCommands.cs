@@ -48,6 +48,7 @@ namespace GameModeManager.Features
             }
             if (_config.Commands.TimeLeft)
             {
+                _pluginState.PlayerCommands.Add("!timeleft");
                 plugin.AddCommand("timeleft", "Prints in the chat the timeleft in the current map", OnTimeLeftCommand);
             }
         }
@@ -109,7 +110,7 @@ namespace GameModeManager.Features
                         }
                         else
                         {
-                            if (_timeLimitManager.TimePlayed != 0 && _timeLimitManager.TimeRemaining != 0)
+                            if (_timeLimitManager.TimePlayed() != 0 && _timeLimitManager.TimeRemaining() != 0)
                             {
                                 _timeLimitManager.EnableTimeLimit();
                                 command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.enabled"));

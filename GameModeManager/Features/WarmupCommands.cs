@@ -16,6 +16,7 @@ namespace GameModeManager.Features
         // Define class dependencies
         private PluginState _pluginState;
         private WarmupManager _warmupManager;
+        private Config _config = new Config();
         private ILogger<WarmupCommand> _logger;
 
         // Define class instance
@@ -26,12 +27,21 @@ namespace GameModeManager.Features
             _warmupManager = warmupManager;
         }
 
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            plugin.AddCommand("css_endwarmup", "Ends warmup.", OnEndWarmupCommand);
-            plugin.AddCommand("css_startwarmup", "Starts warmup.", OnStartWarmupCommand);
-            plugin.AddCommand("css_warmupmode", "Sets current warmup mode.", OnWarmupModeCommand);
+            if(_config.Warmup.Enabled)
+            {
+                plugin.AddCommand("css_endwarmup", "Ends warmup.", OnEndWarmupCommand);
+                plugin.AddCommand("css_startwarmup", "Starts warmup.", OnStartWarmupCommand);
+                plugin.AddCommand("css_warmupmode", "Sets current warmup mode.", OnWarmupModeCommand);
+            }
         }
 
         // Define warmup mode command handler

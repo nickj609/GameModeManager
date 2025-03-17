@@ -1,4 +1,5 @@
 // Included libraries
+using WASDSharedAPI;
 using GameModeManager.Core;
 using GameModeManager.Menus;
 using GameModeManager.Models;
@@ -7,6 +8,7 @@ using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
+using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -18,6 +20,7 @@ namespace GameModeManager.Features
     {
         // Define class dependencies
         private MapMenus _mapMenus;
+        private ModeMenus _modeMenus;
         private MenuFactory _menuFactory;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
@@ -27,10 +30,11 @@ namespace GameModeManager.Features
         private CustomVoteManager _customVoteManager;
 
         // Define class instance
-        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager, MapMenus mapMenus)
+        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager, MapMenus mapMenus, ModeMenus modeMenus)
         {
             _logger = logger;
             _mapMenus = mapMenus;
+            _modeMenus = modeMenus;
             _localizer = localizer;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
@@ -115,7 +119,6 @@ namespace GameModeManager.Features
                 {
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
                 }
-
                 _serverManager.ChangeMode(_mode);
             }
             else
@@ -131,14 +134,22 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                if (_config.GameModes.Style.Equals("wasd") && _pluginState.ModeWASDMenu != null)
+                if (_config.GameModes.Style.Equals("wasd"))
                 {
-                    _menuFactory.OpenWasdMenu(player, _pluginState.ModeWASDMenu);
+                    IWasdMenu? menu;
+                    menu = _modeMenus.GetWasdMenu("Mode");
+
+                    if(menu != null)
+                    {
+                        _menuFactory.OpenWasdMenu(player, menu);
+                    }
                 }
                 else
                 {
-                    _pluginState.ModeMenu.Title = _localizer.Localize("modes.menu-title");
-                    _menuFactory.OpenMenu(_pluginState.ModeMenu, player);
+                    BaseMenu menu;
+                    menu = _modeMenus.GetMenu("Mode");
+                    menu.Title = _localizer.Localize("modes.menu-title");
+                    _menuFactory.OpenMenu(menu, player);
                 }
             }
         }

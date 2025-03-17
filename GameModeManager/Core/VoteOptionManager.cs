@@ -3,6 +3,7 @@ using System.Data;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
+using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
 
@@ -15,13 +16,15 @@ namespace GameModeManager.Core
         // Define class dependencies
         private Config _config = new();
         private PluginState _pluginState;
+        private StringLocalizer _localizer;
         private ILogger<VoteManager> _logger;
         private NominateManager _nominateManager;
 
         // Define class instance
-        public VoteOptionManager(PluginState pluginState, ILogger<VoteManager> logger, NominateManager nominateManager)
+        public VoteOptionManager(PluginState pluginState, ILogger<VoteManager> logger, NominateManager nominateManager, StringLocalizer localizer)
         {
             _logger = logger;
+            _localizer = localizer;
             _pluginState = pluginState;
             _nominateManager = nominateManager;
         }
@@ -101,7 +104,6 @@ namespace GameModeManager.Core
                 allOptions.Add(mode.Name);
             }
         }
-
         public bool OptionExists(string option)
         {
             // Check if option exists
