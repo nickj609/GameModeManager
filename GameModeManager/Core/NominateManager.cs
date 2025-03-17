@@ -5,6 +5,7 @@ using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Localization;
 
 // Declare namespace
 namespace GameModeManager.Core
@@ -12,22 +13,21 @@ namespace GameModeManager.Core
     // Define class
     public class NominateManager : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
-
+        // Define class dependencies
         private Config _config = new();
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private ILogger<WarmupManager> _logger;
 
         // Define class instance
-        public NominateManager(PluginState pluginState, ILogger<WarmupManager> logger, StringLocalizer localizer)
+        public NominateManager(PluginState pluginState, ILogger<WarmupManager> logger, IStringLocalizer iLocalizer)
         {
             _logger = logger;
-            _localizer = localizer;
             _pluginState = pluginState;
+            _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
         }
         
-        // Define variables
+        // Define class properties
         public Dictionary<int, List<string>> MapNominations = new();
         public Dictionary<int, List<string>> ModeNominations = new();
     
@@ -73,7 +73,6 @@ namespace GameModeManager.Core
          // Function to nominate a map or mode
         public void Nominate(CCSPlayerController player, string option)
         {
-            // Define parameters
             Map? map = null;
             Mode? mode = null;
             var userId = player.UserId!.Value;
@@ -106,7 +105,7 @@ namespace GameModeManager.Core
                 return;
             }
 
-            // If mode
+            // Nominate map or mode
             if(mode != null)
             {
                 // Check if mode is current mode
@@ -167,7 +166,7 @@ namespace GameModeManager.Core
             }
         }
 
-        // Define reusable method to check if map is in cooldown
+        // Define method to check if map is in cooldown
         public bool IsOptionInCooldown(string option)
         {
             return _pluginState.OptionsOnCoolDown.IndexOf(option) > -1;

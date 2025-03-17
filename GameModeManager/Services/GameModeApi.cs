@@ -13,7 +13,7 @@ namespace GameModeManager.Services
     // Define class
     public class GameModeApi : IGameModeApi, IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private MapMenus _mapMenus;
         private RTVManager _rtvManager;
         private PluginState _pluginState;
@@ -66,12 +66,11 @@ namespace GameModeManager.Services
             }
         }
 
+        // Define change map handler
         public void ChangeMap(string mapName, int delay)
         {
-            // Find map
             Map? map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(mapName, StringComparison.OrdinalIgnoreCase));
 
-            // Change map
             if (map != null)
             {
                 _serverManager.ChangeMap(map, delay);
@@ -106,7 +105,6 @@ namespace GameModeManager.Services
         // Define change mode handlers
         public void ChangeMode(string modeName)
         {
-            // Find mode
             Mode? mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
 
             if (mode != null)

@@ -93,6 +93,7 @@ namespace GameModeManager
 
     public class WarmupSettings
     {
+        public bool Enabled { get; set; } = true; // Enables or disables warmup
         public float Time { get; set; } = 60; // Default warmup time
         public bool PerMap { get; set; } = false; // Enables or disables per map warmup
         public WarmupModeEntry Default { get; set; } = new WarmupModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg"}; // Default warmup mode
@@ -161,7 +162,6 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-        // Create config from classes
          public int Version { get; set; } = 8;
          public RTVSettings RTV { get; set; } = new();
          public MapSettings Maps { get; set; } = new();
@@ -176,10 +176,9 @@ namespace GameModeManager
     // Define plugin class for parsing config
     public partial class Plugin : IPluginConfig<Config>
     {   
-        // Define configuration object
         public required Config Config { get; set; }
 
-        // Parse configuration object data and perform error checking
+        // Perform error checking
         public void OnConfigParsed(Config _config)
         {  
             // Maps settings
@@ -261,7 +260,7 @@ namespace GameModeManager
             }
 
             // Config version check
-            if (_config.Version < 8)
+            if (_config.Version < 9)
             {
                 throw new Exception("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it");
             }

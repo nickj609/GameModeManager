@@ -16,7 +16,7 @@ namespace GameModeManager.Core
     // Define class
     public class MapGroupManager : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private Config _config = new Config();
         private ILogger<MapGroupManager> _logger;
@@ -57,7 +57,6 @@ namespace GameModeManager.Core
                 {
                     foreach (VProperty _mapGroup in _mapGroups.OfType<VProperty>()) 
                     {  
-                        // Set map group name
                         MapGroup _group = new MapGroup(_mapGroup.Key);
 
                         // Create an array of maps
@@ -71,14 +70,13 @@ namespace GameModeManager.Core
                         {
                             foreach (VProperty _map in _maps)
                             {
-                                // Set map names
                                 string _mapName = _map.Key;
                                 string _mapDisplayName = _map.Value.ToString();
 
                                 // Check if map is a workshop map
                                 if (_mapName.StartsWith("workshop/"))
                                 {
-                                    // Separate workshop ID from map name
+                                    // Extract workshop ID
                                     string[] parts = _mapName.Split('/');
                                     long _mapWorkshopId = long.Parse(parts[1]);
                                     string _mapNameFormatted = parts[parts.Length - 1];

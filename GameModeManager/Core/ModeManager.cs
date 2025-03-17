@@ -13,7 +13,7 @@ namespace GameModeManager.Core
     // Define class
     public class ModeManager : IPluginDependency<Plugin, Config>
     {
-       // Define dependencies
+       // Define class dependencies
         private PluginState _pluginState;
         private readonly MapMenus _mapMenus;
         private ILogger<ModeManager> _logger;
@@ -54,7 +54,6 @@ namespace GameModeManager.Core
             // Create mode list 
             foreach(ModeEntry _mode in _config.GameModes.List)
             {
-                // Create map group list
                 List<MapGroup> mapGroups = new List<MapGroup>();
 
                 foreach(string _mapGroup in _mode.MapGroups)

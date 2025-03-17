@@ -10,7 +10,7 @@ namespace GameModeManager.CrossCutting
     // Define class
     public class GameRules : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         CCSGameRules? _gameRules = null;
         public float GameStartTime => _gameRules?.GameStartTime ?? 0;
         public bool WarmupRunning => _gameRules?.WarmupPeriod ?? false;
@@ -31,20 +31,6 @@ namespace GameModeManager.CrossCutting
             SetGameRulesAsync();
         }
 
-        // Define on round start handler
-        public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
-        {
-            SetGameRules();
-            return HookResult.Continue;
-        }
-
-        // Define on announce warmup handler
-        public HookResult OnAnnounceWarmup(EventRoundAnnounceWarmup @event, GameEventInfo info)
-        {
-            SetGameRules();
-            return HookResult.Continue;
-        }
-
         // Define methods to set game rules
         public void SetGameRules() => _gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()?.GameRules;
         public void SetGameRulesAsync()
@@ -54,6 +40,19 @@ namespace GameModeManager.CrossCutting
             {
                 SetGameRules();
             });
+        }
+
+        // Define event handlers
+        public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
+        {
+            SetGameRules();
+            return HookResult.Continue;
+        }
+
+        public HookResult OnAnnounceWarmup(EventRoundAnnounceWarmup @event, GameEventInfo info)
+        {
+            SetGameRules();
+            return HookResult.Continue;
         }
     }
 }

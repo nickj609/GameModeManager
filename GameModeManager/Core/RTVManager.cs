@@ -1,11 +1,11 @@
 // Included libraries
 using GameModeManager.Menus;
 using GameModeManager.Models;
-using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -18,7 +18,7 @@ namespace GameModeManager.Core
     // Define class
     public class RTVManager : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private Plugin? _plugin;
         private Config _config = new();
         private PlayerMenu _playerMenu;
@@ -27,18 +27,18 @@ namespace GameModeManager.Core
         private ILogger<WarmupManager> _logger;
 
         // Define class instance
-        public RTVManager(PluginState pluginState, ILogger<WarmupManager> logger, StringLocalizer localizer, PlayerMenu playerMenu)
+        public RTVManager(PluginState pluginState, ILogger<WarmupManager> logger, IStringLocalizer iLocalizer, PlayerMenu playerMenu)
         {
             _logger = logger;
-            _localizer = localizer;
             _playerMenu = playerMenu;
             _pluginState = pluginState;
+            _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
         }
         
-        // Define variables
-        private List<int> votes = new();
+        // Define class properties
+        private List<int> Votes = new();
         private float VotePercentage = 0F;
-        public int VoteCount => votes.Count;
+        public int VoteCount => Votes.Count;
         public bool VotesAlreadyReached { get; set; } = false;
         public int RequiredVotes { get => (int)Math.Round(Extensions.ValidPlayerCount() * VotePercentage); }
 
@@ -46,6 +46,7 @@ namespace GameModeManager.Core
         public void OnConfigParsed(Config config)
         {
             _config = config;
+            _pluginState.RTVEnabled = _config.RTV.Enabled;
             VotePercentage = _config.RTV.VotePercentage / 100F;
         }
 
@@ -65,17 +66,16 @@ namespace GameModeManager.Core
         {
             if(_pluginState.RTVEnabled)
             {
-                votes.Clear();
+                Votes.Clear();
                 VotesAlreadyReached = false;
             }
         }
 
-        // Define method to enable custom RTV
+        // Define method to enable RTV
         public void EnableRTV()
         {
-            // Enable RTV
             _pluginState.RTVEnabled = true;
-            _logger.LogInformation($"Enabling RTV...");
+            _logger.LogDebug($"Enabling RTV...");
             _plugin?.AddCommand("css_nextmap", "Displays current map.", OnNextMapCommand);
             _plugin?.AddCommand("css_nextmode", "Displays current map.", OnNextModeCommand);
 
@@ -90,14 +90,13 @@ namespace GameModeManager.Core
             _playerMenu.Load();
 
             // Disable rotations
-            _logger.LogInformation($"Disabling rotations...");
+            _logger.LogDebug($"Disabling rotations...");
             _pluginState.RotationsEnabled = false;
         }
         
         // Define method to disable RTV
         public void DisableRTV()
         {
-            // Disable RTV
             _pluginState.RTVEnabled = false;
             _logger.LogInformation($"Disabling RTV...");
             _plugin?.RemoveCommand("css_nextmap", OnNextMapCommand);
@@ -118,13 +117,13 @@ namespace GameModeManager.Core
             _pluginState.RotationsEnabled = true;
         }
 
-        // Define reusable method to get vote result
+        // Define method to get vote result
         public bool CheckVotes(int numberOfVotes)
         {
             return numberOfVotes > 0 && numberOfVotes >= RequiredVotes;
         }
 
-        // Define reusable method to add vote
+        // Define method to add vote
         public VoteResult AddVote(int userId)
         {
             if (VotesAlreadyReached)
@@ -132,19 +131,19 @@ namespace GameModeManager.Core
                 return new VoteResult(VoteResultEnum.VotesAlreadyReached, VoteCount, RequiredVotes);
             }
 
-            VoteResultEnum? result = null;
+            VoteResultEnum? result;
 
-            if (votes.IndexOf(userId) != -1)
+            if (Votes.IndexOf(userId) != -1)
             {
                 result = VoteResultEnum.AlreadyAddedBefore;
             }
             else
             {
-                votes.Add(userId);
+                Votes.Add(userId);
                 result = VoteResultEnum.Added;
             }
 
-            if (CheckVotes(votes.Count))
+            if (CheckVotes(Votes.Count))
             {
                 VotesAlreadyReached = true;
                 return new VoteResult(VoteResultEnum.VotesReached, VoteCount, RequiredVotes);
@@ -153,12 +152,12 @@ namespace GameModeManager.Core
             return new VoteResult(result.Value, VoteCount, RequiredVotes);
         }
 
-        // Define reusable method to remove vote
+        // Define method to remove vote
         public void RemoveVote(int userId)
         {
-            var index = votes.IndexOf(userId);
+            var index = Votes.IndexOf(userId);
             if (index > -1)
-                votes.RemoveAt(index);
+                Votes.RemoveAt(index);
         }
 
         // Define next map command handler
@@ -170,15 +169,15 @@ namespace GameModeManager.Core
             {
                 if (_pluginState.NextMap != null && _pluginState.NextMode == null)
                 {
-                    player.PrintToChat(_localizer.Localize("rtv.nextmap.message", _pluginState.NextMap.DisplayName));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmap.message", _pluginState.NextMap.DisplayName));
                 }
                 else if (_pluginState.NextMap == null && _pluginState.NextMode != null)
                 {
-                    player.PrintToChat(_localizer.Localize("rtv.nextmap.message", "Random"));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmap.message", "Random"));
                 }
                 else
                 {
-                    player.PrintToChat(_localizer.Localize("general.validation.no-vote"));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.no-vote"));
                 }
             }
         }
@@ -192,15 +191,15 @@ namespace GameModeManager.Core
             {
                 if (_pluginState.NextMode != null)
                 {
-                    player.PrintToChat(_localizer.Localize("rtv.nextmode.message", _pluginState.NextMode.Name));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmode.message", _pluginState.NextMode.Name));
                 }
                 else if (_pluginState.NextMap != null && _pluginState.NextMode == null)
                 {
-                    player.PrintToChat(_localizer.Localize("rtv.nextmode.message", _pluginState.CurrentMode.Name));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmode.message", _pluginState.CurrentMode.Name));
                 }
                 else
                 {
-                    player.PrintToChat(_localizer.Localize("general.validation.no-vote"));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.no-vote"));
                 }
             }
         } 

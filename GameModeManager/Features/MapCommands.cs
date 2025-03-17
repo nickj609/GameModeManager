@@ -1,9 +1,12 @@
 // Included libraries
+using WASDSharedAPI;
+using GameModeManager.Menus;
 using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -13,7 +16,8 @@ namespace GameModeManager.Features
     // Define class
     public class MapCommands : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
+        private MapMenus _mapMenus;
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
@@ -21,8 +25,9 @@ namespace GameModeManager.Features
         private Config _config = new Config();
 
         // Define class instance
-        public MapCommands(PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer, ServerManager serverManager)
+        public MapCommands(PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer, ServerManager serverManager, MapMenus mapMenus)
         {
+            _mapMenus = mapMenus;
             _localizer = localizer;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
@@ -38,12 +43,10 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            // Enable commands if enabled in the config. 
             if (_config.Commands.Map)
             {
                 plugin.AddCommand("css_map", "Changes the map to the map specified in the command argument.", OnMapCommand);
             }
-
             if (_config.Commands.Maps)
             {
                 plugin.AddCommand("css_maps", "Displays a list of maps from the current mode.", OnMapsCommand);
@@ -57,31 +60,42 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                if (_config.Maps.Style.Equals("wasd") && _pluginState.MapWASDMenu != null)
+                if (_config.Maps.Style.Equals("wasd"))
                 {
-                    if (_config.Maps.Mode == 0 && _pluginState.MapWASDMenu != null)
+                    if (_config.Maps.Mode == 0)
                     {
-                        _menuFactory.OpenWasdMenu(player, _pluginState.MapWASDMenu);
+                        IWasdMenu? menu;
+                        menu = _mapMenus.GetWasdMenu("CurrentMode");
+
+                        if(menu != null)
+                        {
+                            _menuFactory.OpenWasdMenu(player, menu);
+                        }
                     }
-                    else if (_config.Maps.Mode == 1 && _pluginState.MapsWASDMenu != null)
+                    else if (_config.Maps.Mode == 1)
                     {
-                        _menuFactory.OpenWasdMenu(player, _pluginState.MapsWASDMenu);
-                    }
-                    else
-                    {
-                        _menuFactory.OpenMenu(_pluginState.MapMenu, player);
+                        IWasdMenu? menu;
+                        menu = _mapMenus.GetWasdMenu("All");
+
+                        if(menu != null)
+                        {
+                            _menuFactory.OpenWasdMenu(player, menu);
+                        }
                     }
                 }
                 else
                 {
-                    _pluginState.MapMenu.Title = _localizer.Localize("maps.menu-title");
                     if (_config.Maps.Mode == 0)
                     {
-                        _menuFactory.OpenMenu(_pluginState.MapMenu, player);
+                        BaseMenu menu;
+                        menu = _mapMenus.GetMenu("CurrentMode");
+                        _menuFactory.OpenMenu(menu, player);
                     }
                     else
                     {
-                        _menuFactory.OpenMenu(_pluginState.MapsMenu, player);
+                        BaseMenu menu;
+                        menu = _mapMenus.GetMenu("All");
+                        _menuFactory.OpenMenu(menu, player);
                     }
                 }
             }
@@ -92,7 +106,6 @@ namespace GameModeManager.Features
         [CommandHelper(minArgs: 1, usage: "[map name] optional: [workshop id]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            // Find map
             Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
             Map? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || g.WorkshopId.ToString().Equals("{command.ArgByIndex(2)}", StringComparison.OrdinalIgnoreCase));
 

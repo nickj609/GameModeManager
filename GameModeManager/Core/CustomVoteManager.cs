@@ -16,7 +16,7 @@ namespace GameModeManager.Core
     // Define class
     public class CustomVoteManager : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private Config _config = new();
         private PlayerMenu _playerMenu;
         private PluginState _pluginState;
@@ -92,8 +92,6 @@ namespace GameModeManager.Core
                     "center", 
                     -1 
                 ); 
-
-                // Set game mode vote flag
                 GameModeVote = true;
 
                 // Register map votes
@@ -104,11 +102,11 @@ namespace GameModeManager.Core
                 }
             }
         
+            // Register game settings
             if(_config.Votes.GameSettings)
             {
                 foreach (Setting _setting in _pluginState.Settings)
                 {
-                    // Register per-setting vote
                     _pluginState.CustomVotesApi.Get()?.AddCustomVote(
                         _setting.Name, 
                         new List<string>(), 
@@ -125,11 +123,8 @@ namespace GameModeManager.Core
                         -1 
                     ); 
                 }
-
                 // Add vote to command list
                 _pluginState.PlayerCommands.Add("!changesetting");
-
-                // Set game setting vote flag
                 SettingVote = true;
             }
         }
@@ -137,7 +132,6 @@ namespace GameModeManager.Core
         //Define method to register map votes
         public void RegisterMapVotes()
         {
-            // Register per-map vote
             foreach (Map _map in _pluginState.CurrentMode.Maps)
             {
                 _pluginState.CustomVotesApi.Get()?.AddCustomVote(
@@ -165,12 +159,11 @@ namespace GameModeManager.Core
         {
             if (MapVote)
             {
-                // Deregister per-map votes
                 foreach (Map _map in _pluginState.CurrentMode.Maps)
                 {
                     _pluginState.CustomVotesApi.Get()?.RemoveCustomVote(_map.Name);
                 }
-                
+
                 // Remove vote from command list
                 _pluginState.PlayerCommands.Remove("!changemap");
                 _playerMenu.Load();
@@ -201,8 +194,6 @@ namespace GameModeManager.Core
                     _pluginState.CustomVotesApi.Get()?.RemoveCustomVote(_setting.Name);
                 }
             }
-
-            // Deregister per-map votes
             DeregisterMapVotes();
         }
     }

@@ -1,9 +1,12 @@
 // Included libraries
+using WASDSharedAPI;
+using GameModeManager.Menus;
 using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -13,18 +16,20 @@ namespace GameModeManager.Features
     // Define class
     public class SettingCommands : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
+        private SettingMenus _settingMenus;
         private StringLocalizer _localizer;
         private Config _config = new Config();
 
         // Define class instance
-        public SettingCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory)
+        public SettingCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, SettingMenus settingMenus)
         {
             _localizer = localizer;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
+            _settingMenus = settingMenus;
         }
 
         // Load config
@@ -36,25 +41,24 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            plugin.AddCommand("css_setting", "Changes the game setting.", OnSettingCommand);
-            plugin.AddCommand("css_settings", "Shows a list of game settings.", OnSettingsCommand);
+            if(_config.Settings.Enabled)
+            {
+                plugin.AddCommand("css_setting", "Changes the game setting.", OnSettingCommand);
+                plugin.AddCommand("css_settings", "Shows a list of game settings.", OnSettingsCommand);
+            }
         }
 
-        // Define admin change setting command handler
+        // Define command handlers
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 1, usage: "[enable|disable] [setting name]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(player != null)
             {
-                // Get args
                 string _status = $"{command.ArgByIndex(1)}";
                 string _settingName = $"{command.ArgByIndex(2)}";
-
-                // Find game setting
                 Setting? _option = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_settingName, StringComparison.OrdinalIgnoreCase));
 
-                // Change setting
                 if(_option != null) 
                 {
                     if (_status.Equals("enable", StringComparison.OrdinalIgnoreCase)) 
@@ -79,21 +83,32 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define admin setting menu command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(player != null)
             {
-                if (_config.Settings.Style.Equals("wasd") && _pluginState.SettingsWASDMenu != null)
-                {
-                    _menuFactory.OpenWasdMenu(player, _pluginState.SettingsWASDMenu);
+                if (_config.Settings.Style.Equals("wasd"))
+                {  
+                    IWasdMenu? menu;
+                    menu = _settingMenus.GetWasdMenu("Main Menu");
+
+                    if(menu != null)
+                    {
+                        _menuFactory.OpenWasdMenu(player, menu);
+                    }
                 }
                 else
                 {
-                    _pluginState.SettingsMenu.Title = _localizer.Localize("settings.menu-actions");
-                    _menuFactory.OpenMenu(_pluginState.SettingsMenu, player);
+                    BaseMenu menu;
+                    menu = _settingMenus.GetMenu("Main Menu");
+
+                    if (menu != null)
+                    {
+                         menu.Title = _localizer.Localize("settings.menu-actions");
+                        _menuFactory.OpenMenu(menu, player);
+                    }
                 }
             }
         }

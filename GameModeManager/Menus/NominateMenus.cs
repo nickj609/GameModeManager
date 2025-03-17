@@ -1,4 +1,5 @@
 // Included libraries
+using WASDSharedAPI;
 using GameModeManager.Core;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
@@ -11,25 +12,33 @@ namespace GameModeManager.Menus
     // Define class
     public class NominateMenus : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
-        private VoteManager _voteManager;
+        // Define class dependencies
         private PluginState _pluginState;
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<NominateMenus> _logger;
         private NominateManager _nominateManager;
+        private VoteOptionManager _voteOptionManager;
 
         // Define class instance
-        public NominateMenus(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, VoteManager voteManager, NominateManager nominateManager, ILogger<NominateMenus> logger)
+        public NominateMenus(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, VoteOptionManager voteOptionManager, NominateManager nominateManager, ILogger<NominateMenus> logger)
         {
             _logger = logger;
             _localizer = localizer;
-            _voteManager = voteManager;
             _pluginState = pluginState;
             _menuFactory = menuFactory;
             _nominateManager = nominateManager;
+            _voteOptionManager = voteOptionManager;
         }
+
+        // Define class properties
+        private IWasdMenu? nominationWasdMenu;
+        private IWasdMenu? nominateMapWasdMenu;
+        private IWasdMenu? nominateModeWasdMenu;
+        private BaseMenu nominationMenu = new ChatMenu("Nominations");
+        private BaseMenu nominateMapMenu = new ChatMenu("Nominations");
+        private BaseMenu nominateModeMenu = new ChatMenu("Nominations");
 
         // Load config
         public void OnConfigParsed(Config config)
@@ -37,36 +46,61 @@ namespace GameModeManager.Menus
             _config = config;
         }
 
+        // Define methods to get menus
+        public BaseMenu GetMenu(string Name)
+        {
+            if (Name.Equals("Modes"))
+            {
+                return nominationMenu;
+            }
+            else
+            {
+                return nominateMapMenu;   
+            }
+        }
+        
+        public IWasdMenu? GetWasdMenu(string Name)
+        {
+
+            if (Name.Equals("Modes"))
+            {
+                return nominationWasdMenu;
+            }
+            else
+            {
+                return nominateMapWasdMenu;   
+            }
+        }
+
         // Define on load behavior
         public void Load()
         {
             if(_pluginState.RTVEnabled)
             {
-                // Assign menus
-                _pluginState.NominationMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
-                _pluginState.NominateMapMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
-                _pluginState.NominateModeMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
+                nominationMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
+                nominateMapMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
+                nominateModeMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
 
                 // Get options
-                List<string> options = _voteManager.GetOptions();
+                List<string> options = _voteOptionManager.GetOptions();
 
                 // Add map and mode menu options
                 foreach (string optionName in options)
                 {
-                    if (_voteManager.OptionExists(optionName))
+                    if (_voteOptionManager.OptionExists(optionName))
                     {
 
-                        if (_voteManager.OptionType(optionName) == "map")
+                        if (_voteOptionManager.OptionType(optionName) == "map")
                         {
-                            _pluginState.NominateMapMenu.AddMenuOption(optionName, (player, option) =>
+                            nominateMapMenu.AddMenuOption(optionName, (player, option) =>
                             {
                                 _nominateManager.Nominate(player, optionName);
                                 MenuManager.CloseActiveMenu(player);
                             });
                         }
-                        else if (_voteManager.OptionType(optionName) == "mode")
+                        else if (_voteOptionManager.OptionType(optionName) == "mode")
                         {   
-                            _pluginState.NominateModeMenu.AddMenuOption(optionName, (player, option) =>
+                            nominateModeMenu.AddMenuOption(optionName, (player, option) =>
                             {
                                 _nominateManager.Nominate(player, optionName);
                                 MenuManager.CloseActiveMenu(player);
@@ -79,25 +113,25 @@ namespace GameModeManager.Menus
                     }
                 }
                 
-                // create map sub menu option
-                _pluginState.NominationMenu.AddMenuOption("Map", (player, option) =>
+                // Create map sub menu option
+                nominationMenu.AddMenuOption("Map", (player, option) =>
                 {
-                    _pluginState.NominateMapMenu.Title = _localizer.Localize("nominate.menu-title");
+                    nominateMapMenu.Title = _localizer.Localize("nominate.menu-title");
 
                     if(player != null)
                     {
-                        _menuFactory.OpenMenu(_pluginState.NominateMapMenu, player);
+                        _menuFactory.OpenMenu(nominateMapMenu, player);
                     }
                 });
 
                 // Create mode sub menu option
-                _pluginState.NominationMenu.AddMenuOption("Mode", (player, option) =>
+                nominationMenu.AddMenuOption("Mode", (player, option) =>
                 {
-                    _pluginState.NominateModeMenu.Title = _localizer.Localize("nominate.menu-title");
+                    nominateModeMenu.Title = _localizer.Localize("nominate.menu-title");
 
                     if(player != null)
                     {
-                        _menuFactory.OpenMenu(_pluginState.NominateModeMenu, player);   
+                        _menuFactory.OpenMenu(nominateModeMenu, player);   
                     }
                 });
             }
@@ -110,30 +144,29 @@ namespace GameModeManager.Menus
             {
                 if (_config.RTV.Style.Equals("wasd"))
                 {
-                    // Assign menus
-                    _pluginState.NominationWASDMenu = _menuFactory.AssignWasdMenu("Nominate");
-                    _pluginState.NominateMapWASDMenu = _menuFactory.AssignWasdMenu("Nominate");
-                    _pluginState.NominateModeWASDMenu = _menuFactory.AssignWasdMenu("Nominate");
+                    nominationWasdMenu = _menuFactory.AssignWasdMenu("Nominate");
+                    nominateMapWasdMenu = _menuFactory.AssignWasdMenu("Nominate");
+                    nominateModeWasdMenu = _menuFactory.AssignWasdMenu("Nominate");
 
                     // Get options
-                    List<string> options = _voteManager.GetOptions();
+                    List<string> options = _voteOptionManager.GetOptions();
 
                     // Add map and mode menu options
                     foreach (string optionName in options)
                     {
-                        if (_voteManager.OptionExists(optionName))
+                        if (_voteOptionManager.OptionExists(optionName))
                         {
-                            if (_voteManager.OptionType(optionName) == "map")
+                            if (_voteOptionManager.OptionType(optionName) == "map")
                             {
-                                _pluginState.NominateMapWASDMenu?.Add(optionName, (player, option) =>
+                                nominateMapWasdMenu?.Add(optionName, (player, option) =>
                                 {
                                     _nominateManager.Nominate(player, optionName);
                                     _menuFactory.CloseWasdMenu(player);
                                 });
                             }
-                            else if (_voteManager.OptionType(optionName) == "mode")
+                            else if (_voteOptionManager.OptionType(optionName) == "mode")
                             {
-                                _pluginState.NominateModeWASDMenu?.Add(optionName, (player, option) =>
+                                nominateModeWasdMenu?.Add(optionName, (player, option) =>
                                 {
                                     _nominateManager.Nominate(player, optionName);
                                     _menuFactory.CloseWasdMenu(player);
@@ -147,22 +180,22 @@ namespace GameModeManager.Menus
                     }
 
                     // create map sub menu option
-                    _pluginState.NominationWASDMenu?.Add(_localizer.Localize("menu.maps"), (player, option) =>
+                    nominationWasdMenu?.Add(_localizer.Localize("menu.maps"), (player, option) =>
                     {
-                        if(_pluginState.NominateMapWASDMenu != null)
+                        if(nominateMapWasdMenu != null)
                         {
-                            _pluginState.NominateMapWASDMenu.Prev = option.Parent?.Options?.Find(option);
-                            _menuFactory.OpenWasdSubMenu(player, _pluginState.NominateMapWASDMenu);
+                            nominateMapWasdMenu.Prev = option.Parent?.Options?.Find(option);
+                            _menuFactory.OpenWasdSubMenu(player, nominateMapWasdMenu);
                         }
                     });
 
                     // Create mode sub menu option
-                    _pluginState.NominationWASDMenu?.Add(_localizer.Localize("menu.modes"), (player, option) =>
+                    nominationWasdMenu?.Add(_localizer.Localize("menu.modes"), (player, option) =>
                     {
-                        if(_pluginState.NominateModeWASDMenu != null)
+                        if(nominateModeWasdMenu != null)
                         {
-                            _pluginState.NominateModeWASDMenu.Prev = option.Parent?.Options?.Find(option);
-                            _menuFactory.OpenWasdSubMenu(player, _pluginState.NominateModeWASDMenu);
+                            nominateModeWasdMenu.Prev = option.Parent?.Options?.Find(option);
+                            _menuFactory.OpenWasdSubMenu(player, nominateModeWasdMenu);
                         }
                     });
                 }

@@ -9,12 +9,12 @@ namespace GameModeManager.CrossCutting
     // Define class
     public class DependencyManager<TPlugin, TConfig>
     {
-        // Define dependencies
+        // Define class dependencies
         private List<Type> TypesToAdd { get; set; } = new();
         Type dependencyType = typeof(IPluginDependency<TPlugin, TConfig>);
         private List<IPluginDependency<TPlugin, TConfig>> Dependencies { get; set; } = new();
 
-        // Define on config parsed behavior
+        // Define class methods
         public void OnConfigParsed(TConfig config)
         {
             foreach (var service in Dependencies)
@@ -23,7 +23,6 @@ namespace GameModeManager.CrossCutting
             }
         }
 
-        // Define on plugin load behavior
         public void OnPluginLoad(TPlugin plugin)
         {
             foreach (var service in Dependencies)
@@ -32,7 +31,6 @@ namespace GameModeManager.CrossCutting
             }
         }
         
-        // Define on map start behavior
         public void OnMapStart(string mapName)
         {
             foreach (var service in Dependencies)
@@ -41,7 +39,6 @@ namespace GameModeManager.CrossCutting
             }
         }
 
-        // Define method to load dependencies
         public void LoadDependencies(Assembly assembly)
         {
             var typesToAdd = assembly.GetTypes()

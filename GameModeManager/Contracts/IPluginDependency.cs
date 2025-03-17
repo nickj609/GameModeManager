@@ -4,10 +4,10 @@ namespace GameModeManager.Contracts
     // Define interface
     public interface IPluginDependency<TPlugin, TConfig>
     {
-        // Define methods
-        public virtual void OnConfigParsed(TConfig config) { }
-        public virtual void OnMapStart(string mapName) { }
-        public virtual void OnLoad(TPlugin plugin) { }
+        // Define interface methods
         public virtual void Clear() { }
+        public virtual void OnLoad(TPlugin plugin) { }
+        public virtual void OnMapStart(string mapName) { }
+        public virtual void OnConfigParsed(TConfig config) { }
     }
 }

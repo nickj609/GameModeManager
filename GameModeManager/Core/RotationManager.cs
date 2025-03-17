@@ -12,15 +12,17 @@ namespace GameModeManager.Core
     // Define class
     public class RotationManager : IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
+        // Define class dependencies
         bool _rotationEnabled = false;
         private Timer? _rotationTimer;
+        private PluginState _pluginState;
         private ServerManager _serverManager;
         private Config _config = new Config();
 
         // Define class instance
-        public RotationManager(ServerManager serverManager)
+        public RotationManager(ServerManager serverManager, PluginState pluginState)
         {
+            _pluginState = pluginState;
             _serverManager = serverManager;
         }
         
@@ -28,6 +30,7 @@ namespace GameModeManager.Core
         public void OnConfigParsed(Config config)
         {
             _config = config;
+            _pluginState.RotationsEnabled = _config.Rotation.Enabled;
         }
 
         // Define on load behavior
@@ -47,7 +50,7 @@ namespace GameModeManager.Core
                     // Parse the time string
                     DateTime targetTime = DateTime.Parse(entry.Time);
 
-                    // Calculate delay until target time (considering if it's passed today)
+                    // Calculate delay
                     TimeSpan delay = targetTime - DateTime.Now;
                     if (delay.TotalMilliseconds <= 0)
                     {
@@ -63,16 +66,15 @@ namespace GameModeManager.Core
                     },TimerFlags.REPEAT);
                 }
             }
-        }    
+        }   
 
-        // Define event game end handler
+        // Define event handlers
         public HookResult EventCsWinPanelMatchHandler(EventCsWinPanelMatch @event, GameEventInfo info)
         {  
             _serverManager.TriggerRotation();
             return HookResult.Continue;
         }
 
-        // Define event player connect full handler
         public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
         {
             if (Extensions.ValidPlayerCount(false) > 0)
@@ -82,7 +84,6 @@ namespace GameModeManager.Core
             return HookResult.Continue;
         }
 
-        // Define event player disconnect handler
         public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
         {  
             // Check if rotation on server empty is enabled

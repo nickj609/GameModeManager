@@ -11,7 +11,7 @@ namespace GameModeManager.Core
     // Define class
     public class MaxRoundsManager : IPluginDependency<Plugin,Config>
     {
-        // Define dependencies
+        // Define class dependencies
         private GameRules _gameRules;
         
         // Define win counters
@@ -37,7 +37,7 @@ namespace GameModeManager.Core
                 var played = MaxRoundsValue - _gameRules.TotalRoundsPlayed;
                 if (played < 0)
                     return 0;
-
+                    
                 return played;
             }
         }

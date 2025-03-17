@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-      <PackageReference Include="CounterStrikeSharp.API" Version="1.0.282" />
+      <PackageReference Include="CounterStrikeSharp.API" Version="[1.0.282, )"/>
     </ItemGroup>
     <Target Name="PublicBuild" AfterTargets="AfterBuild">
         <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared"/>
