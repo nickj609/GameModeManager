@@ -27,11 +27,11 @@ namespace GameModeManager
         // Define plugin parameters
         public static Plugin? Instance;
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "1.0.52";
+        public override string ModuleVersion => "1.0.54";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
-        // Define dependencies
+        // Define class dependencies
         private readonly MapMenus _mapMenus;
         private readonly ModeMenus _modeMenus;
         private readonly PlayerMenu _playerMenu;
@@ -47,10 +47,10 @@ namespace GameModeManager
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
             _playerMenu = playerMenu;
-            _customVoteManager = customVoteManager;
             _pluginState = pluginState;
             _settingMenus = settingMenus;
             _nominateMenus = nominateMenus;
+            _customVoteManager = customVoteManager;
             _dependencyManager = dependencyManager;
         }
 
@@ -112,7 +112,7 @@ namespace GameModeManager
                     return;
                 }
 
-                // Create WASD menus    
+                // Load WASD menus    
                 _mapMenus.LoadWASDMenus();
                 _playerMenu.LoadWASDMenu(); 
                 _modeMenus.LoadWASDMenus();         
