@@ -162,7 +162,7 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-         public int Version { get; set; } = 8;
+         public int Version { get; set; } = 9;
          public RTVSettings RTV { get; set; } = new();
          public MapSettings Maps { get; set; } = new();
          public VoteSettings Votes { get; set; } = new();
