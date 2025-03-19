@@ -175,13 +175,13 @@ namespace GameModeManager.CrossCutting
                 // If RTV EofVote happened
                 if (_pluginState.EofVoteHappened && !_config.RTV.ChangeImmediately)
                 {
-                    if(_pluginState.NextMap != null)
-                    {
-                        ChangeMap(_pluginState.NextMap, _config.Maps.Delay);
-                    }
-                    else if (_pluginState.NextMode != null)
+                    if (_pluginState.NextMode != null)
                     {
                         ChangeMode(_pluginState.NextMode); 
+                    }
+                    else if(_pluginState.NextMap != null)
+                    {
+                        ChangeMap(_pluginState.NextMap, _config.Maps.Delay);
                     }
                 }
             }
