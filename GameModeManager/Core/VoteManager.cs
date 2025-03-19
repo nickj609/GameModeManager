@@ -177,7 +177,7 @@ namespace GameModeManager.Core
                     }
                     else
                     {
-                        _logger.LogError("RTV: No timelimit or max rounds is set for the current map/mode");
+                        _logger.LogWarning("RTV: No timelimit or max rounds is set for the current map/mode.");
                     }
                 }
                 _pluginState.EofVoteHappened = true;
