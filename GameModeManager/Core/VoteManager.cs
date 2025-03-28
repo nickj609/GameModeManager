@@ -159,7 +159,7 @@ namespace GameModeManager.Core
                     _pluginState.NextMap = _pluginState.NextMode.DefaultMap;
                 }
 
-                if (_config.RTV.ChangeImmediately && _pluginState.NextMode != null)
+                if (_pluginState.ChangeImmediately  && _pluginState.NextMode != null)
                 {
                     _serverManager.ChangeMode(_pluginState.NextMode);
                 }
@@ -186,7 +186,7 @@ namespace GameModeManager.Core
             {
                 _pluginState.NextMap = _pluginState.Maps.FirstOrDefault(m => m.DisplayName.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase) || m.Name.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase));
 
-                if (_config.RTV.ChangeImmediately && _pluginState.NextMap != null)
+                if (_pluginState.ChangeImmediately  && _pluginState.NextMap != null)
                 {
                     _serverManager.ChangeMap(_pluginState.NextMap, _config.Maps.Delay);
                 }

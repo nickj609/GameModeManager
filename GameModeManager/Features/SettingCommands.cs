@@ -50,7 +50,7 @@ namespace GameModeManager.Features
 
         // Define command handlers
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 1, usage: "[enable|disable] [setting name]", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "<enable|disable> <setting name>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingCommand(CCSPlayerController? player, CommandInfo command)
         {
             if(player != null)

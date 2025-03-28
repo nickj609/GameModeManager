@@ -47,6 +47,7 @@ namespace GameModeManager
         public bool RTVEnabled = false;
         public List<Mode> Modes = new();
         public bool PerMapWarmup = false;
+        public bool EndOfMapVote = false;
         public int RTVRoundsBeforeEnd = 2;
         public bool WarmupRunning = false;
         public Map CurrentMap = DefaultMap;
@@ -61,6 +62,7 @@ namespace GameModeManager
         public bool EofVoteHappening = false;
         public int RTVSecondsBeforeEnd = 120;
         public bool NominationEnabled = true;
+        public bool ChangeImmediately = false;
         public Mode CurrentMode = DefaultMode;
         public bool TimeLimitScheduled = false;
         public Mode WarmupMode = DefaultWarmup;

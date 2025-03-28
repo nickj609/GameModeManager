@@ -64,17 +64,19 @@ namespace GameModeManager.Features
 
             if (_config.RTV.Enabled)
             {
-                _plugin.AddCommand("css_rtv", "", OnRTVCommand);
+                _plugin.AddCommand("css_rtv", "Rocks the Vote!", OnRTVCommand);
+                _plugin.AddCommand("css_rtv_start_vote", "Starts vote.", OnRTVStartVoteCommand);
                 _plugin.AddCommand("css_rtv_enabled", "Enables or disables RTV.", OnRTVEnabledCommand);
-                _plugin.AddCommand("css_rtv_duration", "Sets the duration of the RTV vote", OnRTVDurationCommand);
-                _plugin.AddCommand("css_rtv_roundsbeforeend", "Sets the rounds before end that the vote starts", OnRTVRoundsBeforeEndCommand);
-                _plugin.AddCommand("css_rtv_secondsbeforeend", "Sets the seconds before end that the vote starts", OnRTVSecondsBeforeEndCommand);
+                _plugin.AddCommand("css_rtv_end_of_map_vote", "Sets end of map vote", OnRTVEndOfMapVoteCommand);
+                _plugin.AddCommand("css_rtv_duration", "Sets the duration of the RTV vote.", OnRTVDurationCommand);
+                _plugin.AddCommand("css_rtv_rounds_before_end", "Sets the rounds before end that the vote starts.", OnRTVRoundsBeforeEndCommand);
+                _plugin.AddCommand("css_rtv_seconds_before_end", "Sets the seconds before end that the vote starts.", OnRTVSecondsBeforeEndCommand);
                 _plugin.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnected, HookMode.Pre);
             }
         }
-        // Define client rtv command handler
+        // Define client rtv duration command handler
         [RequiresPermissions("@css/cvar")]
-        [CommandHelper(whoCanExecute: CommandUsage.SERVER_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "<duration>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVDurationCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player == null)
@@ -87,9 +89,9 @@ namespace GameModeManager.Features
             return;
         }
 
-        // Define client rtv command handler
+        // Define client rtv seconds before end command handler
         [RequiresPermissions("@css/cvar")]
-        [CommandHelper(whoCanExecute: CommandUsage.SERVER_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "<seconds>",whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVSecondsBeforeEndCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player == null)
@@ -102,17 +104,54 @@ namespace GameModeManager.Features
             return;
         }
 
-        // Define client rtv command handler
+        // Define client rtv rounds before end command handler
         [RequiresPermissions("@css/cvar")]
-        [CommandHelper(whoCanExecute: CommandUsage.SERVER_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "<rounds>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVRoundsBeforeEndCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player == null)
-            { 
+            {
                 if (int.TryParse(command.ArgByIndex(1), out var rounds))
                 {
                     _pluginState.RTVRoundsBeforeEnd = rounds;
                 }
+            }
+            return;
+        }
+
+        // Define server rtv end of map command handler
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(minArgs: 1, usage: "<true|false>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnRTVEndOfMapVoteCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null)
+            { 
+                if (bool.TryParse(command.ArgByIndex(2), out var endOfMapVote))
+                {
+                    _pluginState.EndOfMapVote = endOfMapVote;
+                }
+            }
+            return;
+        }
+
+        // Define server rtv start vote command handler
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(minArgs: 2, usage: "<duration> <true|false>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnRTVStartVoteCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null)
+            { 
+                if (int.TryParse(command.ArgByIndex(1), out var duration))
+                {
+                    _pluginState.RTVDuration = duration;
+                }
+
+                if (bool.TryParse(command.ArgByIndex(2), out var changeImmediately))
+                {
+                    _pluginState.ChangeImmediately = changeImmediately;
+                }
+
+                _voteManager.StartVote(_pluginState.RTVDuration);
             }
             return;
         }

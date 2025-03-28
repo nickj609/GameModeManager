@@ -205,7 +205,7 @@ namespace GameModeManager.Features
             }
         }
 
-        [CommandHelper(minArgs: 1, usage: "<Number>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "<number>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnMaxNominationCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player == null)
