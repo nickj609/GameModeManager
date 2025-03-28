@@ -64,7 +64,7 @@ namespace GameModeManager.Features
         }
 
         // Define server game mode command handler
-        [CommandHelper(minArgs: 1, usage: "[comp]", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "<mode>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnGameModeCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player == null) 
@@ -108,7 +108,7 @@ namespace GameModeManager.Features
 
         // Define admin change mode command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 1, usage: "[mode]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+        [CommandHelper(minArgs: 1, usage: "<mode>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnModeCommand(CCSPlayerController? player, CommandInfo command)
         {
             Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));

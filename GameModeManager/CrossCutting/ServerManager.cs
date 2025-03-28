@@ -52,7 +52,9 @@ namespace GameModeManager.CrossCutting
             // Revert RTV settings
             if (_pluginState.RTVEnabled && _config.RTV.PerMap)
             {
+                _pluginState.EndOfMapVote = _config.RTV.EndMapVote;
                 _pluginState.RTVDuration = _config.RTV.VoteDuration;
+                _pluginState.ChangeImmediately = _config.RTV.ChangeImmediately;
                 _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
                 _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
 
@@ -96,7 +98,9 @@ namespace GameModeManager.CrossCutting
             if (_pluginState.RTVEnabled)
             {
                 // Revert RTV settings
+                _pluginState.EndOfMapVote = _config.RTV.EndMapVote;
                 _pluginState.RTVDuration = _config.RTV.VoteDuration;
+                _pluginState.ChangeImmediately = _config.RTV.ChangeImmediately;
                 _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
                 _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
 
@@ -173,7 +177,7 @@ namespace GameModeManager.CrossCutting
             else if (_pluginState.RTVEnabled)
             {
                 // If RTV EofVote happened
-                if (_pluginState.EofVoteHappened && !_config.RTV.ChangeImmediately)
+                if (_pluginState.EofVoteHappened && !_pluginState.ChangeImmediately)
                 {
                     if (_pluginState.NextMode != null)
                     {

@@ -173,8 +173,8 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 | MinPlayers          | Minimum number of players for RTV                                                                                                         |
 | VoteDuration        | Vote duration in seconds                                                                                                                  |
 | OptionsToShow       | Number of options to show in RTV list                                                                                                     |
-| VotePercentage      | Number of options to show in RTV list                                                                                                     |
-| OptionsInCoolDown   | Number of Options in cool down                                                                                                            |
+| VotePercentage      | Percentage of votes required for selecting the winner                                                                                     |
+| OptionsInCoolDown   | Number of options in cool down                                                                                                            |
 | EndMapVote          | Enables end map vote                                                                                                                      |
 | IncludeModes        | Includes modes in RTV list                                                                                                                |
 | ModePercentage      | Percent of modes in RTV list                                                                                                              |
@@ -1018,23 +1018,6 @@ To add game modes, update the JSON key pairs in the configuration file (`csgo/ad
 <br>
 
 Game mode and map rotations do not work if RTV compatibility is enabled. Game mode and map rotations are only counted when handled by the plugin's game event handler. 
-
-</details>
-
-<details>
-<summary>Why is RTV not working? </summary>
-<br>
-
-You need to install your own supported RTV plugin and update the JSON configuration file. Any RTV plugin with a `maplist.txt` file is supported. 
-
-```json
-"RTV": {
-  "Enabled": false,
-  "Plugin": "addons/counterstrikesharp/plugins/RockTheVote/RockTheVote.dll",
-  "MapListFile": "addons/counterstrikesharp/plugins/RockTheVote/maplist.txt",
-  "DefaultMapFormat": false
-},
-``` 
 
 </details>
 

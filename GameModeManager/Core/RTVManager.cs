@@ -47,6 +47,10 @@ namespace GameModeManager.Core
         {
             _config = config;
             _pluginState.RTVEnabled = _config.RTV.Enabled;
+            _pluginState.EndOfMapVote = _config.RTV.EndMapVote;
+            _pluginState.ChangeImmediately = _config.RTV.ChangeImmediately;
+            _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
+            _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
             VotePercentage = _config.RTV.VotePercentage / 100F;
         }
 

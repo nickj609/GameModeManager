@@ -42,8 +42,6 @@ namespace GameModeManager.Features
         public void OnConfigParsed(Config config)
         {
             _config = config;
-            _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
-            _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
         }
 
         // Define on load behavior
@@ -77,7 +75,7 @@ namespace GameModeManager.Features
          public void StartVote()
         {
             KillTimer();
-            if (_config.RTV.EndMapVote && !_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
+            if (_pluginState.EndOfMapVote && !_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
             {
                 _voteManager.StartVote(_pluginState.RTVDuration);
             }
@@ -106,7 +104,7 @@ namespace GameModeManager.Features
         public void StartTimer()
         {
             KillTimer();
-            if (!_timeLimit.UnlimitedTime() && _config.RTV.EndMapVote)
+            if (!_timeLimit.UnlimitedTime() && _pluginState.EndOfMapVote)
             {
                 timer = _plugin?.AddTimer(1.0F, () =>
                 {
@@ -124,7 +122,7 @@ namespace GameModeManager.Features
         {
             if(!_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
             {
-                if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds() && _config.RTV.EndMapVote)
+                if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds() && _pluginState.EndOfMapVote)
                 {
                     StartVote();
                 }
