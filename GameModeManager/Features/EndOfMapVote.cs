@@ -92,12 +92,10 @@ namespace GameModeManager.Features
             {
                 return false;
             }
-
             if (_maxRounds.RemainingRounds <= _pluginState.RTVRoundsBeforeEnd)
             {
                 return true;
             }
-
             return _maxRounds.CanClinch && _maxRounds.RemainingWins <= _pluginState.RTVRoundsBeforeEnd;
         }
 
@@ -126,7 +124,7 @@ namespace GameModeManager.Features
                 {
                     StartVote();
                 }
-                else if (deathMatch)
+                else if (deathMatch && _pluginState.EndOfMapVote)
                 {
                     StartTimer();
                 }
@@ -135,8 +133,11 @@ namespace GameModeManager.Features
         }
         public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
         {
+            if(_pluginState.EndOfMapVote)
+            {
                 StartTimer();
-                return HookResult.Continue;
+            }
+            return HookResult.Continue;
         }
     }
 }

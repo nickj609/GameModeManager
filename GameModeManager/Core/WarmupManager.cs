@@ -40,7 +40,6 @@ namespace GameModeManager.Core
         { 
             if (_config.Warmup.Enabled)
             {
-                // Register event handlers
                 plugin.RegisterEventHandler<EventWarmupEnd>(EventWarmupEndHandler, HookMode.Pre);
                 plugin.RegisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnectHandler, HookMode.Post);
                 plugin.RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler, HookMode.Post);
@@ -48,7 +47,6 @@ namespace GameModeManager.Core
                 // Create warmup mode list from config
                 foreach(WarmupModeEntry _mode in _config.Warmup.List)
                 {
-                    // Create warmup mode
                     Mode _warmupMode = new Mode(_mode.Name, _mode.Config, new List<MapGroup>());
                     _pluginState.WarmupModes.Add(_warmupMode);
                 }

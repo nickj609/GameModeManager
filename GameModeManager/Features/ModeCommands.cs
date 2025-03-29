@@ -59,7 +59,6 @@ namespace GameModeManager.Features
             {
                 plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
             }
-
             plugin.AddCommand("css_gamemode", "Sets the current game mode.", OnGameModeCommand);
         }
 

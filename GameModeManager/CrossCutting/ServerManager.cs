@@ -90,11 +90,9 @@ namespace GameModeManager.CrossCutting
         // Define method to change mode
         public void ChangeMode(Mode mode)
         {
-            // Log mode change
             _logger.LogInformation($"Current mode: {_pluginState.CurrentMode.Name}");
             _logger.LogInformation($"New mode: {mode.Name}");
 
-            // If RTV enabled
             if (_pluginState.RTVEnabled)
             {
                 // Revert RTV settings
@@ -140,35 +138,27 @@ namespace GameModeManager.CrossCutting
             {
                 nextMap = mode.DefaultMap;
             }
-            // Change to next map
+            
             ChangeMap(nextMap, _config.Maps.Delay);
         }
 
         // Define method to trigger mode and map rotations
         public void TriggerRotation()
         {  
-            // Check if rotations are enabled
             if(_pluginState.RotationsEnabled)
             {
-                // If mode rotations are enabled, change mode on mode interval
                 if (_config.Rotation.ModeRotation && _pluginState.MapRotations != 0 && _pluginState.MapRotations % _config.Rotation.ModeInterval == 0)
                 {  
-                    _logger.LogInformation("Game has ended. Picking random game mode...");
-            
-                    // Get random game mode
                     Random _rnd = new Random();
                     int _randomIndex = _rnd.Next(0, _pluginState.Modes.Count); 
                     Mode _randomMode = _pluginState.Modes[_randomIndex];
-
-                    // Change mode
+                    _logger.LogInformation("Game has ended. Picking random game mode...");
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing mode..."));  
                     ChangeMode(_randomMode);
                 }
                 else
                 {
                     Map _randomMap = GetRandomMap(_pluginState.CurrentMode);
-
-                    // Change map
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
                     ChangeMap(_randomMap, _config.Maps.Delay);
                 }
@@ -176,7 +166,6 @@ namespace GameModeManager.CrossCutting
             }
             else if (_pluginState.RTVEnabled)
             {
-                // If RTV EofVote happened
                 if (_pluginState.EofVoteHappened && !_pluginState.ChangeImmediately)
                 {
                     if (_pluginState.NextMode != null)
@@ -196,13 +185,9 @@ namespace GameModeManager.CrossCutting
         {
             Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(state.Mode, StringComparison.OrdinalIgnoreCase));
 
-            if (_mode != null)
+            if (_mode != null && _pluginState.CurrentMode != _mode)
             {
-                // Check if current mode is different from target mode
-                if (_pluginState.CurrentMode != _mode)
-                {
-                    ChangeMode(_mode);
-                }
+                ChangeMode(_mode);
             }
         }
 
@@ -211,16 +196,14 @@ namespace GameModeManager.CrossCutting
         {    
             Map _randomMap; 
 
-            if (_config.Rotation.Cycle == 2) // If cycle = 2, select from specified map groups in config
+            if (_config.Rotation.Cycle == 2)
             {
-                // Create map list
                 List<Map> _mapList = new List<Map>();
 
                 foreach (string mapGroup in _config.Rotation.MapGroups)
                 {
                     MapGroup? _mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(mapGroup, StringComparison.OrdinalIgnoreCase));
 
-                    // Add maps from map group to map list
                     if (_mapGroup != null)
                     {
                         foreach (Map _map in _mapGroup.Maps)
@@ -229,15 +212,14 @@ namespace GameModeManager.CrossCutting
                         }
                     }
                 } 
-                // Get a random map from current game mode
+
                 Random _rnd = new Random();
                 int _randomIndex = _rnd.Next(0, _mapList.Count); 
                 _randomMap = _mapList[_randomIndex];
 
             }
-            else if (_config.Rotation.Cycle == 1) // If cycle = 1, select from all maps
+            else if (_config.Rotation.Cycle == 1)
             {
-                // Get a random map from all registered maps
                 Random _rnd = new Random();
                 int _randomIndex = _rnd.Next(0, _pluginState.Maps.Count); 
                 _randomMap = _pluginState.Maps[_randomIndex];
@@ -245,7 +227,6 @@ namespace GameModeManager.CrossCutting
             }
             else
             {
-                // Get a random map from current mode
                 Random _rnd = new Random();
                 int _randomIndex = _rnd.Next(0, currentMode.Maps.Count); 
                 _randomMap = currentMode.Maps[_randomIndex];

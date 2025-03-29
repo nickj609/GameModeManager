@@ -44,10 +44,8 @@ namespace GameModeManager.Core
             // Create mode schedules
             if (_config.Rotation.ModeSchedules)
             {
-                // Parse schedule entries
                 foreach (ScheduleEntry entry in _config.Rotation.Schedule)
                 {
-                    // Parse the time string
                     DateTime targetTime = DateTime.Parse(entry.Time);
 
                     // Calculate delay
@@ -86,7 +84,6 @@ namespace GameModeManager.Core
 
         public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
         {  
-            // Check if rotation on server empty is enabled
             if(_config.Rotation.WhenServerEmpty)
             {
                 if(Extensions.IsServerEmpty())

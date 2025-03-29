@@ -1,6 +1,7 @@
 // Included libraries
 using WASDSharedAPI;
 using GameModeManager.Core;
+using GameModeManager.Features;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Localization;
@@ -23,11 +24,12 @@ namespace GameModeManager.Menus
         private SettingMenus _settingMenus;
         private Config _config = new Config();
         private NominateMenus _nominateMenus;
+        private AsyncVoteManager _asyncVoteManager;
         private TimeLimitManager _timeLimitManager;
         private MaxRoundsManager _maxRoundsManager;
 
         // Define class instance
-        public PlayerMenu(MenuFactory menuFactory, PluginState pluginState, IStringLocalizer iLocalizer, TimeLimitManager timeLimitManager, GameRules gameRules, SettingMenus settingMenus, NominateMenus nominateMenus, MapMenus mapMenus, ModeMenus modeMenus, VoteManager voteManager, MaxRoundsManager maxRoundsManager)
+        public PlayerMenu(MenuFactory menuFactory, PluginState pluginState, IStringLocalizer iLocalizer, TimeLimitManager timeLimitManager, GameRules gameRules, SettingMenus settingMenus, NominateMenus nominateMenus, MapMenus mapMenus, ModeMenus modeMenus, VoteManager voteManager, MaxRoundsManager maxRoundsManager, AsyncVoteManager asyncVoteManager)
         {
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
@@ -37,6 +39,7 @@ namespace GameModeManager.Menus
             _menuFactory = menuFactory;
             _settingMenus = settingMenus;
             _nominateMenus = nominateMenus;
+            _asyncVoteManager = asyncVoteManager;
             _timeLimitManager = timeLimitManager;
             _maxRoundsManager = maxRoundsManager;
             _localizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
@@ -202,8 +205,8 @@ namespace GameModeManager.Menus
                         // Close menu
                         MenuManager.CloseActiveMenu(player);
 
-                        // Start vote
-                        player.ExecuteClientCommand("css_rtv");
+                        // Add vote
+                        _asyncVoteManager.RTVCounter(player);
                         
                     });
                     break;
@@ -457,8 +460,8 @@ namespace GameModeManager.Menus
                             // Close menu
                             _menuFactory.CloseWasdMenu(player);
 
-                            // Start vote
-                            player.ExecuteClientCommand("css_rtv");
+                            // Add vote
+                            _asyncVoteManager.RTVCounter(player);
                         });
                         break;
                         case "!nominate":

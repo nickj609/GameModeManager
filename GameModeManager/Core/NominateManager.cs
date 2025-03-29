@@ -58,12 +58,10 @@ namespace GameModeManager.Core
                             _pluginState.OptionsOnCoolDown.Clear();
                             return;
                         }
-
                         if (_pluginState.OptionsOnCoolDown.Count > _pluginState.InCoolDown)
                         {
                             _pluginState.OptionsOnCoolDown.RemoveAt(0);
                         }
-
                         _pluginState.OptionsOnCoolDown.Add(map.Trim().ToLower());
                     }
                 }
@@ -108,14 +106,12 @@ namespace GameModeManager.Core
             // Nominate map or mode
             if(mode != null)
             {
-                // Check if mode is current mode
                 if (_pluginState.CurrentMode.Name.Equals(mode.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
                     return;
                 }
 
-                // Add nomination vote
                 if (!ModeNominations.ContainsKey(userId))
                 {
                     ModeNominations[userId] = new();
@@ -137,14 +133,12 @@ namespace GameModeManager.Core
             }
             else if (map != null)
             {
-                // Check if map is the current map
                 if (Server.MapName.Equals(map.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
                     return;
                 }
 
-                // Add nomination vote
                 if (!MapNominations.ContainsKey(userId))
                 {
                     MapNominations[userId] = new();
@@ -220,7 +214,6 @@ namespace GameModeManager.Core
             {
                 winners = winners.Take(_pluginState.MaxNominationWinners).ToList();
             }
-
             return winners;
         }
     }

@@ -36,10 +36,9 @@ namespace GameModeManager.CrossCutting
             return abbreviate ? teamStr + ".short" : teamStr + ".long";
         }
 
-        // Define method calculate valid players (no bots)
+        // Define method calculate valid players
         public static CCSPlayerController[] ValidPlayers(bool considerBots = false)
         {
-            //considerBots = true;
             return Utilities.GetPlayers()
                 .Where(x => x.ReallyValid(considerBots))
                 .Where(x => !x.IsHLTV)

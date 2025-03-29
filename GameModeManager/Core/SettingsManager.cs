@@ -36,7 +36,6 @@ namespace GameModeManager.Core
         { 
             if (_config.Settings.Enabled)
             {
-                // Check if the directory exists
                 if (Directory.Exists(PluginState.SettingsDirectory))
                 {
                     // Get all .cfg files

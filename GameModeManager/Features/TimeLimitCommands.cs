@@ -58,7 +58,6 @@ namespace GameModeManager.Features
         [CommandHelper(minArgs: 1, usage: "<true|false> optional: <seconds>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnTimeLimitCommand(CCSPlayerController? player, CommandInfo command)
         {
-            // Parse boolean argument
             bool timeLimit = bool.TryParse(command.ArgByIndex(1), out var parsedValue) ? parsedValue : false;
 
             if (timeLimit)
@@ -66,7 +65,6 @@ namespace GameModeManager.Features
                 // Check if a time limit is provided
                 if (command.ArgCount == 3)
                 {
-                    // Parse integer argument, handling potential exceptions
                     if (int.TryParse(command.ArgByIndex(2), out var seconds))
                     {
                         if (_pluginState.TimeLimitEnabled == true)

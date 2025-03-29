@@ -282,7 +282,6 @@ namespace GameModeManager.Core
                     }   
                 }
 
-                // Display results
                 foreach (CCSPlayerController player in Extensions.ValidPlayers().Where(x => !voted.Contains(x.UserId!.Value)))
                 {
                     player.PrintToCenterHtml(stringBuilder.ToString());
@@ -292,7 +291,6 @@ namespace GameModeManager.Core
             {
                 if (_pluginState.EofVoteHappened == true)
                 {
-                    // Display winner
                     foreach (CCSPlayerController player in Extensions.ValidPlayers())
                     {
                         player.PrintToCenterHtml(_localizer.Localize("rtv.hud.finished", _pluginState.RTVWinner));

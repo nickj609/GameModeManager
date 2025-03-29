@@ -121,14 +121,13 @@ namespace GameModeManager.Core
             ClearRounds();
         }
         
-        // Define method to load convars
+        // Define class methods
         void LoadCvar()
         {
             _maxRounds = ConVar.Find("mp_maxrounds");
             _canClinch = ConVar.Find("mp_match_can_clinch");
         }
 
-        // Define method to clear rounds
         public void ClearRounds()
         {
             CTWins = 0;
@@ -136,7 +135,6 @@ namespace GameModeManager.Core
             _lastBeforeHalf = false;
         }
 
-        // Define method to swap scores
         void SwapScores()
         {
             var oldCtWins = CTWins;
@@ -144,7 +142,6 @@ namespace GameModeManager.Core
             TWins = oldCtWins;
         }
 
-        // Define method to count wins
         public void RoundWin(CsTeam team)
         {
             if (team == CsTeam.CounterTerrorist)
@@ -156,7 +153,6 @@ namespace GameModeManager.Core
             {
                 TWins++;
             }
-            //Server.PrintToChatAll($"T Wins {TWins}, CTWins {CTWins}");
         }   
     }
 }

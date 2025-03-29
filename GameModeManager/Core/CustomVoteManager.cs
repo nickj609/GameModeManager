@@ -24,7 +24,7 @@ namespace GameModeManager.Core
         private ILogger<VoteManager> _logger;
 
         // Define class instance
-        public CustomVoteManager(PluginState pluginState, StringLocalizer localizer, RTVManager rtvManager, PlayerMenu playerMenu, ILogger<VoteManager> logger, MenuFactory menuFactory)
+        public CustomVoteManager(PluginState pluginState, StringLocalizer localizer, PlayerMenu playerMenu, ILogger<VoteManager> logger)
         {
             _logger = logger;
             _localizer = localizer;

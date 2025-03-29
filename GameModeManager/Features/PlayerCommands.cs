@@ -46,12 +46,10 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            // Add default player commands
             plugin.AddCommand("css_game", "Displays list of player commands", OnGameCommand);
             plugin.AddCommand("css_currentmap", "Displays current map.", OnCurrentMapCommand);
             plugin.AddCommand("css_currentmode", "Displays current map.", OnCurrentModeCommand);
 
-            // Add vote commands
             if(_config.Votes.Enabled)
             {
                 if (_config.Votes.Maps)

@@ -44,7 +44,7 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define warmup mode command handler
+        // Define command handlers
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 1, usage: "<mode>",whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnWarmupModeCommand(CCSPlayerController? player, CommandInfo command)
@@ -69,7 +69,6 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define admin start warmup command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(minArgs: 0, usage: "*optional <mode>",whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnStartWarmupCommand(CCSPlayerController? player, CommandInfo command)
@@ -97,7 +96,6 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define admin end warmup command handler
         [RequiresPermissions("@css/changemap")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnEndWarmupCommand(CCSPlayerController? player, CommandInfo command)

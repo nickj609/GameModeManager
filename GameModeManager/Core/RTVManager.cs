@@ -34,13 +34,6 @@ namespace GameModeManager.Core
             _pluginState = pluginState;
             _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
         }
-        
-        // Define class properties
-        private List<int> Votes = new();
-        private float VotePercentage = 0F;
-        public int VoteCount => Votes.Count;
-        public bool VotesAlreadyReached { get; set; } = false;
-        public int RequiredVotes { get => (int)Math.Round(Extensions.ValidPlayerCount() * VotePercentage); }
 
         // Load config
         public void OnConfigParsed(Config config)
@@ -51,7 +44,6 @@ namespace GameModeManager.Core
             _pluginState.ChangeImmediately = _config.RTV.ChangeImmediately;
             _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
             _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
-            VotePercentage = _config.RTV.VotePercentage / 100F;
         }
 
         // Define on load behavior
@@ -62,16 +54,6 @@ namespace GameModeManager.Core
             if (_pluginState.RTVEnabled)
             {
                 EnableRTV();
-            }
-        }
-
-        // Define on map start behavior 
-        public void OnMapStart(string _mapName)
-        {
-            if(_pluginState.RTVEnabled)
-            {
-                Votes.Clear();
-                VotesAlreadyReached = false;
             }
         }
 
@@ -119,49 +101,6 @@ namespace GameModeManager.Core
             // Enable rotations
             _logger.LogInformation($"Enabling rotations...");
             _pluginState.RotationsEnabled = true;
-        }
-
-        // Define method to get vote result
-        public bool CheckVotes(int numberOfVotes)
-        {
-            return numberOfVotes > 0 && numberOfVotes >= RequiredVotes;
-        }
-
-        // Define method to add vote
-        public VoteResult AddVote(int userId)
-        {
-            if (VotesAlreadyReached)
-            {
-                return new VoteResult(VoteResultEnum.VotesAlreadyReached, VoteCount, RequiredVotes);
-            }
-
-            VoteResultEnum? result;
-
-            if (Votes.IndexOf(userId) != -1)
-            {
-                result = VoteResultEnum.AlreadyAddedBefore;
-            }
-            else
-            {
-                Votes.Add(userId);
-                result = VoteResultEnum.Added;
-            }
-
-            if (CheckVotes(Votes.Count))
-            {
-                VotesAlreadyReached = true;
-                return new VoteResult(VoteResultEnum.VotesReached, VoteCount, RequiredVotes);
-            }
-
-            return new VoteResult(result.Value, VoteCount, RequiredVotes);
-        }
-
-        // Define method to remove vote
-        public void RemoveVote(int userId)
-        {
-            var index = Votes.IndexOf(userId);
-            if (index > -1)
-                Votes.RemoveAt(index);
         }
 
         // Define next map command handler

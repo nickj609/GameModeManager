@@ -114,13 +114,11 @@ namespace GameModeManager.Features
                 _newMap = _foundMap; 
             }
 
-            // Print to chat
             if(player != null)
             {
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _newMap.Name));
             }
-
-            // Change map
+            
             _serverManager.ChangeMap(_newMap, _config.Maps.Delay);
         }
     }

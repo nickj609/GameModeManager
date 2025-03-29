@@ -11,7 +11,6 @@ using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
-
 // Declare namespace
 namespace GameModeManager.Features
 {
@@ -89,7 +88,7 @@ namespace GameModeManager.Features
                     }
                     else
                     {
-                        _logger.LogError("RTV: No timelimit or max rounds is set for the current map/mode");
+                        _logger.LogWarning("RTV: No timelimit or max rounds is set for the current map/mode");
                     }
                     return;
                 }
@@ -123,10 +122,9 @@ namespace GameModeManager.Features
                     return;
                 }
 
-                // Get option
+                // If no option provided, display menu
                 string option = command.GetArg(1);
 
-                // If no option provided, display menu
                 if (string.IsNullOrEmpty(option))
                 {  
                     if (_config.RTV.IncludeModes)
