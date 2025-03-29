@@ -74,6 +74,53 @@ namespace GameModeManager.Features
                 _plugin.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnected, HookMode.Pre);
             }
         }
+
+        // Define class methods
+        private void StartVote(VoteResult? result, CCSPlayerController? player)
+        {
+            if(player?.PlayerName != null && result?.VoteCount != null)
+            {
+                // Display to chat
+                Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("rtv.rocked-the-vote", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.votes-reached"));
+            }
+
+            // Load Options
+            _voteOptionManager.LoadOptions();
+            _rtvMenus.Load(_voteOptionManager.ScrambleOptions());
+
+            // Start vote
+            _voteManager.StartVote(_pluginState.RTVDuration);
+
+            // Display vote menu
+            if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
+            {
+                foreach (var validPlayer in Extensions.ValidPlayers())
+                {
+                    IWasdMenu? menu;
+                    menu = _rtvMenus.GetWasdMenu();
+
+                    if (menu != null)
+                    {
+                        _menuFactory.OpenWasdMenu(validPlayer, menu);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var validPlayer in Extensions.ValidPlayers())
+                {
+                    BaseMenu menu;
+                    menu = _rtvMenus.GetMenu();
+
+                    if (menu != null)
+                    {
+                        _menuFactory.OpenMenu(menu, validPlayer);
+                    }
+                }
+            }
+        }
+
         // Define client rtv duration command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(minArgs: 1, usage: "<duration>", whoCanExecute: CommandUsage.SERVER_ONLY)]
@@ -150,8 +197,7 @@ namespace GameModeManager.Features
                 {
                     _pluginState.ChangeImmediately = changeImmediately;
                 }
-
-                _voteManager.StartVote(_pluginState.RTVDuration);
+                StartVote(null, null);
             }
             return;
         }
@@ -214,44 +260,7 @@ namespace GameModeManager.Features
                         player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.disabled"));
                         break;
                     case VoteResultEnum.VotesReached:
-                        // Display to chat
-                        Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("rtv.rocked-the-vote", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
-                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.votes-reached"));
-
-                        // Load Options
-                        _voteOptionManager.LoadOptions();
-                        _rtvMenus.Load(_voteOptionManager.ScrambleOptions());
-
-                        // Start vote
-                        _voteManager.StartVote(_pluginState.RTVDuration);
-
-                        // Display vote menu
-                        if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
-                        {
-                            foreach (var validPlayer in Extensions.ValidPlayers())
-                            {
-                                IWasdMenu? menu;
-                                menu = _rtvMenus.GetWasdMenu();
-
-                                if (menu != null)
-                                {
-                                    _menuFactory.OpenWasdMenu(validPlayer, menu);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            foreach (var validPlayer in Extensions.ValidPlayers())
-                            {
-                                BaseMenu menu;
-                                menu = _rtvMenus.GetMenu();
-
-                                if (menu != null)
-                                {
-                                    _menuFactory.OpenMenu(menu, validPlayer);
-                                }
-                            }
-                        }
+                        StartVote(result, player);
                         break;
                 }
             }
