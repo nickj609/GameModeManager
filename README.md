@@ -49,6 +49,14 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 
 - `css_gamemode <mode>` - Sets the current mode.
 
+- `css_rtv_start_vote <duration> <true|false>` - Starts rtv vote, where true or false determines if map or mode changes immediately. 
+
+- `css_rtv_rounds_before_end <rounds>` - Sets the rounds before the end of map vote.
+
+- `css_rtv_seconds_before_end <seconds>` - Sets the seconds before the end of map vote.
+
+- `css_rtv_end_of_map_vote <true|false>` - Enables or disables end of map vote.
+
 - `css_rtv_enabled <true|false>` - Enables or disables RTV.
 
 - `css_rtv_duration <seconds>` - Sets the RTV vote duration.
