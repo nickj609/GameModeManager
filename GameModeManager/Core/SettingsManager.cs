@@ -55,8 +55,6 @@ namespace GameModeManager.Core
                             if (_match.Success) 
                             {
                                 _name = _name.Substring(_match.Length);
-
-                                // Find existing setting if it's already in the list
                                 var _setting = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_name, StringComparison.OrdinalIgnoreCase));
                                 
                                 // Create a new setting if not found

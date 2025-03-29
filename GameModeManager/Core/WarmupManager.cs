@@ -35,7 +35,7 @@ namespace GameModeManager.Core
             _pluginState.PerMapWarmup = _config.Warmup.PerMap;
         }
 
-        // Load dependencies
+        // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
             if (_config.Warmup.Enabled)
@@ -44,7 +44,6 @@ namespace GameModeManager.Core
                 plugin.RegisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnectHandler, HookMode.Post);
                 plugin.RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler, HookMode.Post);
 
-                // Create warmup mode list from config
                 foreach(WarmupModeEntry _mode in _config.Warmup.List)
                 {
                     Mode _warmupMode = new Mode(_mode.Name, _mode.Config, new List<MapGroup>());
@@ -65,7 +64,7 @@ namespace GameModeManager.Core
             }
         }
         
-        // Define method to schedule warmup mode
+        // Define class methods
         public bool ScheduleWarmup(string modeName)
         {
             Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase) || m.Config.Contains(modeName, StringComparison.OrdinalIgnoreCase));
@@ -83,7 +82,6 @@ namespace GameModeManager.Core
             } 
         }
         
-        // Define method to start warmup
         public void StartWarmup(Mode warmupMode)
         {
             if (_pluginState.WarmupScheduled && !_pluginState.WarmupRunning && !_gameRules.HasMatchStarted)
@@ -94,7 +92,6 @@ namespace GameModeManager.Core
             }
         }
 
-        // Define method to end warmup
         public void EndWarmup()
         {
            if (_pluginState.WarmupRunning)

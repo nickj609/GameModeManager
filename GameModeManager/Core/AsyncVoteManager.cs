@@ -6,7 +6,6 @@ using CounterStrikeSharp.API;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
-using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Menu;
@@ -25,15 +24,13 @@ namespace GameModeManager.Features
         private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private Config _config = new Config();
-        private ILogger<ModeCommands> _logger;
         private MaxRoundsManager _maxRoundsManager;
         private TimeLimitManager _timeLimitManager;
         private VoteOptionManager _voteOptionManager;
 
         // Define class instance
-        public AsyncVoteManager(PluginState pluginState, IStringLocalizer iLocalizer, ILogger<ModeCommands> logger, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManager, RTVMenus rtvMenus, MenuFactory menuFactory)
+        public AsyncVoteManager(PluginState pluginState, IStringLocalizer iLocalizer, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManager, RTVMenus rtvMenus, MenuFactory menuFactory)
         {
-            _logger = logger;
             _rtvMenus = rtvMenus;
             _gameRules = gameRules;
             _voteManager = voteManager;
@@ -69,13 +66,12 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define method to get vote result
+        // Define class methods
         public bool CheckVotes(int numberOfVotes)
         {
             return numberOfVotes > 0 && numberOfVotes >= RequiredVotes;
         }
 
-        // Define method to add vote
         public VoteResult AddVote(int userId)
         {
             if (VotesAlreadyReached)
@@ -104,7 +100,6 @@ namespace GameModeManager.Features
             return new VoteResult(result.Value, VoteCount, RequiredVotes);
         }
 
-        // Define method to remove vote
         public void RemoveVote(int userId)
         {
             var index = Votes.IndexOf(userId);
@@ -112,21 +107,17 @@ namespace GameModeManager.Features
                 Votes.RemoveAt(index);
         }
 
-        // Define method to start RTV vote
         public void StartVote(VoteResult? result, CCSPlayerController? player)
         {
-            // Display to chat
             if(player?.PlayerName != null && result?.VoteCount != null)
             {
                 Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("rtv.rocked-the-vote", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.votes-reached"));
             }
 
-            // Load Options
+            // Start vote
             _voteOptionManager.LoadOptions();
             _rtvMenus.Load(_voteOptionManager.ScrambleOptions());
-
-            // Start vote
             _voteManager.StartVote(_pluginState.RTVDuration);
 
             // Display vote menu
@@ -158,7 +149,6 @@ namespace GameModeManager.Features
             }
         }
 
-        // Define method to add and count vote
         public void RTVCounter(CCSPlayerController player)
         {
             if (_pluginState.EofVoteHappened)

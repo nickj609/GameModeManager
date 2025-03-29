@@ -17,13 +17,11 @@ namespace GameModeManager.Features
         private RTVManager _rtvManager;
         private PluginState _pluginState;
         private Config _config = new Config();
-        private ILogger<ModeCommands> _logger;
         private AsyncVoteManager _asyncVoteManager;
 
         // Define class instance
-        public RTVCommands(PluginState pluginState, ILogger<ModeCommands> logger, RTVManager rtvManager, AsyncVoteManager asyncVoteManager)
+        public RTVCommands(PluginState pluginState, RTVManager rtvManager, AsyncVoteManager asyncVoteManager)
         {
-            _logger = logger;
             _rtvManager = rtvManager;
             _pluginState = pluginState;
             _asyncVoteManager = asyncVoteManager;

@@ -34,10 +34,9 @@ namespace GameModeManager.Core
             _config = config;
         }
         
-        // Define on load behavior (parses map groups and stores them in mapgroup instances)
+        // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            // Deserialize gamemodes_server.txt (VDF) to VProperty with GameLoop.Vdf
             VProperty vdfObject = VdfConvert.Deserialize(File.ReadAllText(_config.GameModes.MapGroupFile, Encoding.UTF8));
         
             if (vdfObject == null)
@@ -46,26 +45,21 @@ namespace GameModeManager.Core
             }
             else
             {
-                // Create an array of only map groups
                 var _mapGroups = vdfObject.Value.OfType<VProperty>()
                                         .Where(p => p.Key.Equals("mapgroups", StringComparison.OrdinalIgnoreCase))
                                         .Select(p => p.Value)
                                         .FirstOrDefault();
-
-                // Parse array to populate map group list               
+              
                 if (_mapGroups != null)
                 {
                     foreach (VProperty _mapGroup in _mapGroups.OfType<VProperty>()) 
                     {  
                         MapGroup _group = new MapGroup(_mapGroup.Key);
-
-                        // Create an array of maps
                         var _maps = _mapGroup.Value.OfType<VProperty>()
                                 .Where(p => p.Key.Equals("maps", StringComparison.OrdinalIgnoreCase))
                                 .Select(p => p.Value)
                                 .FirstOrDefault();
 
-                        // Parse array to add maps to map group
                         if (_maps != null)
                         {
                             foreach (VProperty _map in _maps)
@@ -76,15 +70,12 @@ namespace GameModeManager.Core
                                 // Check if map is a workshop map
                                 if (_mapName.StartsWith("workshop/"))
                                 {
-                                    // Extract workshop ID
                                     string[] parts = _mapName.Split('/');
                                     long _mapWorkshopId = long.Parse(parts[1]);
                                     string _mapNameFormatted = parts[parts.Length - 1];
 
-                                    // Add map to maps lists
                                     if (!string.IsNullOrEmpty(_mapDisplayName))
                                     {
-                                        // Add to mapgroup map list
                                         _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
                                         
                                         // Add to all maps list only if it doesn't already exist
@@ -95,7 +86,6 @@ namespace GameModeManager.Core
                                     }
                                     else
                                     {
-                                        // Add to mapgroup map list
                                         _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
 
                                         // Add to all maps list only if it doesn't already exist
@@ -107,10 +97,8 @@ namespace GameModeManager.Core
                                 }
                                 else
                                 {
-                                    // Add map to maps lists
                                     if (!string.IsNullOrEmpty(_mapDisplayName))
                                     {
-                                        // Add to mapgroup map list
                                         _group.Maps.Add(new Map(_mapName, _mapDisplayName));
 
                                         // Add to all maps list only if it doesn't already exist
@@ -121,7 +109,6 @@ namespace GameModeManager.Core
                                     }
                                     else
                                     {
-                                        // Add to mapgroup map list
                                         _group.Maps.Add(new Map(_mapName));
 
                                         // Add to all maps list only if it doesn't already exist

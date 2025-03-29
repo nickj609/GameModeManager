@@ -15,13 +15,11 @@ namespace GameModeManager.Core
         // Define class dependencies
         private Config _config = new();
         private PluginState _pluginState;
-        private ILogger<VoteManager> _logger;
         private NominateManager _nominateManager;
 
         // Define class instance
-        public VoteOptionManager(PluginState pluginState, ILogger<VoteManager> logger, NominateManager nominateManager)
+        public VoteOptionManager(PluginState pluginState, NominateManager nominateManager)
         {
-            _logger = logger;
             _pluginState = pluginState;
             _nominateManager = nominateManager;
         }

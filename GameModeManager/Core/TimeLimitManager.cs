@@ -63,7 +63,7 @@ namespace GameModeManager.Core
             LoadCvar();
         }
 
-        // Define methods to get values
+        // Define class methods
         public bool UnlimitedTime()
         {
             return unlimitedTime;
@@ -79,13 +79,11 @@ namespace GameModeManager.Core
             return timeRemaining;
         }
 
-        // Define method to load cvars
         public void LoadCvar()
         {
             timeLimit = ConVar.Find("mp_timelimit");
         }
 
-        // Define method to disable time limit
         public void DisableTimeLimit()
         {
             if (timer != null)
@@ -98,7 +96,6 @@ namespace GameModeManager.Core
             }
         }
 
-        // Define methods to enable time limit
         public void EnableTimeLimit()
         {
             _pluginState.TimeLimitEnabled = true;
@@ -124,7 +121,6 @@ namespace GameModeManager.Core
             });
         }
 
-        // Define method to get timeleft message
         public string GetTimeLeftMessage()
         {
             string _message;

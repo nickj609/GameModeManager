@@ -51,7 +51,6 @@ namespace GameModeManager.Core
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
-            // Create mode list 
             foreach(ModeEntry _mode in _config.GameModes.List)
             {
                 List<MapGroup> mapGroups = new List<MapGroup>();
@@ -60,7 +59,6 @@ namespace GameModeManager.Core
                 {
                     MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(_mapGroup, StringComparison.OrdinalIgnoreCase));
 
-                    // Add map group to list
                     if(mapGroup != null)
                     {
                         mapGroups.Add(mapGroup);

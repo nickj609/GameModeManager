@@ -13,23 +13,23 @@ namespace GameModeManager.Core
     {
         // Define class dependencies
         private GameRules _gameRules;
+
+        // Define class instance
+        public MaxRoundsManager(GameRules gameRules)
+        {
+            _gameRules = gameRules;
+        }
         
-        // Define win counters
+        // Define class properties
         private int TWins = 0;
         private int CTWins = 0;
         public int CurrentHighestWins => CTWins > TWins ? CTWins : TWins;
-
-        // Define convars
         private ConVar? _maxRounds;
         private ConVar? _canClinch;
-
-        // Define round parameters
         private int MaxRoundsValue => _maxRounds?.GetPrimitiveValue<int>() ?? 0;
         public bool CanClinch => _canClinch?.GetPrimitiveValue<bool>() ?? true;
         public bool UnlimitedRounds => MaxRoundsValue <= 0;
         private bool _lastBeforeHalf = false;
-
-        // Calculate remaining rounds
         public int RemainingRounds
         {
             get
@@ -41,8 +41,6 @@ namespace GameModeManager.Core
                 return played;
             }
         }
-
-        // Calculate remaining wins
         public int RemainingWins
         {
             get
@@ -50,8 +48,6 @@ namespace GameModeManager.Core
                 return MaxWins - CurrentHighestWins;
             }
         }
-
-        // Calculate max rounds
         public int MaxWins
         {
             get
@@ -64,12 +60,6 @@ namespace GameModeManager.Core
 
                 return ((int)Math.Floor(MaxRoundsValue / 2M)) + 1;
             }
-        }
-
-        // Define class instance
-        public MaxRoundsManager(GameRules gameRules)
-        {
-            _gameRules = gameRules;
         }
 
         // Define on load behavior

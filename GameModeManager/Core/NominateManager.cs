@@ -4,7 +4,6 @@ using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Localization;
 
 // Declare namespace
@@ -17,12 +16,10 @@ namespace GameModeManager.Core
         private Config _config = new();
         private PluginState _pluginState;
         private StringLocalizer _localizer;
-        private ILogger<WarmupManager> _logger;
 
         // Define class instance
-        public NominateManager(PluginState pluginState, ILogger<WarmupManager> logger, IStringLocalizer iLocalizer)
+        public NominateManager(PluginState pluginState, IStringLocalizer iLocalizer)
         {
-            _logger = logger;
             _pluginState = pluginState;
             _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
         }

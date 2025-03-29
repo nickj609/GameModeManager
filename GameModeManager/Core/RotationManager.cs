@@ -47,15 +47,12 @@ namespace GameModeManager.Core
                 foreach (ScheduleEntry entry in _config.Rotation.Schedule)
                 {
                     DateTime targetTime = DateTime.Parse(entry.Time);
-
-                    // Calculate delay
                     TimeSpan delay = targetTime - DateTime.Now;
                     if (delay.TotalMilliseconds <= 0)
                     {
                         delay = delay.Add(TimeSpan.FromDays(1));
                     }
 
-                    // Create timer
                     new Timer((float)delay.TotalSeconds, () =>
                     {
                         _serverManager.TriggerScheduleChange(entry);

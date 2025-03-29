@@ -102,14 +102,11 @@ namespace GameModeManager.Core
    
         public void StartVote(int delay)
         {
-            _pluginState.EofVoteHappening = true;
             voted.Clear();
-            
-            // Get player count and register listener
+            _pluginState.EofVoteHappening = true;
             canVote = Extensions.ValidPlayerCount();
             _plugin?.RegisterListener<Listeners.OnTick>(VoteResults);
 
-            // Start timer
             timeLeft = delay;
             timer = _plugin!.AddTimer(1.0F, () =>
             {
@@ -133,7 +130,6 @@ namespace GameModeManager.Core
             _pluginState.RTVWinner = winner.Key;
             decimal percent = totalVotes > 0 ? winner.Value / totalVotes * 100M : 0;
 
-            // Check votes
             if (maxVotes > 0)
             {
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.vote-ended", winner.Key, percent, totalVotes));
@@ -143,13 +139,11 @@ namespace GameModeManager.Core
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.vote-ended-no-votes", winner.Key));
             }
 
-            // Remove listener
             _plugin!.AddTimer(5F, () =>
             {
                 _plugin?.RemoveListener<Listeners.OnTick>(VoteResults);
             });
 
-            // Set next map or mode based on vote results
             if (_voteOptionManager.OptionType(_pluginState.RTVWinner) == "mode")
             {
                 _pluginState.NextMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase));

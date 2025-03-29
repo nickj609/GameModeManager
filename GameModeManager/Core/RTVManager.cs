@@ -57,7 +57,7 @@ namespace GameModeManager.Core
             }
         }
 
-        // Define method to enable RTV
+        // Define class methods
         public void EnableRTV()
         {
             _pluginState.RTVEnabled = true;
@@ -65,22 +65,20 @@ namespace GameModeManager.Core
             _plugin?.AddCommand("css_nextmap", "Displays current map.", OnNextMapCommand);
             _plugin?.AddCommand("css_nextmode", "Displays current map.", OnNextModeCommand);
 
-            // Update player menu
             _pluginState.PlayerCommands.Add("!rtv");
             if(_pluginState.NominationEnabled)
             {
                 _pluginState.PlayerCommands.Add("!nominate");
             }
+
             _pluginState.PlayerCommands.Add("!nextmap");
             _pluginState.PlayerCommands.Add("!nextmode");
             _playerMenu.Load();
 
-            // Disable rotations
             _logger.LogDebug($"Disabling rotations...");
             _pluginState.RotationsEnabled = false;
         }
         
-        // Define method to disable RTV
         public void DisableRTV()
         {
             _pluginState.RTVEnabled = false;
@@ -88,7 +86,6 @@ namespace GameModeManager.Core
             _plugin?.RemoveCommand("css_nextmap", OnNextMapCommand);
             _plugin?.RemoveCommand("css_nextmode", OnNextModeCommand);
 
-            // Update player menu
             _pluginState.PlayerCommands.Remove("!rtv");
             if(_pluginState.NominationEnabled)
             {
@@ -98,12 +95,11 @@ namespace GameModeManager.Core
             _pluginState.PlayerCommands.Remove("!nextmode");
             _playerMenu.Load();
 
-            // Enable rotations
             _logger.LogInformation($"Enabling rotations...");
             _pluginState.RotationsEnabled = true;
         }
 
-        // Define next map command handler
+        // Define command handlers
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnNextMapCommand(CCSPlayerController? player, CommandInfo command)
@@ -125,7 +121,6 @@ namespace GameModeManager.Core
             }
         }
 
-        // Define next mode command handler
         [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnNextModeCommand(CCSPlayerController? player, CommandInfo command)

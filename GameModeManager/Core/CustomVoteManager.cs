@@ -3,7 +3,6 @@ using GameModeManager.Menus;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
-using Microsoft.Extensions.Logging;
 
 // Copyright (c) 2024 imi-tat0r
 // https://github.com/imi-tat0r/CS2-CustomVotes/
@@ -21,12 +20,10 @@ namespace GameModeManager.Core
         private PlayerMenu _playerMenu;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
-        private ILogger<VoteManager> _logger;
 
         // Define class instance
-        public CustomVoteManager(PluginState pluginState, StringLocalizer localizer, PlayerMenu playerMenu, ILogger<VoteManager> logger)
+        public CustomVoteManager(PluginState pluginState, StringLocalizer localizer, PlayerMenu playerMenu)
         {
-            _logger = logger;
             _localizer = localizer;
             _playerMenu = playerMenu;
             _pluginState = pluginState;
