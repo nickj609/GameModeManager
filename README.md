@@ -49,17 +49,21 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 
 - `css_gamemode <mode>` - Sets the current mode.
 
-- `css_rtv_start_vote <duration> <true|false>` - Starts rtv vote, where true or false determines if map or mode changes immediately. 
+- `css_rtv_extend <true|false>` - Enables or disables extending map.
+
+- `css_rtv_enabled <true|false>` - Enables or disables RTV.
+
+- `css_rtv_duration <seconds>` - Sets the RTV vote duration.
+
+- `css_rtv_max_extends <extends>` - Sets the max number of map extends.
+
+- `css_rtv_end_of_map_vote <true|false>` - Enables or disables end of map vote.
 
 - `css_rtv_rounds_before_end <rounds>` - Sets the rounds before the end of map vote.
 
 - `css_rtv_seconds_before_end <seconds>` - Sets the seconds before the end of map vote.
 
-- `css_rtv_end_of_map_vote <true|false>` - Enables or disables end of map vote.
-
-- `css_rtv_enabled <true|false>` - Enables or disables RTV.
-
-- `css_rtv_duration <seconds>` - Sets the RTV vote duration.
+- `css_rtv_start_vote <duration> <true|false>` - Starts rtv vote, where true or false determines if map or mode changes immediately. 
 
 - `css_warmupmode <mode>` - Schedules and sets the warmup mode.
 
@@ -173,18 +177,20 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Enabled             | Enables RTV compatibility.                                                                                                                |
-| PerMap              | Enables per map RTV configuration                                                                                                         |
-| MapMode             | Changes the RTV map mode. (0 = maps from current game mode, 1 = maps from all game modes.)                                                | 
-| HudMenu             | Enables the HUD Menu                                                                                                                      | 
 | Style               | Changes vote menu type (i.e. "chat", "center" or "wasd").                                                                                 |
+| PerMap              | Enables per map RTV configuration                                                                                                         |
+| HudMenu             | Enables the HUD Menu                                                                                                                      | 
 | MinRounds           | Minimum number of rounds for RTV                                                                                                          |
 | MinPlayers          | Minimum number of players for RTV                                                                                                         |
 | VoteDuration        | Vote duration in seconds                                                                                                                  |
 | OptionsToShow       | Number of options to show in RTV list                                                                                                     |
 | VotePercentage      | Percentage of votes required for selecting the winner                                                                                     |
 | OptionsInCoolDown   | Number of options in cool down                                                                                                            |
-| EndMapVote          | Enables end map vote                                                                                                                      |
+| EndOfMapVote        | Enables end map vote                                                                                                                      |
 | IncludeModes        | Includes modes in RTV list                                                                                                                |
+| IncludeExtend       | Includes extend map in RTV list                                                                                                           |
+| ExtendTime          | Time to extend map in minutes                                                                                                             |
+| ExtendRounds        | Rounds to extend map                                                                                                                      |
 | ModePercentage      | Percent of modes in RTV list                                                                                                              |
 | EnabledInWarmup     | Enables RTV in warmup                                                                                                                     |
 | HideHudAfterVote    | Hides hud after vote                                                                                                                      |
@@ -267,24 +273,27 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 <summary><b>Click to see Default Values</b></summary>
 	
 ```json
-// This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2025/03/02 04:47:52
+// This configuration was automatically generated by CounterStrikeSharp for plugin 'GameModeManager', at 2025/03/30 02:49:18
 {
-  "Version": 8,
+  "Version": 10,
   "RTV": {
     "Enabled": true,
-    "MapMode": 0,
-    "HudMenu": true,
     "Style": "wasd",
+    "PerMap": false,
+    "HudMenu": false,
     "MinRounds": 1,
-    "MinPlayers": 3,
+    "MinPlayers": 1,
     "VoteDuration": 60,
     "OptionsToShow": 6,
     "VotePercentage": 51,
     "OptionsInCoolDown": 3,
-    "EndMapVote": true,
+    "EndOfMapVote": true,
     "IncludeModes": true,
-    "ModeInclusionPercentage": 40,
-    "EnabledInWarmup": true,
+    "IncludeExtend": false,
+    "ExtendTime": 15,
+    "ExtendRounds": 5,
+    "ModePercentage": 40,
+    "EnabledInWarmup": false,
     "HideHudAfterVote": false,
     "NominationEnabled": true,
     "MaxNominationWinners": 1,
@@ -311,6 +320,7 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
     "Folder": "settings"
   },
   "Warmup": {
+    "Enabled": true,
     "Time": 60,
     "PerMap": false,
     "Default": {
@@ -382,6 +392,70 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
     "MapGroupFile": "gamemodes_server.txt",
     "List": [
       {
+        "Name": "45",
+        "Config": "45.cfg",
+        "DefaultMap": "3276886893",
+        "MapGroups": [
+          "mg_45"
+        ]
+      },
+      {
+        "Name": "1v1",
+        "Config": "1v1.cfg",
+        "DefaultMap": "3070253400",
+        "MapGroups": [
+          "mg_1v1"
+        ]
+      },
+      {
+        "Name": "Armsrace",
+        "Config": "ar.cfg",
+        "DefaultMap": "ar_pool_day",
+        "MapGroups": [
+          "mg_gg"
+        ]
+      },
+      {
+        "Name": "Awp",
+        "Config": "awp.cfg",
+        "DefaultMap": "3142070597",
+        "MapGroups": [
+          "mg_awp"
+        ]
+      },
+      {
+        "Name": "Aim",
+        "Config": "aim.cfg",
+        "DefaultMap": "3084291314",
+        "MapGroups": [
+          "mg_aim"
+        ]
+      },
+      {
+        "Name": "Battle",
+        "Config": "battle.cfg",
+        "DefaultMap": "3070253400",
+        "MapGroups": [
+          "mg_battle"
+        ]
+      },
+      {
+        "Name": "Battle Royale",
+        "Config": "br.cfg",
+        "DefaultMap": "3070253400",
+        "MapGroups": [
+          "mg_battleroyale"
+        ]
+      },
+      {
+        "Name": "Bhop",
+        "Config": "bhop.cfg",
+        "DefaultMap": "3088973190",
+        "MapGroups": [
+          "mg_bhop"
+        ]
+      },
+      {
         "Name": "Casual",
         "Config": "casual.cfg",
         "DefaultMap": "de_dust2",
@@ -391,19 +465,11 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
         ]
       },
       {
-        "Name": "Deathmatch",
-        "Config": "dm.cfg",
-        "DefaultMap": "de_assembly",
+        "Name": "Casual 1.6",
+        "Config": "Casual-1.6.cfg",
+        "DefaultMap": "3212419403",
         "MapGroups": [
-          "mg_dm"
-        ]
-      },
-      {
-        "Name": "Armsrace",
-        "Config": "ar.cfg",
-        "DefaultMap": "ar_pool_day",
-        "MapGroups": [
-          "mg_gg"
+          "mg_Casual-1.6"
         ]
       },
       {
@@ -416,12 +482,83 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
         ]
       },
       {
-        "Name": "Wingman",
-        "Config": "wingman.cfg",
-        "DefaultMap": "de_memento",
+        "Name": "Course",
+        "Config": "course.cfg",
+        "DefaultMap": "3070455802",
         "MapGroups": [
-          "mg_active",
+          "mg_course"
+        ]
+      },
+      {
+        "Name": "Deathmatch",
+        "Config": "dm.cfg",
+        "DefaultMap": "de_mirage",
+        "MapGroups": [
+          "mg_dm"
+        ]
+      },
+      {
+        "Name": "Deathmatch (Valve)",
+        "Config": "dm-valve.cfg",
+        "DefaultMap": "de_mirage",
+        "MapGroups": [
+          "mg_dm"
+        ]
+      },
+      {
+        "Name": "Deathrun",
+        "Config": "deathrun.cfg",
+        "DefaultMap": "3164611860",
+        "MapGroups": [
+          "mg_deathrun"
+        ]
+      },
+      {
+        "Name": "Executes",
+        "Config": "executes.cfg",
+        "DefaultMap": "de_mirage",
+        "MapGroups": [
           "mg_comp"
+        ]
+      },
+      {
+        "Name": "GG",
+        "Config": "gg.cfg",
+        "DefaultMap": "ar_pool_day",
+        "MapGroups": [
+          "mg_gg"
+        ]
+      },
+      {
+        "Name": "HE Only",
+        "Config": "he.cfg",
+        "DefaultMap": "3089842427",
+        "MapGroups": [
+          "mg_he"
+        ]
+      },
+      {
+        "Name": "Hide N Seek",
+        "Config": "hns.cfg",
+        "DefaultMap": "3097563690",
+        "MapGroups": [
+          "mg_hns"
+        ]
+      },
+      {
+        "Name": "KreedZ",
+        "Config": "kz.cfg",
+        "DefaultMap": "3086304337",
+        "MapGroups": [
+          "mg_kz"
+        ]
+      },
+      {
+        "Name": "Minigames",
+        "Config": "minigames.cfg",
+        "DefaultMap": "3082120895",
+        "MapGroups": [
+          "mg_minigames"
         ]
       },
       {
@@ -449,75 +586,11 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
         ]
       },
       {
-        "Name": "Executes",
-        "Config": "executes.cfg",
-        "DefaultMap": "de_mirage",
+        "Name": "ScoutzKnivez",
+        "Config": "scoutzknivez.cfg",
+        "DefaultMap": "3073929825",
         "MapGroups": [
-          "mg_comp"
-        ]
-      },
-      {
-        "Name": "Casual 1.6",
-        "Config": "Casual-1.6.cfg",
-        "DefaultMap": "3212419403",
-        "MapGroups": [
-          "mg_Casual-1.6"
-        ]
-      },
-      {
-        "Name": "Deathmatch Multicfg",
-        "Config": "dm-multicfg.cfg",
-        "DefaultMap": "de_mirage",
-        "MapGroups": [
-          "mg_dm"
-        ]
-      },
-      {
-        "Name": "GG",
-        "Config": "gg.cfg",
-        "DefaultMap": "ar_pool_day",
-        "MapGroups": [
-          "mg_gg"
-        ]
-      },
-      {
-        "Name": "45",
-        "Config": "45.cfg",
-        "DefaultMap": "3276886893",
-        "MapGroups": [
-          "mg_45"
-        ]
-      },
-      {
-        "Name": "Awp",
-        "Config": "awp.cfg",
-        "DefaultMap": "3142070597",
-        "MapGroups": [
-          "mg_awp"
-        ]
-      },
-      {
-        "Name": "1v1",
-        "Config": "1v1.cfg",
-        "DefaultMap": "3070253400",
-        "MapGroups": [
-          "mg_1v1"
-        ]
-      },
-      {
-        "Name": "Aim",
-        "Config": "aim.cfg",
-        "DefaultMap": "3084291314",
-        "MapGroups": [
-          "mg_aim"
-        ]
-      },
-      {
-        "Name": "Bhop",
-        "Config": "bhop.cfg",
-        "DefaultMap": "3088973190",
-        "MapGroups": [
-          "mg_bhop"
+          "mg_scoutzknivez"
         ]
       },
       {
@@ -529,22 +602,6 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
         ]
       },
       {
-        "Name": "KreedZ",
-        "Config": "kz.cfg",
-        "DefaultMap": "3086304337",
-        "MapGroups": [
-          "mg_kz"
-        ]
-      },
-      {
-        "Name": "Hide N Seek",
-        "Config": "hns.cfg",
-        "DefaultMap": "3097563690",
-        "MapGroups": [
-          "mg_hns"
-        ]
-      },
-      {
         "Name": "Soccer",
         "Config": "soccer.cfg",
         "DefaultMap": "3070198374",
@@ -553,35 +610,20 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
         ]
       },
       {
-        "Name": "Course",
-        "Config": "course.cfg",
-        "DefaultMap": "3070455802",
+        "Name": "Tournament",
+        "Config": "tournament.cfg",
+        "DefaultMap": "de_dust2",
         "MapGroups": [
-          "mg_course"
+          "mg_active"
         ]
       },
       {
-        "Name": "Deathrun",
-        "Config": "deathrun.cfg",
-        "DefaultMap": "3164611860",
+        "Name": "Wingman",
+        "Config": "wingman.cfg",
+        "DefaultMap": "de_memento",
         "MapGroups": [
-          "mg_deathrun"
-        ]
-      },
-      {
-        "Name": "Minigames",
-        "Config": "minigames.cfg",
-        "DefaultMap": "3082120895",
-        "MapGroups": [
-          "mg_minigames"
-        ]
-      },
-      {
-        "Name": "ScoutzKnivez",
-        "Config": "scoutzknivez.cfg",
-        "DefaultMap": "3073929825",
-        "MapGroups": [
-          "mg_scoutzknivez"
+          "mg_active",
+          "mg_comp"
         ]
       }
     ]

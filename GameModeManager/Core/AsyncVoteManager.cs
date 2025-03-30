@@ -13,6 +13,9 @@ using CounterStrikeSharp.API.Modules.Menu;
 // Declare namespace
 namespace GameModeManager.Features
 {
+    // Define records
+    public record VoteResult(VoteResultEnum Result, int VoteCount, int RequiredVotes);
+    
     // Define class
     public class AsyncVoteManager : IPluginDependency<Plugin, Config>
     {
@@ -153,7 +156,16 @@ namespace GameModeManager.Features
         {
             if (_pluginState.EofVoteHappened)
             {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.schedule-change"));
+                if (!_timeLimitManager.UnlimitedTime())
+                {
+                    string timeleft = _voteManager.GetTimeLeft();
+                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.schedule-change", timeleft));
+                }
+                else if (!_maxRoundsManager.UnlimitedRounds)
+                {
+                    string roundsleft = _voteManager.GetRoundsLeft();
+                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.schedule-change", roundsleft));
+                }
                 return;
             }
 

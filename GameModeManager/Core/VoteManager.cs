@@ -156,6 +156,7 @@ namespace GameModeManager.Core
                 if (_pluginState.ChangeImmediately  && _pluginState.NextMode != null)
                 {
                     _serverManager.ChangeMode(_pluginState.NextMode);
+                    return;
                 }
                 else
                 {
@@ -183,6 +184,7 @@ namespace GameModeManager.Core
                 if (_pluginState.ChangeImmediately  && _pluginState.NextMap != null)
                 {
                     _serverManager.ChangeMap(_pluginState.NextMap, _config.Maps.Delay);
+                    return;
                 }
                 else
                 {
@@ -201,12 +203,17 @@ namespace GameModeManager.Core
                         _logger.LogError("RTV: No timelimit or max rounds set for for the current map/mode");
                     }
                 }
+                _pluginState.EofVoteHappened = true;
+            }
+            else if (_pluginState.RTVWinner.Equals("Extend", StringComparison.OrdinalIgnoreCase))
+            {
+                _pluginState.EofVoteHappened = false;
+                _timeLimitManager.ExtendMap();
             }
             else
             {
                 _logger.LogError($"RTV: Map or mode {_pluginState.RTVWinner} not found");
             }
-            _pluginState.EofVoteHappened = true;
             _pluginState.EofVoteHappening = false;
         }
 

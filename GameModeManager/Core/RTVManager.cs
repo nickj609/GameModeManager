@@ -1,6 +1,5 @@
 // Included libraries
 using GameModeManager.Menus;
-using GameModeManager.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
@@ -12,9 +11,6 @@ using CounterStrikeSharp.API.Modules.Commands;
 // Declare namespace
 namespace GameModeManager.Core
 {
-    // Define records
-    public record VoteResult(VoteResultEnum Result, int VoteCount, int RequiredVotes);
-
     // Define class
     public class RTVManager : IPluginDependency<Plugin, Config>
     {
@@ -40,7 +36,7 @@ namespace GameModeManager.Core
         {
             _config = config;
             _pluginState.RTVEnabled = _config.RTV.Enabled;
-            _pluginState.EndOfMapVote = _config.RTV.EndMapVote;
+            _pluginState.EndOfMapVote = _config.RTV.EndOfMapVote;
             _pluginState.ChangeImmediately = _config.RTV.ChangeImmediately;
             _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
             _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;

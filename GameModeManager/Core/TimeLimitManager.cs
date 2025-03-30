@@ -3,6 +3,7 @@ using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Cvars;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
@@ -15,6 +16,7 @@ namespace GameModeManager.Core
     {
         // Define class dependencies
         private Config _config = new();
+        private ILogger<TimeLimitManager> _logger;
         private readonly GameRules _gameRules;
         private readonly PluginState _pluginState;
         private readonly StringLocalizer _localizer;
@@ -22,8 +24,9 @@ namespace GameModeManager.Core
         private readonly MaxRoundsManager _maxRoundsManager;
 
         // Define class instance
-        public TimeLimitManager(GameRules gameRules, ServerManager serverManager, PluginState pluginState, MaxRoundsManager maxRoundsManager, IStringLocalizer iLocalizer)
+        public TimeLimitManager(GameRules gameRules, ServerManager serverManager, PluginState pluginState, MaxRoundsManager maxRoundsManager, IStringLocalizer iLocalizer, ILogger<TimeLimitManager> logger)
         {
+            _logger = logger;
             _gameRules = gameRules;
             _pluginState = pluginState;
             _serverManager = serverManager;
@@ -43,6 +46,8 @@ namespace GameModeManager.Core
         public void OnConfigParsed(Config config)
         {
             _config = config;
+            _pluginState.MaxExtends = _config.RTV.MaxExtends;
+            _pluginState.IncludeExtend = _config.RTV.IncludeExtend;
         }
 
         // Define on load behavior
@@ -61,6 +66,8 @@ namespace GameModeManager.Core
         public void OnMapStart(string map)
         {
             LoadCvar();
+            _pluginState.MapExtends = 0;
+            _pluginState.MaxExtends = _config.RTV.MaxExtends;
         }
 
         // Define class methods
@@ -82,6 +89,33 @@ namespace GameModeManager.Core
         public void LoadCvar()
         {
             timeLimit = ConVar.Find("mp_timelimit");
+        }
+
+        public void ExtendMap()
+        {
+            if (!unlimitedTime)
+            {
+                var timeLimitConVar = ConVar.Find("mp_timelimit");
+                _logger.LogInformation($"Setting mp_timelimit to {timeLimitConVar?.GetPrimitiveValue<float>() + _config.RTV.ExtendTime}");
+                timeLimitConVar?.SetValue(timeLimitConVar.GetPrimitiveValue<float>() + _config.RTV.ExtendTime);
+                Server.ExecuteCommand($"mp_timelimit {timeLimitConVar}");
+                string _message = _localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.map-time-extended", _config.RTV.ExtendTime);
+                Server.PrintToChatAll(_message);
+            }
+            else if (!_maxRoundsManager.UnlimitedRounds)
+            {
+                var maxRoundsConVar = ConVar.Find("mp_maxrounds");
+                _logger.LogInformation($"Setting mp_maxrounds to {maxRoundsConVar?.GetPrimitiveValue<int>() + _config.RTV.ExtendRounds}");
+                maxRoundsConVar?.SetValue(maxRoundsConVar.GetPrimitiveValue<int>() + _config.RTV.ExtendRounds);
+                Server.ExecuteCommand($"mp_maxrounds {maxRoundsConVar}");
+                string _message = _localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.map-rounds-extended", _config.RTV.ExtendRounds);
+                Server.PrintToChatAll(_message);
+            }
+            else
+            {
+                _logger.LogWarning("Can't extend map because mp_timelimit and mp_maxrounds is not set.");
+            }
+            _pluginState.MapExtends++;
         }
 
         public void DisableTimeLimit()

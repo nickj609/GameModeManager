@@ -30,18 +30,21 @@ namespace GameModeManager
     public class RTVSettings
     {
         public bool Enabled { get; set; } = true; // Enables RTV
-        public bool PerMap { get; set; } = false; // Enables per map RTV configuration
-        public int MapMode { get; set; } = 0; // 0 for current mode maps, 1 for all maps
-        public bool HudMenu { get; set;} = false; // Enables hud menu
         public string Style { get; set; } = "wasd"; // Changes vote menu type (i.e. "chat", "center" or "wasd")
+        public bool PerMap { get; set; } = false; // Enables per map RTV configuration
+        public bool HudMenu { get; set;} = false; // Enables hud menu
         public int MinRounds { get; set; } = 1; // Minimum number of rounds for RTV
         public int MinPlayers { get; set; } = 3; // Minimum number of players for RTV
         public int VoteDuration { get; set; } = 60; // Vote duration in seconds
         public int OptionsToShow { get; set; } = 6; // Number of options to show in RTV list
         public int VotePercentage { get; set; } = 51; // Vote percentage
         public ushort OptionsInCoolDown { get; set; } = 3; // Options in cool down
-        public bool EndMapVote { get; set; } = true; // Enables end map vote
+        public bool EndOfMapVote { get; set; } = true; // Enables end map vote
         public bool IncludeModes { get; set; } = true; // Includes modes in RTV list
+        public bool IncludeExtend { get; set; } = false; // Includes extend in RTV list
+        public int MaxExtends { get; set; } = 5; // Sets the max number of map extends
+        public int ExtendTime { get; set; } = 15; // Sets the time interval to extend in minutes
+        public int ExtendRounds { get; set; } = 5; // Sets the number of rounds to extend
         public int ModePercentage { get; set; } = 40; // Sets percent of modes in RTV list
         public bool EnabledInWarmup { get; set;} = false; // Enables RTV in warmup
         public bool HideHudAfterVote { get; set;} = false; // Hides hud after vote
@@ -137,7 +140,7 @@ namespace GameModeManager
             new ModeEntry() { Name = "Awp", Config = "awp.cfg", DefaultMap = "3142070597", MapGroups = new List<string>(){"mg_awp"}},
             new ModeEntry() { Name = "Aim", Config = "aim.cfg",  DefaultMap = "3084291314", MapGroups = new List<string>(){"mg_aim"}},
             new ModeEntry() { Name = "Battle", Config = "battle.cfg", DefaultMap = "3070253400", MapGroups = new List<string>(){"mg_battle"}},
-            new ModeEntry() { Name = "Battle Royale", Config = "br.cfg", DefaultMap = "3070253400", MapGroups = new List<string>(){"mg_br"}},
+            new ModeEntry() { Name = "Battle Royale", Config = "br.cfg", DefaultMap = "3070253400", MapGroups = new List<string>(){"mg_battleroyale"}},
             new ModeEntry() { Name = "Bhop", Config = "bhop.cfg", DefaultMap = "3088973190", MapGroups = new List<string>(){"mg_bhop"}},
             new ModeEntry() { Name = "Casual", Config = "casual.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_active", "mg_comp"} },
             new ModeEntry() { Name = "Casual 1.6", Config = "Casual-1.6.cfg", DefaultMap = "3212419403", MapGroups = new List<string>(){"mg_Casual-1.6"} },
@@ -148,6 +151,7 @@ namespace GameModeManager
             new ModeEntry() { Name = "Deathrun", Config = "deathrun.cfg", DefaultMap = "3164611860", MapGroups = new List<string>(){"mg_deathrun"}},
             new ModeEntry() { Name = "Executes", Config = "executes.cfg", DefaultMap = "de_mirage", MapGroups = new List<string>(){"mg_comp"}},
             new ModeEntry() { Name = "GG", Config = "gg.cfg", DefaultMap = "ar_pool_day", MapGroups = new List<string>(){"mg_gg"}},
+            new ModeEntry() { Name = "HE Only", Config = "he.cfg", DefaultMap = "3089842427", MapGroups = new List<string>(){"mg_he"}},
             new ModeEntry() { Name = "Hide N Seek", Config = "hns.cfg", DefaultMap = "3097563690", MapGroups = new List<string>(){"mg_hns"}},
             new ModeEntry() { Name = "KreedZ", Config = "kz.cfg", DefaultMap = "3086304337", MapGroups = new List<string>(){"mg_kz"}},
             new ModeEntry() { Name = "Minigames", Config = "minigames.cfg", DefaultMap = "3082120895", MapGroups = new List<string>(){"mg_minigames"}},
@@ -165,7 +169,7 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-         public int Version { get; set; } = 9;
+         public int Version { get; set; } = 10;
          public RTVSettings RTV { get; set; } = new();
          public MapSettings Maps { get; set; } = new();
          public VoteSettings Votes { get; set; } = new();
@@ -263,7 +267,7 @@ namespace GameModeManager
             }
 
             // Config version check
-            if (_config.Version < 9)
+            if (_config.Version < 10)
             {
                 throw new Exception("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it");
             }
