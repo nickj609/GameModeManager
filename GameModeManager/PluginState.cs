@@ -41,11 +41,14 @@ namespace GameModeManager
         public Mode? NextMode;
         public int InCoolDown = 0;
         public int TimeLimit = 120;
+        public int MapExtends = 0;
+        public int MaxExtends = 0;
         public int RTVDuration = 60;
         public int MapRotations = 0;
         public string RTVWinner = "";
         public bool RTVEnabled = false;
         public List<Mode> Modes = new();
+        public bool IncludeExtend = false;
         public bool PerMapWarmup = false;
         public bool EndOfMapVote = false;
         public int RTVRoundsBeforeEnd = 2;

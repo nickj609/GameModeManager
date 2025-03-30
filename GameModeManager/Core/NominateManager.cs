@@ -78,7 +78,7 @@ namespace GameModeManager.Core
                 mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase));
             }
 
-            if(_config.RTV.MapMode == 1)
+            if(_config.Maps.Mode == 1)
             {
                 map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(option, StringComparison.OrdinalIgnoreCase));
             }

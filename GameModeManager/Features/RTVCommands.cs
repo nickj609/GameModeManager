@@ -2,7 +2,6 @@
 using GameModeManager.Core;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
-using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -42,9 +41,11 @@ namespace GameModeManager.Features
             if (_config.RTV.Enabled)
             {
                 _plugin.AddCommand("css_rtv", "Rocks the Vote!", OnRTVCommand);
-                _plugin.AddCommand("css_rtv_start_vote", "Starts vote.", OnRTVStartVoteCommand);
+                _plugin.AddCommand("css_rtv_start_vote", "Starts RTV vote.", OnRTVStartVoteCommand);
                 _plugin.AddCommand("css_rtv_enabled", "Enables or disables RTV.", OnRTVEnabledCommand);
-                _plugin.AddCommand("css_rtv_end_of_map_vote", "Sets end of map vote", OnRTVEndOfMapVoteCommand);
+                _plugin.AddCommand("css_rtv_max_extends", "Sets max map extends.", OnRTVMaxExtendsCommand);
+                _plugin.AddCommand("css_rtv_extend", "Enables or disables map extend.", OnRTVExtendCommand);
+                _plugin.AddCommand("css_rtv_end_of_map_vote", "Enables end of map vote", OnRTVEndOfMapVoteCommand);
                 _plugin.AddCommand("css_rtv_duration", "Sets the duration of the RTV vote.", OnRTVDurationCommand);
                 _plugin.AddCommand("css_rtv_rounds_before_end", "Sets the rounds before end that the vote starts.", OnRTVRoundsBeforeEndCommand);
                 _plugin.AddCommand("css_rtv_seconds_before_end", "Sets the seconds before end that the vote starts.", OnRTVSecondsBeforeEndCommand);
@@ -125,6 +126,34 @@ namespace GameModeManager.Features
                     _pluginState.ChangeImmediately = changeImmediately;
                 }
                 _asyncVoteManager.StartVote(null, null);
+            }
+            return;
+        }
+
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(minArgs: 1, usage: "<true|false>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnRTVExtendCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null)
+            { 
+                if (bool.TryParse(command.ArgByIndex(1), out var extend))
+                {
+                    _pluginState.IncludeExtend = extend;
+                }
+            }
+            return;
+        }
+
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(minArgs: 1, usage: "<extends>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnRTVMaxExtendsCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null)
+            { 
+                if (int.TryParse(command.ArgByIndex(1), out var extends))
+                {
+                    _pluginState.MaxExtends = extends;
+                }
             }
             return;
         }

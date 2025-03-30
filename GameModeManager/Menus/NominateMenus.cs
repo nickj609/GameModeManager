@@ -113,7 +113,16 @@ namespace GameModeManager.Menus
                     }
                 }
                 
-                // Create map sub menu option
+                // Create sub menu options
+                if(_pluginState.IncludeExtend && _pluginState.MapExtends < _pluginState.MaxExtends)
+                {
+                     nominationMenu.AddMenuOption("Extend", (player, option) =>
+                    {
+                        _nominateManager.Nominate(player, "Extend");
+                        _menuFactory.CloseWasdMenu(player);
+                    });
+                }
+
                 nominationMenu.AddMenuOption("Map", (player, option) =>
                 {
                     nominateMapMenu.Title = _localizer.Localize("nominate.menu-title");
@@ -124,7 +133,6 @@ namespace GameModeManager.Menus
                     }
                 });
 
-                // Create mode sub menu option
                 nominationMenu.AddMenuOption("Mode", (player, option) =>
                 {
                     nominateModeMenu.Title = _localizer.Localize("nominate.menu-title");
