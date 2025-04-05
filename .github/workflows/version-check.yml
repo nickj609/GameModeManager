@@ -9,28 +9,58 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
       - name: Get ModuleVersion from Plugin.cs
         id: get_plugin_version
         run: |
           VERSION=$(grep -oP 'ModuleVersion => "\K[^"]+' GameModeManager/Plugin.cs)
           echo "plugin_version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Get version from SECURITY.md
-        id: get_security_version
+      - name: Get Current Version from SECURITY.md
+        id: get_security_current_version
         run: |
           VERSION=$(grep -oP 'Current Version: \K[^ ]+' SECURITY.md)
-          echo "security_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "security_current_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get Previous Version from SECURITY.md
+        id: get_security_previous_version
+        run: |
+          VERSION=$(grep -oP 'Previous Major Version: \K[^ ]+' SECURITY.md)
+          echo "security_previous_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Calculate Expected Previous Version
+        id: calculate_previous_version
+        run: |
+          CURRENT_VERSION="${{ steps.get_plugin_version.outputs.plugin_version }}"
+          VERSION_PARTS=($(echo "$CURRENT_VERSION" | tr '.' ' '))
+          MAJOR=${VERSION_PARTS[0]}
+          MINOR=${VERSION_PARTS[1]}
+          PATCH=${VERSION_PARTS[2]}
+          
+          if [[ $PATCH -gt 0 ]]; then
+            PREVIOUS_PATCH=$((PATCH - 1))
+            EXPECTED_PREVIOUS_VERSION="$MAJOR.$MINOR.$PREVIOUS_PATCH"
+          elif [[ $MINOR -gt 0 ]]; then
+            PREVIOUS_MINOR=$((MINOR - 1))
+            EXPECTED_PREVIOUS_VERSION="$MAJOR.$PREVIOUS_MINOR.0"
+          else
+            EXPECTED_PREVIOUS_VERSION="$MAJOR.0.0"
+          fi
+          echo "expected_previous_version=$EXPECTED_PREVIOUS_VERSION" >> $GITHUB_OUTPUT
 
       - name: Check version consistency
         run: |
           PLUGIN_VERSION="${{ steps.get_plugin_version.outputs.plugin_version }}"
-          SECURITY_VERSION="${{ steps.get_security_version.outputs.security_version }}"
+          SECURITY_CURRENT_VERSION="${{ steps.get_security_current_version.outputs.security_current_version }}"
+          SECURITY_PREVIOUS_VERSION="${{ steps.get_security_previous_version.outputs.security_previous_version }}"
+          EXPECTED_PREVIOUS_VERSION="${{ steps.calculate_previous_version.outputs.expected_previous_version }}"
 
-          if [[ "$PLUGIN_VERSION" != "$SECURITY_VERSION" ]]; then
+          if [[ "$PLUGIN_VERSION" != "$SECURITY_CURRENT_VERSION" || "$SECURITY_PREVIOUS_VERSION" != "$EXPECTED_PREVIOUS_VERSION" ]]; then
             echo "Version mismatch detected!"
             echo "Plugin.cs version: $PLUGIN_VERSION"
-            echo "SECURITY.md version: $SECURITY_VERSION"
+            echo "SECURITY.md Current Version: $SECURITY_CURRENT_VERSION"
+            echo "SECURITY.md Previous Version: $SECURITY_PREVIOUS_VERSION"
+            echo "Expected Previous Version: $EXPECTED_PREVIOUS_VERSION"
             exit 1 # Fail the workflow, preventing merge
           else
             echo "Versions are consistent."
