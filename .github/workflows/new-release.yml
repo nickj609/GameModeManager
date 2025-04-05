@@ -1,12 +1,10 @@
 name: Create New Release
-
 on:
   push:
     branches:
       - main
     paths:
       - 'GameModeManager/Plugin.cs'
-
 jobs:
   release:
     runs-on: ubuntu-latest
