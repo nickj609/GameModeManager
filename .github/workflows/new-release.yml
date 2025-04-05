@@ -1,4 +1,4 @@
-name: Create New Release
+name: NewRelease
 on:
   push:
     branches:
@@ -6,7 +6,7 @@ on:
     paths:
       - 'GameModeManager/Plugin.cs'
 jobs:
-  release:
+  NewRelease:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,6 +27,18 @@ jobs:
           VERSION=$(git show HEAD~1:GameModeManager/Plugin.cs | grep -oP 'ModuleVersion => "\K[^"]+')
           echo "previous_version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Get current ConfigVersion from Config.cs
+        id: get_current_config_version
+        run: |
+          CONFIG_VERSION=$(grep -oP 'public int Version { get; set; } = \K\d+' GameModeManager/Config.cs)
+          echo "current_config_version=$CONFIG_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get previous ConfigVersion from Config.cs
+        id: get_previous_config_version
+        run: |
+          CONFIG_VERSION=$(git show HEAD~1:GameModeManager/Config.cs | grep -oP 'public int Version { get; set; } = \K\d+' GameModeManager/Config.cs)
+          echo "previous_config_version=$CONFIG_VERSION" >> $GITHUB_OUTPUT
+
       - name: Check if version changed
         id: check_version_change
         run: |
@@ -38,10 +50,52 @@ jobs:
             echo "version_changed=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Check config version changed
+        id: check_config_version_change
+        run: |
+          CURRENT_CONFIG_VERSION="${{ steps.get_current_config_version.outputs.current_config_version }}"
+          PREVIOUS_CONFIG_VERSION="${{ steps.get_previous_config_version.outputs.previous_config_version }}"
+          if [[ "$CURRENT_CONFIG_VERSION" != "$PREVIOUS_CONFIG_VERSION" ]]; then
+            echo "config_version_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "config_version_changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get commit history
+        if: ${{ steps.check_version_change.outputs.version_changed == 'true' }}
+        id: get_commit_history
+        run: |
+          COMMIT_HISTORY=$(git log --pretty=format:"%s" HEAD~1..HEAD)
+          echo "commit_history=$(echo "$COMMIT_HISTORY" | jq -sRr @uri)" >> $GITHUB_OUTPUT
+
+      - name: Parse commit history
+        if: ${{ steps.check_version_change.outputs.version_changed == 'true' }}
+        id: parse_commits
+        run: |
+          COMMIT_HISTORY="${{ steps.get_commit_history.outputs.commit_history }}"
+          FEATURES=""
+          BUG_FIXES=""
+          MISC=""
+
+          IFS=$'\n'
+          for COMMIT in $(echo "$COMMIT_HISTORY"); do
+            if [[ "$COMMIT" == ADDED:* || "$COMMIT" == Added:* ]]; then
+              FEATURES="$FEATURES- $(echo "$COMMIT" | cut -d':' -f2-)\n"
+            elif [[ "$COMMIT" == Fix:* || "$COMMIT" == Bug:* || "$COMMIT" == BugFix:* ]]; then
+              BUG_FIXES="$BUG_FIXES- $(echo "$COMMIT" | cut -d':' -f2-)\n"
+            else
+              MISC="$MISC- $COMMIT\n"
+            fi
+          done
+
+          echo "features=$(echo "$FEATURES" | jq -sRr @uri)" >> $GITHUB_OUTPUT
+          echo "bug_fixes=$(echo "$BUG_FIXES" | jq -sRr @uri)" >> $GITHUB_OUTPUT
+          echo "misc=$(echo "$MISC" | jq -sRr @uri)" >> $GITHUB_OUTPUT
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.407' # Adjust to your project's .NET version
+          dotnet-version: '8.0.x'
 
       - name: Restore dependencies
         run: dotnet restore GameModeManager.sln
@@ -63,7 +117,30 @@ jobs:
           tag_name: v${{ steps.get_current_version.outputs.current_version }}
           release_name: Release Game Mode Manager v${{ steps.get_current_version.outputs.current_version }}
           body: |
-            New release of Game Mode Manager v${{ steps.get_current_version.outputs.current_version }}.
+            # Game Mode Manager v${{ steps.get_current_version.outputs.current_version }}
+            ${{ steps.check_config_version_change.outputs.config_version_changed == 'true' && '> [!IMPORTANT]
+            > - If moving from v${{ steps.get_previous_version.outputs.previous_version }} or earlier, back up your `GameModeManager.json` configuration file and let the plugin generate the new version. This version has minor changes to the configuration file.
+            >' || '' }}
+
+            ## Features
+            ${{ steps.parse_commits.outputs.features }}
+
+            ## Bug Fixes
+            ${{ steps.parse_commits.outputs.bug_fixes }}
+
+            ## Misc
+            ${{ steps.parse_commits.outputs.misc }}
+
+            ## Installation
+            1. Install Metamod:Source and Counter Strike Sharp.
+            2. Copy `addons` and `cfg` folders to `/csgo/`.
+            3. Make sure your `gamemodes_server.txt` or custom map group file is in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and contains a list of map groups.
+            5. Update each game mode configuration file (i.e. comp.cfg) to include `css_gamemode <mode>`.
+            6. After the first run, update the configuration file `GameModeManager.json`.
+
+            For more information on the configuration of these features, please see the updated [README.md](https://github.com/nickj609/GameModeManager/blob/main/README.md).
+
+            **Full Changelog**: https://github.com/nickj609/GameModeManager/compare/v${{ steps.get_previous_version.outputs.previous_version }}...v${{ steps.get_current_version.outputs.current_version }}
           draft: false
           prerelease: false
 
