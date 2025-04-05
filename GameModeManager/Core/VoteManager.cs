@@ -37,11 +37,10 @@ namespace GameModeManager.Core
             _maxRoundsManager = maxRoundsManager;
             _voteOptionManager = voteOptionManager;
             _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
-        }   
+        }
 
         // Define class properties
         private Timer? timer;
-        private int canVote = 0;
         private int timeLeft = -1;
         private HashSet<int> voted = new();
 
@@ -49,31 +48,44 @@ namespace GameModeManager.Core
         public void OnConfigParsed(Config config)
         {
             _config = config;
+            votePercentage = _config.RTV.VotePercentage / 100F;
         }
-        
+
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
         }
 
+        // Define class properties
+        private decimal percent = 0;
+        private decimal maxVotes = 0;
+        private decimal totalVotes = 0;
+        private float votePercentage = 0F;
+        private KeyValuePair<string, int> winner;
+        private int RequiredVotes { get => (int)Math.Round(Extensions.ValidPlayerCount() * votePercentage); }
+
         // Define on map start behavior
         public void OnMapStart(string map)
         {
-            if(_pluginState.RTVEnabled)
+            if (_pluginState.RTVEnabled)
             {
                 timeLeft = 0;
                 voted.Clear();
+                percent = 0;
+                maxVotes = 0;
+                totalVotes = 0;
                 _pluginState.Votes.Clear();
                 _pluginState.RTVWinner = "";
                 _pluginState.NextMap = null;
                 _pluginState.NextMode = null;
                 _pluginState.EofVoteHappened = false;
                 _pluginState.EofVoteHappening = false;
+                winner = new KeyValuePair<string, int>("", 0);
                 KillTimer();
             }
         }
-    
+
         // Define class methods
         private void KillTimer()
         {
@@ -94,17 +106,14 @@ namespace GameModeManager.Core
             {
                 voted.Add(player.UserId!.Value);
             }
-            if (_pluginState.Votes.Select(x => x.Value).Sum() >= canVote)
-            {
-                EndVote();
-            }
+            //Check for winner after each vote.
+            CheckForWinner();
         }
-   
+
         public void StartVote(int delay)
         {
             voted.Clear();
             _pluginState.EofVoteHappening = true;
-            canVote = Extensions.ValidPlayerCount();
             _plugin?.RegisterListener<Listeners.OnTick>(VoteResults);
 
             timeLeft = delay;
@@ -115,20 +124,31 @@ namespace GameModeManager.Core
                     EndVote();
                 }
                 else
+                {
                     timeLeft--;
+                }
             }, TimerFlags.REPEAT);
+        }
+
+        private void CheckForWinner()
+        {
+            Random rnd = new();
+            maxVotes = _pluginState.Votes.Select(x => x.Value).Max();
+            totalVotes = _pluginState.Votes.Select(x => x.Value).Sum();
+            IEnumerable<KeyValuePair<string, int>> potentialWinners = _pluginState.Votes.Where(x => x.Value == maxVotes);
+            winner = potentialWinners.ElementAt(rnd.Next(0, potentialWinners.Count()));
+
+            if (winner.Value >= RequiredVotes)
+            {
+                percent = totalVotes > 0 ? winner.Value / totalVotes * 100M : 0;
+                _pluginState.RTVWinner = winner.Key;
+                EndVote();
+            }
         }
 
         public void EndVote()
         {
             KillTimer();
-            Random rnd = new();
-            decimal maxVotes = _pluginState.Votes.Select(x => x.Value).Max();
-            decimal totalVotes = _pluginState.Votes.Select(x => x.Value).Sum();      
-            IEnumerable<KeyValuePair<string, int>> potentialWinners = _pluginState.Votes.Where(x => x.Value == maxVotes);
-            KeyValuePair<string, int> winner = potentialWinners.ElementAt(rnd.Next(0, potentialWinners.Count()));
-            _pluginState.RTVWinner = winner.Key;
-            decimal percent = totalVotes > 0 ? winner.Value / totalVotes * 100M : 0;
 
             if (maxVotes > 0)
             {
@@ -153,7 +173,7 @@ namespace GameModeManager.Core
                     _pluginState.NextMap = _pluginState.NextMode.DefaultMap;
                 }
 
-                if (_pluginState.ChangeImmediately  && _pluginState.NextMode != null)
+                if (_pluginState.ChangeImmediately && _pluginState.NextMode != null)
                 {
                     _serverManager.ChangeMode(_pluginState.NextMode);
                     return;
@@ -181,7 +201,7 @@ namespace GameModeManager.Core
             {
                 _pluginState.NextMap = _pluginState.Maps.FirstOrDefault(m => m.DisplayName.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase) || m.Name.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase));
 
-                if (_pluginState.ChangeImmediately  && _pluginState.NextMap != null)
+                if (_pluginState.ChangeImmediately && _pluginState.NextMap != null)
                 {
                     _serverManager.ChangeMap(_pluginState.NextMap, _config.Maps.Delay);
                     return;
@@ -227,7 +247,7 @@ namespace GameModeManager.Core
             }
             else
             {
-                 _message = _localizer.Localize("rtv.remaining-last-round");
+                _message = _localizer.Localize("rtv.remaining-last-round");
             }
             return _message;
         }
@@ -280,7 +300,7 @@ namespace GameModeManager.Core
                     foreach (var kv in _pluginState.Votes.Take(VoteOptionManager.MAX_OPTIONS_HUD_MENU))
                     {
                         stringBuilder.AppendFormat($"<br><font color='yellow'>!{index++}</font> {kv.Key} <font color='green'>({kv.Value})</font>");
-                    }   
+                    }
                 }
 
                 foreach (CCSPlayerController player in Extensions.ValidPlayers().Where(x => !voted.Contains(x.UserId!.Value)))
@@ -298,6 +318,6 @@ namespace GameModeManager.Core
                     }
                 }
             }
-        } 
+        }
     }
 }
