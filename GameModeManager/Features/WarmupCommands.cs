@@ -55,16 +55,16 @@ namespace GameModeManager.Features
                 {
                     if(_warmupManager.ScheduleWarmup(command.ArgByIndex(1)))
                     {
-                        _logger.LogInformation($"Warmup mode enabled.");   
+                        _logger.LogInformation($"Warmup Mode: Warmup scheduled.");   
                     } 
                     else
                     {
-                        _logger.LogError($"Warmup mode {command.ArgByIndex(1)} cannot be found."); 
+                        _logger.LogError($"Warmup Mode: {command.ArgByIndex(1)} cannot be found."); 
                     }  
                 }
                 else
                 {
-                    _logger.LogWarning("Warmup mode is already scheduled.");
+                    _logger.LogWarning("Warmup Mode: Warmup already scheduled.");
                 }       
             }
         }

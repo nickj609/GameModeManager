@@ -14,16 +14,16 @@ namespace GameModeManager
 
     public class ModeEntry
     {
-        public string Name {get; set;} = "Casual";
-        public string Config {get; set;} = "casual.cfg";
-        public string? DefaultMap {get; set;} = null; 
-        public List<string> MapGroups {get; set;} = new List<string>(){"mg_active", "mg_comp"};
+        public string Name { get; set; } = "Casual";
+        public string Config { get; set; } = "casual.cfg";
+        public string? DefaultMap { get; set; } = null;
+        public List<string> MapGroups { get; set; } = new List<string>() { "mg_active", "mg_comp" };
     }
 
     public class WarmupModeEntry
     {
-        public string Name {get; set;} = "Deathmatch";
-        public string Config {get; set;} = "warmup/dm.cfg";
+        public string Name { get; set; } = "Deathmatch";
+        public string Config { get; set; } = "warmup/dm.cfg";
     }
 
     // Define RTV settings
@@ -32,7 +32,7 @@ namespace GameModeManager
         public bool Enabled { get; set; } = true; // Enables RTV
         public string Style { get; set; } = "wasd"; // Changes vote menu type (i.e. "chat", "center" or "wasd")
         public bool PerMap { get; set; } = false; // Enables per map RTV configuration
-        public bool HudMenu { get; set;} = false; // Enables hud menu
+        public bool HudMenu { get; set; } = false; // Enables hud menu
         public int MinRounds { get; set; } = 1; // Minimum number of rounds for RTV
         public int MinPlayers { get; set; } = 3; // Minimum number of players for RTV
         public int VoteDuration { get; set; } = 60; // Vote duration in seconds
@@ -46,10 +46,10 @@ namespace GameModeManager
         public int ExtendTime { get; set; } = 15; // Sets the time interval to extend in minutes
         public int ExtendRounds { get; set; } = 5; // Sets the number of rounds to extend
         public int ModePercentage { get; set; } = 40; // Sets percent of modes in RTV list
-        public bool EnabledInWarmup { get; set;} = false; // Enables RTV in warmup
-        public bool HideHudAfterVote { get; set;} = false; // Hides hud after vote
-        public bool NominationEnabled { get; set;} = true; // Enables nomination
-        public int MaxNominationWinners { get; set;} = 1; // Sets max nomination winners
+        public bool EnabledInWarmup { get; set; } = false; // Enables RTV in warmup
+        public bool HideHudAfterVote { get; set; } = false; // Hides hud after vote
+        public bool NominationEnabled { get; set; } = true; // Enables nomination
+        public int MaxNominationWinners { get; set; } = 1; // Sets max nomination winners
         public bool ChangeImmediately { get; set; } = false; // Enables change map/mode immediately
         public int TriggerRoundsBeforeEnd { get; set; } = 2; // Sets rounds before end for trigger vote
         public int TriggerSecondsBeforeEnd { get; set; } = 120; // Sets seconds before end for trigger vote
@@ -61,7 +61,7 @@ namespace GameModeManager
         public int Mode { get; set; } = 0; // 0 for current mode maps, 1 for all maps
         public int Delay { get; set; } = 5; // Map change delay in seconds
         public string Style { get; set; } = "wasd"; // Changes map menu type 
-        public string Default { get; set; } =  "de_dust2"; // Default map on server start
+        public string Default { get; set; } = "de_dust2"; // Default map on server start
     }
 
     // Define vote settings
@@ -99,7 +99,7 @@ namespace GameModeManager
         public bool Enabled { get; set; } = true; // Enables or disables warmup
         public float Time { get; set; } = 60; // Default warmup time
         public bool PerMap { get; set; } = false; // Enables or disables per map warmup
-        public WarmupModeEntry Default { get; set; } = new WarmupModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg"}; // Default warmup mode
+        public WarmupModeEntry Default { get; set; } = new WarmupModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg" }; // Default warmup mode
         public List<WarmupModeEntry> List { get; set; } = new List<WarmupModeEntry>()
         {
             new WarmupModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg"},
@@ -111,12 +111,12 @@ namespace GameModeManager
     {
         public bool Enabled { get; set; } = true; // Enables game rotations
         public int Cycle { get; set; } = 0; // 0 for current mode maps, 1 for all maps, 2 for specific map groups
-        public List<string> MapGroups { get; set;} = new List<string>(){"mg_active", "mg_comp"}; // Map group list for cycle 2
+        public List<string> MapGroups { get; set; } = new List<string>() { "mg_active", "mg_comp" }; // Map group list for cycle 2
         public bool WhenServerEmpty { get; set; } = false; // Enables rotation on server empty. 
         public int CustomTimeLimit { get; set; } = 600; // Sets custom time limit in seconds for rotation when server empty
         public bool ModeRotation { get; set; } = false; // Enables game mode rotations
         public int ModeInterval { get; set; } = 4; // Changes mode every x map rotations
-        public bool ModeSchedules {get; set;} = false; // Enables or disables mode schedules
+        public bool ModeSchedules { get; set; } = false; // Enables or disables mode schedules
         public List<ScheduleEntry> Schedule { get; set; } = new List<ScheduleEntry>()
         {
             new ScheduleEntry() { Time = "10:00", Mode = "Casual" },
@@ -129,16 +129,16 @@ namespace GameModeManager
     public class GameModeSettings
     {
         public string Style { get; set; } = "wasd"; // Changes mode menu type (i.e. "chat", "center" or "wasd")
-        public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Casual", Config = "casual.cfg", MapGroups = new List<string>(){"mg_active", "mg_comp"} }; // Default mode on server start
+        public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Casual", Config = "casual.cfg", MapGroups = new List<string>() { "mg_active", "mg_comp" } }; // Default mode on server start
         public string MapGroupFile { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
-        
+
         public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
         {
             new ModeEntry() { Name = "45", Config = "45.cfg", DefaultMap = "3276886893", MapGroups = new List<string>(){"mg_45"} },
             new ModeEntry() { Name = "1v1", Config = "1v1.cfg", DefaultMap = "3070253400", MapGroups = new List<string>(){"mg_1v1"}},
             new ModeEntry() { Name = "Armsrace", Config = "ar.cfg", DefaultMap = "ar_pool_day", MapGroups = new List<string>(){"mg_gg"}},
             new ModeEntry() { Name = "Awp", Config = "awp.cfg", DefaultMap = "3142070597", MapGroups = new List<string>(){"mg_awp"}},
-            new ModeEntry() { Name = "Aim", Config = "aim.cfg",  DefaultMap = "3084291314", MapGroups = new List<string>(){"mg_aim"}},
+            new ModeEntry() { Name = "Aim", Config = "aim.cfg", DefaultMap = "3084291314", MapGroups = new List<string>(){"mg_aim"}},
             new ModeEntry() { Name = "Battle", Config = "battle.cfg", DefaultMap = "3070253400", MapGroups = new List<string>(){"mg_battle"}},
             new ModeEntry() { Name = "Battle Royale", Config = "br.cfg", DefaultMap = "3070253400", MapGroups = new List<string>(){"mg_battleroyale"}},
             new ModeEntry() { Name = "Bhop", Config = "bhop.cfg", DefaultMap = "3088973190", MapGroups = new List<string>(){"mg_bhop"}},
@@ -157,7 +157,7 @@ namespace GameModeManager
             new ModeEntry() { Name = "Minigames", Config = "minigames.cfg", DefaultMap = "3082120895", MapGroups = new List<string>(){"mg_minigames"}},
             new ModeEntry() { Name = "Practice", Config = "prac.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_comp"}},
             new ModeEntry() { Name = "Prefire", Config = "prefire.cfg", DefaultMap = "de_inferno", MapGroups = new List<string>(){"mg_comp"} },
-            new ModeEntry() { Name = "Retakes", Config = "retake.cfg",  DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_comp"}},
+            new ModeEntry() { Name = "Retakes", Config = "retake.cfg", DefaultMap = "de_dust2", MapGroups = new List<string>(){"mg_comp"}},
             new ModeEntry() { Name = "ScoutzKnivez", Config = "scoutzknivez.cfg", DefaultMap = "3073929825", MapGroups = new List<string>(){"mg_scoutzknivez"}},
             new ModeEntry() { Name = "Surf", Config = "surf.cfg", DefaultMap = "3082548297", MapGroups = new List<string>(){"mg_surf"}},
             new ModeEntry() { Name = "Soccer", Config = "soccer.cfg", DefaultMap = "3070198374", MapGroups = new List<string>(){"mg_soccer"}},
@@ -169,60 +169,68 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-         public int Version { get; set; } = 10;
-         public RTVSettings RTV { get; set; } = new();
-         public MapSettings Maps { get; set; } = new();
-         public VoteSettings Votes { get; set; } = new();
-         public GameSettings Settings { get; set; } = new();
-         public WarmupSettings Warmup { get; set; } = new();
-         public CommandSettings Commands { get; set; } = new();
-         public RotationSettings Rotation { get; set; } = new();
-         public GameModeSettings GameModes { get; set; } = new();
+        public int Version { get; set; } = 10;
+        public RTVSettings RTV { get; set; } = new();
+        public MapSettings Maps { get; set; } = new();
+        public VoteSettings Votes { get; set; } = new();
+        public GameSettings Settings { get; set; } = new();
+        public WarmupSettings Warmup { get; set; } = new();
+        public CommandSettings Commands { get; set; } = new();
+        public RotationSettings Rotation { get; set; } = new();
+        public GameModeSettings GameModes { get; set; } = new();
     }
 
     // Define plugin class for parsing config
     public partial class Plugin : IPluginConfig<Config>
-    {   
+    {
         public required Config Config { get; set; }
 
         // Perform error checking
         public void OnConfigParsed(Config _config)
-        {  
+        {
             // Maps settings
-            if (!_config.Maps.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase)) 
+            if (!_config.Maps.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
             {
-                Logger.LogError("Invalid: Style must be 'center', 'chat', or 'wasd'");
-                throw new Exception("Invalid: Style must be 'center', 'chat', or 'wasd'");
+                Logger.LogError("Invalid: Maps Style must be 'center', 'chat', or 'wasd'");
+                throw new Exception("Invalid: Maps Style must be 'center', 'chat', or 'wasd'");
             }
-            if (String.IsNullOrEmpty(_config.Maps.Default)) 
+            if (String.IsNullOrEmpty(_config.Maps.Default))
             {
                 Logger.LogError("Invalid: Default map must not be empty.");
                 throw new Exception("Invalid: Default map must not be empty.");
+            }
+            if (_config.Maps.Mode != 0 && _config.Maps.Mode != 1)
+            {
+                Logger.LogError("Invalid: Maps Mode must be 0 or 1.");
+                throw new Exception("Invalid: Maps Mode must be 0 or 1.");
+            }
+            if (_config.Maps.Delay < 0)
+            {
+                Logger.LogError("Invalid: Maps Delay cannot be negative.");
+                throw new Exception("Invalid: Maps Delay cannot be negative.");
             }
 
             // Vote Settings
             if (!_config.Votes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
             {
-                Logger.LogError("Invalid: Style must be 'center', 'chat', or 'wasd'");
-                throw new Exception("Invalid: Style must be 'center', 'chat', or 'wasd'");
+                Logger.LogError("Invalid: Vote Style must be 'center', 'chat', or 'wasd'");
+                throw new Exception("Invalid: Vote Style must be 'center', 'chat', or 'wasd'");
             }
 
             // Game Settings
-            if (_config.Settings.Enabled)
+            if (!_config.Settings.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Settings.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Settings.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
             {
-                if (Directory.Exists(Path.Combine(PluginState.ConfigDirectory, _config.Settings.Folder)))
-                {
-                    PluginState.SettingsDirectory = Path.Join(PluginState.ConfigDirectory, _config.Settings.Folder);
-                }
-                else
-                {
-                    Logger.LogError($"Cannot find 'Settings Folder': {PluginState.SettingsDirectory}");
-                    throw new Exception($"Cannot find 'Settings Folder': {PluginState.SettingsDirectory}");
-                }
+                Logger.LogError("Invalid: Maps Style must be 'center', 'chat', or 'wasd'");
+                throw new Exception("Invalid: Maps Style must be 'center', 'chat', or 'wasd'");
+            }
+            if (_config.Settings.Enabled && !Directory.Exists(Path.Combine(PluginState.ConfigDirectory, _config.Settings.Folder)))
+            {
+                Logger.LogError($"Cannot find 'Settings Folder': {PluginState.SettingsDirectory}");
+                throw new Exception($"Cannot find 'Settings Folder': {PluginState.SettingsDirectory}");
             }
 
             // Game mode settings
-            if (File.Exists(Path.Join(PluginState.GameDirectory, _config.GameModes.MapGroupFile)))  
+            if (File.Exists(Path.Join(PluginState.GameDirectory, _config.GameModes.MapGroupFile)))
             {
                 _config.GameModes.MapGroupFile = Path.Join(PluginState.GameDirectory, _config.GameModes.MapGroupFile);
             }
@@ -231,25 +239,25 @@ namespace GameModeManager
                 Logger.LogError($"Cannot find map group file: {_config.GameModes.MapGroupFile}");
                 throw new Exception($"Cannot find map group file: {_config.GameModes.MapGroupFile}");
             }
-            
-            if(_config.GameModes.List.Count == 0)
+
+            if (_config.GameModes.List.Count == 0)
             {
                 Logger.LogError("Undefined: Game modes list cannot be empty.");
                 throw new Exception("Undefined: Game modes list cannot be empty.");
             }
-            
-            if (_config.GameModes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.GameModes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.GameModes.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase)) 
+
+            if (_config.GameModes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.GameModes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.GameModes.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
             {
-                Logger.LogError("Invalid: Style must be 'center' or 'chat'");
-                throw new Exception("Invalid: Style must be 'center' or 'chat'");
+                Logger.LogError("Invalid: GameModes Style must be 'center' or 'chat'");
+                throw new Exception("Invalid: GameModes Style must be 'center' or 'chat'");
             }
 
-            if (_config.GameModes.Default.Equals(null)) 
+            if (_config.GameModes.Default == null)
             {
                 Logger.LogError("Invalid: Default game mode must not be empty.");
                 throw new Exception("Invalid: Default game mode must not be empty.");
             }
-           
+
             // Rotation settings
             if (_config.Rotation.Cycle != 0 && _config.Rotation.Cycle != 1 && _config.Rotation.Cycle != 2)
             {
@@ -264,6 +272,95 @@ namespace GameModeManager
                     Logger.LogError("Invalid: Schedule cannot be empty");
                     throw new Exception("Invalid: Schedule cannot be empty");
                 }
+            }
+            if (_config.Rotation.CustomTimeLimit < 0)
+            {
+                Logger.LogError("Invalid: Rotation CustomTimeLimit cannot be negative.");
+                throw new Exception("Invalid: Rotation CustomTimeLimit cannot be negative.");
+            }
+            if (_config.Rotation.ModeInterval <= 0)
+            {
+                Logger.LogError("Invalid: Rotation ModeInterval must be greater than 0.");
+                throw new Exception("Invalid: Rotation ModeInterval must be greater than 0.");
+            }
+
+            // RTV Settings
+            if (!_config.RTV.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.RTV.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
+            {
+                Logger.LogError("Invalid: RTV Style must be 'center', 'chat', or 'wasd'");
+                throw new Exception("Invalid: RTV Style must be 'center', 'chat', or 'wasd'");
+            }
+
+            if (_config.RTV.MinRounds < 0) {
+                Logger.LogError("Invalid: MinRounds cannot be negative.");
+                throw new Exception("Invalid: MinRounds cannot be negative.");
+            }
+
+            if (_config.RTV.MinPlayers < 0) {
+                Logger.LogError("Invalid: MinPlayers cannot be negative.");
+                throw new Exception("Invalid: MinPlayers cannot be negative.");
+            }
+
+            if (_config.RTV.VoteDuration <= 0) {
+                Logger.LogError("Invalid: VoteDuration must be greater than 0.");
+                throw new Exception("Invalid: VoteDuration must be greater than 0.");
+            }
+
+            if (_config.RTV.OptionsToShow <= 0) {
+                Logger.LogError("Invalid: OptionsToShow must be greater than 0.");
+                throw new Exception("Invalid: OptionsToShow must be greater than 0.");
+            }
+
+            if (_config.RTV.VotePercentage <= 0 || _config.RTV.VotePercentage > 100) {
+                Logger.LogError("Invalid: VotePercentage must be between 1 and 100.");
+                throw new Exception("Invalid: VotePercentage must be between 1 and 100.");
+            }
+
+            if (_config.RTV.OptionsInCoolDown < 0) {
+                Logger.LogError("Invalid: OptionsInCoolDown cannot be negative.");
+                throw new Exception("Invalid: OptionsInCoolDown cannot be negative.");
+            }
+
+            if (_config.RTV.MaxExtends < 0) {
+                Logger.LogError("Invalid: MaxExtends cannot be negative.");
+                throw new Exception("Invalid: MaxExtends cannot be negative.");
+            }
+
+            if (_config.RTV.ExtendTime <= 0) {
+                Logger.LogError("Invalid: ExtendTime must be greater than 0.");
+                throw new Exception("Invalid: ExtendTime must be greater than 0.");
+            }
+
+            if (_config.RTV.ExtendRounds < 0) {
+                Logger.LogError("Invalid: ExtendRounds cannot be negative.");
+                throw new Exception("Invalid: ExtendRounds cannot be negative.");
+            }
+
+            if (_config.RTV.ModePercentage <= 0 || _config.RTV.ModePercentage > 100) {
+                Logger.LogError("Invalid: ModePercentage must be between 1 and 100.");
+                throw new Exception("Invalid: ModePercentage must be between 1 and 100.");
+            }
+
+            if (_config.RTV.MaxNominationWinners < 0) {
+                Logger.LogError("Invalid: MaxNominationWinners cannot be negative.");
+                throw new Exception("Invalid: MaxNominationWinners cannot be negative.");
+            }
+
+            if (_config.RTV.TriggerRoundsBeforeEnd < 0) {
+                Logger.LogError("Invalid: TriggerRoundsBeforeEnd cannot be negative.");
+                throw new Exception("Invalid: TriggerRoundsBeforeEnd cannot be negative.");
+            }
+
+            if (_config.RTV.TriggerSecondsBeforeEnd < 0) {
+                Logger.LogError("Invalid: TriggerSecondsBeforeEnd cannot be negative.");
+                throw new Exception("Invalid: TriggerSecondsBeforeEnd cannot be negative.");
+            }
+
+            // Warmup Settings
+            if (_config.Warmup.Time < 0)
+            {
+                Logger.LogError("Invalid: Warmup Time cannot be negative.");
+                throw new Exception("Invalid: Warmup Time cannot be negative.");
             }
 
             // Config version check

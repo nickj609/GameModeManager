@@ -4,6 +4,7 @@ using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
+using Microsoft.Extensions.Logging;
 
 // Declare namespace
 namespace GameModeManager.Features
@@ -15,12 +16,14 @@ namespace GameModeManager.Features
         private Plugin? _plugin;
         private RTVManager _rtvManager;
         private PluginState _pluginState;
+        private ILogger<RTVCommands> _logger;
         private Config _config = new Config();
         private AsyncVoteManager _asyncVoteManager;
 
         // Define class instance
-        public RTVCommands(PluginState pluginState, RTVManager rtvManager, AsyncVoteManager asyncVoteManager)
+        public RTVCommands(PluginState pluginState, RTVManager rtvManager, AsyncVoteManager asyncVoteManager, ILogger<RTVCommands> logger)
         {
+            _logger = logger;
             _rtvManager = rtvManager;
             _pluginState = pluginState;
             _asyncVoteManager = asyncVoteManager;
@@ -64,6 +67,10 @@ namespace GameModeManager.Features
                 {
                     _pluginState.RTVDuration = duration;
                 }
+                else
+                {
+                    _logger.LogWarning("RTV: Invalid duration. Use a number.");
+                }
             }
             return;
         }
@@ -77,6 +84,10 @@ namespace GameModeManager.Features
                 if (int.TryParse(command.ArgByIndex(1), out var seconds))
                 {
                     _pluginState.RTVSecondsBeforeEnd = seconds;
+                }
+                else
+                {
+                    _logger.LogWarning("RTV: Invalid seconds before end. Use a number.");
                 }
             }
             return;
@@ -92,6 +103,10 @@ namespace GameModeManager.Features
                 {
                     _pluginState.RTVRoundsBeforeEnd = rounds;
                 }
+                else
+                {
+                    _logger.LogWarning("RTV: Invalid rounds before end. Use a number.");
+                }
             }
             return;
         }
@@ -106,6 +121,10 @@ namespace GameModeManager.Features
                 {
                     _pluginState.EndOfMapVote = endOfMapVote;
                 }
+                else
+                {
+                    _logger.LogWarning("RTV: Invalid option for end of map vote. Use true or false.");
+                }
             }
             return;
         }
@@ -119,13 +138,32 @@ namespace GameModeManager.Features
                 if (int.TryParse(command.ArgByIndex(1), out var duration))
                 {
                     _pluginState.RTVDuration = duration;
+                    
+                }
+                else
+                {
+                    _logger.LogWarning("RTV: Invalid duration. Use a number.");
+                    return;
                 }
 
                 if (bool.TryParse(command.ArgByIndex(2), out var changeImmediately))
                 {
                     _pluginState.ChangeImmediately = changeImmediately;
                 }
-                _asyncVoteManager.StartVote(null, null);
+                else
+                {
+                    _logger.LogWarning("RTV: Invalid option for change immediately. Use true or false.");
+                    return;
+                }
+
+                if (!_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
+                {
+                    _asyncVoteManager.StartVote(null, null);
+                }
+                else
+                {
+                    _logger.LogWarning("RTV: Vote already started or in progress.");
+                }
             }
             return;
         }
@@ -139,6 +177,10 @@ namespace GameModeManager.Features
                 if (bool.TryParse(command.ArgByIndex(1), out var extend))
                 {
                     _pluginState.IncludeExtend = extend;
+                }
+                else
+                {
+                    _logger.LogWarning("RTV: Invalid option for extend. Use true or false.");
                 }
             }
             return;
@@ -154,6 +196,10 @@ namespace GameModeManager.Features
                 {
                     _pluginState.MaxExtends = extends;
                 }
+                else
+                {
+                    _logger.LogWarning("RTV: Invalid max extends. Use a number.");
+                }
             }
             return;
         }
@@ -165,6 +211,10 @@ namespace GameModeManager.Features
             if (player != null)
             {
                 _asyncVoteManager.RTVCounter(player);
+            }
+            else
+            {
+                _logger.LogWarning("RTV: Invalid player. Use a player.");
             }
             return;
         }

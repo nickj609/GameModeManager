@@ -96,11 +96,11 @@ namespace GameModeManager.Features
                 }
                 else if (_pluginState.CurrentMode == _mode)
                 {
-                    command.ReplyToCommand($"The mode is already set to {_mode.Name}.");
+                    _logger.LogWarning($"The mode is already set to {_mode.Name}.");
                 }
                 else if (_mode == null)
                 {
-                    _logger.LogError($"Cannot find game mode {command.ArgByIndex(1)}.");
+                    _logger.LogWarning($"Cannot find game mode {command.ArgByIndex(1)}.");
                 }
             }
         }
