@@ -1,0 +1,81 @@
+name: Create New Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'GameModeManager/Plugin.cs'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Get current ModuleVersion from Plugin.cs
+        id: get_current_version
+        run: |
+          VERSION=$(grep -oP 'ModuleVersion => "\K[^"]+' GameModeManager/Plugin.cs)
+          echo "current_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get previous ModuleVersion from Plugin.cs
+        id: get_previous_version
+        run: |
+          VERSION=$(git show HEAD~1:GameModeManager/Plugin.cs | grep -oP 'ModuleVersion => "\K[^"]+')
+          echo "previous_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if version changed
+        id: check_version_change
+        run: |
+          CURRENT_VERSION="${{ steps.get_current_version.outputs.current_version }}"
+          PREVIOUS_VERSION="${{ steps.get_previous_version.outputs.previous_version }}"
+          if [[ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]]; then
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.407' # Adjust to your project's .NET version
+
+      - name: Restore dependencies
+        run: dotnet restore GameModeManager.sln
+
+      - name: Build solution
+        run: dotnet build --configuration Debug GameModeManager.sln
+
+      - name: Create ZIP archive
+        if: ${{ steps.check_version_change.outputs.version_changed == 'true' }}
+        run: |
+          zip -r GameModeManager_v${{ steps.get_current_version.outputs.current_version }}.zip bin/Debug/net8.0/Public
+
+      - name: Create Release
+        if: ${{ steps.check_version_change.outputs.version_changed == 'true' }}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_current_version.outputs.current_version }}
+          release_name: Release Game Mode Manager v${{ steps.get_current_version.outputs.current_version }}
+          body: |
+            New release of Game Mode Manager v${{ steps.get_current_version.outputs.current_version }}.
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        if: ${{ steps.check_version_change.outputs.version_changed == 'true' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: GameModeManager_v${{ steps.get_current_version.outputs.current_version }}.zip
+          asset_name: GameModeManager_v${{ steps.get_current_version.outputs.current_version }}.zip
+          asset_content_type: application/zip
