@@ -1,10 +1,10 @@
-name: Version Check
+name: VersionCheck
 on:
   push:
     branches:
       - main
 jobs:
-  check_version:
+  VersionCheck:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
