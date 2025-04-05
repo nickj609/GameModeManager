@@ -19,13 +19,13 @@ jobs:
       - name: Get Current Version from SECURITY.md
         id: get_security_current_version
         run: |
-          VERSION=$(grep -oP 'Current Version: \K[^ ]+' SECURITY.md)
+          VERSION=$(grep -oP '\- v\K[^ ]+(?= \*\*\(Current Version\)\*\*)' SECURITY.md)
           echo "security_current_version=$VERSION" >> $GITHUB_OUTPUT
-
+      
       - name: Get Previous Version from SECURITY.md
         id: get_security_previous_version
         run: |
-          VERSION=$(grep -oP 'Previous Major Version: \K[^ ]+' SECURITY.md)
+          VERSION=$(grep -oP '\- v\K[^ ]+(?= \*\*\(Previous Major Version\)\*\*)' SECURITY.md)
           echo "security_previous_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Calculate Expected Previous Version
