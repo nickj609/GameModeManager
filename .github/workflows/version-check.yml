@@ -1,0 +1,37 @@
+name: Version Check
+on:
+  push:
+    branches:
+      - main
+jobs:
+  check_version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Get ModuleVersion from Plugin.cs
+        id: get_plugin_version
+        run: |
+          VERSION=$(grep -oP 'ModuleVersion => "\K[^"]+' GameModeManager/Plugin.cs)
+          echo "plugin_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get version from SECURITY.md
+        id: get_security_version
+        run: |
+          VERSION=$(grep -oP 'Current Version: \K[^ ]+' SECURITY.md)
+          echo "security_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check version consistency
+        run: |
+          PLUGIN_VERSION="${{ steps.get_plugin_version.outputs.plugin_version }}"
+          SECURITY_VERSION="${{ steps.get_security_version.outputs.security_version }}"
+
+          if [[ "$PLUGIN_VERSION" != "$SECURITY_VERSION" ]]; then
+            echo "Version mismatch detected!"
+            echo "Plugin.cs version: $PLUGIN_VERSION"
+            echo "SECURITY.md version: $SECURITY_VERSION"
+            exit 1 # Fail the workflow, preventing merge
+          else
+            echo "Versions are consistent."
+          fi
