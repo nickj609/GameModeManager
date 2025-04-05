@@ -21,7 +21,7 @@ jobs:
         run: |
           VERSION=$(grep -oP '\- v\K[^ ]+(?= \*\*\(Current Version\)\*\*)' SECURITY.md)
           echo "security_current_version=$VERSION" >> $GITHUB_OUTPUT
-      
+        
       - name: Get Previous Version from SECURITY.md
         id: get_security_previous_version
         run: |
@@ -48,19 +48,38 @@ jobs:
           fi
           echo "expected_previous_version=$EXPECTED_PREVIOUS_VERSION" >> $GITHUB_OUTPUT
 
+      - name: Get ConfigVersion from Config.cs (Class Definition)
+        id: get_config_class_version
+        run: |
+          CONFIG_CLASS_VERSION=$(grep -oP 'public int Version { get; set; } = \K\d+' GameModeManager/Config.cs)
+          echo "config_class_version=$CONFIG_CLASS_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get ConfigVersion from Config.cs (OnConfigParsed)
+        id: get_config_parsed_version
+        run: |
+          CONFIG_PARSED_VERSION=$(grep -oP 'if \(_config.Version < \K\d+\)' GameModeManager/Plugin.cs)
+          echo "config_parsed_version=$CONFIG_PARSED_VERSION" >> $GITHUB_OUTPUT
+
       - name: Check version consistency
         run: |
           PLUGIN_VERSION="${{ steps.get_plugin_version.outputs.plugin_version }}"
           SECURITY_CURRENT_VERSION="${{ steps.get_security_current_version.outputs.security_current_version }}"
           SECURITY_PREVIOUS_VERSION="${{ steps.get_security_previous_version.outputs.security_previous_version }}"
           EXPECTED_PREVIOUS_VERSION="${{ steps.calculate_previous_version.outputs.expected_previous_version }}"
+          CONFIG_CLASS_VERSION="${{ steps.get_config_class_version.outputs.config_class_version }}"
+          CONFIG_PARSED_VERSION="${{ steps.get_config_parsed_version.outputs.config_parsed_version }}"
 
           if [[ "$PLUGIN_VERSION" != "$SECURITY_CURRENT_VERSION" || "$SECURITY_PREVIOUS_VERSION" != "$EXPECTED_PREVIOUS_VERSION" ]]; then
-            echo "Version mismatch detected!"
+            echo "Plugin version mismatch detected!"
             echo "Plugin.cs version: $PLUGIN_VERSION"
             echo "SECURITY.md Current Version: $SECURITY_CURRENT_VERSION"
             echo "SECURITY.md Previous Version: $SECURITY_PREVIOUS_VERSION"
             echo "Expected Previous Version: $EXPECTED_PREVIOUS_VERSION"
+            exit 1 # Fail the workflow, preventing merge
+          elif [[ "$CONFIG_CLASS_VERSION" != "$CONFIG_PARSED_VERSION" ]]; then
+            echo "Config version mismatch detected!"
+            echo "Config.cs (Class) Version: $CONFIG_CLASS_VERSION"
+            echo "Config.cs (Parsed) Version: $CONFIG_PARSED_VERSION"
             exit 1 # Fail the workflow, preventing merge
           else
             echo "Versions are consistent."
