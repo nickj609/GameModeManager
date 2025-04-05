@@ -57,7 +57,7 @@ jobs:
       - name: Get ConfigVersion from Config.cs (OnConfigParsed)
         id: get_config_parsed_version
         run: |
-          CONFIG_PARSED_VERSION=$(grep -oP 'if \(_config.Version < \K\d+\)' GameModeManager/Plugin.cs)
+          CONFIG_PARSED_VERSION=$(grep -oP 'if\s*\(_config\.Version\s*<\s*\K\d+' GameModeManager/Plugin.cs)
           echo "config_parsed_version=$CONFIG_PARSED_VERSION" >> $GITHUB_OUTPUT
 
       - name: Check version consistency
