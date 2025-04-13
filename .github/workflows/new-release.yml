@@ -7,6 +7,7 @@ on:
       - 'GameModeManager/Plugin.cs'
 jobs:
   NewRelease:
+    if: false
     runs-on: ubuntu-latest
 
     steps:
