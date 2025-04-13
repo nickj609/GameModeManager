@@ -70,12 +70,20 @@ namespace GameModeManager.Core
         {
             if (_pluginState.RTVEnabled)
             {
+                if (voted.Count > 0)
+                {
+                    voted.Clear();
+                }
+
+                if(_pluginState.Votes.Count > 0)
+                {
+                    _pluginState.Votes.Clear();
+                }
+                
                 timeLeft = 0;
-                voted.Clear();
                 percent = 0;
                 maxVotes = 0;
                 totalVotes = 0;
-                _pluginState.Votes.Clear();
                 _pluginState.RTVWinner = "";
                 _pluginState.NextMap = null;
                 _pluginState.NextMode = null;
@@ -112,7 +120,11 @@ namespace GameModeManager.Core
 
         public void StartVote(int delay)
         {
-            voted.Clear();
+            if (voted.Count > 0)
+            {
+                voted.Clear();
+            }
+
             _pluginState.EofVoteHappening = true;
             _plugin?.RegisterListener<Listeners.OnTick>(VoteResults);
 
@@ -232,6 +244,7 @@ namespace GameModeManager.Core
             }
             else
             {
+                _pluginState.EofVoteHappened = true;
                 _logger.LogError($"RTV: Map or mode {_pluginState.RTVWinner} not found");
             }
             _pluginState.EofVoteHappening = false;
