@@ -18,18 +18,18 @@ namespace GameModeManager.Features
         private GameRules _gameRules;
         private Config _config = new();
         private PluginState _pluginState;
-        private VoteManager _voteManager;
-        private TimeLimitManager _timeLimit;
-        private MaxRoundsManager _maxRounds;
+        private TimeLimitManager _timeLimitManager;
+        private MaxRoundsManager _maxRoundsManager;
+        private AsyncVoteManager _asyncVoteManager;
 
         // Define class instance
-        public EndOfMapVote(TimeLimitManager timeLimit, MaxRoundsManager maxRounds, PluginState pluginState, GameRules gameRules, VoteManager voteManager)
+        public EndOfMapVote(TimeLimitManager timeLimitManager, MaxRoundsManager maxRoundsManager, PluginState pluginState, GameRules gameRules, AsyncVoteManager asyncVoteManager)
         {
-            _timeLimit = timeLimit;
-            _maxRounds = maxRounds;
             _gameRules = gameRules;
             _pluginState = pluginState;
-            _voteManager = voteManager;
+            _timeLimitManager = timeLimitManager;
+            _maxRoundsManager = maxRoundsManager;
+            _asyncVoteManager = asyncVoteManager;
         }
 
         // Define class properties
@@ -77,36 +77,47 @@ namespace GameModeManager.Features
             KillTimer();
             if (_pluginState.EndOfMapVote && !_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
             {
-                _voteManager.StartVote(_pluginState.RTVDuration);
+                _asyncVoteManager.StartVote(null, null);
             }
         }
 
         bool CheckTimeLeft()
         {
-            return !_timeLimit.UnlimitedTime() && _timeLimit.TimeRemaining() <= _pluginState.RTVSecondsBeforeEnd;
+            return !_timeLimitManager.UnlimitedTime() && _timeLimitManager.TimeRemaining() <= _pluginState.RTVSecondsBeforeEnd;
         }
 
         bool CheckMaxRounds()
         {
-            if (_maxRounds.UnlimitedRounds)
+            if (_maxRoundsManager.UnlimitedRounds)
             {
                 return false;
             }
-            if (_maxRounds.RemainingRounds <= _pluginState.RTVRoundsBeforeEnd)
+            if (_maxRoundsManager.RemainingRounds <= _pluginState.RTVRoundsBeforeEnd)
             {
                 return true;
             }
-            return _maxRounds.CanClinch && _maxRounds.RemainingWins <= _pluginState.RTVRoundsBeforeEnd;
+            return _maxRoundsManager.CanClinch && _maxRoundsManager.RemainingWins <= _pluginState.RTVRoundsBeforeEnd;
         }
 
         public void StartTimer()
         {
             KillTimer();
-            if (!_timeLimit.UnlimitedTime() && _pluginState.EndOfMapVote)
+            if (!_timeLimitManager.UnlimitedTime() && _pluginState.EndOfMapVote)
             {
                 timer = _plugin?.AddTimer(1.0F, () =>
                 {
-                    if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimit.TimeRemaining() > 0)
+                    if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimitManager.TimeRemaining() > 0)
+                    {
+                        if (CheckTimeLeft())
+                            StartVote();
+                    }
+                }, TimerFlags.REPEAT);
+            }
+            else if (!_maxRoundsManager.UnlimitedRounds && _pluginState.EndOfMapVote)
+            {
+                timer = _plugin?.AddTimer(1.0F, () =>
+                {
+                    if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimitManager.TimeRemaining() > 0 && _pluginState.TimeLimitCustom)
                     {
                         if (CheckTimeLeft())
                             StartVote();
