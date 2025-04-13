@@ -117,7 +117,7 @@ namespace GameModeManager.Features
         {
             if (player == null)
             { 
-                if (bool.TryParse(command.ArgByIndex(2), out var endOfMapVote))
+                if (bool.TryParse(command.ArgByIndex(1), out var endOfMapVote))
                 {
                     _pluginState.EndOfMapVote = endOfMapVote;
                 }
