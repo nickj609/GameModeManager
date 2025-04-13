@@ -152,14 +152,14 @@ namespace GameModeManager.CrossCutting
                     Random _rnd = new Random();
                     int _randomIndex = _rnd.Next(0, _pluginState.Modes.Count); 
                     Mode _randomMode = _pluginState.Modes[_randomIndex];
-                    _logger.LogInformation("Game has ended. Picking random game mode...");
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing mode..."));  
+                    _logger.LogDebug("Game has ended. Picking random game mode...");
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", _randomMode.Name));  
                     ChangeMode(_randomMode);
                 }
                 else
                 {
                     Map _randomMap = GetRandomMap(_pluginState.CurrentMode);
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("Game has ended. Changing map..."));
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-map", _randomMap.DisplayName));
                     ChangeMap(_randomMap, _config.Maps.Delay);
                 }
                 _pluginState.MapRotations++;
@@ -170,10 +170,12 @@ namespace GameModeManager.CrossCutting
                 {
                     if (_pluginState.NextMode != null)
                     {
+                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", _pluginState.NextMode.Name));
                         ChangeMode(_pluginState.NextMode); 
                     }
                     else if(_pluginState.NextMap != null)
                     {
+                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-map", _pluginState.NextMap.DisplayName));
                         ChangeMap(_pluginState.NextMap, _config.Maps.Delay);
                     }
                 }
