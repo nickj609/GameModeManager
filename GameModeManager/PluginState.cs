@@ -40,7 +40,7 @@ namespace GameModeManager
         public Map? NextMap;
         public Mode? NextMode;
         public int InCoolDown = 0;
-        public int TimeLimit = 120;
+        public float TimeLimit = 120;
         public int MapExtends = 0;
         public int MaxExtends = 0;
         public int RTVDuration = 60;
@@ -72,6 +72,7 @@ namespace GameModeManager
         public List<Mode> WarmupModes = new();
         public List<Setting> Settings = new();
         public List<MapGroup> MapGroups = new();
+        public float CustomTimeLimitStartTime = 0f;
         public Dictionary<string, int> Votes = new();
         public List<string> OptionsOnCoolDown = new();
         public List<string> PlayerCommands = new()
