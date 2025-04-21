@@ -96,7 +96,6 @@ namespace GameModeManager.Core
         }
 
         // Define command handlers
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnNextMapCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -117,7 +116,6 @@ namespace GameModeManager.Core
             }
         }
 
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnNextModeCommand(CCSPlayerController? player, CommandInfo command)
         {

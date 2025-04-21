@@ -67,7 +67,6 @@ namespace GameModeManager.Features
         }
 
         // Define command handler
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnNominateCommand(CCSPlayerController? player, CommandInfo command)
         {

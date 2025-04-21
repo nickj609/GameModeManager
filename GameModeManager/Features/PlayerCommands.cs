@@ -68,7 +68,6 @@ namespace GameModeManager.Features
         }
 
         // Define command handlers
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeMapCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -115,7 +114,6 @@ namespace GameModeManager.Features
             }   
         }
 
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeModeCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -141,7 +139,6 @@ namespace GameModeManager.Features
             } 
         }
 
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeSettingCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -171,7 +168,6 @@ namespace GameModeManager.Features
             }
         }
 
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnGameCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -201,7 +197,6 @@ namespace GameModeManager.Features
             }
         }
 
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnCurrentMapCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -211,7 +206,6 @@ namespace GameModeManager.Features
             }
         }
 
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnCurrentModeCommand(CCSPlayerController? player, CommandInfo command)
         {

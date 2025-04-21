@@ -49,7 +49,7 @@ namespace GameModeManager.Features
         }
 
         // Define command handlers
-        [RequiresPermissions("@css/changemap")]
+        [RequiresPermissions("@css/cvar")]
         [CommandHelper(minArgs: 1, usage: "<enable|disable> <setting name>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -83,7 +83,7 @@ namespace GameModeManager.Features
             }
         }
 
-        [RequiresPermissions("@css/changemap")]
+        [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {

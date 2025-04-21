@@ -53,7 +53,7 @@ namespace GameModeManager.Features
         }
 
         // Define admin map menu command handler
-        [RequiresPermissions("@css/changemap")]
+        [RequiresPermissions("@css/cvar")]
         [CommandHelper(minArgs: 1, usage: "<true|false> optional: <seconds>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnTimeLimitCommand(CCSPlayerController? player, CommandInfo command)
         {

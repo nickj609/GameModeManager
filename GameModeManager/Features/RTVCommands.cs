@@ -204,7 +204,6 @@ namespace GameModeManager.Features
             return;
         }
 
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnRTVCommand(CCSPlayerController? player, CommandInfo command)
         {
