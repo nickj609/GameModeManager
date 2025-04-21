@@ -126,7 +126,11 @@ namespace GameModeManager.Core
             }
 
             _pluginState.EofVoteHappening = true;
-            _plugin?.RegisterListener<Listeners.OnTick>(VoteResults);
+
+            if(!_config.RTV.HideHud)
+            {
+                _plugin?.RegisterListener<Listeners.OnTick>(VoteResults);
+            }
 
             timeLeft = delay;
             timer = _plugin!.AddTimer(1.0F, () =>
@@ -171,10 +175,13 @@ namespace GameModeManager.Core
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.vote-ended-no-votes", winner.Key));
             }
 
-            _plugin!.AddTimer(5F, () =>
+            if(!_config.RTV.HideHud)
             {
-                _plugin?.RemoveListener<Listeners.OnTick>(VoteResults);
-            });
+                _plugin!.AddTimer(5F, () =>
+                {
+                    _plugin?.RemoveListener<Listeners.OnTick>(VoteResults);
+                });
+            }
 
             if (_voteOptionManager.OptionType(_pluginState.RTVWinner) == "mode")
             {
@@ -315,7 +322,7 @@ namespace GameModeManager.Core
                         stringBuilder.AppendFormat($"<br><font color='yellow'>!{index++}</font> {kv.Key} <font color='green'>({kv.Value})</font>");
                     }
                 }
-
+                
                 foreach (CCSPlayerController player in Extensions.ValidPlayers().Where(x => !voted.Contains(x.UserId!.Value)))
                 {
                     player.PrintToCenterHtml(stringBuilder.ToString());
