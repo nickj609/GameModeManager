@@ -8,7 +8,6 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
-
 // Declare namespace
 namespace GameModeManager.Features
 {

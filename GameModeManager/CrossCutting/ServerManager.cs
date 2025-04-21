@@ -32,7 +32,7 @@ namespace GameModeManager.CrossCutting
             _config = config;
         }
 
-        // Define method to change map
+        // Define class methods
         public void ChangeMap(Map nextMap, int delay)
         {
             // Disable warmup
@@ -87,7 +87,6 @@ namespace GameModeManager.CrossCutting
             }, "Map changing in ");
         }
 
-        // Define method to change mode
         public void ChangeMode(Mode mode)
         {
             _logger.LogInformation($"Current mode: {_pluginState.CurrentMode.Name}");
@@ -142,7 +141,6 @@ namespace GameModeManager.CrossCutting
             ChangeMap(nextMap, _config.Maps.Delay);
         }
 
-        // Define method to trigger mode and map rotations
         public void TriggerRotation()
         {  
             if(_pluginState.RotationsEnabled)
@@ -182,7 +180,6 @@ namespace GameModeManager.CrossCutting
             }
         }
 
-        // Define method to trigger schedule change
         public void TriggerScheduleChange(ScheduleEntry state)
         {
             Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(state.Mode, StringComparison.OrdinalIgnoreCase));
@@ -193,7 +190,6 @@ namespace GameModeManager.CrossCutting
             }
         }
 
-        // Define method to get random map
         public Map GetRandomMap(Mode currentMode)
         {    
             Map _randomMap; 

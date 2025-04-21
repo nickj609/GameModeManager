@@ -10,7 +10,7 @@ using static CounterStrikeSharp.API.Core.Listeners;
 // Declare namespace
 namespace GameModeManager
 {
-    // Create class to locate dependencies
+    // Create class to load dependencies
     public class PluginDependencyInjection : IPluginServiceCollection<Plugin>
     {
         public void ConfigureServices(IServiceCollection serviceCollection)
@@ -24,8 +24,9 @@ namespace GameModeManager
      // Define plugin class
     public partial class Plugin : BasePlugin
     {
-        // Define plugin parameters
+        // Define class properties
         public static Plugin? Instance;
+        private bool _isCustomVotesLoaded = false;
         public override string ModuleName => "GameModeManager";
         public override string ModuleVersion => "1.0.59";
         public override string ModuleAuthor => "Striker-Nick";
@@ -41,7 +42,7 @@ namespace GameModeManager
         private readonly CustomVoteManager _customVoteManager;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
-        // Register dependencies
+        // Define class instance
         public Plugin(DependencyManager<Plugin, Config> dependencyManager, CustomVoteManager customVoteManager, PlayerMenu playerMenu, PluginState pluginState, MapMenus mapMenus, SettingMenus settingMenus, ModeMenus modeMenus, NominateMenus nominateMenus)
         {
             _mapMenus = mapMenus;
@@ -57,20 +58,12 @@ namespace GameModeManager
         // Define on load behavior
         public override void Load(bool hotReload)
         {   
-            // Set instance
             Instance = this;
-
-            // Load dependencies
             _dependencyManager.OnPluginLoad(this);
-
-            // Register listeners
             RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);
         }
 
-        // Define custom vote API and signal
-        private bool _isCustomVotesLoaded = false;
-
-        // Define on all plugins loaded behavior
+        // Define class methods
         public override void OnAllPluginsLoaded(bool hotReload)
         {
             base.OnAllPluginsLoaded(hotReload);
@@ -78,7 +71,6 @@ namespace GameModeManager
             // Check if custom votes are enabled
             if (Config.Votes.Enabled)
             {
-                // Ensure CS2-CustomVotes API is loaded
                 try
                 {
                     if (_pluginState.CustomVotesApi.Get() is null)
@@ -89,21 +81,18 @@ namespace GameModeManager
                     Logger.LogWarning("CS2-CustomVotes plugin not found. Custom votes will not be registered.");
                     return;
                 }
-            
-                // set unload flag
-                _isCustomVotesLoaded = true;
 
                 // Register custom votes
+                _isCustomVotesLoaded = true;
                 _customVoteManager.RegisterCustomVotes();
             }
 
-            // Check if WASDMenus are enabled
+            // Check if WASD menus are enabled
             if (Config.GameModes.Style.Equals("wasd") || Config.Maps.Style.Equals("wasd") || Config.Settings.Style.Equals("wasd") || Config.Votes.Style.Equals("wasd"))
             {
-                // Ensure WASDSharedAPI is loaded
                 try
                 {
-                    if (_pluginState.CustomVotesApi.Get() is null)
+                    if (_pluginState.WasdMenuManager.Get() is null)
                         return;
                 }
                 catch (Exception)
@@ -120,26 +109,25 @@ namespace GameModeManager
                 _nominateMenus.LoadWASDMenu();
             }
         }
-        // Define method to unload plugin
+
         public override void Unload(bool hotReload)
         {
-                // Deregister votes and game events
-                if (_isCustomVotesLoaded)
-                {
-                    Logger.LogInformation("Deregistering custom votes...");
+            if (_isCustomVotesLoaded)
+            {
+                Logger.LogInformation("Deregistering custom votes...");
 
-                    // Deregister custom votes
-                    try
-                    {
-                        _customVoteManager.DeregisterCustomVotes();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"{ex.Message}");
-                    } 
+                // Deregister custom votes
+                try
+                {
+                    _customVoteManager.DeregisterCustomVotes();
                 }
-                // Unload plugin
-                base.Unload(hotReload);
+                catch (Exception ex)
+                {
+                    Logger.LogError($"{ex.Message}");
+                } 
+            }
+            // Unload plugin
+            base.Unload(hotReload);
         }
     }
 }

@@ -2,9 +2,9 @@
 using GameModeManager.Core;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
+using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
-using Microsoft.Extensions.Logging;
 
 // Declare namespace
 namespace GameModeManager.Features

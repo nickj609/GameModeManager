@@ -27,7 +27,7 @@ namespace GameModeManager.CrossCutting
             _plugin = plugin;
         }
 
-        // Define method to assign chat and center html menus
+        // Define class methods
         public BaseMenu AssignMenu(string menuType, string menuName)
         {
             BaseMenu _baseMenu;
@@ -43,7 +43,6 @@ namespace GameModeManager.CrossCutting
             return _baseMenu;
         }
 
-        // Define method to open a chat or center html menu
         public void OpenMenu(BaseMenu menu, CCSPlayerController player)
         {
             if (_plugin != null)
@@ -60,14 +59,12 @@ namespace GameModeManager.CrossCutting
             }
         }
 
-        // Define method to assign a wasd menu
         public IWasdMenu? AssignWasdMenu(string menuName)
         {
             IWasdMenu? menu = _pluginState.WasdMenuManager.Get()?.CreateMenu(menuName);
             return menu;
         }
 
-        // Define methods to open and close wasd menus
         public void OpenWasdMenu(CCSPlayerController player, IWasdMenu menu)
         {
             _pluginState.WasdMenuManager.Get()?.OpenMainMenu(player, menu);

@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Menu;
-using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
 // Declare namespace

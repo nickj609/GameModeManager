@@ -48,7 +48,6 @@ namespace GameModeManager.CrossCutting
             TypesToAdd.AddRange(typesToAdd);
         }
 
-        // Define method to create singletons
         public void AddIt(IServiceCollection collection)
         {
             foreach (var type in TypesToAdd)

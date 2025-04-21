@@ -16,8 +16,8 @@ namespace GameModeManager.Core
     {
         // Define class dependencies
         private Config _config = new();
-        private ILogger<TimeLimitManager> _logger;
         private readonly GameRules _gameRules;
+        private ILogger<TimeLimitManager> _logger;
         private readonly PluginState _pluginState;
         private readonly StringLocalizer _localizer;
         private readonly ServerManager _serverManager;
