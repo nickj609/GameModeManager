@@ -179,7 +179,8 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 | Enabled             | Enables RTV compatibility.                                                                                                                |
 | Style               | Changes vote menu type (i.e. "chat", "center" or "wasd").                                                                                 |
 | PerMap              | Enables per map RTV configuration                                                                                                         |
-| HudMenu             | Enables the HUD Menu                                                                                                                      | 
+| HideHud             | Enables the HUD (Vote Results)                                                                                                            |
+| HudMenu             | Enables the HUD Menu (use with chat style menu)                                                                                           | 
 | MinRounds           | Minimum number of rounds for RTV                                                                                                          |
 | MinPlayers          | Minimum number of players for RTV                                                                                                         |
 | VoteDuration        | Vote duration in seconds                                                                                                                  |
