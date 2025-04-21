@@ -1,11 +1,13 @@
 // Included libraries
 using GameModeManager.Core;
+using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
+
 
 // Declare namespace
 namespace GameModeManager.Features
@@ -36,6 +38,7 @@ namespace GameModeManager.Features
         private Timer? timer;
         private ConVar? gameType;
         private ConVar? gameMode;
+        private bool armsRace => gameMode?.GetPrimitiveValue<int>() == 0 && gameType?.GetPrimitiveValue<int>() == 1;
         private bool deathMatch => gameMode?.GetPrimitiveValue<int>() == 2 && gameType?.GetPrimitiveValue<int>() == 1;
 
         // Load config
@@ -53,6 +56,7 @@ namespace GameModeManager.Features
             if(_config.RTV.Enabled)
             {
                 plugin.RegisterEventHandler<EventRoundStart>(EventRoundStartHandler);
+                plugin.RegisterEventHandler<EventCsWinPanelMatch>(EventCsWinPanelMatchHandler);
                 plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(EventRoundAnnounceMatchStartHandler);
             }
         }
@@ -102,52 +106,58 @@ namespace GameModeManager.Features
         public void StartTimer()
         {
             KillTimer();
-            if (!_timeLimitManager.UnlimitedTime() && _pluginState.EndOfMapVote)
+            if (_pluginState.EndOfMapVote && !_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
             {
-                timer = _plugin?.AddTimer(1.0F, () =>
+                if (!_timeLimitManager.UnlimitedTime())
                 {
-                    if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimitManager.TimeRemaining() > 0)
+                    timer = _plugin?.AddTimer(1.0F, () =>
                     {
-                        if (CheckTimeLeft())
-                            StartVote();
-                    }
-                }, TimerFlags.REPEAT);
-            }
-            else if (!_maxRoundsManager.UnlimitedRounds && _pluginState.EndOfMapVote)
-            {
-                timer = _plugin?.AddTimer(1.0F, () =>
+                        if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimitManager.TimeRemaining() > 0)
+                        {
+                            if (CheckTimeLeft())
+                                StartVote();
+                        }
+                    }, TimerFlags.REPEAT);
+                }
+                else if (!_maxRoundsManager.UnlimitedRounds)
                 {
-                    if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimitManager.TimeRemaining() > 0 && _pluginState.TimeLimitCustom)
+                    timer = _plugin?.AddTimer(1.0F, () =>
                     {
-                        if (CheckTimeLeft())
-                            StartVote();
-                    }
-                }, TimerFlags.REPEAT);
+                        if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimitManager.TimeRemaining() > 0 && _pluginState.TimeLimitCustom)
+                        {
+                            if (CheckTimeLeft())
+                                StartVote();
+                        }
+                    }, TimerFlags.REPEAT);
+                }
             }
         }
 
         // Define class event handlers
+        public HookResult EventCsWinPanelMatchHandler(EventCsWinPanelMatch @event, GameEventInfo info)
+        {
+            if(armsRace || deathMatch)
+            {
+                Server.ExecuteCommand("css_rtv_start_vote 20 true");
+            }
+            return HookResult.Continue;
+        }
+
         public HookResult EventRoundStartHandler(EventRoundStart @event, GameEventInfo info)
         {
-            if(!_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
+            if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds())
             {
-                if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds() && _pluginState.EndOfMapVote)
-                {
-                    StartVote();
-                }
-                else if (deathMatch && _pluginState.EndOfMapVote)
-                {
-                    StartTimer();
-                }
+                StartVote();
+            }
+            else if (deathMatch || armsRace)
+            {
+                StartTimer();
             }
             return HookResult.Continue;  
         }
         public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
         {
-            if(_pluginState.EndOfMapVote)
-            {
-                StartTimer();
-            }
+            StartTimer();
             return HookResult.Continue;
         }
     }
