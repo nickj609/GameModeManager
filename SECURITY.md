@@ -4,8 +4,8 @@ GameModeManager security policy guidelines.
 ## Supported Versions
 We take the security of our users very seriously. Security updates will only be provided for the following versions of the GameModeManager plugin:
 
-- v1.0.58 **(Current Version)**
-- v1.0.57 **(Previous Major Version)**
+- v1.0.59 **(Current Version)**
+- v1.0.58 **(Previous Major Version)**
 
 > [!IMPORTANT]
 > Versions before **v1.0.57** are no longer supported and may contain unaddressed vulnerabilities. We strongly recommend upgrading to a supported version to ensure continued security.
