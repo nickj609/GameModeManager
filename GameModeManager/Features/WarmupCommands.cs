@@ -4,6 +4,7 @@ using GameModeManager.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -44,6 +45,18 @@ namespace GameModeManager.Features
             }
         }
 
+        // Define class properties
+        private ConVar? gameType;
+        private ConVar? gameMode;
+        private bool armsRace => gameMode?.GetPrimitiveValue<int>() == 0 && gameType?.GetPrimitiveValue<int>() == 1;
+
+        // Define on map start behavior
+        public void OnMapStart(string map)
+        {
+            gameMode = ConVar.Find("game_mode");
+            gameType = ConVar.Find("game_type");
+        }
+
         // Define command handlers
         [CommandHelper(minArgs: 1, usage: "<mode>",whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnWarmupModeCommand(CCSPlayerController? player, CommandInfo command)
@@ -52,14 +65,21 @@ namespace GameModeManager.Features
             {
                 if (!_pluginState.WarmupScheduled)
                 {
-                    if(_warmupManager.ScheduleWarmup(command.ArgByIndex(1)))
+                    if (!armsRace)
                     {
-                        _logger.LogInformation($"Warmup Mode: Warmup scheduled.");   
-                    } 
+                        if(_warmupManager.ScheduleWarmup(command.ArgByIndex(1)))
+                        {
+                            _logger.LogInformation($"Warmup Mode: Warmup scheduled.");   
+                        } 
+                        else
+                        {
+                            _logger.LogError($"Warmup Mode: {command.ArgByIndex(1)} cannot be found."); 
+                        }  
+                    }
                     else
                     {
-                        _logger.LogError($"Warmup Mode: {command.ArgByIndex(1)} cannot be found."); 
-                    }  
+                        _logger.LogWarning("Warmup Mode: Warmup cannot be scheduled in ArmsRace mode.");
+                    }
                 }
                 else
                 {
@@ -74,23 +94,30 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                if(command.ArgCount > 1)
+                if (!armsRace)
                 {
-                    Mode? _mode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase) ||  m.Config.Contains(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase));
-                    if(_mode != null)
+                    if(command.ArgCount > 1)
                     {
-                        _pluginState.WarmupScheduled = true;
-                        _warmupManager.StartWarmup(_mode);
+                        Mode? _mode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase) ||  m.Config.Contains(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase));
+                        if(_mode != null)
+                        {
+                            _pluginState.WarmupScheduled = true;
+                            _warmupManager.StartWarmup(_mode);
+                        }
+                        else
+                        {
+                            command.ReplyToCommand($"Unable to find mode: {command.ArgByIndex(1)}");
+                        }
                     }
                     else
                     {
-                        command.ReplyToCommand($"Unable to find mode: {command.ArgByIndex(1)}");
+                        _pluginState.WarmupScheduled = true;
+                        _warmupManager.StartWarmup(_pluginState.WarmupMode);
                     }
                 }
                 else
                 {
-                    _pluginState.WarmupScheduled = true;
-                    _warmupManager.StartWarmup(_pluginState.WarmupMode);
+                    command.ReplyToCommand("Warmup cannot be started in ArmsRace mode.");   
                 }
             }
         }
