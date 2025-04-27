@@ -13,7 +13,7 @@ namespace GameModeManager.Core
     // Define class
     public class ModeManager : IPluginDependency<Plugin, Config>
     {
-       // Define class dependencies
+        // Define class dependencies
         private PluginState _pluginState;
         private readonly MapMenus _mapMenus;
         private ILogger<ModeManager> _logger;
@@ -29,37 +29,35 @@ namespace GameModeManager.Core
             _pluginState = pluginState;
         }
 
-        // Load config
-         public void OnConfigParsed(Config config)
+        // Define class methods
+        public void OnConfigParsed(Config config)
         {
             _config = config;
         }
 
-        // Define on map start behavior
         public void OnMapStart(string map)
         {
             string _modeConfig = Extensions.RemoveCfgExtension(_pluginState.CurrentMode.Config);
             string _settingsConfig = $"{_modeConfig}_settings.cfg";
 
-            new Timer(.5f, () => 
+            new Timer(.5f, () =>
             {
                 Server.ExecuteCommand($"exec {_settingsConfig}");
                 Server.ExecuteCommand("mp_restartgame 1");
             });
         }
 
-        // Define on load behavior
         public void OnLoad(Plugin plugin)
-        { 
-            foreach(ModeEntry _mode in _config.GameModes.List)
+        {
+            foreach (ModeEntry _mode in _config.GameModes.List)
             {
                 List<MapGroup> mapGroups = new List<MapGroup>();
 
-                foreach(string _mapGroup in _mode.MapGroups)
+                foreach (string _mapGroup in _mode.MapGroups)
                 {
                     MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(_mapGroup, StringComparison.OrdinalIgnoreCase));
 
-                    if(mapGroup != null)
+                    if (mapGroup != null)
                     {
                         mapGroups.Add(mapGroup);
                     }
@@ -69,12 +67,11 @@ namespace GameModeManager.Core
                     }
                 }
 
-                // Create game mode
                 Mode? gameMode;
 
-                if(mapGroups.Count > 0)
+                if (mapGroups.Count > 0)
                 {
-                    if(_mode.DefaultMap != null)
+                    if (_mode.DefaultMap != null)
                     {
                         gameMode = new Mode(_mode.Name, _mode.Config, _mode.DefaultMap, mapGroups);
                     }
@@ -83,7 +80,6 @@ namespace GameModeManager.Core
                         gameMode = new Mode(_mode.Name, _mode.Config, mapGroups);
                     }
 
-                    // Add mode to list
                     _pluginState.Modes.Add(gameMode);
                 }
                 else
@@ -91,11 +87,10 @@ namespace GameModeManager.Core
                     _logger.LogError($"Cannot create map group list.");
                 }
             }
-               
-            // Set current mode
+
             Mode? currentMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(_config.GameModes.Default.Name, StringComparison.OrdinalIgnoreCase));
 
-            if(currentMode != null)
+            if (currentMode != null)
             {
                 _pluginState.CurrentMode = currentMode;
             }
@@ -104,7 +99,6 @@ namespace GameModeManager.Core
                 _logger.LogError($"Cannot find mode {_config.GameModes.Default.Name} in modes list.");
             }
 
-            // Create mode menus
             _mapMenus.Load();
             _modeMenus.Load();
         }
