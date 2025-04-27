@@ -37,6 +37,7 @@ namespace GameModeManager.Core
             _pluginState.RTVEnabled = _config.RTV.Enabled;
             _pluginState.EndOfMapVote = _config.RTV.EndOfMapVote;
             _pluginState.ChangeImmediately = _config.RTV.ChangeImmediately;
+            _pluginState.RTVKillsBeforeEnd = _config.RTV.TriggerKillsBeforeEnd;
             _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
             _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
         }
@@ -100,7 +101,7 @@ namespace GameModeManager.Core
         {
             if (player != null)
             {
-                if (_pluginState.NextMap != null && _pluginState.NextMode == null)
+                if (_pluginState.NextMap != null)
                 {
                     player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmap.message", _pluginState.NextMap.DisplayName));
                 }
