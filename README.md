@@ -176,13 +176,13 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 ### RTV Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
-| Enabled             | Enables RTV compatibility.                                                                                                                |
-| Style               | Changes vote menu type (i.e. "chat", "center" or "wasd").                                                                                 |
-| PerMap              | Enables per map RTV configuration                                                                                                         |
-| HideHud             | Enables the HUD (Vote Results)                                                                                                            |
+| Enabled             | Enables RTV                                                                                                                               |
+| Style               | Changes vote menu type (i.e. "chat", "center" or "wasd")                                                                                  |
+| PerMap              | Clears custom RTV settings on map change                                                                                                  |
+| HideHud             | Hides the HUD (vote results)                                                                                                              |
 | HudMenu             | Enables the HUD Menu (use with chat style menu)                                                                                           | 
-| MinRounds           | Minimum number of rounds for RTV                                                                                                          |
-| MinPlayers          | Minimum number of players for RTV                                                                                                         |
+| MinRounds           | Minimum number of rounds required to RTV                                                                                                  |
+| MinPlayers          | Minimum number of players required to RTV                                                                                                 |
 | VoteDuration        | Vote duration in seconds                                                                                                                  |
 | OptionsToShow       | Number of options to show in RTV list                                                                                                     |
 | VotePercentage      | Percentage of votes required for selecting the winner                                                                                     |
@@ -193,14 +193,14 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 | ExtendTime          | Time to extend map in minutes                                                                                                             |
 | ExtendRounds        | Rounds to extend map                                                                                                                      |
 | ModePercentage      | Percent of modes in RTV list                                                                                                              |
-| EnabledInWarmup     | Enables RTV in warmup                                                                                                                     |
-| HideHudAfterVote    | Hides hud after vote                                                                                                                      |
+| EnabledInWarmup     | Allows  RTV in warmup                                                                                                                     |
+| HideHudAfterVote    | Hides hud after vote (optional setting for HudMenu)                                                                                       |
 | NominationEnabled   | Enables nominating maps and/or modes                                                                                                      |
-| MaxNominationWinners | Sets max nomination winners                                                                                                              |
+| MaxNominationWinners | Max nomination winners per option type                                                                                                   |
 | ChangeImmediately     | Enables change map/mode immediately                                                                                                     |
-| TriggerRoundsBeforeEnd | Sets rounds before end for trigger vote                                                                                                |
-| TriggerSecondsBeforeEnd | Sets seconds before end for trigger vote                                                                                              |
-
+| TriggerKillsBeforeEnd | Kills needed to trigger end of map vote (armsrace only)                                                                                 |
+| TriggerRoundsBeforeEnd | Rounds remaining to trigger end of map vote                                                                                            |
+| TriggerSecondsBeforeEnd | Seconds remaining to trigger end of map vote                                                                                          |
 
 ### Map Settings
 | Setting             | Description                                                                                                                               |
