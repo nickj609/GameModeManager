@@ -147,7 +147,7 @@ namespace GameModeManager.Core
             return timeRemaining; 
         }
 
-        public void LoadCvar()
+        private void LoadCvar()
         {
             timeLimit = ConVar.Find("mp_timelimit");
         }
@@ -193,13 +193,14 @@ namespace GameModeManager.Core
             {
                 // Extend the standard mp_timelimit
                 var timeLimitConVar = ConVar.Find("mp_timelimit");
-                if (timeLimitConVar != null) {
-                     float currentTimeLimit = timeLimitConVar.GetPrimitiveValue<float>();
-                     float newTimeLimit = currentTimeLimit + _config.RTV.ExtendTime;
-                     _logger.LogInformation($"Setting mp_timelimit to {newTimeLimit}");
-                     timeLimitConVar.SetValue(newTimeLimit);
-                     string _message = _localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.map-time-extended", _config.RTV.ExtendTime);
-                     Server.PrintToChatAll(_message);
+                if (timeLimitConVar != null) 
+                {
+                    float currentTimeLimit = timeLimitConVar.GetPrimitiveValue<float>();
+                    float newTimeLimit = currentTimeLimit + _config.RTV.ExtendTime;
+                    _logger.LogInformation($"Setting mp_timelimit to {newTimeLimit}");
+                    timeLimitConVar.SetValue(newTimeLimit);
+                    string _message = _localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.map-time-extended", _config.RTV.ExtendTime);
+                    Server.PrintToChatAll(_message);
                 }
 
             }
@@ -207,11 +208,12 @@ namespace GameModeManager.Core
             {
                 // Extend rounds if time is unlimited
                 var maxRoundsConVar = ConVar.Find("mp_maxrounds");
-                 if (maxRoundsConVar != null) {
-                     int currentMaxRounds = maxRoundsConVar.GetPrimitiveValue<int>();
-                     int newMaxRounds = currentMaxRounds + _config.RTV.ExtendRounds;
-                     _logger.LogInformation($"Setting mp_maxrounds to {newMaxRounds}");
-                     maxRoundsConVar.SetValue(newMaxRounds);
+                if (maxRoundsConVar != null) 
+                {
+                    int currentMaxRounds = maxRoundsConVar.GetPrimitiveValue<int>();
+                    int newMaxRounds = currentMaxRounds + _config.RTV.ExtendRounds;
+                    _logger.LogInformation($"Setting mp_maxrounds to {newMaxRounds}");
+                    maxRoundsConVar.SetValue(newMaxRounds);
                     string _message = _localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.map-rounds-extended", _config.RTV.ExtendRounds);
                     Server.PrintToChatAll(_message);
                 }
@@ -236,7 +238,7 @@ namespace GameModeManager.Core
             _pluginState.TimeLimitScheduled = false;
             _pluginState.TimeLimit = 0f;
             _pluginState.CustomTimeLimitStartTime = 0f;
-             _logger.LogDebug("Time limit timer disabled and state reset.");
+            _logger.LogDebug("Time limit timer disabled and state reset.");
         }
 
         public void EnableTimeLimit()
