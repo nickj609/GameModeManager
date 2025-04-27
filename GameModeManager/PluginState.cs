@@ -51,6 +51,7 @@ namespace GameModeManager
         public bool IncludeExtend = false;
         public bool PerMapWarmup = false;
         public bool EndOfMapVote = false;
+        public int RTVKillsBeforeEnd = 13;
         public int RTVRoundsBeforeEnd = 2;
         public bool WarmupRunning = false;
         public Map CurrentMap = DefaultMap;

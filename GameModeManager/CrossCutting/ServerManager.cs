@@ -55,6 +55,7 @@ namespace GameModeManager.CrossCutting
                 _pluginState.EndOfMapVote = _config.RTV.EndOfMapVote;
                 _pluginState.RTVDuration = _config.RTV.VoteDuration;
                 _pluginState.ChangeImmediately = _config.RTV.ChangeImmediately;
+                _pluginState.RTVKillsBeforeEnd = _config.RTV.TriggerKillsBeforeEnd;
                 _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
                 _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
 
@@ -98,6 +99,7 @@ namespace GameModeManager.CrossCutting
                 _pluginState.EndOfMapVote = _config.RTV.EndOfMapVote;
                 _pluginState.RTVDuration = _config.RTV.VoteDuration;
                 _pluginState.ChangeImmediately = _config.RTV.ChangeImmediately;
+                _pluginState.RTVKillsBeforeEnd = _config.RTV.TriggerKillsBeforeEnd;
                 _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
                 _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
 

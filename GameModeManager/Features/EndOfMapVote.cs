@@ -4,6 +4,7 @@ using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
@@ -19,24 +20,27 @@ namespace GameModeManager.Features
         private GameRules _gameRules;
         private Config _config = new();
         private PluginState _pluginState;
+        private StringLocalizer _localizer;
         private TimeLimitManager _timeLimitManager;
         private MaxRoundsManager _maxRoundsManager;
         private AsyncVoteManager _asyncVoteManager;
 
         // Define class instance
-        public EndOfMapVote(TimeLimitManager timeLimitManager, MaxRoundsManager maxRoundsManager, PluginState pluginState, GameRules gameRules, AsyncVoteManager asyncVoteManager)
+        public EndOfMapVote(TimeLimitManager timeLimitManager, IStringLocalizer iLocalizer, MaxRoundsManager maxRoundsManager, PluginState pluginState, GameRules gameRules, AsyncVoteManager asyncVoteManager)
         {
             _gameRules = gameRules;
             _pluginState = pluginState;
             _timeLimitManager = timeLimitManager;
             _maxRoundsManager = maxRoundsManager;
             _asyncVoteManager = asyncVoteManager;
+            _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
         }
 
         // Define class properties
         private Timer? timer;
         private ConVar? gameType;
         private ConVar? gameMode;
+        private bool killsReached = false;
         private bool armsRace => gameMode?.GetPrimitiveValue<int>() == 0 && gameType?.GetPrimitiveValue<int>() == 1;
         private bool deathMatch => gameMode?.GetPrimitiveValue<int>() == 2 && gameType?.GetPrimitiveValue<int>() == 1;
 
@@ -55,7 +59,7 @@ namespace GameModeManager.Features
             if(_config.RTV.Enabled)
             {
                 plugin.RegisterEventHandler<EventRoundStart>(EventRoundStartHandler);
-                plugin.RegisterEventHandler<EventCsWinPanelMatch>(EventCsWinPanelMatchHandler);
+                plugin.RegisterEventHandler<EventPlayerDeath>(EventPlayerDeathHandler);
                 plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(EventRoundAnnounceMatchStartHandler);
             }
         }
@@ -64,6 +68,7 @@ namespace GameModeManager.Features
         public void OnMapStart(string map)
         {
             KillTimer();
+            killsReached = false;
             gameMode = ConVar.Find("game_mode");
             gameType = ConVar.Find("game_type");
         }
@@ -77,9 +82,9 @@ namespace GameModeManager.Features
 
          public void StartVote()
         {
-            KillTimer();
             if (_pluginState.EndOfMapVote && !_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
             {
+                KillTimer();
                 _asyncVoteManager.StartVote(null, null);
             }
         }
@@ -114,7 +119,10 @@ namespace GameModeManager.Features
                         if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimitManager.TimeRemaining() > 0)
                         {
                             if (CheckTimeLeft())
+                            {
+                                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.eofmapvote.message"));
                                 StartVote();
+                            }
                         }
                     }, TimerFlags.REPEAT);
                 }
@@ -125,7 +133,10 @@ namespace GameModeManager.Features
                         if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimitManager.TimeRemaining() > 0 && _pluginState.TimeLimitCustom)
                         {
                             if (CheckTimeLeft())
+                            {
+                                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.eofmapvote.message"));
                                 StartVote();
+                            }
                         }
                     }, TimerFlags.REPEAT);
                 }
@@ -133,11 +144,18 @@ namespace GameModeManager.Features
         }
 
         // Define class event handlers
-        public HookResult EventCsWinPanelMatchHandler(EventCsWinPanelMatch @event, GameEventInfo info)
+        public HookResult EventPlayerDeathHandler(EventPlayerDeath @event, GameEventInfo info)
         {
-            if(armsRace || deathMatch)
+            if (armsRace & !killsReached)
             {
-                Server.ExecuteCommand("css_rtv_start_vote 20 true");
+                var player = Extensions.ValidPlayers(true).OrderByDescending(p => p.Score).FirstOrDefault();
+                if (player?.ActionTrackingServices?.MatchStats?.Kills >= _pluginState.RTVKillsBeforeEnd)
+                {
+                    killsReached = true;
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.armsrace.message", player.PlayerName));
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.eofmapvote.message"));
+                    StartVote();
+                }
             }
             return HookResult.Continue;
         }
@@ -154,6 +172,7 @@ namespace GameModeManager.Features
             }
             return HookResult.Continue;  
         }
+        
         public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
         {
             StartTimer();
