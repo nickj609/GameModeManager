@@ -32,6 +32,7 @@ namespace GameModeManager
         public bool Enabled { get; set; } = true; // Enables RTV
         public string Style { get; set; } = "wasd"; // Changes vote menu type (i.e. "chat", "center" or "wasd")
         public bool PerMap { get; set; } = false; // Enables per map RTV configuration
+        public bool HideHud { get; set; } = false; // Hides vote results hud
         public bool HudMenu { get; set; } = false; // Enables hud menu
         public int MinRounds { get; set; } = 1; // Minimum number of rounds for RTV
         public int MinPlayers { get; set; } = 3; // Minimum number of players for RTV
@@ -51,8 +52,9 @@ namespace GameModeManager
         public bool NominationEnabled { get; set; } = true; // Enables nomination
         public int MaxNominationWinners { get; set; } = 1; // Sets max nomination winners
         public bool ChangeImmediately { get; set; } = false; // Enables change map/mode immediately
-        public int TriggerRoundsBeforeEnd { get; set; } = 2; // Sets rounds before end for trigger vote
-        public int TriggerSecondsBeforeEnd { get; set; } = 120; // Sets seconds before end for trigger vote
+        public int TriggerKillsBeforeEnd { get; set; } = 13; // Kills needed to trigger end of map vote (armsrace/gungame)
+        public int TriggerRoundsBeforeEnd { get; set; } = 2; // Rounds remaining to trigger end of map vote
+        public int TriggerSecondsBeforeEnd { get; set; } = 120; // Seconds remaining to trigger end of map vote
     }
 
     // Define map settings
@@ -169,7 +171,7 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-        public int Version { get; set; } = 10;
+        public int Version { get; set; } = 11;
         public RTVSettings RTV { get; set; } = new();
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
@@ -364,7 +366,7 @@ namespace GameModeManager
             }
 
             // Config version check
-            if (_config.Version < 10)
+            if (_config.Version < 11)
             {
                 throw new Exception("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it");
             }
