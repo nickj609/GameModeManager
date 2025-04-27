@@ -126,7 +126,11 @@ namespace GameModeManager.Core
             }
 
             _pluginState.EofVoteHappening = true;
-            _plugin?.RegisterListener<Listeners.OnTick>(VoteResults);
+
+            if (!_config.RTV.HideHud)
+            {
+                _plugin?.RegisterListener<Listeners.OnTick>(VoteResults);
+            }
 
             timeLeft = delay;
             timer = _plugin!.AddTimer(1.0F, () =>
@@ -168,13 +172,18 @@ namespace GameModeManager.Core
             }
             else
             {
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.vote-ended-no-votes", winner.Key));
+                List<string> options = _voteOptionManager.GetOptions();
+                string randomOption = options[new Random().Next(0, options.Count)];
+                _pluginState.RTVWinner = randomOption;
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.vote-ended-no-votes", randomOption));
             }
-
-            _plugin!.AddTimer(5F, () =>
+            if (!_config.RTV.HideHud)
             {
-                _plugin?.RemoveListener<Listeners.OnTick>(VoteResults);
-            });
+                _plugin!.AddTimer(5F, () =>
+                {
+                    _plugin?.RemoveListener<Listeners.OnTick>(VoteResults);
+                });
+            }
 
             if (_voteOptionManager.OptionType(_pluginState.RTVWinner) == "mode")
             {
