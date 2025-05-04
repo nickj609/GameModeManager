@@ -1,9 +1,9 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Core;
 using GameModeManager.Menus;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
@@ -195,7 +195,7 @@ namespace GameModeManager.Features
                 return;
             }
 
-            if (_pluginState.NextMap != null & _pluginState.NextMap != null)
+            if (!_pluginState.NextMap!.Equals(null) & !_pluginState.NextMap!.Equals(null))
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
                 return;

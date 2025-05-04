@@ -1,11 +1,12 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Menus;
 using GameModeManager.Models;
 using CounterStrikeSharp.API;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -106,8 +107,8 @@ namespace GameModeManager.Features
         [CommandHelper(minArgs: 1, usage: "<map name> optional: <workshop id>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
-            Map? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || g.WorkshopId.ToString().Equals("{command.ArgByIndex(2)}", StringComparison.OrdinalIgnoreCase));
+            IMap _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
+            IMap? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || g.WorkshopId.ToString().Equals("{command.ArgByIndex(2)}", StringComparison.OrdinalIgnoreCase));
 
             if (_foundMap != null)
             {

@@ -1,7 +1,7 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Menus;
 using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Localization;

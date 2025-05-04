@@ -1,9 +1,9 @@
 // Included libraries
-using WASDSharedAPI;
-using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
@@ -75,7 +75,7 @@ namespace GameModeManager.Menus
             settingsDisableMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Settings List");
 
             // Add enable menu options
-            foreach (Setting _setting in _pluginState.Settings)
+            foreach (ISetting _setting in _pluginState.Settings)
             {
                 settingsEnableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
@@ -86,7 +86,7 @@ namespace GameModeManager.Menus
             }
 
             // Add disable menu options
-            foreach (Setting _setting in _pluginState.Settings)
+            foreach (ISetting _setting in _pluginState.Settings)
             {
                 settingsDisableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
@@ -124,7 +124,7 @@ namespace GameModeManager.Menus
                voteSettingsMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Setting List");
                 
                 // Add menu options
-                foreach (Setting _setting in _pluginState.Settings)
+                foreach (ISetting _setting in _pluginState.Settings)
                 {
                     // Create menu option
                     voteSettingsMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
@@ -149,7 +149,7 @@ namespace GameModeManager.Menus
                 settingsDisableWASDMenu = _menuFactory.AssignWasdMenu("Settings List");
 
                 // Add enable sub menu options
-                foreach (Setting _setting in _pluginState.Settings)
+                foreach (ISetting _setting in _pluginState.Settings)
                 {
                     settingsEnableWASDMenu?.Add(_setting.DisplayName, (player, option) =>
                     {
@@ -163,7 +163,7 @@ namespace GameModeManager.Menus
                 }
 
                 // Add disable sub menu options
-                foreach (Setting _setting in _pluginState.Settings)
+                foreach (ISetting _setting in _pluginState.Settings)
                 {
                     settingsDisableWASDMenu?.Add(_setting.DisplayName, (player, option) =>
                     {
@@ -204,7 +204,7 @@ namespace GameModeManager.Menus
                     voteSettingsWASDMenu = _menuFactory.AssignWasdMenu("Setting List");
 
                     // Add menu options
-                    foreach (Setting _setting in _pluginState.Settings)
+                    foreach (ISetting _setting in _pluginState.Settings)
                     {
                         voteSettingsWASDMenu?.Add(_setting.DisplayName, (player, option) =>
                         {

@@ -1,11 +1,9 @@
 // Included libraries
 using GameModeManager.Core;
-using GameModeManager.Menus;
 using GameModeManager.Shared;
-using GameModeManager.Models;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
-using Microsoft.Extensions.Logging;
+using GameModeManager.Shared.Models;
 
 // Declare namespace
 namespace GameModeManager.Services
@@ -13,108 +11,72 @@ namespace GameModeManager.Services
     // Define class
     public class GameModeApi : IGameModeApi, IPluginDependency<Plugin, Config>
     {
-        // Define class dependencies
-        private MapMenus _mapMenus;
-        private RTVManager _rtvManager;
-        private PluginState _pluginState;
-        private ServerManager _serverManager;
-        private WarmupManager _warmupManager;
-        private ILogger<IGameModeApi> _logger;
-        private TimeLimitManager _timeLimitManager;
+        // Define dependencies
+        private readonly PluginState _pluginState;
+        private readonly ServerManager _serverManager;
+        private readonly WarmupManager _warmupManager;
 
-        // Load plugin states
-        public string WarmupMode { get { return _pluginState.WarmupMode.Name; } }
-        public string CurrentMode { get { return _pluginState.CurrentMode.Name; } } 
-        public string CurrentMap { get { return _pluginState.CurrentMap.DisplayName; } }
-        
         // Define class instance
-        public GameModeApi(PluginState pluginState, ILogger<IGameModeApi> logger, TimeLimitManager timeLimitManager, MapMenus mapMenus, 
-        ServerManager serverManager, WarmupManager warmupManager, RTVManager rtvManager)
+        public GameModeApi(PluginState pluginState, ServerManager serverManager, WarmupManager warmupManager)
         {
-            _logger = logger;
-            _mapMenus = mapMenus;
-            _rtvManager = rtvManager;
             _pluginState = pluginState;
             _serverManager = serverManager;
             _warmupManager = warmupManager;
-            _timeLimitManager = timeLimitManager;
+            State = new GameState(_pluginState);
+            Control = new GameModeController(_serverManager);
+            Warmup = new WarmupController(_warmupManager);
         }
 
-        // Define update map menus handler
-        public void UpdateMapMenus()
+        // Define class properties
+        public IGameState State { get; }
+        public IGameModeControl Control { get; }
+        public IWarmupControl Warmup { get; }
+
+        // Define child classes
+        private class GameState : IGameState
         {
-            _mapMenus.UpdateMenus();
-            _mapMenus.UpdateWASDMenus();
+            // Define class dependencies
+            private readonly PluginState _pluginState;
+            
+            // Define class instance
+            public GameState(PluginState pluginState) => _pluginState = pluginState;
+
+            // Define class properties
+            public List<IMap> Maps => _pluginState.Maps;
+            public List<IMode> Modes => _pluginState.Modes;
+            public IMap CurrentMap => _pluginState.CurrentMap;
+            public IMode WarmupMode => _pluginState.WarmupMode;
+            public IMode CurrentMode => _pluginState.CurrentMode;
+            public List<ISetting> Settings => _pluginState.Settings;
+            public List<IMapGroup> MapGroups => _pluginState.MapGroups;
+            public bool WarmupScheduled => _pluginState.WarmupScheduled;
         }
 
-        // Define trigger rotation handler
-        public void TriggerRotation()
+        private class GameModeController : IGameModeControl
         {
-            _serverManager.TriggerRotation();
+            // Define class dependencies
+            private readonly ServerManager _serverManager;
+
+            // Define class instance
+            public GameModeController(ServerManager serverManager) => _serverManager = serverManager;
+
+            // define class methods
+            public void TriggerRotation() => _serverManager.TriggerRotation();
+            public void ChangeMode(IMode mode) => _serverManager.ChangeMode(mode);
+            public void ChangeMap(IMap map, int delay) => _serverManager.ChangeMap(map, delay);
         }
 
-        // Define RTV compatibility handler
-        public void EnableRTV(bool enabled)
+        private class WarmupController : IWarmupControl
         {
-            if(enabled)
-            {
-                _rtvManager.EnableRTV();
-            }
-            else
-            {
-                _rtvManager.DisableRTV();
-            }
-        }
 
-        // Define change map handler
-        public void ChangeMap(string mapName, int delay)
-        {
-            Map? map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(mapName, StringComparison.OrdinalIgnoreCase));
+            // Define class dependencies
+            private readonly WarmupManager _warmupManager;
 
-            if (map != null)
-            {
-                _serverManager.ChangeMap(map, delay);
-            }
-            else
-            {
-                _logger.LogWarning($"Game Mode API: Map {mapName} not found.");
-            }
-        }
+            // Define class instance
+            public WarmupController(WarmupManager warmupManager) => _warmupManager = warmupManager;
 
-        // Define schedule warmup handlers 
-        public bool isWarmupScheduled()
-        {
-            return _pluginState.WarmupScheduled;
-        }
-        public bool ScheduleWarmup(string modeName)
-        {
-            return _warmupManager.ScheduleWarmup(modeName);
-        }
-
-        // Define time limit handlers
-        public void EnableTimeLimit()
-        {
-            _timeLimitManager.EnableTimeLimit();
-        }
-
-        public void EnableTimeLimit(int time)
-        {
-            _timeLimitManager.EnableTimeLimit(time);
-        }
-
-        // Define change mode handlers
-        public void ChangeMode(string modeName)
-        {
-            Mode? mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
-
-            if (mode != null)
-            {
-                _serverManager.ChangeMode(mode);
-            }
-            else
-            {
-                _logger.LogWarning($"Game Mode API: Mode {modeName} not found.");
-            }
+            // Define class methods
+            public bool ScheduleWarmup(IMode mode) => _warmupManager.ScheduleWarmup(mode.Name);
         }
     }
 }

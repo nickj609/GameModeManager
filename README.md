@@ -179,8 +179,7 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 | Enabled             | Enables RTV                                                                                                                               |
 | Style               | Changes vote menu type (i.e. "chat", "center" or "wasd")                                                                                  |
 | PerMap              | Clears custom RTV settings on map change                                                                                                  |
-| HideHud             | Hides the HUD (vote results)                                                                                                              |
-| HudMenu             | Enables the HUD Menu (use with chat style menu)                                                                                           | 
+| HideHud             | Hides the vote results hud                                                                                                                |
 | MinRounds           | Minimum number of rounds required to RTV                                                                                                  |
 | MinPlayers          | Minimum number of players required to RTV                                                                                                 |
 | VoteDuration        | Vote duration in seconds                                                                                                                  |
@@ -193,8 +192,8 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 | ExtendTime          | Time to extend map in minutes                                                                                                             |
 | ExtendRounds        | Rounds to extend map                                                                                                                      |
 | ModePercentage      | Percent of modes in RTV list                                                                                                              |
-| EnabledInWarmup     | Allows  RTV in warmup                                                                                                                     |
-| HideHudAfterVote    | Hides hud after vote (optional setting for HudMenu)                                                                                       |
+| EnabledInWarmup     | Allows RTV in warmup                                                                                                                      |
+| HideHudAfterVote    | Hides vote results hud after voting                                                                                                       |
 | NominationEnabled   | Enables nominating maps and/or modes                                                                                                      |
 | MaxNominationWinners | Max nomination winners per option type                                                                                                   |
 | ChangeImmediately     | Enables change map/mode immediately                                                                                                     |

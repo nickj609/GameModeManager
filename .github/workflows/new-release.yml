@@ -2,12 +2,12 @@ name: NewRelease
 on:
   push:
     branches:
-      - main
+      - dev
     paths:
       - 'GameModeManager/Plugin.cs'
 jobs:
   NewRelease:
-    if: false
+    if: true
     runs-on: ubuntu-latest
 
     steps:
@@ -146,7 +146,7 @@ jobs:
           prerelease: false
 
       - name: Upload Release Asset
-        if: ${{ steps.check_version_change.outputs.version_changed == 'true' }}
+        if: ${{ steps.check_version_change.outputs.version_changed == 'true'}}
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,9 +1,9 @@
 // Included libraries
-using WASDSharedAPI;
 using CounterStrikeSharp.API;
-using GameModeManager.Models;
 using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
@@ -87,7 +87,7 @@ namespace GameModeManager.Menus
                 mapsMenu = _menuFactory.AssignMenu(_config.Maps.Style, "Select a game mode.");
 
                 // Add menu option for each game mode in game mode list
-                foreach (Mode _mode in _pluginState.Modes)
+                foreach (IMode _mode in _pluginState.Modes)
                 {
                     mapsMenu.AddMenuOption(_mode.Name, (player, option) =>
                     {
@@ -96,7 +96,7 @@ namespace GameModeManager.Menus
                         subMenu = _menuFactory.AssignMenu(_config.Maps.Style, _localizer.Localize("maps.menu-title"));
 
                         // Add menu option for each map in map list
-                        foreach (Map _map in _mode.Maps)
+                        foreach (IMap _map in _mode.Maps)
                         {
                             subMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                             {
@@ -127,7 +127,7 @@ namespace GameModeManager.Menus
                 mapWasdMenu = _menuFactory.AssignWasdMenu("Map List");
 
                 // Add menu options for each map in the new map list
-                foreach (Map _map in _pluginState.Maps)
+                foreach (IMap _map in _pluginState.Maps)
                 {
                     mapWasdMenu?.Add(_map.DisplayName, (player, option) =>
                     {
@@ -144,7 +144,7 @@ namespace GameModeManager.Menus
                 voteMapsWasdMenu = _menuFactory.AssignWasdMenu("Map List");
 
                 // Add menu options for each map in map list
-                foreach (Map _map in _pluginState.Maps)
+                foreach (IMap _map in _pluginState.Maps)
                 {
                     voteMapsWasdMenu?.Add(_map.DisplayName, (player, option) =>
                     {
@@ -162,7 +162,7 @@ namespace GameModeManager.Menus
             mapMenu = _menuFactory.AssignMenu(_config.Maps.Style, "Map List");
 
             // Add menu options for each map in the new map list
-            foreach (Map _map in _pluginState.CurrentMode.Maps)
+            foreach (IMap _map in _pluginState.CurrentMode.Maps)
             {
                 mapMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                 {
@@ -176,7 +176,7 @@ namespace GameModeManager.Menus
             voteMapMenu = _menuFactory.AssignMenu(_config.Maps.Style, "Map List");
 
             // Add menu options for each map in the current mode map list
-            foreach (Map _map in _pluginState.CurrentMode.Maps)
+            foreach (IMap _map in _pluginState.CurrentMode.Maps)
             {
                 voteMapMenu.AddMenuOption(_map.DisplayName, (player, option) =>
                 {
@@ -196,7 +196,7 @@ namespace GameModeManager.Menus
             mapWasdMenu = _menuFactory.AssignWasdMenu("Map List");
 
             // Add menu options for each map in the new map list
-            foreach (Map _map in _pluginState.CurrentMode.Maps)
+            foreach (IMap _map in _pluginState.CurrentMode.Maps)
             {
                 mapWasdMenu?.Add(_map.DisplayName, (player, option) =>
                 {
@@ -210,7 +210,7 @@ namespace GameModeManager.Menus
             voteMapWasdMenu = _menuFactory.AssignWasdMenu("Map List");
 
             // Add menu options for each map in the current mode map list
-            foreach (Map _map in _pluginState.CurrentMode.Maps)
+            foreach (IMap _map in _pluginState.CurrentMode.Maps)
             {
                 // Add menu option
                 voteMapWasdMenu?.Add(_map.DisplayName, (player, option) =>

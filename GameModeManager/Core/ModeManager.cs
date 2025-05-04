@@ -1,7 +1,8 @@
 // Included libraries
 using GameModeManager.Menus;
-using GameModeManager.Models;
 using CounterStrikeSharp.API;
+using GameModeManager.Models;
+using GameModeManager.Shared.Models;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
@@ -51,11 +52,11 @@ namespace GameModeManager.Core
         {
             foreach (ModeEntry _mode in _config.GameModes.List)
             {
-                List<MapGroup> mapGroups = new List<MapGroup>();
+                List<IMapGroup> mapGroups = new List<IMapGroup>();
 
                 foreach (string _mapGroup in _mode.MapGroups)
                 {
-                    MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(_mapGroup, StringComparison.OrdinalIgnoreCase));
+                    IMapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(_mapGroup, StringComparison.OrdinalIgnoreCase));
 
                     if (mapGroup != null)
                     {
@@ -67,7 +68,7 @@ namespace GameModeManager.Core
                     }
                 }
 
-                Mode? gameMode;
+                IMode? gameMode;
 
                 if (mapGroups.Count > 0)
                 {
@@ -88,7 +89,7 @@ namespace GameModeManager.Core
                 }
             }
 
-            Mode? currentMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(_config.GameModes.Default.Name, StringComparison.OrdinalIgnoreCase));
+            IMode? currentMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(_config.GameModes.Default.Name, StringComparison.OrdinalIgnoreCase));
 
             if (currentMode != null)
             {

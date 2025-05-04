@@ -9,7 +9,7 @@ namespace GameModeManager.CrossCutting
     // Define class
     public class DependencyManager<TPlugin, TConfig>
     {
-        // Define class dependencies
+        // Define class properties
         private List<Type> TypesToAdd { get; set; } = new();
         Type dependencyType = typeof(IPluginDependency<TPlugin, TConfig>);
         private List<IPluginDependency<TPlugin, TConfig>> Dependencies { get; set; } = new();

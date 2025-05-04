@@ -1,9 +1,9 @@
 // Included libraries
-using WASDSharedAPI;
 using CounterStrikeSharp.API;
-using GameModeManager.Models;
 using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
@@ -71,7 +71,7 @@ namespace GameModeManager.Menus
             modeMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
 
             // Add menu option for each game mode in game mode list
-            foreach (Mode _mode in _pluginState.Modes)
+            foreach (IMode _mode in _pluginState.Modes)
             {
                 modeMenu.AddMenuOption(_mode.Name, (player, option) =>
                 {
@@ -87,7 +87,7 @@ namespace GameModeManager.Menus
                 voteModesMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
 
                 // Add vote menu option for each game mode in game mode list
-                foreach (Mode _mode in _pluginState.Modes)
+                foreach (IMode _mode in _pluginState.Modes)
                 {
                     voteModesMenu.AddMenuOption(_mode.Name, (player, option) =>
                     {
@@ -110,7 +110,7 @@ namespace GameModeManager.Menus
                 modeWasdMenu = _menuFactory.AssignWasdMenu("Game Mode List");
 
                 // Add menu option for each game mode in game mode list
-                foreach (Mode _mode in _pluginState.Modes)
+                foreach (IMode _mode in _pluginState.Modes)
                 {
                     modeWasdMenu?.Add(_mode.Name, (player, option) =>
                     {
@@ -129,7 +129,7 @@ namespace GameModeManager.Menus
                 voteModesWasdMenu = _menuFactory.AssignWasdMenu("Game Mode List");
 
                 // Add vote menu option for each game mode in game mode list
-                foreach (Mode _mode in _pluginState.Modes)
+                foreach (IMode _mode in _pluginState.Modes)
                 {
                     voteModesWasdMenu?.Add(_mode.Name, (player, option) =>
                     {

@@ -1,10 +1,11 @@
 // Included libraries
-using GameModeManager.Models;
 using CounterStrikeSharp.API;
+using GameModeManager.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 
 // Declare namespace
 namespace GameModeManager.Core
@@ -46,12 +47,12 @@ namespace GameModeManager.Core
 
                 foreach(WarmupModeEntry _mode in _config.Warmup.List)
                 {
-                    Mode _warmupMode = new Mode(_mode.Name, _mode.Config, new List<MapGroup>());
+                    IMode _warmupMode = new Mode(_mode.Name, _mode.Config, new List<IMapGroup>());
                     _pluginState.WarmupModes.Add(_warmupMode);
                 }
 
                 // Set default warmup mode  
-                Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(_config.Warmup.Default.Name, StringComparison.OrdinalIgnoreCase));
+                IMode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(_config.Warmup.Default.Name, StringComparison.OrdinalIgnoreCase));
 
                 if(warmupMode != null)
                 {
@@ -67,7 +68,7 @@ namespace GameModeManager.Core
         // Define class methods
         public bool ScheduleWarmup(string modeName)
         {
-            Mode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase) || m.Config.Contains(modeName, StringComparison.OrdinalIgnoreCase));
+            IMode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase) || m.Config.Contains(modeName, StringComparison.OrdinalIgnoreCase));
 
             if(warmupMode != null)
             {   
@@ -82,7 +83,7 @@ namespace GameModeManager.Core
             } 
         }
         
-        public void StartWarmup(Mode warmupMode)
+        public void StartWarmup(IMode warmupMode)
         {
             if (_pluginState.WarmupScheduled && !_pluginState.WarmupRunning && !_gameRules.HasMatchStarted)
             {

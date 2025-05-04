@@ -1,11 +1,12 @@
 // Included libraries
 using System.Globalization; 
+using GameModeManager.Shared.Models;
 
 // Declare namespace
 namespace GameModeManager.Models
 {
     // Define class
-    public class Setting : IEquatable<Setting>
+    public class Setting : ISetting
     {
         // Define class properties
         public string Name { get; set; }
@@ -30,13 +31,13 @@ namespace GameModeManager.Models
         }
 
         // Define class methods
-        private string FormatSettingName(string name)
+        public string FormatSettingName(string name)
         {
                 name = name.Replace("_", " ");
                 return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(name); 
         }
 
-        public bool Equals(Setting? other) 
+        public bool Equals(ISetting? other) 
         {
             if (other == null) return false; 
             return Name == other.Name && Enable == other.Enable && Disable == other.Disable && DisplayName == other.DisplayName;

@@ -1,5 +1,6 @@
 // Included libraries
-using WASDSharedAPI;
+using WASDMenuAPI.Shared;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
@@ -54,6 +55,9 @@ namespace GameModeManager.CrossCutting
                         break;
                     case ChatMenu chatMenu:
                         MenuManager.OpenChatMenu(player, chatMenu);
+                        break;
+                    case ConsoleMenu consoleMenu:
+                        MenuManager.OpenConsoleMenu(player, consoleMenu);
                         break;
                 }
             }

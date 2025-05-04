@@ -1,5 +1,5 @@
 // Included libraries
-using GameModeManager.Models;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
@@ -68,8 +68,8 @@ namespace GameModeManager.Core
          // Function to nominate a map or mode
         public void Nominate(CCSPlayerController player, string option)
         {
-            Map? map = null;
-            Mode? mode = null;
+            IMap? map = null;
+            IMode? mode = null;
             var userId = player.UserId!.Value;
 
             // Find map or mode nominated

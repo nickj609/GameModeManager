@@ -14,9 +14,9 @@
       <Private>false</Private>
       <HintPath>lib\counterstrikesharp\shared\CS2-CustomVotes.Shared\CS2-CustomVotes.Shared.dll</HintPath>
     </Reference>
-    <Reference Include="WASDSharedAPI" Version="1.0.2">
+    <Reference Include="WASDMenuAPI.Shared" Version="1.0.6">
       <Private>false</Private>
-      <HintPath>lib\counterstrikesharp\shared\WASDSharedAPI\WASDSharedAPI.dll</HintPath>
+      <HintPath>lib\counterstrikesharp\shared\WASDMenuAPI.Shared\WASDMenuAPI.Shared.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -29,6 +29,6 @@
         <Exec Command="xcopy /Y /R $(OutDir)*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
         <Exec Command="xcopy /Y /E /R $(ProjectDir)lib\csgo\ $(SolutionDir)bin\Debug\$(TargetFramework)\Public\" />
         <Exec Command="xcopy /Y /R $(ProjectDir)lang\*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang\" />
-        <Exec Command="xcopy /Y /E $(ProjectDir)lib\csgo\addons\counterstrikesharp\shared\WASDSharedAPI\WASDSharedAPI.dll $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
+        <Exec Command="xcopy /Y /E $(ProjectDir)lib\csgo\addons\counterstrikesharp\shared\WASDMenuAPI.Shared\WASDMenuAPI.Shared.dll $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
   </Target>
 </Project>

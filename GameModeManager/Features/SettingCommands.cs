@@ -1,11 +1,11 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Menus;
-using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -57,7 +57,7 @@ namespace GameModeManager.Features
             {
                 string _status = $"{command.ArgByIndex(1)}";
                 string _settingName = $"{command.ArgByIndex(2)}";
-                Setting? _option = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_settingName, StringComparison.OrdinalIgnoreCase));
+                ISetting? _option = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_settingName, StringComparison.OrdinalIgnoreCase));
 
                 if(_option != null) 
                 {
