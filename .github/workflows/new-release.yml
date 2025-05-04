@@ -113,7 +113,7 @@ jobs:
         if: ${{ steps.check_version_change.outputs.version_changed == 'true' }}
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           tag_name: v${{ steps.get_current_version.outputs.current_version }}
           release_name: Release Game Mode Manager v${{ steps.get_current_version.outputs.current_version }}
@@ -149,7 +149,7 @@ jobs:
         if: ${{ steps.check_version_change.outputs.version_changed == 'true'}}
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: GameModeManager_v${{ steps.get_current_version.outputs.current_version }}.zip
