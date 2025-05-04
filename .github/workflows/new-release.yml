@@ -54,7 +54,7 @@ jobs:
         id: get_commit_history
         run: |
           commit_history=$(git log --pretty=format:"%s" HEAD~1..HEAD)
-          echo "commit_history=$(echo "$commit_history" | jq -sRr @uri)" >> $GITHUB_OUTPUT
+          echo "commit_history=$(echo "$commit_history" | jq -sRr @text)" >> $GITHUB_OUTPUT
 
       - name: Parse Commit History
         if: ${{ steps.check_version_change.outputs.module_version_changed == 'true' }}
@@ -104,7 +104,8 @@ jobs:
       - name: Create ZIP archive
         if: ${{ steps.check_version_change.outputs.module_version_changed == 'true' }}
         run: |
-          zip -r GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip bin/Debug/net8.0/Public/*
+          cd bin/Debug/net8.0/Public
+          zip -r GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip ./*
 
       - name: Create Release
         uses: actions/create-release@v1.1.4
