@@ -23,12 +23,19 @@
     <ProjectReference Include="..\GameModeManager.Shared\GameModeManager.Shared.csproj" />
   </ItemGroup>
   <Target Name="PublicBuild" AfterTargets="AfterBuild">
-        <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang"/>
-        <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\CS2-CustomVotes"/>
-        <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\CS2-CustomVotes.Shared"/>
-        <Exec Command="xcopy /Y /R $(OutDir)*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
-        <Exec Command="xcopy /Y /E /R $(ProjectDir)lib\csgo\ $(SolutionDir)bin\Debug\$(TargetFramework)\Public\" />
-        <Exec Command="xcopy /Y /R $(ProjectDir)lang\*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang\" />
-        <Exec Command="xcopy /Y /E $(ProjectDir)lib\csgo\addons\counterstrikesharp\shared\WASDMenuAPI.Shared\WASDMenuAPI.Shared.dll $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
+    <PropertyGroup>
+      <IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
+    </PropertyGroup>
+    <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang"/>
+    <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\CS2-CustomVotes"/>
+    <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\CS2-CustomVotes.Shared"/>
+    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R $(OutDir)*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
+    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(OutDir)* $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/plugins/GameModeManager/" />
+    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /E /R $(ProjectDir)lib\csgo\ $(SolutionDir)bin\Debug\$(TargetFramework)\Public\" />
+    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(ProjectDir)lib/csgo/* $(SolutionDir)bin/Debug/$(TargetFramework)/Public/" />
+    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R $(ProjectDir)lang\*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang\" />
+    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(ProjectDir)lang/* $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/plugins/GameModeManager/lang/" />
+    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /E $(ProjectDir)lib\csgo\addons\counterstrikesharp\shared\WASDMenuAPI.Shared\WASDMenuAPI.Shared.dll $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
+    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp $(ProjectDir)lib/csgo/addons/counterstrikesharp/shared/WASDMenuAPI.Shared/WASDMenuAPI.Shared.dll $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/plugins/GameModeManager/" />
   </Target>
 </Project>
