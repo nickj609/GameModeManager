@@ -65,34 +65,30 @@ jobs:
           bug_fixes=""
           misc=""
 
-          ifs=$'\n'
+          IFS=$'\n'
           for commit in $(echo "$commit_history"); do
-            case "$commit" in
+            decoded_commit=$(echo "$commit" | jq -sRr @text) # Use @text to get raw string
+
+            case "$decoded_commit" in
               added:*|Added:*)
-                feature_description=$(echo "$commit" | cut -d':' -f2-)
-                features="$features- $feature_description\n"
+                thanks=$(echo "$decoded_commit" | grep -oE 'Thanks\s+@\w+\s+#\d+')
+                message=$(echo "$decoded_commit" | cut -d':' -f2- | sed -E 's/Thanks\s+@\w+\s+#\d+//')
+                features="$features- $(echo "$message" | sed -e 's/^[[:space:]]*//') $thanks\n"
                 ;;
               Fix:*|Bug:*|BugFix:*)
-                # Capture "Thanks @user #issue" if present
-                thanks=$(echo "$commit" | grep -oE 'Thanks\s+@\w+\s+#\d+')
-                message=$(echo "$commit" | sed -E 's/Fix:|Bug:|BugFix://i' | sed -E 's/Thanks\s+@\w+\s+#\d+//')
+                thanks=$(echo "$decoded_commit" | grep -oE 'Thanks\s+@\w+\s+#\d+')
+                message=$(echo "$decoded_commit" | sed -E 's/Fix:|Bug:|BugFix://i' | sed -E 's/Thanks\s+@\w+\s+#\d+//')
                 bug_fixes="$bug_fixes- $(echo "$message" | sed -e 's/^[[:space:]]*//') $thanks\n"
                 ;;
               *)
-                misc="$misc- $commit\n"
+                misc="$misc- $decoded_commit\n"
                 ;;
             esac
           done
 
-          if [[ -n "$features" ]]; then
-            echo "features=$(echo "$features" | jq -sRr @uri)" >> $GITHUB_OUTPUT
-          fi
-          if [[ -n "$bug_fixes" ]]; then
-            echo "bug_fixes=$(echo "$bug_fixes" | jq -sRr @uri)" >> $GITHUB_OUTPUT
-          fi
-          if [[ -n "$misc" ]]; then
-            echo "misc=$(echo "$misc" | jq -sRr @uri)" >> $GITHUB_OUTPUT
-          fi
+          echo "features=$(echo "$features" | jq -sRr @text)" >> $GITHUB_OUTPUT
+          echo "bug_fixes=$(echo "$bug_fixes" | jq -sRr @text)" >> $GITHUB_OUTPUT
+          echo "misc=$(echo "$misc" | jq -sRr @text)" >> $GITHUB_OUTPUT
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
@@ -108,7 +104,7 @@ jobs:
       - name: Create ZIP archive
         if: ${{ steps.check_version_change.outputs.module_version_changed == 'true' }}
         run: |
-          zip -r GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip bin/Debug/net8.0/Public/*
+          zip -j GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip bin/Debug/net8.0/Public/*
 
       - name: Create Release
         uses: actions/create-release@v1.1.4
