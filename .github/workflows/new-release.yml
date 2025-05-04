@@ -5,11 +5,12 @@ on:
       - dev
     paths:
       - 'GameModeManager/Plugin.cs'
-      - 'GameModeManager/Config.cs' # Added path for Config.cs to trigger on changes there too
 jobs:
   NewRelease:
     if: true
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -67,17 +68,17 @@ jobs:
 
           IFS=$'\n'
           for commit in $(echo "$commit_history"); do
-            decoded_commit=$(echo "$commit" | jq -sRr @text) # Use @text to get raw string
+            decoded_commit=$(echo "$commit" | jq -sRr @text | sed -e 's/\\n$//') # Remove trailing \n
 
             case "$decoded_commit" in
-              added:*|Added:*)
+              feat:*|Feat:*)
                 thanks=$(echo "$decoded_commit" | grep -oE 'Thanks\s+@\w+\s+#\d+')
-                message=$(echo "$decoded_commit" | cut -d':' -f2- | sed -E 's/Thanks\s+@\w+\s+#\d+//')
+                message=$(echo "$decoded_commit" | cut -d':' -f2- | sed -E 's/Feat:|feat://i' | sed -E 's/Thanks\s+@\w+\s+#\d+//')
                 features="$features- $(echo "$message" | sed -e 's/^[[:space:]]*//') $thanks\n"
                 ;;
-              Fix:*|Bug:*|BugFix:*)
+              fix:*|Fix:*|bug:*|Bug:*|BugFix:*|bugfix:*)
                 thanks=$(echo "$decoded_commit" | grep -oE 'Thanks\s+@\w+\s+#\d+')
-                message=$(echo "$decoded_commit" | sed -E 's/Fix:|Bug:|BugFix://i' | sed -E 's/Thanks\s+@\w+\s+#\d+//')
+                message=$(echo "$decoded_commit" | sed -E 's/Fix:|Bug:|BugFix:|fix:|bug:|bugfix://i' | sed -E 's/Thanks\s+@\w+\s+#\d+//')
                 bug_fixes="$bug_fixes- $(echo "$message" | sed -e 's/^[[:space:]]*//') $thanks\n"
                 ;;
               *)
@@ -86,19 +87,22 @@ jobs:
             esac
           done
 
-          echo "features=$(echo "$features" | jq -sRr @text)" >> $GITHUB_OUTPUT
-          echo "bug_fixes=$(echo "$bug_fixes" | jq -sRr @text)" >> $GITHUB_OUTPUT
-          echo "misc=$(echo "$misc" | jq -sRr @text)" >> $GITHUB_OUTPUT
+          echo "features=$features" >> $GITHUB_OUTPUT
+          echo "bug_fixes=$bug_fixes" >> $GITHUB_OUTPUT
+          echo "misc=$misc" >> $GITHUB_OUTPUT
 
       - name: Setup .NET
+        if: ${{ steps.check_version_change.outputs.module_version_changed == 'true' }}
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
+        if: ${{ steps.check_version_change.outputs.module_version_changed == 'true' }}
         run: dotnet restore GameModeManager.sln
 
       - name: Build solution
+        if: ${{ steps.check_version_change.outputs.module_version_changed == 'true' }}
         run: dotnet build --configuration Debug GameModeManager.sln
 
       - name: Create ZIP archive
@@ -112,7 +116,7 @@ jobs:
         if: ${{ steps.check_version_change.outputs.module_version_changed == 'true' }}
         id: create_release
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ steps.version_info.outputs.current_module_version }}
           release_name: GameModeManager v${{ steps.version_info.outputs.current_module_version }}
@@ -147,7 +151,7 @@ jobs:
         if: ${{ steps.check_version_change.outputs.module_version_changed == 'true'}}
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./bin/Debug/net8.0/Public/GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip
