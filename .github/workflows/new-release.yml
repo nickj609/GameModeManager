@@ -150,6 +150,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip
+          asset_path: ./bin/Debug/net8.0/Public/GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip
           asset_name: GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip
           asset_content_type: application/zip
