@@ -13,64 +13,50 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
 
-      - name: Get current ModuleVersion from Plugin.cs
-        id: get_current_version
+      - name: Get Version Information
+        id: version_info
         run: |
-          VERSION=$(grep -oP 'ModuleVersion => "\K[^"]+' GameModeManager/Plugin.cs)
-          echo "current_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Getting current and previous version information..."
 
-      - name: Get previous ModuleVersion from Plugin.cs
-        id: get_previous_version
-        run: |
-          VERSION=$(git show HEAD~1:GameModeManager/Plugin.cs | grep -oP 'ModuleVersion => "\K[^"]+')
-          echo "previous_version=$VERSION" >> $GITHUB_OUTPUT
+          CURRENT_MODULE_VERSION=$(grep -oP 'ModuleVersion => "\K[^"]+' GameModeManager/Plugin.cs)
+          echo "current_module_version=$CURRENT_MODULE_VERSION" >> $GITHUB_ENV
 
-      - name: Get current ConfigVersion from Config.cs
-        id: get_current_config_version
-        run: |
-          CONFIG_VERSION=$(grep -oP 'public int Version { get; set; } = \K\d+' GameModeManager/Config.cs)
-          echo "current_config_version=$CONFIG_VERSION" >> $GITHUB_OUTPUT
+          PREVIOUS_MODULE_VERSION=$(git show HEAD~1:GameModeManager/Plugin.cs | grep -oP 'ModuleVersion => "\K[^"]+' GameModeManager/Plugin.cs)
+          echo "previous_module_version=$PREVIOUS_MODULE_VERSION" >> $GITHUB_ENV
 
-      - name: Get previous ConfigVersion from Config.cs
-        id: get_previous_config_version
-        run: |
-          CONFIG_VERSION=$(git show HEAD~1:GameModeManager/Config.cs | grep -oP 'public int Version { get; set; } = \K\d+' GameModeManager/Config.cs)
-          echo "previous_config_version=$CONFIG_VERSION" >> $GITHUB_OUTPUT
+          CURRENT_CONFIG_VERSION=$(grep -oP 'public int Version { get; set; } = \K\d+' GameModeManager/Config.cs)
+          echo "current_config_version=$CURRENT_CONFIG_VERSION" >> $GITHUB_ENV
 
-      - name: Check if version changed
+          PREVIOUS_CONFIG_VERSION=$(git show HEAD~1:GameModeManager/Config.cs | grep -oP 'public int Version { get; set; } = \K\d+' GameModeManager/Config.cs)
+          echo "previous_config_version=$PREVIOUS_CONFIG_VERSION" >> $GITHUB_ENV
+
+      - name: Check for Version Changes
         id: check_version_change
         run: |
-          CURRENT_VERSION="${{ steps.get_current_version.outputs.current_version }}"
-          PREVIOUS_VERSION="${{ steps.get_previous_version.outputs.previous_version }}"
-          if [[ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]]; then
-            echo "version_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "version_changed=false" >> $GITHUB_OUTPUT
-          fi
+          MODULE_VERSION_CHANGED="false"
+          CONFIG_VERSION_CHANGED="false"
 
-      - name: Check config version changed
-        id: check_config_version_change
-        run: |
-          CURRENT_CONFIG_VERSION="${{ steps.get_current_config_version.outputs.current_config_version }}"
-          PREVIOUS_CONFIG_VERSION="${{ steps.get_previous_config_version.outputs.previous_config_version }}"
-          if [[ "$CURRENT_CONFIG_VERSION" != "$PREVIOUS_CONFIG_VERSION" ]]; then
-            echo "config_version_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "config_version_changed=false" >> $GITHUB_OUTPUT
+          if [[ "${{ env.current_module_version }}" != "${{ env.previous_module_version }}" ]]; then
+            MODULE_VERSION_CHANGED="true"
           fi
+          echo "module_version_changed=$MODULE_VERSION_CHANGED" >> $GITHUB_ENV
 
-      - name: Get commit history
-        if: ${{ steps.check_version_change.outputs.version_changed == 'true' }}
+          if [[ "${{ env.current_config_version }}" != "${{ env.previous_config_version }}" ]]; then
+            CONFIG_VERSION_CHANGED="true"
+          fi
+          echo "config_version_changed=$CONFIG_VERSION_CHANGED" >> $GITHUB_ENV
+
+      - name: Get Commit History
+        if: ${{ env.module_version_changed == 'true' }}
         id: get_commit_history
         run: |
-          COMMIT_HISTORY=$(git log --pretty=format:"%s" HEAD~1..HEAD)
-          echo "commit_history=$(echo "$COMMIT_HISTORY" | jq -sRr @uri)" >> $GITHUB_OUTPUT
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null) || LAST_TAG=$(git rev-list --max-parents=0 HEAD) # Fallback to first commit if no tags
+          COMMIT_HISTORY=$(git log --pretty=format:"%s" "$LAST_TAG"..HEAD)
+          echo "commit_history=$(echo "$COMMIT_HISTORY" | jq -sRr @uri)" >> $GITHUB_ENV
 
-      - name: Parse commit history
-        if: ${{ steps.check_version_change.outputs.version_changed == 'true' }}
+      - name: Parse Commit History
+        if: ${{ env.module_version_changed == 'true' }}
         id: parse_commits
         run: |
           COMMIT_HISTORY="${{ steps.get_commit_history.outputs.commit_history }}"
@@ -80,18 +66,31 @@ jobs:
 
           IFS=$'\n'
           for COMMIT in $(echo "$COMMIT_HISTORY"); do
-            if [[ "$COMMIT" == ADDED:* || "$COMMIT" == Added:* ]]; then
-              FEATURES="$FEATURES- $(echo "$COMMIT" | cut -d':' -f2-)\n"
-            elif [[ "$COMMIT" == Fix:* || "$COMMIT" == Bug:* || "$COMMIT" == BugFix:* ]]; then
-              BUG_FIXES="$BUG_FIXES- $(echo "$COMMIT" | cut -d':' -f2-)\n"
-            else
-              MISC="$MISC- $COMMIT\n"
-            fi
+            case "$COMMIT" in
+              ADDED:*|Added:*)
+                FEATURES="$FEATURES- $(echo "$COMMIT" | cut -d':' -f2-)\n"
+                ;;
+              Fix:*|Bug:*|BugFix:*)
+                # Capture the "Thanks" and issue number if present
+                THANKS=$(echo "$COMMIT" | grep -oE 'Thanks\s+@\w+\s+#\d+')
+                MESSAGE=$(echo "$COMMIT" | sed -E 's/Fix:|Bug:|BugFix://i' | sed -E 's/Thanks\s+@\w+\s+#\d+//')
+                BUG_FIXES="$BUG_FIXES- $(echo "$MESSAGE" | sed -e 's/^[[:space:]]*//') $THANKS\n"
+                ;;
+              *)
+                MISC="$MISC- $COMMIT\n"
+                ;;
+            esac
           done
 
-          echo "features=$(echo "$FEATURES" | jq -sRr @uri)" >> $GITHUB_OUTPUT
-          echo "bug_fixes=$(echo "$BUG_FIXES" | jq -sRr @uri)" >> $GITHUB_OUTPUT
-          echo "misc=$(echo "$MISC" | jq -sRr @uri)" >> $GITHUB_OUTPUT
+          if [[ -n "$FEATURES" ]]; then
+            echo "features=$FEATURES" >> $GITHUB_ENV
+          fi
+          if [[ -n "$BUG_FIXES" ]]; then
+            echo "bug_fixes=$BUG_FIXES" >> $GITHUB_ENV
+          fi
+          if [[ -n "$MISC" ]]; then
+            echo "misc=$MISC" >> $GITHUB_ENV
+          fi
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
@@ -105,33 +104,34 @@ jobs:
         run: dotnet build --configuration Debug GameModeManager.sln
 
       - name: Create ZIP archive
-        if: ${{ steps.check_version_change.outputs.version_changed == 'true' }}
+        if: ${{ env.module_version_changed == 'true' }}
         run: |
-          zip -r GameModeManager_v${{ steps.get_current_version.outputs.current_version }}.zip bin/Debug/net8.0/Public
+          cd bin/Debug/net8.0/Public
+          zip -r ../../../GameModeManager_v${{ env.current_module_version }}.zip .
 
       - name: Create Release
-        if: ${{ steps.check_version_change.outputs.version_changed == 'true' }}
         uses: actions/create-release@v1.1.4
+        if: ${{ env.module_version_changed == 'true' }}
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
-          tag_name: v${{ steps.get_current_version.outputs.current_version }}
-          release_name: Release Game Mode Manager v${{ steps.get_current_version.outputs.current_version }}
+          tag_name: v${{ env.current_module_version }}
+          release_name: Game Mode Manager v${{ env.current_module_version }}
           body: |
-            # Game Mode Manager v${{ steps.get_current_version.outputs.current_version }}
-            ${{ steps.check_config_version_change.outputs.config_version_changed == 'true' && '> [!IMPORTANT]
-            > - If moving from v${{ steps.get_previous_version.outputs.previous_version }} or earlier, back up your `GameModeManager.json` configuration file and let the plugin generate the new version. This version has minor changes to the configuration file.
+            # Game Mode Manager v${{ env.current_module_version }}
+            ${{ env.config_version_changed == 'true' && '> [!IMPORTANT]
+            > - If moving from v${{ env.previous_module_version }} or earlier, back up your `GameModeManager.json` configuration file and let the plugin generate the new version. This version has minor changes to the configuration file.
             >' || '' }}
 
-            ## Features
-            ${{ steps.parse_commits.outputs.features }}
+            ${{ env.features && '## Features' || '' }}
+            ${{ env.features }}
 
-            ## Bug Fixes
-            ${{ steps.parse_commits.outputs.bug_fixes }}
+            ${{ env.bug_fixes && '## Bug Fixes' || '' }}
+            ${{ env.bug_fixes }}
 
-            ## Misc
-            ${{ steps.parse_commits.outputs.misc }}
+            ${{ env.misc && '## Misc' || '' }}
+            ${{ env.misc }}
 
             ## Installation
             1. Install Metamod:Source and Counter Strike Sharp.
@@ -142,17 +142,17 @@ jobs:
 
             For more information on the configuration of these features, please see the updated [README.md](https://github.com/nickj609/GameModeManager/blob/main/README.md).
 
-            **Full Changelog**: https://github.com/nickj609/GameModeManager/compare/v${{ steps.get_previous_version.outputs.previous_version }}...v${{ steps.get_current_version.outputs.current_version }}
+            **Full Changelog**: https://github.com/nickj609/GameModeManager/compare/v${{ env.previous_module_version }}...v${{ env.current_module_version }}
           draft: false
           prerelease: false
 
       - name: Upload Release Asset
-        if: ${{ steps.check_version_change.outputs.version_changed == 'true'}}
         uses: actions/upload-release-asset@v1
+        if: ${{ env.module_version_changed == 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: GameModeManager_v${{ steps.get_current_version.outputs.current_version }}.zip
-          asset_name: GameModeManager_v${{ steps.get_current_version.outputs.current_version }}.zip
+          asset_path: GameModeManager_v${{ env.current_module_version }}.zip
+          asset_name: GameModeManager_v${{ env.current_module_version }}.zip
           asset_content_type: application/zip

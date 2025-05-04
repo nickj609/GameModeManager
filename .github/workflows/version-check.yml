@@ -10,130 +10,94 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Get ModuleVersion from Plugin.cs
-        id: get_plugin_version
+      - name: Extract Versions
+        id: extract_versions
         run: |
-          VERSION=$(grep -oP 'ModuleVersion => "\K[^"]+' GameModeManager/Plugin.cs)
-          echo "plugin_version=$VERSION" >> $GITHUB_OUTPUT
+          PLUGIN_VERSION=$(grep -oP 'ModuleVersion => "\K[^"]+' GameModeManager/Plugin.cs)
+          echo "plugin_version=$PLUGIN_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Get Current Version from SECURITY.md
-        id: get_security_current_version
-        run: |
-          VERSION=$(grep -oP '\- v\K[^ ]+(?= \*\*\(Current Version\)\*\*)' SECURITY.md)
-          echo "security_current_version=$VERSION" >> $GITHUB_OUTPUT
+          SECURITY_CURRENT=$(grep -oP '\- v\K[^ ]+(?= \*\*\(Current Version\)\*\*)' SECURITY.md)
+          echo "security_current=$SECURITY_CURRENT" >> $GITHUB_OUTPUT
 
-      - name: Get Previous Version from SECURITY.md
-        id: get_security_previous_version
-        run: |
-          VERSION=$(grep -oP '\- v\K[^ ]+(?= \*\*\(Previous Major Version\)\*\*)' SECURITY.md)
-          echo "security_previous_version=$VERSION" >> $GITHUB_OUTPUT
+          SECURITY_PREVIOUS=$(grep -oP '\- v\K[^ ]+(?= \*\*\(Previous Major Version\)\*\*)' SECURITY.md)
+          echo "security_previous=$SECURITY_PREVIOUS" >> $GITHUB_OUTPUT
+
+          CONFIG_CLASS=$(grep -oP 'public\s+int\s+Version\s*{\s*get;\s*set;\s*}\s*=\s*\K\d+' GameModeManager/Config.cs)
+          if [[ -z "$CONFIG_CLASS" ]]; then
+            echo "Error: Could not find Config Class Version in GameModeManager/Config.cs"
+            exit 1
+          fi
+          echo "config_class=$CONFIG_CLASS" >> $GITHUB_OUTPUT
+
+          CONFIG_PARSED=$(grep -oP 'if\s*\(_config\.Version\s*<\s*\K\d+' GameModeManager/Config.cs)
+          if [[ -z "$CONFIG_PARSED" ]]; then
+            echo "Error: Could not find Config Parsed Version check in GameModeManager/Config.cs"
+            exit 1
+          fi
+          echo "config_parsed=$CONFIG_PARSED" >> $GITHUB_OUTPUT
 
       - name: Calculate Expected Previous Version
         id: calculate_previous_version
         run: |
-          CURRENT_VERSION="${{ steps.get_plugin_version.outputs.plugin_version }}"
-          # Basic check if version format is correct
+          CURRENT_VERSION="${{ steps.extract_versions.outputs.plugin_version }}"
           if ! [[ "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Error: Invalid plugin version format found: $CURRENT_VERSION"
             exit 1
           fi
-          VERSION_PARTS=($(echo "$CURRENT_VERSION" | tr '.' ' '))
-          MAJOR=${VERSION_PARTS[0]}
-          MINOR=${VERSION_PARTS[1]}
-          PATCH=${VERSION_PARTS[2]}
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
-          # Calculate previous version logic (adjust if needed for major/minor bumps)
           if [[ $PATCH -gt 0 ]]; then
-            PREVIOUS_PATCH=$((PATCH - 1))
-            EXPECTED_PREVIOUS_VERSION="$MAJOR.$MINOR.$PREVIOUS_PATCH"
+            EXPECTED_PREVIOUS="$MAJOR.$MINOR.$((PATCH - 1))"
           elif [[ $MINOR -gt 0 ]]; then
-            # Assuming a minor bump resets patch to 0, find the 'last' patch of the previous minor
-            # This simple logic might need adjustment based on your actual versioning strategy
-            # For now, assuming previous minor ends in .0 or a hypothetical highest patch
-            PREVIOUS_MINOR=$((MINOR - 1))
-            # You might need a more complex way to determine the last patch of the previous minor
-            # For simplicity, using .0 here as per your original logic
-            EXPECTED_PREVIOUS_VERSION="$MAJOR.$PREVIOUS_MINOR.0"
+            EXPECTED_PREVIOUS="$MAJOR.$((MINOR - 1)).0"
           elif [[ $MAJOR -gt 0 ]]; then
-             # Assuming a major bump resets minor/patch to 0, find the 'last' of the previous major
-             # This simple logic might need adjustment
-             PREVIOUS_MAJOR=$((MAJOR - 1))
-             # You might need a more complex way to determine the last minor/patch of the previous major
-             # For simplicity, using .0.0 here as per your original logic
-             EXPECTED_PREVIOUS_VERSION="$PREVIOUS_MAJOR.0.0" # Adjust this logic if necessary
+            EXPECTED_PREVIOUS="$((MAJOR - 1)).0.0"
           else
-             # Handle case like 0.0.0 or invalid version
-             echo "Warning: Cannot determine previous version for $CURRENT_VERSION"
-             EXPECTED_PREVIOUS_VERSION="0.0.0" # Default or error state
+            echo "Warning: Cannot determine previous version for $CURRENT_VERSION"
+            EXPECTED_PREVIOUS="0.0.0"
           fi
-          echo "expected_previous_version=$EXPECTED_PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+          echo "expected_previous_version=$EXPECTED_PREVIOUS" >> $GITHUB_OUTPUT
 
-      - name: Get ConfigVersion from Config.cs (Class Definition)
-        id: get_config_class_version
+      - name: Check Version Consistency
         run: |
-          # Made grep slightly more robust to whitespace changes
-          CONFIG_CLASS_VERSION=$(grep -oP 'public\s+int\s+Version\s*{\s*get;\s*set;\s*}\s*=\s*\K\d+' GameModeManager/Config.cs)
-          if [[ -z "$CONFIG_CLASS_VERSION" ]]; then
-            echo "Error: Could not find Config Class Version in GameModeManager/Config.cs"
-            exit 1
-          fi
-          echo "config_class_version=$CONFIG_CLASS_VERSION" >> $GITHUB_OUTPUT
-
-      # --- CHANGE MADE HERE ---
-      - name: Get ConfigVersion from Config.cs (OnConfigParsed Check)
-        id: get_config_parsed_version
-        run: |
-          # Corrected file path from Plugin.cs to Config.cs
-          # Made grep slightly more robust to whitespace changes
-          CONFIG_PARSED_VERSION=$(grep -oP 'if\s*\(_config\.Version\s*<\s*\K\d+' GameModeManager/Config.cs)
-          if [[ -z "$CONFIG_PARSED_VERSION" ]]; then
-            echo "Error: Could not find Config Parsed Version check in GameModeManager/Config.cs"
-            exit 1
-          fi
-          echo "config_parsed_version=$CONFIG_PARSED_VERSION" >> $GITHUB_OUTPUT
-      # --- END OF CHANGE ---
-
-      - name: Check version consistency
-        run: |
-          PLUGIN_VERSION="${{ steps.get_plugin_version.outputs.plugin_version }}"
-          SECURITY_CURRENT_VERSION="${{ steps.get_security_current_version.outputs.security_current_version }}"
-          SECURITY_PREVIOUS_VERSION="${{ steps.get_security_previous_version.outputs.security_previous_version }}"
-          EXPECTED_PREVIOUS_VERSION="${{ steps.calculate_previous_version.outputs.expected_previous_version }}"
-          CONFIG_CLASS_VERSION="${{ steps.get_config_class_version.outputs.config_class_version }}"
-          CONFIG_PARSED_VERSION="${{ steps.get_config_parsed_version.outputs.config_parsed_version }}"
+          PLUGIN="${{ steps.extract_versions.outputs.plugin_version }}"
+          SECURITY_CURRENT="${{ steps.extract_versions.outputs.security_current }}"
+          SECURITY_PREVIOUS="${{ steps.extract_versions.outputs.security_previous }}"
+          EXPECTED_PREVIOUS="${{ steps.calculate_previous_version.outputs.expected_previous_version }}"
+          CONFIG_CLASS="${{ steps.extract_versions.outputs.config_class }}"
+          CONFIG_PARSED="${{ steps.extract_versions.outputs.config_parsed }}"
 
           ERROR_DETECTED=false
 
           echo "--- Version Check ---"
-          echo "Plugin.cs version:                $PLUGIN_VERSION"
-          echo "SECURITY.md Current Version:      $SECURITY_CURRENT_VERSION"
-          echo "SECURITY.md Previous Version:     $SECURITY_PREVIOUS_VERSION"
-          echo "Calculated Expected Prev Version: $EXPECTED_PREVIOUS_VERSION"
-          echo "Config.cs (Class) Version:        $CONFIG_CLASS_VERSION"
-          echo "Config.cs (Parsed Check) Version: $CONFIG_PARSED_VERSION"
+          echo "Plugin.cs version: $PLUGIN"
+          echo "SECURITY.md Current Version: $SECURITY_CURRENT"
+          echo "SECURITY.md Previous Version: $SECURITY_PREVIOUS"
+          echo "Calculated Expected Prev Version: $EXPECTED_PREVIOUS"
+          echo "Config.cs (Class) Version: $CONFIG_CLASS"
+          echo "Config.cs (Parsed Check) Version: $CONFIG_PARSED"
           echo "---------------------"
 
-          if [[ "$PLUGIN_VERSION" != "$SECURITY_CURRENT_VERSION" ]]; then
+          if [[ "$PLUGIN" != "$SECURITY_CURRENT" ]]; then
             echo "Error: Plugin version mismatch!"
-            echo "  Plugin.cs version: $PLUGIN_VERSION"
-            echo "  SECURITY.md Current Version: $SECURITY_CURRENT_VERSION"
+            echo "Plugin.cs version: $PLUGIN"
+            echo "SECURITY.md Current Version: $SECURITY_CURRENT"
             ERROR_DETECTED=true
           fi
 
-          # Compare previous versions only if expected could be calculated reasonably
-          if [[ "$EXPECTED_PREVIOUS_VERSION" != "0.0.0" && "$SECURITY_PREVIOUS_VERSION" != "$EXPECTED_PREVIOUS_VERSION" ]]; then
+          if [[ "$EXPECTED_PREVIOUS" != "0.0.0" && "$SECURITY_PREVIOUS" != "$EXPECTED_PREVIOUS" ]]; then
             echo "Error: Previous plugin version mismatch!"
-            echo "  SECURITY.md Previous Version: $SECURITY_PREVIOUS_VERSION"
-            echo "  Expected Previous Version:    $EXPECTED_PREVIOUS_VERSION"
+            echo "SECURITY.md Previous Version: $SECURITY_PREVIOUS"
+            echo "Expected Previous Version: $EXPECTED_PREVIOUS"
             ERROR_DETECTED=true
-          elif [[ "$EXPECTED_PREVIOUS_VERSION" == "0.0.0" ]]; then
-             echo "Warning: Skipping previous version check due to calculation issue for $PLUGIN_VERSION."
+          elif [[ "$EXPECTED_PREVIOUS" == "0.0.0" ]]; then
+            echo "Warning: Skipping previous version check due to calculation issue for $PLUGIN."
           fi
 
-          if [[ "$CONFIG_CLASS_VERSION" != "$CONFIG_PARSED_VERSION" ]]; then
+          if [[ "$CONFIG_CLASS" != "$CONFIG_PARSED" ]]; then
             echo "Error: Config version mismatch!"
-            echo "  Config.cs (Class) Version: $CONFIG_CLASS_VERSION"
-            echo "  Config.cs (Parsed Check) Version: $CONFIG_PARSED_VERSION"
+            echo "Config.cs (Class) Version: $CONFIG_CLASS"
+            echo "Config.cs (Parsed Check) Version: $CONFIG_PARSED"
             ERROR_DETECTED=true
           fi
 
