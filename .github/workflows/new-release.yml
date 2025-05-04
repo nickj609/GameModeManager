@@ -108,7 +108,7 @@ jobs:
       - name: Create ZIP archive
         if: ${{ steps.check_version_change.outputs.module_version_changed == 'true' }}
         run: |
-          zip -r GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip bin/Debug/net8.0/Public
+          zip -r GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip bin/Debug/net8.0/Public/*
 
       - name: Create Release
         uses: actions/create-release@v1.1.4
@@ -118,9 +118,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           tag_name: v${{ steps.version_info.outputs.current_module_version }}
-          release_name: Release Game Mode Manager v${{ steps.version_info.outputs.current_module_version }}
+          release_name: GameModeManager v${{ steps.version_info.outputs.current_module_version }}
           body: |
-            # Game Mode Manager v${{ steps.version_info.outputs.current_module_version }}
             ${{ steps.check_version_change.outputs.config_version_changed == 'true' && '> [!IMPORTANT]
             > - If moving from v${{ steps.version_info.outputs.previous_module_version }} or earlier, back up your `GameModeManager.json` configuration file and let the plugin generate the new version. This version has minor changes to the configuration file.
             >' || '' }}
@@ -140,7 +139,9 @@ jobs:
             3. Make sure your `gamemodes_server.txt` or custom map group file is in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and contains a list of map groups.
             5. Update each game mode configuration file (i.e. comp.cfg) to include `css_gamemode <mode>`.
             6. After the first run, update the configuration file `GameModeManager.json`.
+
             For more information on the configuration of these features, please see the updated [README.md](https://github.com/nickj609/GameModeManager/blob/main/README.md).
+            
             **Full Changelog**: https://github.com/nickj609/GameModeManager/compare/v${{ steps.version_info.outputs.previous_module_version }}...v${{ steps.version_info.outputs.current_module_version }}
           draft: false
           prerelease: false
