@@ -111,7 +111,8 @@ jobs:
 
       - name: Create Release
         if: ${{ steps.check_version_change.outputs.version_changed == 'true' }}
-        uses: actions/create-release@v1
+        uses: actions/create-release@v1.1.4
+        id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:

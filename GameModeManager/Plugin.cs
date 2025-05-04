@@ -28,7 +28,7 @@ namespace GameModeManager
         public static Plugin? Instance;
         private bool _isCustomVotesLoaded = false;
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "1.0.63";
+        public override string ModuleVersion => "1.0.64";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
