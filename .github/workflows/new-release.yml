@@ -104,7 +104,7 @@ jobs:
       - name: Create ZIP archive
         if: ${{ steps.check_version_change.outputs.module_version_changed == 'true' }}
         run: |
-          zip -i GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip bin/Debug/net8.0/Public/
+          zip -i GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip bin/Debug/net8.0/Public/*
 
       - name: Create Release
         uses: actions/create-release@v1.1.4
