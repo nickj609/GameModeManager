@@ -768,7 +768,7 @@ public interface IGameModeApi
 
 ```csproj
 <ItemGroup>
-    <Reference Include="CS2-GameModeManager.Shared">
+    <Reference Include="GameModeManager.Shared">
       <HintPath>..\GameModeManagger.Shared\GameModeManagger.Shared.dll</HintPath>
     </Reference>
 </ItemGroup>
@@ -784,10 +784,10 @@ namespace Plugin
 
 public class Plugin : BasePlugin
 {
-	public PluginCapability<ICustomVoteApi> GameModeApi { get; } = new("game_mode:api");
+	public PluginCapability<IGameModeApi> GameModeApi { get; } = new("game_mode:api");
 
-	GameModeApi.ChangeMap(mapName);
-	GameModeApi.ChangeMode(modeName);
+	GameModeApi.Get().ChangeMap(mapName);
+	GameModeApi.Get().ChangeMode(modeName);
 }
 ```
 </details>

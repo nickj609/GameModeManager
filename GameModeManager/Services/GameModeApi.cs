@@ -68,10 +68,9 @@ namespace GameModeManager.Services
 
         private class WarmupController : IWarmupControl
         {
-
             // Define class dependencies
             private readonly WarmupManager _warmupManager;
-
+            
             // Define class instance
             public WarmupController(WarmupManager warmupManager) => _warmupManager = warmupManager;
 
