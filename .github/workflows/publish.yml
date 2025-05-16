@@ -9,6 +9,8 @@ jobs:
   PublishRelease:
     if: true
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
