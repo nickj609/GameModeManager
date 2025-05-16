@@ -2,9 +2,6 @@
 using GameModeManager.Core;
 using GameModeManager.Menus;
 using GameModeManager.Shared;
-using GameModeManager.Shared;
-using CounterStrikeSharp.API;
-using GameModeManager.Services;
 using GameModeManager.Services;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
@@ -12,7 +9,6 @@ using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Core.Capabilities;
 using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
-using CounterStrikeSharp.API.Core.Capabilities;
 
 // Declare namespace
 namespace GameModeManager
@@ -33,7 +29,7 @@ namespace GameModeManager
     {
         // Define plugin properties
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "1.0.81";
+        public override string ModuleVersion => "1.0.60";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
@@ -43,19 +39,14 @@ namespace GameModeManager
         private readonly ModeMenus _modeMenus;
         private readonly PlayerMenu _playerMenu;
         private readonly GameModeApi _gameModeApi;
-        private readonly PluginState _pluginState;
-        private readonly GameModeApi _gameModeApi; 
         private readonly TimeLimitApi _timeLimitApi;
         private readonly SettingMenus _settingMenus;
         private readonly NominateMenus _nominateMenus;
         private readonly CustomVoteManager _customVoteManager;
-       
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
-        private readonly PluginCapability<IGameModeApi?> _pluginCapability = new("game_mode:api");
-
         // Define class instance
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager, CustomVoteManager customVoteManager, PlayerMenu playerMenu, PluginState pluginState, 
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager, CustomVoteManager customVoteManager, PlayerMenu playerMenu,
         MapMenus mapMenus, SettingMenus settingMenus, ModeMenus modeMenus, NominateMenus nominateMenus, GameModeApi gameModeApi, TimeLimitApi timeLimitApi, RTVApi rtvApi)
         {
             _rtvApi = rtvApi;
@@ -63,13 +54,11 @@ namespace GameModeManager
             _modeMenus = modeMenus;
             _playerMenu = playerMenu;
             _gameModeApi = gameModeApi;
-            _pluginState = pluginState;
             _timeLimitApi = timeLimitApi;
             _settingMenus = settingMenus;
             _nominateMenus = nominateMenus;
             _customVoteManager = customVoteManager;
             _dependencyManager = dependencyManager;
-            _gameModeApi = gameModeApi;
         }
 
         // Define class properties
@@ -87,7 +76,6 @@ namespace GameModeManager
 
             // Load plugin dependencies
             _dependencyManager.OnPluginLoad(this);
-            Capabilities.RegisterPluginCapability(_pluginCapability, () => _gameModeApi);
             RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);
 
             // Load services
