@@ -29,7 +29,7 @@ namespace GameModeManager
     {
         // Define plugin properties
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "1.0.80";
+        public override string ModuleVersion => "1.0.81";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
