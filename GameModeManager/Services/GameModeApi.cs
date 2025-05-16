@@ -105,7 +105,7 @@ namespace GameModeManager.Services
         // Define change mode handlers
         public void ChangeMode(string modeName)
         {
-            Mode? mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
+            Mode? mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{modeName}.cfg", StringComparison.OrdinalIgnoreCase));
 
             if (mode != null)
             {

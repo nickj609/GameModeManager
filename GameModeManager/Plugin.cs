@@ -6,6 +6,10 @@ using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
+using CounterStrikeSharp.API.Core.Capabilities;
+using GameModeManager.Shared;
+using CounterStrikeSharp.API;
+using GameModeManager.Services;
 
 // Declare namespace
 namespace GameModeManager
@@ -36,14 +40,18 @@ namespace GameModeManager
         private readonly MapMenus _mapMenus;
         private readonly ModeMenus _modeMenus;
         private readonly PlayerMenu _playerMenu;
+        private readonly GameModeApi _gameModeApi;
         private readonly PluginState _pluginState;
         private readonly SettingMenus _settingMenus;
         private readonly NominateMenus _nominateMenus;
         private readonly CustomVoteManager _customVoteManager;
+       
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
+        private readonly PluginCapability<IGameModeApi?> _pluginCapability = new("game_mode:api");
+
         // Define class instance
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager, CustomVoteManager customVoteManager, PlayerMenu playerMenu, PluginState pluginState, MapMenus mapMenus, SettingMenus settingMenus, ModeMenus modeMenus, NominateMenus nominateMenus)
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager, CustomVoteManager customVoteManager, PlayerMenu playerMenu, PluginState pluginState, MapMenus mapMenus, SettingMenus settingMenus, ModeMenus modeMenus, NominateMenus nominateMenus,GameModeApi gameModeApi)
         {
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
@@ -53,6 +61,7 @@ namespace GameModeManager
             _nominateMenus = nominateMenus;
             _customVoteManager = customVoteManager;
             _dependencyManager = dependencyManager;
+            _gameModeApi = gameModeApi;
         }
 
         // Define on load behavior
@@ -60,6 +69,7 @@ namespace GameModeManager
         {   
             Instance = this;
             _dependencyManager.OnPluginLoad(this);
+            Capabilities.RegisterPluginCapability(_pluginCapability, () => _gameModeApi);
             RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);
         }
 
