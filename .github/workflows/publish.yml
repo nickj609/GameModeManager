@@ -6,7 +6,7 @@ on:
     paths:
       - 'GameModeManager/Plugin.cs'
 jobs:
-  NewRelease:
+  PublishRelease:
     if: true
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +59,7 @@ jobs:
           cd bin/Debug/net8.0/Public
           zip -r GameModeManager_v${{ steps.version_info.outputs.current_module_version }}.zip ./*
 
-      - name: Create Release
+      - name: GH Release
         if: ${{ steps.check_version_change.outputs.module_version_changed == 'true' }}
         id: create_release
         uses: softprops/action-gh-release@v2.2.2
