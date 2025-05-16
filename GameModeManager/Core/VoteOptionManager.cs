@@ -1,9 +1,9 @@
 // Included libraries
 using System.Data;
 using CounterStrikeSharp.API;
-using GameModeManager.Models;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 
 // Declare namespace
 namespace GameModeManager.Core
@@ -25,8 +25,8 @@ namespace GameModeManager.Core
 
         // Define class properties
         private int optionsToShow = 5;
-        private List<Map> maps = new();
-        private List<Mode> modes = new();  
+        private List<IMap> maps = new();
+        private List<IMode> modes = new();  
         private List<string> allOptions = new();
         public const int MAX_OPTIONS_HUD_MENU = 5; 
 
@@ -67,7 +67,7 @@ namespace GameModeManager.Core
             allOptions.Clear();
             optionsToShow = _config!.RTV.OptionsToShow == 0 ? MAX_OPTIONS_HUD_MENU : _config!.RTV.OptionsToShow;
 
-            if (_config.RTV.HudMenu && optionsToShow > MAX_OPTIONS_HUD_MENU)
+            if (_config.RTV.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && optionsToShow > MAX_OPTIONS_HUD_MENU)
             {
                 optionsToShow = MAX_OPTIONS_HUD_MENU;
             }
@@ -86,20 +86,20 @@ namespace GameModeManager.Core
                 modes = _pluginState.Modes.Where(m => m.Name != _pluginState.CurrentMode.Name && !_nominateManager.IsOptionInCooldown(m.Name)).ToList();
             }
 
-            foreach(Map map in maps)
+            foreach(IMap map in maps)
             {
                 allOptions.Add(map.DisplayName);
             }
             
-            foreach(Mode mode in modes)
+            foreach(IMode mode in modes)
             {
                 allOptions.Add(mode.Name);
             }
         }
         public bool OptionExists(string option)
         {
-            Map? map = null;
-            Mode? mode = null;
+            IMap? map = null;
+            IMode? mode = null;
 
             if (_config.RTV.IncludeModes)
             {
@@ -127,8 +127,8 @@ namespace GameModeManager.Core
 
         public string OptionType(string option)
         {
-            Map? map = null;
-            Mode? mode = null;
+            IMap? map = null;
+            IMode? mode = null;
 
             if (_config.RTV.IncludeModes)
             {
@@ -163,8 +163,8 @@ namespace GameModeManager.Core
             List<string> options = new();
             List<string> mapsEllected = new ();
             List<string> modesEllected = new ();
-            List<Map> mapsScrambled = (List<Map>)Extensions.Shuffle(new Random(), maps);
-            List<Mode> modesScrambled = (List<Mode>)Extensions.Shuffle(new Random(), modes);
+            List<IMap> mapsScrambled = (List<IMap>)PluginExtensions.Shuffle(new Random(), maps);
+            List<IMode> modesScrambled = (List<IMode>)PluginExtensions.Shuffle(new Random(), modes);
 
             if(_pluginState.IncludeExtend && _pluginState.MapExtends < _pluginState.MaxExtends)
             {
@@ -177,11 +177,11 @@ namespace GameModeManager.Core
                 int modesToInclude = (int)((optionsToShow * (_config.RTV.ModePercentage / 100.0)) - _nominateManager.ModeNominationWinners().Count);
                 int mapsToInclude = optionsToShow - modesToInclude - _nominateManager.MapNominationWinners().Count;
 
-                foreach (Mode mode in modesScrambled.Take(modesToInclude))
+                foreach (IMode mode in modesScrambled.Take(modesToInclude))
                 {
                     options.Add(mode.Name);
                 }
-                foreach (Map map in mapsScrambled.Take(mapsToInclude))
+                foreach (IMap map in mapsScrambled.Take(mapsToInclude))
                 {
                     options.Add(map.DisplayName);
                 }
@@ -190,7 +190,7 @@ namespace GameModeManager.Core
             }
             else
             {
-                foreach (Map map in mapsScrambled.Take(optionsToShow - _nominateManager.MapNominationWinners().Count))
+                foreach (IMap map in mapsScrambled.Take(optionsToShow - _nominateManager.MapNominationWinners().Count))
                 {
                     options.Add(map.DisplayName);
                 }
@@ -198,7 +198,7 @@ namespace GameModeManager.Core
                 mapsEllected = _nominateManager.MapNominationWinners().Distinct().ToList();
             }
 
-            List<string> optionsScrambled = (List<string>)Extensions.Shuffle(new Random(), options);
+            List<string> optionsScrambled = (List<string>)PluginExtensions.Shuffle(new Random(), options);
             List<string> optionsEllected = modesEllected.Concat(mapsEllected).Concat(optionsScrambled).Distinct().ToList();
 
             return optionsEllected;

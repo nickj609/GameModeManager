@@ -397,7 +397,7 @@ namespace GameModeManager.Core
 
         public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
         {
-            if (Extensions.IsServerEmpty())
+            if (ServerExtensions.IsServerEmpty())
             {
                  _logger.LogDebug("Server is empty. Disabling timer.");
                 DisableTimeLimit();

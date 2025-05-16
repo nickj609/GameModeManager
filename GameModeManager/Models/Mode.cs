@@ -1,25 +1,27 @@
+// Included libraries
+using GameModeManager.Shared.Models;
 // Declare namespace
 namespace GameModeManager.Models
 {
     // Define class
-    public class Mode : IEquatable<Mode>
+    public class Mode : IMode
     {
         // Define class properties
         public string Name { get; set; }
         public string Config { get; set; }
-        public List<Map> Maps { get; set; }
-        public Map? DefaultMap { get; set; }
-        public List<MapGroup> MapGroups { get; set; }
+        public List<IMap> Maps { get; set; }
+        public IMap? DefaultMap { get; set; }
+        public List<IMapGroup> MapGroups { get; set; }
 
         // Define class instances
-        public Mode(string name, string configFile, List<MapGroup> mapGroups) 
+        public Mode(string name, string configFile, List<IMapGroup> mapGroups) 
         {
             Name = name;
             Config = configFile;
             MapGroups = mapGroups;  
             Maps = CreateMapList(MapGroups);
         }
-        public Mode(string name, string configFile, string defaultMap, List<MapGroup> mapGroups) 
+        public Mode(string name, string configFile, string defaultMap, List<IMapGroup> mapGroups) 
         {
             Name = name;
             Config = configFile;
@@ -29,14 +31,14 @@ namespace GameModeManager.Models
         }
 
         // Define class methods
-        private List<Map> CreateMapList(List<MapGroup> mapGroups)
+        public List<IMap> CreateMapList(List<IMapGroup> mapGroups)
         {
-            List<Map> _maps = new List<Map>();
+            List<IMap> _maps = new List<IMap>();
             List<string> uniqueMapNames = new List<string>();
 
-            foreach (MapGroup mapGroup in mapGroups)
+            foreach (IMapGroup mapGroup in mapGroups)
             {
-                foreach (Map map in mapGroup.Maps)
+                foreach (IMap map in mapGroup.Maps)
                 {
                     if (!uniqueMapNames.Any(m => m.Equals(map.Name, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -49,7 +51,7 @@ namespace GameModeManager.Models
             return _maps;
         }
 
-        public bool Equals(Mode? other) 
+        public bool Equals(IMode? other) 
         {
             if (other == null) return false;
             return Name == other.Name && Config == other.Config && MapGroups.SequenceEqual(other.MapGroups) && DefaultMap == other.DefaultMap;
@@ -60,7 +62,7 @@ namespace GameModeManager.Models
             Name = "";
             Config = "";
             DefaultMap = null;
-            MapGroups = new List<MapGroup>();
+            MapGroups = new List<IMapGroup>();
         }
     }
 }

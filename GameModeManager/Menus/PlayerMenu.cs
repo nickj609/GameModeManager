@@ -1,8 +1,8 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Core;
 using GameModeManager.Features;
 using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Menu;
@@ -19,7 +19,6 @@ namespace GameModeManager.Menus
         private GameRules _gameRules;
         private VoteManager _voteManager;
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private SettingMenus _settingMenus;
         private Config _config = new Config();
@@ -27,16 +26,16 @@ namespace GameModeManager.Menus
         private AsyncVoteManager _asyncVoteManager;
         private TimeLimitManager _timeLimitManager;
         private MaxRoundsManager _maxRoundsManager;
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public PlayerMenu(MenuFactory menuFactory, PluginState pluginState, IStringLocalizer iLocalizer, TimeLimitManager timeLimitManager, GameRules gameRules, SettingMenus settingMenus, NominateMenus nominateMenus, MapMenus mapMenus, ModeMenus modeMenus, VoteManager voteManager, MaxRoundsManager maxRoundsManager, AsyncVoteManager asyncVoteManager)
+        public PlayerMenu(PluginState pluginState, IStringLocalizer iLocalizer, TimeLimitManager timeLimitManager, GameRules gameRules, SettingMenus settingMenus, NominateMenus nominateMenus, MapMenus mapMenus, ModeMenus modeMenus, VoteManager voteManager, MaxRoundsManager maxRoundsManager, AsyncVoteManager asyncVoteManager)
         {
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
             _gameRules = gameRules;
             _voteManager = voteManager;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
             _settingMenus = settingMenus;
             _nominateMenus = nominateMenus;
             _asyncVoteManager = asyncVoteManager;
@@ -69,7 +68,7 @@ namespace GameModeManager.Menus
         // Define method to update the game command menu
         public void Load()
         {
-            playerMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Game Commands");
+            playerMenu = _menuFactory.BaseMenus.AssignMenu(_config.Settings.Style, "Game Commands");
 
             // Add menu options for each command in the command list
             foreach (string _command in _pluginState.PlayerCommands)
@@ -80,20 +79,20 @@ namespace GameModeManager.Menus
                     playerMenu.AddMenuOption("Change Map", (player, option) =>
                     {
                         // Close menu
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
 
                         // Open sub menu
                         if (player != null && _config.Votes.Enabled && _config.Votes.Maps && _config.Maps.Mode == 0)
                         {
                             BaseMenu menu;
                             menu = _mapMenus.GetMenu("VoteCurrentMode");
-                            _menuFactory.OpenMenu(menu, player);
+                            _menuFactory.BaseMenus.OpenMenu(menu, player);
                         }
                         else if(player != null && _config.Votes.Enabled && _config.Votes.Maps &&  _config.Maps.Mode == 1)
                         {
                              BaseMenu menu;
                             menu = _mapMenus.GetMenu("VoteAll");
-                            _menuFactory.OpenMenu(menu, player);
+                            _menuFactory.BaseMenus.OpenMenu(menu, player);
                         }
                     });
                     break;
@@ -101,14 +100,14 @@ namespace GameModeManager.Menus
                     playerMenu.AddMenuOption("Change Mode", (player, option) =>
                     {
                         // Close menu
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
 
                         // Open sub menu
                         if (player != null && _config.Votes.Enabled && _config.Votes.GameModes)
                         {
                             BaseMenu menu;
                             menu = _modeMenus.GetMenu("Vote");
-                            _menuFactory.OpenMenu(menu, player);
+                            _menuFactory.BaseMenus.OpenMenu(menu, player);
                         }
                     });
                     break;
@@ -116,12 +115,12 @@ namespace GameModeManager.Menus
                    playerMenu.AddMenuOption("Change Setting", (player, option) =>
                     {
                         // Close menu
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
 
                         // Open sub menu
                         if (player != null && _config.Votes.Enabled && _config.Votes.GameSettings)
                         {
-                            _menuFactory.OpenMenu(_settingMenus.GetMenu("Vote"), player);
+                            _menuFactory.BaseMenus.OpenMenu(_settingMenus.GetMenu("Vote"), player);
                         }
                     });
                     break;
@@ -129,7 +128,7 @@ namespace GameModeManager.Menus
                     playerMenu.AddMenuOption("Current Mode", (player, option) =>
                     {
                         // Close menu
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
 
                         // Print to chat
                         if (player != null)
@@ -142,7 +141,7 @@ namespace GameModeManager.Menus
                     playerMenu.AddMenuOption("Current Map", (player, option) =>
                     {
                         // Close menu
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
 
                         // Print to chat
                         if (player != null)
@@ -155,7 +154,7 @@ namespace GameModeManager.Menus
                     playerMenu.AddMenuOption("Next Map", (player, option) =>
                     {
                         // Close menu
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
 
                         // Print to chat
                         if (player != null)
@@ -179,7 +178,7 @@ namespace GameModeManager.Menus
                     playerMenu.AddMenuOption("Next Mode", (player, option) =>
                     {
                         // Close menu
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
 
                         // Print to chat
                         if (player != null)
@@ -203,7 +202,7 @@ namespace GameModeManager.Menus
                     playerMenu.AddMenuOption("RockTheVote", (player, option) =>
                     {
                         // Close menu
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
 
                         // Add vote
                         _asyncVoteManager.RTVCounter(player);
@@ -214,7 +213,7 @@ namespace GameModeManager.Menus
                     playerMenu.AddMenuOption("Nominate", (player, option) =>
                     {
                         // Close menu
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
 
                         // Open nomination menu
                         if (player != null)
@@ -254,7 +253,7 @@ namespace GameModeManager.Menus
                                 return;
                             }
 
-                            if (Extensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
+                            if (PlayerExtensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
                             {
                                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.RTV.MinPlayers));
                                 return;
@@ -264,13 +263,13 @@ namespace GameModeManager.Menus
                             {
                                 BaseMenu menu;
                                 menu = _nominateMenus.GetMenu("All");
-                                _menuFactory.OpenMenu(menu, player);
+                                _menuFactory.BaseMenus.OpenMenu(menu, player);
                             }
                             else
                             {
                                 BaseMenu menu;
                                 menu = _nominateMenus.GetMenu("Map");
-                                _menuFactory.OpenMenu(menu, player);
+                                _menuFactory.BaseMenus.OpenMenu(menu, player);
                             }
                         }
                     });
@@ -279,7 +278,7 @@ namespace GameModeManager.Menus
                     playerMenu.AddMenuOption("Time Left", (player, option) =>
                     {
                         // Close menu
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
 
                         // Print to chat
                         if (player != null)
@@ -297,7 +296,7 @@ namespace GameModeManager.Menus
              if (_config.Commands.Style.Equals("wasd"))
             {
                 // Assign menu
-                playerWasdMenu = _menuFactory.AssignWasdMenu("Game Commands");
+                playerWasdMenu = _menuFactory.WasdMenus.AssignMenu("Game Commands");
 
                 // Add menu options for each command in the command list
                 foreach (string _command in _pluginState.PlayerCommands)
@@ -317,7 +316,7 @@ namespace GameModeManager.Menus
                                     if (menu != null)
                                     {
                                         menu.Prev = option.Parent?.Options?.Find(option);
-                                        _menuFactory.OpenWasdSubMenu(player, menu);
+                                        _menuFactory.WasdMenus.OpenSubMenu(player, menu);
                                     }
                                 }
                                 else if (_config.Votes.Maps && _config.Maps.Mode == 0)
@@ -328,7 +327,7 @@ namespace GameModeManager.Menus
                                     if (menu != null)
                                     {
                                         menu.Prev = option.Parent?.Options?.Find(option);
-                                        _menuFactory.OpenWasdSubMenu(player, menu);
+                                        _menuFactory.WasdMenus.OpenSubMenu(player, menu);
                                     }
                                 }
                             }
@@ -345,7 +344,7 @@ namespace GameModeManager.Menus
                                 if (menu != null)
                                 {
                                     menu.Prev = option.Parent?.Options?.Find(option);
-                                    _menuFactory.OpenWasdMenu(player, menu);
+                                    _menuFactory.WasdMenus.OpenMenu(player, menu);
                                 }
                             }
                         });
@@ -361,7 +360,7 @@ namespace GameModeManager.Menus
                                 if (menu != null)
                                 {
                                     menu.Prev = option.Parent?.Options?.Find(option);
-                                    _menuFactory.OpenWasdSubMenu(player, menu);
+                                    _menuFactory.WasdMenus.OpenSubMenu(player, menu);
 
                                 }
                             }
@@ -371,7 +370,7 @@ namespace GameModeManager.Menus
                         playerWasdMenu?.Add("Current Mode", (player, option) =>
                         {
                             // Close menu
-                            _menuFactory.CloseWasdMenu(player);
+                            _menuFactory.WasdMenus.CloseMenu(player);
 
                             // Print to chat
                             if (player != null)
@@ -384,7 +383,7 @@ namespace GameModeManager.Menus
                         playerWasdMenu?.Add("Current Map", (player, option) =>
                         {
                             // Close menu
-                            _menuFactory.CloseWasdMenu(player);
+                            _menuFactory.WasdMenus.CloseMenu(player);
 
                             // Print to chat
                             if (player != null)
@@ -397,7 +396,7 @@ namespace GameModeManager.Menus
                         playerWasdMenu?.Add("Time Left", (player, option) =>
                         {
                             // Close menu
-                            _menuFactory.CloseWasdMenu(player);
+                            _menuFactory.WasdMenus.CloseMenu(player);
 
                             // Print to chat
                             if (player != null)
@@ -410,7 +409,7 @@ namespace GameModeManager.Menus
                         playerWasdMenu?.Add("Next Map", (player, option) =>
                         {
                              // Close menu
-                            _menuFactory.CloseWasdMenu(player);
+                            _menuFactory.WasdMenus.CloseMenu(player);
 
                             // Print to chat
                             if (player != null)
@@ -434,7 +433,7 @@ namespace GameModeManager.Menus
                         playerWasdMenu?.Add("Next Mode", (player, option) =>
                         {
                              // Close menu
-                            _menuFactory.CloseWasdMenu(player);
+                            _menuFactory.WasdMenus.CloseMenu(player);
 
                             // Print to chat
                             if (player != null)
@@ -458,7 +457,7 @@ namespace GameModeManager.Menus
                         playerWasdMenu?.Add("RockTheVote", (player, option) =>
                         {
                             // Close menu
-                            _menuFactory.CloseWasdMenu(player);
+                            _menuFactory.WasdMenus.CloseMenu(player);
 
                             // Add vote
                             _asyncVoteManager.RTVCounter(player);
@@ -468,7 +467,7 @@ namespace GameModeManager.Menus
                         playerWasdMenu?.Add("Nominate", (player, option) =>
                         {
                             // Close menu
-                            _menuFactory.CloseWasdMenu(player);
+                            _menuFactory.WasdMenus.CloseMenu(player);
 
                             // Open nomination menu
                             if (player != null)
@@ -508,7 +507,7 @@ namespace GameModeManager.Menus
                                     return;
                                 }
 
-                                if (Extensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
+                                if (PlayerExtensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
                                 {
                                     player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.minimum-players", _config!.RTV.MinPlayers));
                                     return;
@@ -522,7 +521,7 @@ namespace GameModeManager.Menus
                                     if (menu != null)
                                     {
                                         menu.Prev = option.Parent?.Options?.Find(option);
-                                        _menuFactory.OpenWasdSubMenu(player, menu);
+                                        _menuFactory.WasdMenus.OpenSubMenu(player, menu);
                                     }
                                 }
                                 else
@@ -533,7 +532,7 @@ namespace GameModeManager.Menus
                                     if (menu != null)
                                     {
                                         menu.Prev = option.Parent?.Options?.Find(option);
-                                        _menuFactory.OpenWasdSubMenu(player, menu);
+                                        _menuFactory.WasdMenus.OpenSubMenu(player, menu);
                                     }
                                 }
                             }

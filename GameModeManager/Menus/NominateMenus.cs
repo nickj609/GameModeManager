@@ -1,7 +1,7 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Core;
 using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
@@ -14,20 +14,19 @@ namespace GameModeManager.Menus
     {
         // Define class dependencies
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<NominateMenus> _logger;
         private NominateManager _nominateManager;
         private VoteOptionManager _voteOptionManager;
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public NominateMenus(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, VoteOptionManager voteOptionManager, NominateManager nominateManager, ILogger<NominateMenus> logger)
+        public NominateMenus(PluginState pluginState, StringLocalizer localizer, VoteOptionManager voteOptionManager, NominateManager nominateManager, ILogger<NominateMenus> logger)
         {
             _logger = logger;
             _localizer = localizer;
-            _pluginState = pluginState;
-            _menuFactory = menuFactory;
+            _pluginState = pluginState;          
             _nominateManager = nominateManager;
             _voteOptionManager = voteOptionManager;
         }
@@ -77,9 +76,9 @@ namespace GameModeManager.Menus
         {
             if(_pluginState.RTVEnabled)
             {
-                nominationMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
-                nominateMapMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
-                nominateModeMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
+                nominationMenu = _menuFactory.BaseMenus.AssignMenu(_config.RTV.Style, "Nominate");
+                nominateMapMenu = _menuFactory.BaseMenus.AssignMenu(_config.RTV.Style, "Nominate");
+                nominateModeMenu = _menuFactory.BaseMenus.AssignMenu(_config.RTV.Style, "Nominate");
 
                 // Get options
                 List<string> options = _voteOptionManager.GetOptions();
@@ -95,7 +94,7 @@ namespace GameModeManager.Menus
                             nominateMapMenu.AddMenuOption(optionName, (player, option) =>
                             {
                                 _nominateManager.Nominate(player, optionName);
-                                MenuManager.CloseActiveMenu(player);
+                                _menuFactory.BaseMenus.CloseMenu(player);
                             });
                         }
                         else if (_voteOptionManager.OptionType(optionName) == "mode")
@@ -103,7 +102,7 @@ namespace GameModeManager.Menus
                             nominateModeMenu.AddMenuOption(optionName, (player, option) =>
                             {
                                 _nominateManager.Nominate(player, optionName);
-                                MenuManager.CloseActiveMenu(player);
+                                _menuFactory.BaseMenus.CloseMenu(player);
                             });
                         }
                         else
@@ -119,7 +118,7 @@ namespace GameModeManager.Menus
                      nominationMenu.AddMenuOption("Extend", (player, option) =>
                     {
                         _nominateManager.Nominate(player, "Extend");
-                        _menuFactory.CloseWasdMenu(player);
+                        _menuFactory.WasdMenus.CloseMenu(player);
                     });
                 }
 
@@ -129,7 +128,7 @@ namespace GameModeManager.Menus
 
                     if(player != null)
                     {
-                        _menuFactory.OpenMenu(nominateMapMenu, player);
+                        _menuFactory.BaseMenus.OpenMenu(nominateMapMenu, player);
                     }
                 });
 
@@ -139,7 +138,7 @@ namespace GameModeManager.Menus
 
                     if(player != null)
                     {
-                        _menuFactory.OpenMenu(nominateModeMenu, player);   
+                        _menuFactory.BaseMenus.OpenMenu(nominateModeMenu, player);   
                     }
                 });
             }
@@ -152,9 +151,9 @@ namespace GameModeManager.Menus
             {
                 if (_config.RTV.Style.Equals("wasd"))
                 {
-                    nominationWasdMenu = _menuFactory.AssignWasdMenu("Nominate");
-                    nominateMapWasdMenu = _menuFactory.AssignWasdMenu("Nominate");
-                    nominateModeWasdMenu = _menuFactory.AssignWasdMenu("Nominate");
+                    nominationWasdMenu = _menuFactory.WasdMenus.AssignMenu("Nominate");
+                    nominateMapWasdMenu = _menuFactory.WasdMenus.AssignMenu("Nominate");
+                    nominateModeWasdMenu = _menuFactory.WasdMenus.AssignMenu("Nominate");
 
                     // Get options
                     List<string> options = _voteOptionManager.GetOptions();
@@ -169,7 +168,7 @@ namespace GameModeManager.Menus
                                 nominateMapWasdMenu?.Add(optionName, (player, option) =>
                                 {
                                     _nominateManager.Nominate(player, optionName);
-                                    _menuFactory.CloseWasdMenu(player);
+                                    _menuFactory.WasdMenus.CloseMenu(player);
                                 });
                             }
                             else if (_voteOptionManager.OptionType(optionName) == "mode")
@@ -177,7 +176,7 @@ namespace GameModeManager.Menus
                                 nominateModeWasdMenu?.Add(optionName, (player, option) =>
                                 {
                                     _nominateManager.Nominate(player, optionName);
-                                    _menuFactory.CloseWasdMenu(player);
+                                    _menuFactory.WasdMenus.CloseMenu(player);
                                 });
                             }
                             else
@@ -193,7 +192,7 @@ namespace GameModeManager.Menus
                         if(nominateMapWasdMenu != null)
                         {
                             nominateMapWasdMenu.Prev = option.Parent?.Options?.Find(option);
-                            _menuFactory.OpenWasdSubMenu(player, nominateMapWasdMenu);
+                            _menuFactory.WasdMenus.OpenSubMenu(player, nominateMapWasdMenu);
                         }
                     });
 
@@ -203,7 +202,7 @@ namespace GameModeManager.Menus
                         if(nominateModeWasdMenu != null)
                         {
                             nominateModeWasdMenu.Prev = option.Parent?.Options?.Find(option);
-                            _menuFactory.OpenWasdSubMenu(player, nominateModeWasdMenu);
+                            _menuFactory.WasdMenus.OpenSubMenu(player, nominateModeWasdMenu);
                         }
                     });
                 }

@@ -74,13 +74,13 @@ namespace GameModeManager.Features
         }
 
         // Define class methods
-        void KillTimer()
+        public void KillTimer()
         {
             timer?.Kill();
             timer = null;
         }
 
-         public void StartVote()
+        public void StartVote()
         {
             if (_pluginState.EndOfMapVote && !_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
             {
@@ -94,7 +94,7 @@ namespace GameModeManager.Features
             return !_timeLimitManager.UnlimitedTime() && _timeLimitManager.TimeRemaining() <= _pluginState.RTVSecondsBeforeEnd;
         }
 
-        bool CheckMaxRounds()
+        public bool CheckMaxRounds()
         {
             if (_maxRoundsManager.UnlimitedRounds)
             {
@@ -148,7 +148,7 @@ namespace GameModeManager.Features
         {
             if (armsRace & !killsReached)
             {
-                var player = Extensions.ValidPlayers(true).OrderByDescending(p => p.Score).FirstOrDefault();
+                var player = PlayerExtensions.ValidPlayers(true).OrderByDescending(p => p.Score).FirstOrDefault();
                 if (player?.ActionTrackingServices?.MatchStats?.Kills >= _pluginState.RTVKillsBeforeEnd)
                 {
                     killsReached = true;

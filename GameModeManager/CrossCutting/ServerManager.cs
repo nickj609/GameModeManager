@@ -1,8 +1,9 @@
 // Included libraries
-using CounterStrikeSharp.API;
 using GameModeManager.Models;
+using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
+using GameModeManager.Shared.Models;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using CountdownTimer = GameModeManager.Timers.CountdownTimer;
 
@@ -33,7 +34,7 @@ namespace GameModeManager.CrossCutting
         }
 
         // Define class methods
-        public void ChangeMap(Map nextMap, int delay)
+        public void ChangeMap(IMap nextMap, int delay)
         {
             // Disable warmup
             _pluginState.WarmupRunning = false;
@@ -46,7 +47,7 @@ namespace GameModeManager.CrossCutting
             new Timer(0.5f, () =>
             {
                 Server.ExecuteCommand("bot_kick");
-                Extensions.FreezePlayers();
+                PlayerExtensions.FreezePlayers();
             });
 
             // Revert RTV settings
@@ -88,7 +89,7 @@ namespace GameModeManager.CrossCutting
             }, "Map changing in ");
         }
 
-        public void ChangeMode(Mode mode)
+        public void ChangeMode(IMode mode)
         {
             _logger.LogInformation($"Current mode: {_pluginState.CurrentMode.Name}");
             _logger.LogInformation($"New mode: {mode.Name}");
@@ -130,7 +131,7 @@ namespace GameModeManager.CrossCutting
             Server.ExecuteCommand($"exec {mode.Config}");
 
             // If no default map, set next map to random map
-            Map nextMap;
+            IMap nextMap;
             if (mode.DefaultMap == null) 
             {
                 nextMap = GetRandomMap(mode);
@@ -151,14 +152,14 @@ namespace GameModeManager.CrossCutting
                 {  
                     Random _rnd = new Random();
                     int _randomIndex = _rnd.Next(0, _pluginState.Modes.Count); 
-                    Mode _randomMode = _pluginState.Modes[_randomIndex];
+                    IMode _randomMode = _pluginState.Modes[_randomIndex];
                     _logger.LogDebug("Game has ended. Picking random game mode...");
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", _randomMode.Name));  
                     ChangeMode(_randomMode);
                 }
                 else
                 {
-                    Map _randomMap = GetRandomMap(_pluginState.CurrentMode);
+                    IMap _randomMap = GetRandomMap(_pluginState.CurrentMode);
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-map", _randomMap.DisplayName));
                     ChangeMap(_randomMap, _config.Maps.Delay);
                 }
@@ -184,7 +185,7 @@ namespace GameModeManager.CrossCutting
 
         public void TriggerScheduleChange(ScheduleEntry state)
         {
-            Mode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(state.Mode, StringComparison.OrdinalIgnoreCase));
+            IMode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(state.Mode, StringComparison.OrdinalIgnoreCase));
 
             if (_mode != null && _pluginState.CurrentMode != _mode)
             {
@@ -192,17 +193,17 @@ namespace GameModeManager.CrossCutting
             }
         }
 
-        public Map GetRandomMap(Mode currentMode)
+        public IMap GetRandomMap(IMode currentMode)
         {    
-            Map _randomMap; 
+            IMap _randomMap; 
 
             if (_config.Rotation.Cycle == 2)
             {
-                List<Map> _mapList = new List<Map>();
+                List<IMap> _mapList = new List<IMap>();
 
                 foreach (string mapGroup in _config.Rotation.MapGroups)
                 {
-                    MapGroup? _mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(mapGroup, StringComparison.OrdinalIgnoreCase));
+                    IMapGroup? _mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(mapGroup, StringComparison.OrdinalIgnoreCase));
 
                     if (_mapGroup != null)
                     {

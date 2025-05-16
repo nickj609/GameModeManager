@@ -1,9 +1,10 @@
 // Included libraries
-using WASDSharedAPI;
-using GameModeManager.Models;
+using GameModeManager.Core;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
@@ -14,16 +15,15 @@ namespace GameModeManager.Menus
     {
         // Define class dependencies
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private Config _config = new Config();
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public SettingMenus(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer)
+        public SettingMenus(PluginState pluginState, StringLocalizer localizer)
         {
             _localizer = localizer;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
         }
 
         // Define class properties
@@ -70,29 +70,29 @@ namespace GameModeManager.Menus
         // Define method to load menus
         public void Load()
         {
-            settingsMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Setting Actions");
-            settingsEnableMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Settings List");
-            settingsDisableMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Settings List");
+            settingsMenu = _menuFactory.BaseMenus.AssignMenu(_config.Settings.Style, "Setting Actions");
+            settingsEnableMenu = _menuFactory.BaseMenus.AssignMenu(_config.Settings.Style, "Settings List");
+            settingsDisableMenu = _menuFactory.BaseMenus.AssignMenu(_config.Settings.Style, "Settings List");
 
             // Add enable menu options
-            foreach (Setting _setting in _pluginState.Settings)
+            foreach (ISetting _setting in _pluginState.Settings)
             {
                 settingsEnableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, option.Text));
                     Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Enable}");
-                    MenuManager.CloseActiveMenu(player);
+                    _menuFactory.BaseMenus.CloseMenu(player);
                 });
             }
 
             // Add disable menu options
-            foreach (Setting _setting in _pluginState.Settings)
+            foreach (ISetting _setting in _pluginState.Settings)
             {
                 settingsDisableMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                 {
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, option.Text));
                     Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Disable}");
-                    MenuManager.CloseActiveMenu(player);
+                    _menuFactory.BaseMenus.CloseMenu(player);
                 });
             }
 
@@ -103,7 +103,7 @@ namespace GameModeManager.Menus
 
                 if(player != null)
                 {
-                    _menuFactory.OpenMenu(settingsEnableMenu, player);
+                    _menuFactory.BaseMenus.OpenMenu(settingsEnableMenu, player);
                 }
             });
 
@@ -114,26 +114,26 @@ namespace GameModeManager.Menus
 
                 if(player != null)
                 {
-                    _menuFactory.OpenMenu(settingsDisableMenu, player);   
+                    _menuFactory.BaseMenus.OpenMenu(settingsDisableMenu, player);   
                 }
             });
             
             // Create user settings menu
             if (_config.Votes.GameSettings)
             {
-               voteSettingsMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Setting List");
+               voteSettingsMenu = _menuFactory.BaseMenus.AssignMenu(_config.Settings.Style, "Setting List");
                 
                 // Add menu options
-                foreach (Setting _setting in _pluginState.Settings)
+                foreach (ISetting _setting in _pluginState.Settings)
                 {
                     // Create menu option
                     voteSettingsMenu.AddMenuOption(_setting.DisplayName, (player, option) =>
                     {
                         // Close menu
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
 
                         // Start vote
-                        _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, _setting.Name); 
+                        CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, _setting.Name); 
                     });
                 }
             }
@@ -144,17 +144,17 @@ namespace GameModeManager.Menus
         {
              if (_config.Settings.Style.Equals("wasd"))
             {
-                settingsWASDMenu = _menuFactory.AssignWasdMenu("Setting Actions");
-                settingsEnableWASDMenu = _menuFactory.AssignWasdMenu("Settings List");
-                settingsDisableWASDMenu = _menuFactory.AssignWasdMenu("Settings List");
+                settingsWASDMenu = _menuFactory.WasdMenus.AssignMenu("Setting Actions");
+                settingsEnableWASDMenu = _menuFactory.WasdMenus.AssignMenu("Settings List");
+                settingsDisableWASDMenu = _menuFactory.WasdMenus.AssignMenu("Settings List");
 
                 // Add enable sub menu options
-                foreach (Setting _setting in _pluginState.Settings)
+                foreach (ISetting _setting in _pluginState.Settings)
                 {
                     settingsEnableWASDMenu?.Add(_setting.DisplayName, (player, option) =>
                     {
                         // Close menu
-                        _menuFactory.CloseWasdMenu(player);
+                        _menuFactory.WasdMenus.CloseMenu(player);
                         
                         // Enable setting
                         Server.PrintToChatAll(_localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, _setting.DisplayName));
@@ -163,12 +163,12 @@ namespace GameModeManager.Menus
                 }
 
                 // Add disable sub menu options
-                foreach (Setting _setting in _pluginState.Settings)
+                foreach (ISetting _setting in _pluginState.Settings)
                 {
                     settingsDisableWASDMenu?.Add(_setting.DisplayName, (player, option) =>
                     {
                         // Close menu
-                        _menuFactory.CloseWasdMenu(player);
+                        _menuFactory.WasdMenus.CloseMenu(player);
                         
                         // Disable setting
                         Server.PrintToChatAll(_localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, _setting.DisplayName));
@@ -183,7 +183,7 @@ namespace GameModeManager.Menus
                     {
                         settingsEnableWASDMenu.Title = _localizer.Localize("settings.menu-title");
                         settingsEnableWASDMenu.Prev = option.Parent?.Options?.Find(option);
-                        _menuFactory.OpenWasdSubMenu(player, settingsEnableWASDMenu);
+                        _menuFactory.WasdMenus.OpenSubMenu(player, settingsEnableWASDMenu);
                     }
                 });
 
@@ -194,25 +194,25 @@ namespace GameModeManager.Menus
                     {
                         settingsDisableWASDMenu.Title = _localizer.Localize("settings.menu-title");
                         settingsDisableWASDMenu.Prev = option.Parent?.Options?.Find(option);
-                        _menuFactory.OpenWasdSubMenu(player, settingsDisableWASDMenu);   
+                        _menuFactory.WasdMenus.OpenSubMenu(player, settingsDisableWASDMenu);   
                     }
                 });
 
                 // Create user settings menu
                 if (_config.Votes.GameSettings)
                 {
-                    voteSettingsWASDMenu = _menuFactory.AssignWasdMenu("Setting List");
+                    voteSettingsWASDMenu = _menuFactory.WasdMenus.AssignMenu("Setting List");
 
                     // Add menu options
-                    foreach (Setting _setting in _pluginState.Settings)
+                    foreach (ISetting _setting in _pluginState.Settings)
                     {
                         voteSettingsWASDMenu?.Add(_setting.DisplayName, (player, option) =>
                         {
                             // Close menu
-                            _menuFactory.CloseWasdMenu(player);
+                            _menuFactory.WasdMenus.CloseMenu(player);
 
                             // Start vote
-                            _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, _setting.Name); 
+                            CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, _setting.Name); 
                         });
                     }
                 }

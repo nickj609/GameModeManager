@@ -10,17 +10,77 @@ using CounterStrikeSharp.API.Modules.Entities;
 // Declare namespace
 namespace GameModeManager.CrossCutting
 {
-    // Define class
-    public static class Extensions
+    // Define player extensions
+    public static class PlayerExtensions
     {
-        // Define method to check if a player is a bot
+        public static void FreezePlayers()
+		{
+            foreach (var player in ValidPlayers(true))
+            {
+			    player.Pawn.Value!.Freeze();
+            }
+		}
+
+        public static void UnfreezePlayers()
+		{
+            foreach (var player in ValidPlayers(true))
+            {
+                player.Pawn.Value!.Unfreeze();
+            }
+		}
+
+        public static void PrintCenterTextAll(string text)
+        {
+            foreach (var player in ValidPlayers(false))
+            {
+                player.PrintToCenter(text);
+            }
+        }
+
+        public static int ValidPlayerCount(bool considerBots = false)
+        {
+            return ValidPlayers(considerBots).Length;
+        }
+
+        public static void Freeze(this CBasePlayerPawn pawn)
+        {
+            pawn.MoveType = MoveType_t.MOVETYPE_OBSOLETE;
+            Schema.SetSchemaValue(pawn.Handle, "CBaseEntity", "m_nActualMoveType", 1);
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_MoveType");
+        }
+
+        public static void Unfreeze(this CBasePlayerPawn pawn)
+        {
+            pawn.MoveType = MoveType_t.MOVETYPE_WALK;
+            Schema.SetSchemaValue(pawn.Handle, "CBaseEntity", "m_nActualMoveType", 2);
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_MoveType");
+        }
+
+        public static CCSPlayerController[] ValidPlayers(bool considerBots = false)
+        {
+            return Utilities.GetPlayers()
+                .Where(x => x.ReallyValid(considerBots))
+                .Where(x => !x.IsHLTV)
+                .Where(x => considerBots || !x.IsBot)
+                .ToArray();
+        }
+
+        public static bool CanTarget(this CCSPlayerController? controller, CCSPlayerController? target)
+        {
+            if (controller is null || target is null) return true;
+            if (target.IsBot) return true;
+
+            return AdminManager.CanPlayerTarget(controller, target) ||
+                                    AdminManager.CanPlayerTarget(new SteamID(controller.SteamID),
+                                        new SteamID(target.SteamID));
+        } 
+
         public static bool ReallyValid(this CCSPlayerController? player, bool considerBots = false)
         {
             return player is not null && player.IsValid && player.Connected == PlayerConnectedState.PlayerConnected &&
                 (considerBots || (!player.IsBot && !player.IsHLTV));
         }
 
-        // Define method to get a players team
         public static string GetTeamString(this CCSPlayerController? player, bool abbreviate = false)
         {
             var teamNum = player != null ? (int)player.Team : -1;
@@ -35,45 +95,34 @@ namespace GameModeManager.CrossCutting
 
             return abbreviate ? teamStr + ".short" : teamStr + ".long";
         }
-
-        // Define method calculate valid players
-        public static CCSPlayerController[] ValidPlayers(bool considerBots = false)
+    }
+        
+    // Define server extensions
+    public static class ServerExtensions
+    {
+        public static bool IsServerEmpty()
         {
-            return Utilities.GetPlayers()
-                .Where(x => x.ReallyValid(considerBots))
-                .Where(x => !x.IsHLTV)
-                .Where(x => considerBots || !x.IsBot)
-                .ToArray();
+            return PlayerExtensions.ValidPlayerCount(false) == 0;
         }
 
-        // Define method get a count of valid players
-        public static int ValidPlayerCount(bool considerBots = false)
-        {
-            return ValidPlayers(considerBots).Length;
-        }
-
-        // Define method to check if hibernation is enabled
         public static bool IsHibernationEnabled()
         {
             var conVar = ConVar.Find("sv_hibernate_when_empty");
 
             if (conVar != null)
             {
-                return conVar.GetPrimitiveValue<bool>(); // Returns true/false based on the ConVar value
+                return conVar.GetPrimitiveValue<bool>();
             }
             else
             {
                 return false;
             }
         }
-
-        // Define method to check if server is empty
-        public static bool IsServerEmpty()
-        {
-            return ValidPlayerCount(false) == 0;
-        }
-
-        // Define method to remove cfg extension from strings
+    }
+    
+    // Define plugin extensions
+    public static class PluginExtensions
+    {
         public static string RemoveCfgExtension(string str)
         {
             if (str.EndsWith(".cfg"))
@@ -86,63 +135,6 @@ namespace GameModeManager.CrossCutting
             }
         }
 
-        // Define methods to freeze and unfreeze a player
-        public static void Freeze(this CBasePlayerPawn pawn)
-        {
-            pawn.MoveType = MoveType_t.MOVETYPE_OBSOLETE;
-            Schema.SetSchemaValue(pawn.Handle, "CBaseEntity", "m_nActualMoveType", 1); // obsolete
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_MoveType");
-        }
-
-        public static void Unfreeze(this CBasePlayerPawn pawn)
-        {
-            pawn.MoveType = MoveType_t.MOVETYPE_WALK;
-            Schema.SetSchemaValue(pawn.Handle, "CBaseEntity", "m_nActualMoveType", 2); // walk
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_MoveType");
-        }  
-
-        // Define method to freeze all players
-        public static void FreezePlayers()
-		{
-            foreach (var player in ValidPlayers(true))
-            {
-			    player.Pawn.Value!.Freeze();
-            }
-		}
-
-        // Define method to unfreeze all players
-        public static void UnfreezePlayers()
-		{
-            foreach (var player in ValidPlayers(true))
-            {
-                player.Pawn.Value!.Unfreeze();
-            }
-		}
-
-        // Define method to unfreeze all players
-        public static void PrintCenterTextAll(string text, int duration)
-        {
-            foreach (var player in Utilities.GetPlayers())
-            {
-                if (player.IsValid)
-                {
-                    player.PrintToCenter(text);
-                }
-            }
-        }
-
-        // Define method to check if a player can target another player
-        public static bool CanTarget(this CCSPlayerController? controller, CCSPlayerController? target)
-        {
-            if (controller is null || target is null) return true;
-            if (target.IsBot) return true;
-
-            return AdminManager.CanPlayerTarget(controller, target) ||
-                                    AdminManager.CanPlayerTarget(new SteamID(controller.SteamID),
-                                        new SteamID(target.SteamID));
-        } 
-
-        // Define method to shuffle vote options
         public static IList<T> Shuffle<T>(Random rng, IList<T> array)
         {
             int n = array.Count;

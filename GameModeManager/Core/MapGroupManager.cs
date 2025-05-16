@@ -3,6 +3,7 @@ using System.Text;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
+using GameModeManager.Shared.Models;
 
 // Copyright (c) 2016 Shravan Rajinikanth
 // https://github.com/shravan2x/Gameloop.Vdf/
@@ -54,7 +55,7 @@ namespace GameModeManager.Core
                 {
                     foreach (VProperty _mapGroup in _mapGroups.OfType<VProperty>()) 
                     {  
-                        MapGroup _group = new MapGroup(_mapGroup.Key);
+                        IMapGroup _group = new MapGroup(_mapGroup.Key);
                         var _maps = _mapGroup.Value.OfType<VProperty>()
                                 .Where(p => p.Key.Equals("maps", StringComparison.OrdinalIgnoreCase))
                                 .Select(p => p.Value)
@@ -131,7 +132,7 @@ namespace GameModeManager.Core
             }
 
             // Set current map
-            Map? defaultMap = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(_config.Maps.Default, StringComparison.OrdinalIgnoreCase));
+            IMap? defaultMap = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(_config.Maps.Default, StringComparison.OrdinalIgnoreCase));
 
             if (defaultMap != null)
             {
@@ -146,7 +147,7 @@ namespace GameModeManager.Core
         // Define on map start behavior
        public void OnMapStart(string map)
         {
-            Map _map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(map, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(map, StringComparison.OrdinalIgnoreCase)) ?? new Map(map);
+            IMap _map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(map, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(map, StringComparison.OrdinalIgnoreCase)) ?? new Map(map);
             _pluginState.CurrentMap = _map;
         }
     }

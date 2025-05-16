@@ -63,7 +63,7 @@ namespace GameModeManager.Core
         private decimal totalVotes = 0;
         private float votePercentage = 0F;
         private KeyValuePair<string, int> winner;
-        private int RequiredVotes { get => (int)Math.Round(Extensions.ValidPlayerCount() * votePercentage); }
+        private int RequiredVotes { get => (int)Math.Round(PlayerExtensions.ValidPlayerCount() * votePercentage); }
 
         // Define on map start behavior
         public void OnMapStart(string map)
@@ -304,28 +304,17 @@ namespace GameModeManager.Core
 
         public void VoteResults()
         {
-            int index = 1;
             StringBuilder stringBuilder = new();
             stringBuilder.AppendFormat($"<b>{_localizer.Localize("rtv.hud.hud-timer", timeLeft)}</b>");
 
             if (timeLeft >= 0)
             {
-                if (!_config.RTV.HudMenu)
+                foreach (var kv in _pluginState.Votes.OrderByDescending(x => x.Value).Take(VoteOptionManager.MAX_OPTIONS_HUD_MENU))
                 {
-                    foreach (var kv in _pluginState.Votes.OrderByDescending(x => x.Value).Take(VoteOptionManager.MAX_OPTIONS_HUD_MENU))
-                    {
-                        stringBuilder.AppendFormat($"<br>{kv.Key} <font color='green'>({kv.Value})</font>");
-                    }
-                }
-                else
-                {
-                    foreach (var kv in _pluginState.Votes.Take(VoteOptionManager.MAX_OPTIONS_HUD_MENU))
-                    {
-                        stringBuilder.AppendFormat($"<br><font color='yellow'>!{index++}</font> {kv.Key} <font color='green'>({kv.Value})</font>");
-                    }
+                    stringBuilder.AppendFormat($"<br>{kv.Key} <font color='green'>({kv.Value})</font>");
                 }
 
-                foreach (CCSPlayerController player in Extensions.ValidPlayers().Where(x => !voted.Contains(x.UserId!.Value)))
+                foreach (CCSPlayerController player in PlayerExtensions.ValidPlayers().Where(x => !voted.Contains(x.UserId!.Value)))
                 {
                     player.PrintToCenterHtml(stringBuilder.ToString());
                 }
@@ -334,7 +323,7 @@ namespace GameModeManager.Core
             {
                 if (_pluginState.EofVoteHappened == true)
                 {
-                    foreach (CCSPlayerController player in Extensions.ValidPlayers())
+                    foreach (CCSPlayerController player in PlayerExtensions.ValidPlayers())
                     {
                         player.PrintToCenterHtml(_localizer.Localize("rtv.hud.finished", _pluginState.RTVWinner));
                     }

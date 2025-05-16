@@ -1,8 +1,11 @@
+// Included libraries
+using GameModeManager.Shared.Models;
+
 // Declare namespace
 namespace GameModeManager.Models
 {
     // Define class
-    public class Map : IEquatable<Map>
+    public class Map : IMap, IEquatable<IMap>
     {
         // Define class properties
         public string Name { get; set; }
@@ -39,17 +42,17 @@ namespace GameModeManager.Models
         }
 
         // Define class methods
-        public bool Equals(Map? other) 
-        {
-            if (other == null) return false; 
-            return Name == other.Name && WorkshopId == other.WorkshopId && DisplayName == other.DisplayName;
-        }
-
         public void Clear()
         {
             Name = "";
             WorkshopId = -1;
             DisplayName = "";
+        }
+
+        public bool Equals(IMap? other)
+        {
+            if (other == null) return false; 
+            return Name == other.Name && WorkshopId == other.WorkshopId && DisplayName == other.DisplayName;
         }
     }
 }

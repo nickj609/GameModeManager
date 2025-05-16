@@ -9,7 +9,11 @@
       <PackageReference Include="CounterStrikeSharp.API" Version="[1.0.282, )"/>
     </ItemGroup>
     <Target Name="PublicBuild" AfterTargets="AfterBuild">
-        <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared"/>
-        <Exec Command="xcopy /Y /R $(OutDir)*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared\" />
-  </Target>
+        <PropertyGroup>
+            <IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
+        </PropertyGroup>
+        <MakeDir Directories="$(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/shared/GameModeManager.Shared"/>
+        <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R $(OutDir)*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared\" />
+        <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(OutDir)* $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/shared/GameModeManager.Shared/" />
+    </Target>
 </Project>

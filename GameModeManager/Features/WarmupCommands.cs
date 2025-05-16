@@ -1,9 +1,9 @@
 // Included libraries
 using GameModeManager.Core;
-using GameModeManager.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -98,7 +98,7 @@ namespace GameModeManager.Features
                 {
                     if(command.ArgCount > 1)
                     {
-                        Mode? _mode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase) ||  m.Config.Contains(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase));
+                        IMode? _mode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase) ||  m.Config.Contains(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase));
                         if(_mode != null)
                         {
                             _pluginState.WarmupScheduled = true;
