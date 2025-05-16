@@ -18,17 +18,16 @@ namespace GameModeManager.Features
     {
         // Define class dependencies
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
         private SettingMenus _settingMenus;
         private StringLocalizer _localizer;
         private Config _config = new Config();
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public SettingCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, SettingMenus settingMenus)
+        public SettingCommands(PluginState pluginState, StringLocalizer localizer, SettingMenus settingMenus)
         {
             _localizer = localizer;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
             _settingMenus = settingMenus;
         }
 
@@ -96,7 +95,7 @@ namespace GameModeManager.Features
 
                     if(menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(player, menu);
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
@@ -107,7 +106,7 @@ namespace GameModeManager.Features
                     if (menu != null)
                     {
                          menu.Title = _localizer.Localize("settings.menu-actions");
-                        _menuFactory.OpenMenu(menu, player);
+                        _menuFactory.BaseMenus.OpenMenu(menu, player);
                     }
                 }
             }

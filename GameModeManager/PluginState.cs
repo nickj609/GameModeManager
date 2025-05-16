@@ -1,11 +1,8 @@
 // Included libraries
-using WASDMenuAPI.Shared;
 using GameModeManager.Models;
-using CS2_CustomVotes.Shared;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using GameModeManager.Shared.Models;
-using CounterStrikeSharp.API.Core.Capabilities;
 
 // Declare namespace
 namespace GameModeManager
@@ -83,9 +80,6 @@ namespace GameModeManager
             "!currentmap"
         };
         public List<IMap> Maps = [.. DefaultMaps];
-
-        // Define APIs
-        public PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
-        public PluginCapability<IWasdMenuManager> WasdMenuManager { get; } = new("wasdmenu:manager");
+        
     } 
 }

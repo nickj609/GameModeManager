@@ -19,19 +19,18 @@ namespace GameModeManager.Features
         private ModeMenus _modeMenus;
         private PlayerMenu _playerMenu;
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
         private SettingMenus _settingMenus;
         private StringLocalizer _localizer;
         private Config _config = new Config();
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public PlayerCommands(PluginState pluginState, IStringLocalizer iLocalizer, MenuFactory menuFactory, SettingMenus settingMenus, PlayerMenu playerMenu, MapMenus mapMenus, ModeMenus modeMenus)
+        public PlayerCommands(PluginState pluginState, IStringLocalizer iLocalizer, SettingMenus settingMenus, PlayerMenu playerMenu, MapMenus mapMenus, ModeMenus modeMenus)
         {
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
             _playerMenu = playerMenu;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
             _settingMenus = settingMenus;
             _localizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
         }
@@ -79,7 +78,7 @@ namespace GameModeManager.Features
 
                     if(menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(player, menu);
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
@@ -87,7 +86,7 @@ namespace GameModeManager.Features
                     BaseMenu menu;
                     menu = _mapMenus.GetMenu("All");
                     menu.Title = _localizer.Localize ("modes.menu-title");
-                    _menuFactory.OpenMenu(menu, player);
+                    _menuFactory.BaseMenus.OpenMenu(menu, player);
                 }
                 
             }              
@@ -100,7 +99,7 @@ namespace GameModeManager.Features
 
                     if(menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(player, menu);
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
@@ -108,7 +107,7 @@ namespace GameModeManager.Features
                     BaseMenu menu;
                     menu = _mapMenus.GetMenu("CurrentMode");
                     menu.Title = _localizer.Localize ("maps.menu-title");
-                    _menuFactory.OpenMenu(menu, player);
+                    _menuFactory.BaseMenus.OpenMenu(menu, player);
                 }
             }   
         }
@@ -125,7 +124,7 @@ namespace GameModeManager.Features
 
                     if(menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(player, menu);
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
@@ -133,7 +132,7 @@ namespace GameModeManager.Features
                     BaseMenu menu;
                     menu = _modeMenus.GetMenu("Vote");
                     menu.Title = _localizer.Localize("modes.menu-title");
-                    _menuFactory.OpenMenu(menu, player);
+                    _menuFactory.BaseMenus.OpenMenu(menu, player);
                 }
             } 
         }
@@ -150,7 +149,7 @@ namespace GameModeManager.Features
 
                     if(menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(player, menu);
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
@@ -161,7 +160,7 @@ namespace GameModeManager.Features
                     if (menu != null)
                     {
                          menu.Title = _localizer.Localize("settings.menu-actions");
-                        _menuFactory.OpenMenu(menu, player);
+                        _menuFactory.BaseMenus.OpenMenu(menu, player);
                     }
                 }
             }
@@ -179,7 +178,7 @@ namespace GameModeManager.Features
                     
                     if (menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(player, menu);
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
@@ -190,7 +189,7 @@ namespace GameModeManager.Features
                     if (menu != null)
                     {
                         menu.Title = _localizer.Localize("game.menu-title");
-                        _menuFactory.OpenMenu(menu, player);
+                        _menuFactory.BaseMenus.OpenMenu(menu, player);
                     }
                 }
             }

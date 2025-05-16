@@ -21,23 +21,22 @@ namespace GameModeManager.Features
         // Define class dependencies
         private MapMenus _mapMenus;
         private ModeMenus _modeMenus;
-        private MenuFactory _menuFactory;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private Config _config = new Config();
         private ILogger<ModeCommands> _logger;
         private CustomVoteManager _customVoteManager;
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public ModeCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager, MapMenus mapMenus, ModeMenus modeMenus)
+        public ModeCommands(PluginState pluginState, StringLocalizer localizer, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager, MapMenus mapMenus, ModeMenus modeMenus)
         {
             _logger = logger;
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
             _localizer = localizer;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
             _serverManager = serverManager;
             _customVoteManager = customVoteManager;
         }
@@ -140,7 +139,7 @@ namespace GameModeManager.Features
 
                     if(menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(player, menu);
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
@@ -148,7 +147,7 @@ namespace GameModeManager.Features
                     BaseMenu menu;
                     menu = _modeMenus.GetMenu("Mode");
                     menu.Title = _localizer.Localize("modes.menu-title");
-                    _menuFactory.OpenMenu(menu, player);
+                    _menuFactory.BaseMenus.OpenMenu(menu, player);
                 }
             }
         }

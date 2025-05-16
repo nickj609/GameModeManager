@@ -47,7 +47,7 @@ namespace GameModeManager.CrossCutting
             new Timer(0.5f, () =>
             {
                 Server.ExecuteCommand("bot_kick");
-                Extensions.FreezePlayers();
+                PlayerExtensions.FreezePlayers();
             });
 
             // Revert RTV settings

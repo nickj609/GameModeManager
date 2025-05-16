@@ -38,7 +38,7 @@ namespace GameModeManager.Core
 
         public void OnMapStart(string map)
         {
-            string _modeConfig = Extensions.RemoveCfgExtension(_pluginState.CurrentMode.Config);
+            string _modeConfig = PluginExtensions.RemoveCfgExtension(_pluginState.CurrentMode.Config);
             string _settingsConfig = $"{_modeConfig}_settings.cfg";
 
             new Timer(.5f, () =>

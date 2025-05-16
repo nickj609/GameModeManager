@@ -24,7 +24,7 @@ namespace GameModeManager.Features
         private GameRules _gameRules;
         private PluginState _pluginState;
         private VoteManager _voteManager;
-        private MenuFactory _menuFactory;
+        private MenuFactory _menuFactory = new MenuFactory();
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private MaxRoundsManager _maxRoundsManager;
@@ -32,13 +32,13 @@ namespace GameModeManager.Features
         private VoteOptionManager _voteOptionManager;
 
         // Define class instance
-        public AsyncVoteManager(PluginState pluginState, IStringLocalizer iLocalizer, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManager, RTVMenus rtvMenus, MenuFactory menuFactory)
+        public AsyncVoteManager(PluginState pluginState, IStringLocalizer iLocalizer, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManager, RTVMenus rtvMenus)
         {
             _rtvMenus = rtvMenus;
             _gameRules = gameRules;
             _voteManager = voteManager;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
+
             _maxRoundsManager = maxRoundsManager;
             _timeLimitManager = timeLimitManager; 
             _voteOptionManager = voteOptionManager;
@@ -50,7 +50,7 @@ namespace GameModeManager.Features
         private float VotePercentage = 0F;
         public int VoteCount => Votes.Count;
         public bool VotesAlreadyReached { get; set; } = false;
-        public int RequiredVotes { get => (int)Math.Round(Extensions.ValidPlayerCount() * VotePercentage); }
+        public int RequiredVotes { get => (int)Math.Round(PlayerExtensions.ValidPlayerCount() * VotePercentage); }
 
         // Load config
         public void OnConfigParsed(Config config)
@@ -126,27 +126,27 @@ namespace GameModeManager.Features
             // Display vote menu
             if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
             {
-                foreach (var validPlayer in Extensions.ValidPlayers())
+                foreach (var validPlayer in PlayerExtensions.ValidPlayers())
                 {
                     IWasdMenu? menu;
                     menu = _rtvMenus.GetWasdMenu();
 
                     if (menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(validPlayer, menu);
+                        _menuFactory.WasdMenus.OpenMenu(validPlayer, menu);
                     }
                 }
             }
             else
             {
-                foreach (var validPlayer in Extensions.ValidPlayers())
+                foreach (var validPlayer in PlayerExtensions.ValidPlayers())
                 {
                     BaseMenu menu;
                     menu = _rtvMenus.GetMenu();
 
                     if (menu != null)
                     {
-                        _menuFactory.OpenMenu(menu, validPlayer);
+                        _menuFactory.BaseMenus.OpenMenu(menu, validPlayer);
                     }
                 }
             }
@@ -189,7 +189,7 @@ namespace GameModeManager.Features
                 return;
             }
 
-            if (Extensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
+            if (PlayerExtensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.RTV.MinPlayers));
                 return;

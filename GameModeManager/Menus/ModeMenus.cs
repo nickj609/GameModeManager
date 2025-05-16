@@ -1,10 +1,12 @@
 // Included libraries
+using GameModeManager.Core;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using WASDMenuAPI.Shared.Models;
 using GameModeManager.CrossCutting;
 using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
+using System.Xml.Linq;
 
 // Declare namespace
 namespace GameModeManager.Menus
@@ -14,17 +16,16 @@ namespace GameModeManager.Menus
     {
         // Define class dependencies
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private Config _config = new Config();
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public ModeMenus(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
+        public ModeMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
         {
             _localizer = localizer;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
             _serverManager = serverManager;
         }
 
@@ -68,7 +69,7 @@ namespace GameModeManager.Menus
         // Define on load behavior
         public void Load()
         {
-            modeMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
+            modeMenu = _menuFactory.BaseMenus.AssignMenu(_config.GameModes.Style, "Game Mode List");
 
             // Add menu option for each game mode in game mode list
             foreach (IMode _mode in _pluginState.Modes)
@@ -76,7 +77,7 @@ namespace GameModeManager.Menus
                 modeMenu.AddMenuOption(_mode.Name, (player, option) =>
                 {
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text));
-                    MenuManager.CloseActiveMenu(player);
+                    _menuFactory.BaseMenus.CloseMenu(player);
                     _serverManager.ChangeMode(_mode);
                 });
             }
@@ -84,7 +85,7 @@ namespace GameModeManager.Menus
             // Create vote mode menu
             if (_config.Votes.GameModes)
             {
-                voteModesMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
+                voteModesMenu = _menuFactory.BaseMenus.AssignMenu(_config.GameModes.Style, "Game Mode List");
 
                 // Add vote menu option for each game mode in game mode list
                 foreach (IMode _mode in _pluginState.Modes)
@@ -92,10 +93,10 @@ namespace GameModeManager.Menus
                     voteModesMenu.AddMenuOption(_mode.Name, (player, option) =>
                     {
                         // Close menu
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
 
                         // Start vote
-                        _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, Extensions.RemoveCfgExtension(_mode.Config));
+                        CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, PluginExtensions.RemoveCfgExtension(_mode.Config));
                     });
                 }
             }
@@ -107,7 +108,7 @@ namespace GameModeManager.Menus
             // Create mode menu
             if (_config.GameModes.Style.Equals("wasd"))
             {
-                modeWasdMenu = _menuFactory.AssignWasdMenu("Game Mode List");
+                modeWasdMenu = _menuFactory.WasdMenus.AssignMenu("Game Mode List");
 
                 // Add menu option for each game mode in game mode list
                 foreach (IMode _mode in _pluginState.Modes)
@@ -115,7 +116,7 @@ namespace GameModeManager.Menus
                     modeWasdMenu?.Add(_mode.Name, (player, option) =>
                     {
                         // Close menu
-                       _menuFactory.CloseWasdMenu(player);
+                       _menuFactory.WasdMenus.CloseMenu(player);
 
                         // Change mode
                         Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
@@ -126,7 +127,7 @@ namespace GameModeManager.Menus
 
             if (_config.GameModes.Style.Equals("wasd") && _config.Votes.GameModes)
             {
-                voteModesWasdMenu = _menuFactory.AssignWasdMenu("Game Mode List");
+                voteModesWasdMenu = _menuFactory.WasdMenus.AssignMenu("Game Mode List");
 
                 // Add vote menu option for each game mode in game mode list
                 foreach (IMode _mode in _pluginState.Modes)
@@ -134,10 +135,10 @@ namespace GameModeManager.Menus
                     voteModesWasdMenu?.Add(_mode.Name, (player, option) =>
                     {
                         // Close menu
-                        _menuFactory.CloseWasdMenu(player);
+                        _menuFactory.WasdMenus.CloseMenu(player);
 
                         // Start vote
-                        _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, Extensions.RemoveCfgExtension(_mode.Config));
+                        CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, PluginExtensions.RemoveCfgExtension(_mode.Config));
                     });
                 }
             }

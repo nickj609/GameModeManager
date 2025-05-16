@@ -148,7 +148,7 @@ namespace GameModeManager.Features
         {
             if (armsRace & !killsReached)
             {
-                var player = Extensions.ValidPlayers(true).OrderByDescending(p => p.Score).FirstOrDefault();
+                var player = PlayerExtensions.ValidPlayers(true).OrderByDescending(p => p.Score).FirstOrDefault();
                 if (player?.ActionTrackingServices?.MatchStats?.Kills >= _pluginState.RTVKillsBeforeEnd)
                 {
                     killsReached = true;

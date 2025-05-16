@@ -20,18 +20,17 @@ namespace GameModeManager.Features
         // Define class dependencies
         private MapMenus _mapMenus;
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private Config _config = new Config();
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public MapCommands(PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer, ServerManager serverManager, MapMenus mapMenus)
+        public MapCommands(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, MapMenus mapMenus)
         {
             _mapMenus = mapMenus;
             _localizer = localizer;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
             _serverManager = serverManager;
         }
 
@@ -70,7 +69,7 @@ namespace GameModeManager.Features
 
                         if(menu != null)
                         {
-                            _menuFactory.OpenWasdMenu(player, menu);
+                            _menuFactory.WasdMenus.OpenMenu(player, menu);
                         }
                     }
                     else if (_config.Maps.Mode == 1)
@@ -80,7 +79,7 @@ namespace GameModeManager.Features
 
                         if(menu != null)
                         {
-                            _menuFactory.OpenWasdMenu(player, menu);
+                            _menuFactory.WasdMenus.OpenMenu(player, menu);
                         }
                     }
                 }
@@ -90,13 +89,13 @@ namespace GameModeManager.Features
                     {
                         BaseMenu menu;
                         menu = _mapMenus.GetMenu("CurrentMode");
-                        _menuFactory.OpenMenu(menu, player);
+                        _menuFactory.BaseMenus.OpenMenu(menu, player);
                     }
                     else
                     {
                         BaseMenu menu;
                         menu = _mapMenus.GetMenu("All");
-                        _menuFactory.OpenMenu(menu, player);
+                        _menuFactory.BaseMenus.OpenMenu(menu, player);
                     }
                 }
             }

@@ -113,7 +113,7 @@ namespace GameModeManager.Core
         // Define event handlers
         public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
         {
-            if (Extensions.ValidPlayerCount(false) == 1)
+            if (PlayerExtensions.ValidPlayerCount(false) == 1)
             {
                 StartWarmup(_pluginState.WarmupMode);
             }
@@ -128,7 +128,7 @@ namespace GameModeManager.Core
 
         public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
         {
-            if (Extensions.IsServerEmpty())
+            if (ServerExtensions.IsServerEmpty())
             {
                 if (_pluginState.WarmupRunning)
                 {

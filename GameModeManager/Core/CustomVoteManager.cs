@@ -1,8 +1,10 @@
 // Included libraries
 using GameModeManager.Menus;
 using GameModeManager.Models;
+using CS2_CustomVotes.Shared;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
+using CounterStrikeSharp.API.Core.Capabilities;
 
 // Copyright (c) 2024 imi-tat0r
 // https://github.com/imi-tat0r/CS2-CustomVotes/
@@ -35,10 +37,11 @@ namespace GameModeManager.Core
             _config = config;
         }
 
-        // Define vote flags for deregistration
+        // Define class properties
         private bool MapVote = false;
         private bool SettingVote = false;
         private bool GameModeVote = false;
+        public static PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
 
         // Define method to register custom votes
         public void RegisterCustomVotes()
@@ -58,11 +61,11 @@ namespace GameModeManager.Core
                 foreach (Mode _mode in _pluginState.Modes)
                 {
                     // Add mode to all modes vote
-                    string _modeCommand = Extensions.RemoveCfgExtension(_mode.Config);
+                    string _modeCommand = PluginExtensions.RemoveCfgExtension(_mode.Config);
                     _modeOptions.Add(_mode.Name, new VoteOption(_mode.Name, new List<string> { $"css_mode {_mode.Name}"}));
 
                     // Create per mode vote
-                    _pluginState.CustomVotesApi.Get()?.AddCustomVote(
+                    CustomVotesApi.Get()?.AddCustomVote(
                         _modeCommand, 
                         new List<string>(), 
                         _localizer.Localize("mode.vote.menu-title", _mode.Name), 
@@ -79,7 +82,7 @@ namespace GameModeManager.Core
                 }
                 
                 // Register game modes vote
-                _pluginState.CustomVotesApi.Get()?.AddCustomVote(
+                CustomVotesApi.Get()?.AddCustomVote(
                     "changemode", 
                     new List<string> {"cm"}, 
                     _localizer.Localize("modes.vote.menu-title"), 
@@ -104,7 +107,7 @@ namespace GameModeManager.Core
             {
                 foreach (Setting _setting in _pluginState.Settings)
                 {
-                    _pluginState.CustomVotesApi.Get()?.AddCustomVote(
+                    CustomVotesApi.Get()?.AddCustomVote(
                         _setting.Name, 
                         new List<string>(), 
                         _localizer.Localize("setting.vote.menu-title", _setting.DisplayName), 
@@ -131,7 +134,7 @@ namespace GameModeManager.Core
         {
             foreach (Map _map in _pluginState.CurrentMode.Maps)
             {
-                _pluginState.CustomVotesApi.Get()?.AddCustomVote(
+                CustomVotesApi.Get()?.AddCustomVote(
                     _map.Name, 
                     new List<string>(), 
                     _localizer.Localize("map.vote.menu-title", _map.Name), 
@@ -158,7 +161,7 @@ namespace GameModeManager.Core
             {
                 foreach (Map _map in _pluginState.CurrentMode.Maps)
                 {
-                    _pluginState.CustomVotesApi.Get()?.RemoveCustomVote(_map.Name);
+                    CustomVotesApi.Get()?.RemoveCustomVote(_map.Name);
                 }
 
                 // Remove vote from command list
@@ -174,12 +177,12 @@ namespace GameModeManager.Core
             // Deregister all gamemode votes
             if (GameModeVote)
             {
-                _pluginState.CustomVotesApi.Get()?.RemoveCustomVote("changemode");
+                CustomVotesApi.Get()?.RemoveCustomVote("changemode");
 
                 foreach (Mode _mode in _pluginState.Modes)
                 {
-                    string _modeCommand = Extensions.RemoveCfgExtension(_mode.Config);
-                    _pluginState.CustomVotesApi.Get()?.RemoveCustomVote(_modeCommand);    
+                    string _modeCommand = PluginExtensions.RemoveCfgExtension(_mode.Config);
+                    CustomVotesApi.Get()?.RemoveCustomVote(_modeCommand);    
                 }
             }
 
@@ -188,7 +191,7 @@ namespace GameModeManager.Core
             {
                 foreach (Setting _setting in _pluginState.Settings)
                 {
-                    _pluginState.CustomVotesApi.Get()?.RemoveCustomVote(_setting.Name);
+                    CustomVotesApi.Get()?.RemoveCustomVote(_setting.Name);
                 }
             }
             DeregisterMapVotes();

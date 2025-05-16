@@ -163,8 +163,8 @@ namespace GameModeManager.Core
             List<string> options = new();
             List<string> mapsEllected = new ();
             List<string> modesEllected = new ();
-            List<IMap> mapsScrambled = (List<IMap>)Extensions.Shuffle(new Random(), maps);
-            List<IMode> modesScrambled = (List<IMode>)Extensions.Shuffle(new Random(), modes);
+            List<IMap> mapsScrambled = (List<IMap>)PluginExtensions.Shuffle(new Random(), maps);
+            List<IMode> modesScrambled = (List<IMode>)PluginExtensions.Shuffle(new Random(), modes);
 
             if(_pluginState.IncludeExtend && _pluginState.MapExtends < _pluginState.MaxExtends)
             {
@@ -198,7 +198,7 @@ namespace GameModeManager.Core
                 mapsEllected = _nominateManager.MapNominationWinners().Distinct().ToList();
             }
 
-            List<string> optionsScrambled = (List<string>)Extensions.Shuffle(new Random(), options);
+            List<string> optionsScrambled = (List<string>)PluginExtensions.Shuffle(new Random(), options);
             List<string> optionsEllected = modesEllected.Concat(mapsEllected).Concat(optionsScrambled).Distinct().ToList();
 
             return optionsEllected;

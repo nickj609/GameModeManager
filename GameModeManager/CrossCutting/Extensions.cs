@@ -10,10 +10,9 @@ using CounterStrikeSharp.API.Modules.Entities;
 // Declare namespace
 namespace GameModeManager.CrossCutting
 {
-    // Define class
-    public static class Extensions
+    // Define player extensions
+    public static class PlayerExtensions
     {
-        // Define player extensions
         public static void FreezePlayers()
 		{
             foreach (var player in ValidPlayers(true))
@@ -96,11 +95,14 @@ namespace GameModeManager.CrossCutting
 
             return abbreviate ? teamStr + ".short" : teamStr + ".long";
         }
+    }
         
-        // Define server extensions
+    // Define server extensions
+    public static class ServerExtensions
+    {
         public static bool IsServerEmpty()
         {
-            return ValidPlayerCount(false) == 0;
+            return PlayerExtensions.ValidPlayerCount(false) == 0;
         }
 
         public static bool IsHibernationEnabled()
@@ -116,8 +118,11 @@ namespace GameModeManager.CrossCutting
                 return false;
             }
         }
-
-        // Define plugin extensions
+    }
+    
+    // Define plugin extensions
+    public static class PluginExtensions
+    {
         public static string RemoveCfgExtension(string str)
         {
             if (str.EndsWith(".cfg"))

@@ -13,17 +13,16 @@ namespace GameModeManager.Menus
     {
         // Define class dependencies
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
         private VoteManager _voteManager;
         private StringLocalizer _localizer;
         private Config _config = new Config();
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public RTVMenus(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, VoteManager voteManager)
+        public RTVMenus(PluginState pluginState, StringLocalizer localizer, VoteManager voteManager)
         {
             _localizer = localizer;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
             _voteManager = voteManager;
         }
 
@@ -55,7 +54,7 @@ namespace GameModeManager.Menus
             
             if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
             {
-                rtvWasdMenu = _menuFactory.AssignWasdMenu(_localizer.Localize("rtv.hud.menu-title"));
+                rtvWasdMenu = _menuFactory.WasdMenus.AssignMenu(_localizer.Localize("rtv.hud.menu-title"));
 
                 foreach (var optionName in options)
                 {
@@ -63,13 +62,13 @@ namespace GameModeManager.Menus
                     rtvWasdMenu?.Add(optionName, (player, option) =>
                     {
                         _voteManager.AddVote(player, optionName);
-                        _menuFactory.CloseWasdMenu(player);
+                        _menuFactory.WasdMenus.CloseMenu(player);
                     });
                 }
             }
             else
             {
-                rtvMenu = _menuFactory.AssignMenu(_config.RTV.Style, _localizer.Localize("rtv.hud.menu-title"));
+                rtvMenu = _menuFactory.BaseMenus.AssignMenu(_config.RTV.Style, _localizer.Localize("rtv.hud.menu-title"));
 
                 foreach (var optionName in options.Take(_config.RTV.OptionsToShow))
                 {
@@ -77,7 +76,7 @@ namespace GameModeManager.Menus
                     rtvMenu.AddMenuOption(optionName, (player, option) =>
                     {
                         _voteManager.AddVote(player, optionName);
-                        MenuManager.CloseActiveMenu(player);
+                        _menuFactory.BaseMenus.CloseMenu(player);
                     });
                 }
             }

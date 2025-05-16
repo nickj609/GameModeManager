@@ -72,7 +72,7 @@ namespace GameModeManager.Core
 
         public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
         {
-            if (Extensions.ValidPlayerCount(false) > 0)
+            if (PlayerExtensions.ValidPlayerCount(false) > 0)
             {
                 _rotationTimer?.Kill();
             }
@@ -83,10 +83,10 @@ namespace GameModeManager.Core
         {  
             if(_config.Rotation.WhenServerEmpty)
             {
-                if(Extensions.IsServerEmpty())
+                if(ServerExtensions.IsServerEmpty())
                 {
                     // Disable server hibernation
-                    if(!Extensions.IsHibernationEnabled())
+                    if(!ServerExtensions.IsHibernationEnabled())
                     {
                         Server.ExecuteCommand("sv_hibernate_when_empty false");
                     }
