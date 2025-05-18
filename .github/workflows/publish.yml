@@ -77,12 +77,15 @@ jobs:
             >' || '' }}
           append_body: |
             ## Installation
-            1. Install Metamod:Source and Counter Strike Sharp.
-            2. Copy `addons` and `cfg` folders to `/csgo/`.
-            3. Make sure your `gamemodes_server.txt` or custom map group file is in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and contains a list of map groups.
-            5. Update each game mode configuration file (i.e. comp.cfg) to include `css_gamemode <mode>`.
-            6. After the first run, update the configuration file `GameModeManager.json`.
-            For more information on the configuration of these features, please see the updated [README.md](https://github.com/nickj609/GameModeManager/blob/main/README.md).
+            1. Extract and copy `addons` and `cfg` folders to `/csgo/`.
+            2. Update each game mode configuration file (i.e. comp.cfg) to include `css_gamemode <mode>`.
+            3. After the first run, update the configuration file `GameModeManager.json`.
+
+            For more information on the configuration of these features, please see the updated [Wiki](https://github.com/nickj609/GameModeManager/wiki).
+
+            # Need Help?
+            If you have a question, check out our [FAQ](https://github.com/nickj609/GameModeManager/wiki/FAQ-(Frequently-Asked-Questions)) and if you still need help, [create a new issue](https://github.com/nickj609/GameModeManager/issues/new/choose).   
+
             **Full Changelog**: https://github.com/nickj609/GameModeManager/compare/v${{ steps.version_info.outputs.previous_module_version }}...v${{ steps.version_info.outputs.current_module_version }}
           draft: false
           prerelease: false
