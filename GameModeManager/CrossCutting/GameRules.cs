@@ -10,7 +10,7 @@ namespace GameModeManager.CrossCutting
     // Define class
     public class GameRules : IPluginDependency<Plugin, Config>
     {
-        // Define class dependencies
+        // Define class properties
         CCSGameRules? _gameRules = null;
         public float GameStartTime => _gameRules?.GameStartTime ?? 0;
         public bool WarmupRunning => _gameRules?.WarmupPeriod ?? false;

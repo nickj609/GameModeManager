@@ -32,7 +32,7 @@ namespace GameModeManager.Timers
 
         private void DisplayCountdown(string message)
         {
-            foreach (CCSPlayerController player in Extensions.ValidPlayers(false))
+            foreach (CCSPlayerController player in PlayerExtensions.ValidPlayers(false))
             {
                 MenuManager.GetActiveMenus().Clear();
                 player.PrintToCenterAlert(message + " " + interval.ToString() + "...");

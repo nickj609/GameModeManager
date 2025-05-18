@@ -1,11 +1,11 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Menus;
-using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -18,18 +18,17 @@ namespace GameModeManager.Features
     {
         // Define class dependencies
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
         private SettingMenus _settingMenus;
         private StringLocalizer _localizer;
         private Config _config = new Config();
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public SettingCommands(PluginState pluginState, StringLocalizer localizer, MenuFactory menuFactory, SettingMenus settingMenus)
+        public SettingCommands(PluginState pluginState, StringLocalizer localizer)
         {
             _localizer = localizer;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
-            _settingMenus = settingMenus;
+            _settingMenus = new SettingMenus(pluginState, localizer, _config);
         }
 
         // Load config
@@ -57,7 +56,7 @@ namespace GameModeManager.Features
             {
                 string _status = $"{command.ArgByIndex(1)}";
                 string _settingName = $"{command.ArgByIndex(2)}";
-                Setting? _option = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_settingName, StringComparison.OrdinalIgnoreCase));
+                ISetting? _option = _pluginState.Game.Settings.FirstOrDefault(s => s.Name.Equals(_settingName, StringComparison.OrdinalIgnoreCase));
 
                 if(_option != null) 
                 {
@@ -91,23 +90,23 @@ namespace GameModeManager.Features
             {
                 if (_config.Settings.Style.Equals("wasd"))
                 {  
-                    IWasdMenu? menu;
-                    menu = _settingMenus.GetWasdMenu("Main Menu");
+                    _settingMenus.WasdMenus.Load();
+                    IWasdMenu? menu = _settingMenus.WasdMenus.MainMenu;
 
                     if(menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(player, menu);
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
                 {
-                    BaseMenu menu;
-                    menu = _settingMenus.GetMenu("Main Menu");
+                    _settingMenus.BaseMenus.Load();
+                    BaseMenu menu = _settingMenus.BaseMenus.MainMenu;
 
                     if (menu != null)
                     {
                          menu.Title = _localizer.Localize("settings.menu-actions");
-                        _menuFactory.OpenMenu(menu, player);
+                        _menuFactory.BaseMenus.OpenMenu(menu, player);
                     }
                 }
             }

@@ -3,6 +3,7 @@ using System.Text;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
+using GameModeManager.Shared.Models;
 
 // Copyright (c) 2016 Shravan Rajinikanth
 // https://github.com/shravan2x/Gameloop.Vdf/
@@ -54,7 +55,7 @@ namespace GameModeManager.Core
                 {
                     foreach (VProperty _mapGroup in _mapGroups.OfType<VProperty>()) 
                     {  
-                        MapGroup _group = new MapGroup(_mapGroup.Key);
+                        IMapGroup _group = new MapGroup(_mapGroup.Key);
                         var _maps = _mapGroup.Value.OfType<VProperty>()
                                 .Where(p => p.Key.Equals("maps", StringComparison.OrdinalIgnoreCase))
                                 .Select(p => p.Value)
@@ -79,9 +80,9 @@ namespace GameModeManager.Core
                                         _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
                                         
                                         // Add to all maps list only if it doesn't already exist
-                                        if (!_pluginState.Maps.Any(m => m.Name == _mapNameFormatted && m.WorkshopId == _mapWorkshopId))
+                                        if (!_pluginState.Game.Maps.Any(m => m.Name == _mapNameFormatted && m.WorkshopId == _mapWorkshopId))
                                         {
-                                            _pluginState.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
+                                            _pluginState.Game.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId, _mapDisplayName));
                                         }
                                     }
                                     else
@@ -89,9 +90,9 @@ namespace GameModeManager.Core
                                         _group.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
 
                                         // Add to all maps list only if it doesn't already exist
-                                        if (!_pluginState.Maps.Any(m => m.Name == _mapNameFormatted && m.WorkshopId == _mapWorkshopId))
+                                        if (!_pluginState.Game.Maps.Any(m => m.Name == _mapNameFormatted && m.WorkshopId == _mapWorkshopId))
                                         {
-                                            _pluginState.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
+                                            _pluginState.Game.Maps.Add(new Map(_mapNameFormatted, _mapWorkshopId));
                                         }
                                     }
                                 }
@@ -102,9 +103,9 @@ namespace GameModeManager.Core
                                         _group.Maps.Add(new Map(_mapName, _mapDisplayName));
 
                                         // Add to all maps list only if it doesn't already exist
-                                        if (!_pluginState.Maps.Any(m => m.Name == _mapName))
+                                        if (!_pluginState.Game.Maps.Any(m => m.Name == _mapName))
                                         {
-                                            _pluginState.Maps.Add(new Map(_mapName, _mapDisplayName));
+                                            _pluginState.Game.Maps.Add(new Map(_mapName, _mapDisplayName));
                                         }
                                     }
                                     else
@@ -112,15 +113,15 @@ namespace GameModeManager.Core
                                         _group.Maps.Add(new Map(_mapName));
 
                                         // Add to all maps list only if it doesn't already exist
-                                        if (!_pluginState.Maps.Any(m => m.Name == _mapName))
+                                        if (!_pluginState.Game.Maps.Any(m => m.Name == _mapName))
                                         {
-                                            _pluginState.Maps.Add(new Map(_mapName));
+                                            _pluginState.Game.Maps.Add(new Map(_mapName));
                                         }
                                     }
                                 }
                             }
                             // Add map group to map group list
-                            _pluginState.MapGroups.Add(_group);
+                            _pluginState.Game.MapGroups.Add(_group);
                         }
                         else
                         {
@@ -131,23 +132,23 @@ namespace GameModeManager.Core
             }
 
             // Set current map
-            Map? defaultMap = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(_config.Maps.Default, StringComparison.OrdinalIgnoreCase));
+            IMap? defaultMap = _pluginState.Game.Maps.FirstOrDefault(m => m.Name.Equals(_config.Maps.Default, StringComparison.OrdinalIgnoreCase));
 
             if (defaultMap != null)
             {
-                _pluginState.CurrentMap = defaultMap;
+                _pluginState.Game.CurrentMap = defaultMap;
             }
             else
             {
-                _pluginState.CurrentMap = PluginState.DefaultMap;
+                _pluginState.Game.CurrentMap = PluginState.GameController.DefaultMap;
             }
         }
 
         // Define on map start behavior
        public void OnMapStart(string map)
         {
-            Map _map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(map, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(map, StringComparison.OrdinalIgnoreCase)) ?? new Map(map);
-            _pluginState.CurrentMap = _map;
+            IMap _map = _pluginState.Game.Maps.FirstOrDefault(m => m.Name.Equals(map, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(map, StringComparison.OrdinalIgnoreCase)) ?? new Map(map);
+            _pluginState.Game.CurrentMap = _map;
         }
     }
 }

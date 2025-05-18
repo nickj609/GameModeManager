@@ -1,9 +1,9 @@
 // Included libraries
 using GameModeManager.Core;
-using GameModeManager.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -63,7 +63,7 @@ namespace GameModeManager.Features
         {
             if(player == null)
             {
-                if (!_pluginState.WarmupScheduled)
+                if (!_pluginState.Game.WarmupScheduled)
                 {
                     if (!armsRace)
                     {
@@ -98,10 +98,10 @@ namespace GameModeManager.Features
                 {
                     if(command.ArgCount > 1)
                     {
-                        Mode? _mode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase) ||  m.Config.Contains(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase));
+                        IMode? _mode = _pluginState.Game.WarmupModes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase) ||  m.Config.Contains(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase));
                         if(_mode != null)
                         {
-                            _pluginState.WarmupScheduled = true;
+                            _pluginState.Game.WarmupScheduled = true;
                             _warmupManager.StartWarmup(_mode);
                         }
                         else
@@ -111,8 +111,8 @@ namespace GameModeManager.Features
                     }
                     else
                     {
-                        _pluginState.WarmupScheduled = true;
-                        _warmupManager.StartWarmup(_pluginState.WarmupMode);
+                        _pluginState.Game.WarmupScheduled = true;
+                        _warmupManager.StartWarmup(_pluginState.Game.WarmupMode);
                     }
                 }
                 else
@@ -128,13 +128,13 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
-                if (_pluginState.WarmupRunning)
+                if (_pluginState.Game.WarmupRunning)
                 {
                     _warmupManager.EndWarmup();
                 }
                 else
                 {
-                    _pluginState.WarmupScheduled = false;
+                    _pluginState.Game.WarmupScheduled = false;
                 }
             }
         }

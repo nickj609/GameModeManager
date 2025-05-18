@@ -33,7 +33,7 @@ namespace GameModeManager.Features
         public void OnConfigParsed(Config config)
         {
             _config = config;
-            _pluginState.RTVDuration = _config.RTV.VoteDuration;
+            _pluginState.RTV.Duration = _config.RTV.VoteDuration;
         }
 
         // Define on load behavior
@@ -65,7 +65,7 @@ namespace GameModeManager.Features
             {  
                 if (int.TryParse(command.ArgByIndex(1), out var duration))
                 {
-                    _pluginState.RTVDuration = duration;
+                    _pluginState.RTV.Duration = duration;
                 }
                 else
                 {
@@ -83,7 +83,7 @@ namespace GameModeManager.Features
             {
                 if (int.TryParse(command.ArgByIndex(1), out var seconds))
                 {
-                    _pluginState.RTVSecondsBeforeEnd = seconds;
+                    _pluginState.RTV.SecondsBeforeEnd = seconds;
                 }
                 else
                 {
@@ -101,7 +101,7 @@ namespace GameModeManager.Features
             {
                 if (int.TryParse(command.ArgByIndex(1), out var rounds))
                 {
-                    _pluginState.RTVRoundsBeforeEnd = rounds;
+                    _pluginState.RTV.RoundsBeforeEnd = rounds;
                 }
                 else
                 {
@@ -119,7 +119,7 @@ namespace GameModeManager.Features
             { 
                 if (bool.TryParse(command.ArgByIndex(1), out var endOfMapVote))
                 {
-                    _pluginState.EndOfMapVote = endOfMapVote;
+                    _pluginState.RTV.EndOfMapVote = endOfMapVote;
                 }
                 else
                 {
@@ -137,7 +137,7 @@ namespace GameModeManager.Features
             { 
                 if (int.TryParse(command.ArgByIndex(1), out var duration))
                 {
-                    _pluginState.RTVDuration = duration;
+                    _pluginState.RTV.Duration = duration;
                     
                 }
                 else
@@ -148,7 +148,7 @@ namespace GameModeManager.Features
 
                 if (bool.TryParse(command.ArgByIndex(2), out var changeImmediately))
                 {
-                    _pluginState.ChangeImmediately = changeImmediately;
+                    _pluginState.RTV.ChangeImmediately = changeImmediately;
                 }
                 else
                 {
@@ -156,7 +156,7 @@ namespace GameModeManager.Features
                     return;
                 }
 
-                if (!_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
+                if (!_pluginState.RTV.EofVoteHappened && !_pluginState.RTV.EofVoteHappening)
                 {
                     _asyncVoteManager.StartVote(null, null);
                 }
@@ -176,7 +176,7 @@ namespace GameModeManager.Features
             { 
                 if (bool.TryParse(command.ArgByIndex(1), out var extend))
                 {
-                    _pluginState.IncludeExtend = extend;
+                    _pluginState.RTV.IncludeExtend = extend;
                 }
                 else
                 {
@@ -194,7 +194,7 @@ namespace GameModeManager.Features
             { 
                 if (int.TryParse(command.ArgByIndex(1), out var extends))
                 {
-                    _pluginState.MaxExtends = extends;
+                    _pluginState.RTV.MaxExtends = extends;
                 }
                 else
                 {
@@ -223,7 +223,7 @@ namespace GameModeManager.Features
         {
             if (player == null && _plugin != null) 
             {
-               if (command.ArgByIndex(1).Equals("true", StringComparison.OrdinalIgnoreCase) && !_pluginState.RTVEnabled)
+               if (command.ArgByIndex(1).Equals("true", StringComparison.OrdinalIgnoreCase) && !_pluginState.RTV.Enabled)
                {
                     _plugin.AddCommand("css_rtv", "", OnRTVCommand);
                     _plugin.AddCommand("css_rtv_enabled", "Enables or disables custom RTV.", OnRTVEnabledCommand);
@@ -233,7 +233,7 @@ namespace GameModeManager.Features
                     _plugin.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnected, HookMode.Pre);
                     _rtvManager.EnableRTV();
                }
-               else if (command.ArgByIndex(1).Equals("false", StringComparison.OrdinalIgnoreCase) && _pluginState.RTVEnabled)
+               else if (command.ArgByIndex(1).Equals("false", StringComparison.OrdinalIgnoreCase) && _pluginState.RTV.Enabled)
                {
                     _plugin.RemoveCommand("css_rtv", OnRTVCommand);
                     _plugin.RemoveCommand("css_rtv_enabled", OnRTVEnabledCommand);

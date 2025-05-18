@@ -1,544 +1,445 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Core;
 using GameModeManager.Features;
-using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.CrossCutting;
-using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
 namespace GameModeManager.Menus
 {
     // Define class
-    public class PlayerMenu : IPluginDependency<Plugin, Config>
+    public class PlayerMenu
     {
-        // Define class dependencies
-        private MapMenus _mapMenus;
-        private ModeMenus _modeMenus;
-        private GameRules _gameRules;
-        private VoteManager _voteManager;
-        private PluginState _pluginState;
-        private MenuFactory _menuFactory;
-        private StringLocalizer _localizer;
-        private SettingMenus _settingMenus;
-        private Config _config = new Config();
-        private NominateMenus _nominateMenus;
-        private AsyncVoteManager _asyncVoteManager;
-        private TimeLimitManager _timeLimitManager;
-        private MaxRoundsManager _maxRoundsManager;
 
         // Define class instance
-        public PlayerMenu(MenuFactory menuFactory, PluginState pluginState, IStringLocalizer iLocalizer, TimeLimitManager timeLimitManager, GameRules gameRules, SettingMenus settingMenus, NominateMenus nominateMenus, MapMenus mapMenus, ModeMenus modeMenus, VoteManager voteManager, MaxRoundsManager maxRoundsManager, AsyncVoteManager asyncVoteManager)
+        public PlayerMenu(PluginState pluginState, StringLocalizer localizer, TimeLimitManager timeLimitManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager,
+        AsyncVoteManager asyncVoteManager, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, NominateMenus nominateMenus, Config config)
         {
-            _mapMenus = mapMenus;
-            _modeMenus = modeMenus;
-            _gameRules = gameRules;
-            _voteManager = voteManager;
-            _pluginState = pluginState;
-            _menuFactory = menuFactory;
-            _settingMenus = settingMenus;
-            _nominateMenus = nominateMenus;
-            _asyncVoteManager = asyncVoteManager;
-            _timeLimitManager = timeLimitManager;
-            _maxRoundsManager = maxRoundsManager;
-            _localizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
+            BaseMenus = new BaseMenuController(pluginState, localizer, timeLimitManager, gameRules, voteManager, maxRoundsManager, asyncVoteManager, mapMenus, modeMenus, settingMenus, nominateMenus, config);
+            WasdMenus = new WasdMenuController(pluginState, localizer, timeLimitManager, gameRules, voteManager, maxRoundsManager, asyncVoteManager, mapMenus, modeMenus, settingMenus, nominateMenus, config);
         }
 
         // Define class properties
-        private IWasdMenu? playerWasdMenu;
-        private BaseMenu playerMenu = new ChatMenu("Command List");
+        public BaseMenuController BaseMenus;
+        public WasdMenuController WasdMenus;
 
-        // Load config
-        public void OnConfigParsed(Config config)
+        // Define BaseMenuController class
+        public class BaseMenuController(PluginState pluginState, StringLocalizer localizer, TimeLimitManager timeLimitManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager,
+        AsyncVoteManager asyncVoteManager, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, NominateMenus nominateMenus, Config config)
         {
-            _config = config;
-        }
+            // Define class properties
+            private MenuFactory menuFactory = new MenuFactory();
+            public BaseMenu MainMenu = new ChatMenu("Command List");
 
-        // Define methods to get menus
-        public BaseMenu GetMenu()
-        {
-            return playerMenu;
-        }
-
-        public IWasdMenu? GetWasdMenu()
-        {
-            return playerWasdMenu;
-        }
-
-        // Define method to update the game command menu
-        public void Load()
-        {
-            playerMenu = _menuFactory.AssignMenu(_config.Settings.Style, "Game Commands");
-
-            // Add menu options for each command in the command list
-            foreach (string _command in _pluginState.PlayerCommands)
+            // Define load method
+            public void Load()
             {
-                switch(_command)
+                // Create main menu
+                MainMenu = menuFactory.BaseMenus.AssignMenu(config.Settings.Style, "Game Commands");
+
+                foreach (string _command in pluginState.Game.PlayerCommands)
                 {
-                    case "!changemap":
-                    playerMenu.AddMenuOption("Change Map", (player, option) =>
-                    {
-                        // Close menu
-                        MenuManager.CloseActiveMenu(player);
-
-                        // Open sub menu
-                        if (player != null && _config.Votes.Enabled && _config.Votes.Maps && _config.Maps.Mode == 0)
-                        {
-                            BaseMenu menu;
-                            menu = _mapMenus.GetMenu("VoteCurrentMode");
-                            _menuFactory.OpenMenu(menu, player);
-                        }
-                        else if(player != null && _config.Votes.Enabled && _config.Votes.Maps &&  _config.Maps.Mode == 1)
-                        {
-                             BaseMenu menu;
-                            menu = _mapMenus.GetMenu("VoteAll");
-                            _menuFactory.OpenMenu(menu, player);
-                        }
-                    });
-                    break;
-                    case "!changemode":
-                    playerMenu.AddMenuOption("Change Mode", (player, option) =>
-                    {
-                        // Close menu
-                        MenuManager.CloseActiveMenu(player);
-
-                        // Open sub menu
-                        if (player != null && _config.Votes.Enabled && _config.Votes.GameModes)
-                        {
-                            BaseMenu menu;
-                            menu = _modeMenus.GetMenu("Vote");
-                            _menuFactory.OpenMenu(menu, player);
-                        }
-                    });
-                    break;
-                    case "!changesetting":
-                   playerMenu.AddMenuOption("Change Setting", (player, option) =>
-                    {
-                        // Close menu
-                        MenuManager.CloseActiveMenu(player);
-
-                        // Open sub menu
-                        if (player != null && _config.Votes.Enabled && _config.Votes.GameSettings)
-                        {
-                            _menuFactory.OpenMenu(_settingMenus.GetMenu("Vote"), player);
-                        }
-                    });
-                    break;
-                    case "!currentmode":
-                    playerMenu.AddMenuOption("Current Mode", (player, option) =>
-                    {
-                        // Close menu
-                        MenuManager.CloseActiveMenu(player);
-
-                        // Print to chat
-                        if (player != null)
-                        {
-                            player.PrintToChat(_localizer.Localize("currentmode.message", _pluginState.CurrentMode.Name));
-                        }
-                    });
-                    break;
-                    case "!currentmap":
-                    playerMenu.AddMenuOption("Current Map", (player, option) =>
-                    {
-                        // Close menu
-                        MenuManager.CloseActiveMenu(player);
-
-                        // Print to chat
-                        if (player != null)
-                        {
-                            player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.CurrentMap.Name));
-                        }
-                    });
-                    break;
-                    case "!nextmap":
-                    playerMenu.AddMenuOption("Next Map", (player, option) =>
-                    {
-                        // Close menu
-                        MenuManager.CloseActiveMenu(player);
-
-                        // Print to chat
-                        if (player != null)
-                        {
-                            if (_pluginState.NextMap != null && _pluginState.NextMode == null)
-                            {
-                                player.PrintToChat(_localizer.Localize("rtv.nextmap.message", _pluginState.NextMap.DisplayName));
-                            }
-                            else if (_pluginState.NextMap == null && _pluginState.NextMode != null)
-                            {
-                                player.PrintToChat(_localizer.Localize("rtv.nextmap.message", "Random"));
-                            }
-                            else
-                            {
-                                player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.no-vote"));
-                            }
-                        }
-                    });
-                    break;
-                    case "!nextmode":
-                    playerMenu.AddMenuOption("Next Mode", (player, option) =>
-                    {
-                        // Close menu
-                        MenuManager.CloseActiveMenu(player);
-
-                        // Print to chat
-                        if (player != null)
-                        {
-                            if (_pluginState.NextMode != null)
-                            {
-                                player.PrintToChat(_localizer.Localize("rtv.nextmode.message", _pluginState.NextMode.Name));
-                            }
-                            else if (_pluginState.NextMap != null && _pluginState.NextMode == null)
-                            {
-                                player.PrintToChat(_localizer.Localize("rtv.nextmode.message", _pluginState.CurrentMode.Name));
-                            }
-                            else
-                            {
-                                player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.no-vote"));
-                            }
-                        }
-                    });
-                    break;
-                    case "!rtv":
-                    playerMenu.AddMenuOption("RockTheVote", (player, option) =>
-                    {
-                        // Close menu
-                        MenuManager.CloseActiveMenu(player);
-
-                        // Add vote
-                        _asyncVoteManager.RTVCounter(player);
-                        
-                    });
-                    break;
-                    case "!nominate":
-                    playerMenu.AddMenuOption("Nominate", (player, option) =>
-                    {
-                        // Close menu
-                        MenuManager.CloseActiveMenu(player);
-
-                        // Open nomination menu
-                        if (player != null)
-                        {
-                            if (_pluginState.EofVoteHappened)
-                            {
-                                if (!_timeLimitManager.UnlimitedTime())
-                                {
-                                    string timeleft = _voteManager.GetTimeLeft();
-                                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix","rtv.schedule-change", timeleft));
-                                }
-                                else if (!_maxRoundsManager.UnlimitedRounds)
-                                {
-                                    string roundsleft = _voteManager.GetRoundsLeft();
-                                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix","rtv.schedule-change", roundsleft));
-                                }
-                                return;
-                            }
-
-                            if (_pluginState.DisableCommands || !_pluginState.NominationEnabled)
-                            {
-                                player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.disabled"));
-                                return;
-                            }
-
-                            if (_gameRules.WarmupRunning)
-                            {
-                                if (!_config.RTV.EnabledInWarmup)
-                                {
-                                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.warmup"));
-                                    return;
-                                }
-                            }
-                            else if (_config.RTV.MinRounds > 0 && _config.RTV.MinRounds > _gameRules.TotalRoundsPlayed)
-                            {
-                                player!.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.minimum-rounds", _config.RTV.MinRounds));
-                                return;
-                            }
-
-                            if (Extensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
-                            {
-                                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.RTV.MinPlayers));
-                                return;
-                            }
-
-                            if (_config.RTV.IncludeModes)
-                            {
-                                BaseMenu menu;
-                                menu = _nominateMenus.GetMenu("All");
-                                _menuFactory.OpenMenu(menu, player);
-                            }
-                            else
-                            {
-                                BaseMenu menu;
-                                menu = _nominateMenus.GetMenu("Map");
-                                _menuFactory.OpenMenu(menu, player);
-                            }
-                        }
-                    });
-                    break;
-                    case "!timeleft":
-                    playerMenu.AddMenuOption("Time Left", (player, option) =>
-                    {
-                        // Close menu
-                        MenuManager.CloseActiveMenu(player);
-
-                        // Print to chat
-                        if (player != null)
-                        {
-                            player.PrintToChat(_localizer.LocalizeWithPrefixInternal("timeleft.prefix", _timeLimitManager.GetTimeLeftMessage()));
-                        }
-                    });
-                    break;
-                }
-            }
-        }
-
-        public void LoadWASDMenu()
-        {
-             if (_config.Commands.Style.Equals("wasd"))
-            {
-                // Assign menu
-                playerWasdMenu = _menuFactory.AssignWasdMenu("Game Commands");
-
-                // Add menu options for each command in the command list
-                foreach (string _command in _pluginState.PlayerCommands)
-                {
-                    switch(_command)
+                    switch (_command)
                     {
                         case "!changemap":
-                        playerWasdMenu?.Add("Change Map", (player, option) =>
-                        {
-                            if (player != null && _config.Votes.Enabled )
+                            MainMenu.AddMenuOption("Change Map", (player, option) =>
                             {
-                                if (_config.Votes.Maps && _config.Maps.Mode == 1)
-                                {
-                                    IWasdMenu? menu;
-                                    menu = _mapMenus.GetWasdMenu("VoteAll");
+                                menuFactory.BaseMenus.CloseMenu(player);
 
-                                    if (menu != null)
-                                    {
-                                        menu.Prev = option.Parent?.Options?.Find(option);
-                                        _menuFactory.OpenWasdSubMenu(player, menu);
-                                    }
-                                }
-                                else if (_config.Votes.Maps && _config.Maps.Mode == 0)
+                                if (player != null && config.Votes.Enabled && config.Votes.Maps)
                                 {
-                                    IWasdMenu? menu;
-                                    menu = _mapMenus.GetWasdMenu("VoteCurrentMode");
-
-                                    if (menu != null)
-                                    {
-                                        menu.Prev = option.Parent?.Options?.Find(option);
-                                        _menuFactory.OpenWasdSubMenu(player, menu);
-                                    }
+                                    mapMenus.BaseMenus.Load();
+                                    BaseMenu menu = mapMenus.BaseMenus.VoteMenu;
+                                    menuFactory.BaseMenus.OpenMenu(menu, player);
                                 }
-                            }
-                        });
-                        break;
+                            });
+                            break;
                         case "!changemode":
-                        playerWasdMenu?.Add("Change Mode", (player, option) =>
-                        {
-                            if (player != null && _config.Votes.Enabled && _config.Votes.GameModes)
+                            MainMenu.AddMenuOption("Change Mode", (player, option) =>
                             {
-                                IWasdMenu? menu;
-                                menu = _mapMenus.GetWasdMenu("Vote");
+                                menuFactory.BaseMenus.CloseMenu(player);
 
-                                if (menu != null)
+                                if (player != null && config.Votes.Enabled && config.Votes.GameModes)
                                 {
-                                    menu.Prev = option.Parent?.Options?.Find(option);
-                                    _menuFactory.OpenWasdMenu(player, menu);
+                                    modeMenus.BaseMenus.Load();
+                                    BaseMenu menu = modeMenus.BaseMenus.VoteMenu;
+                                    menuFactory.BaseMenus.OpenMenu(menu, player);
                                 }
-                            }
-                        });
-                        break;
+                            });
+                            break;
                         case "!changesetting":
-                        playerWasdMenu?.Add("Change Setting", (player, option) =>
-                        {
-                            if (player != null && _config.Votes.Enabled && _config.Votes.GameSettings)
+                            MainMenu.AddMenuOption("Change Setting", (player, option) =>
                             {
-                                IWasdMenu? menu;
-                                menu = _settingMenus.GetWasdMenu("Vote");
+                                menuFactory.BaseMenus.CloseMenu(player);
 
-                                if (menu != null)
+                                if (player != null && config.Votes.Enabled && config.Votes.GameSettings)
                                 {
-                                    menu.Prev = option.Parent?.Options?.Find(option);
-                                    _menuFactory.OpenWasdSubMenu(player, menu);
-
+                                    settingMenus.BaseMenus.Load();
+                                    menuFactory.BaseMenus.OpenMenu(settingMenus.BaseMenus.MainMenu, player);
                                 }
-                            }
-                        });
-                        break;
+                            });
+                            break;
                         case "!currentmode":
-                        playerWasdMenu?.Add("Current Mode", (player, option) =>
-                        {
-                            // Close menu
-                            _menuFactory.CloseWasdMenu(player);
-
-                            // Print to chat
-                            if (player != null)
+                            MainMenu.AddMenuOption("Current Mode", (player, option) =>
                             {
-                                player.PrintToChat(_localizer.Localize("currentmode.message", _pluginState.CurrentMode.Name));
-                            }
-                        });
-                        break;
+                                menuFactory.BaseMenus.CloseMenu(player);
+
+                                if (player != null)
+                                {
+                                    player.PrintToChat(localizer.Localize("currentmode.message", pluginState.Game.CurrentMode.Name));
+                                }
+                            });
+                            break;
                         case "!currentmap":
-                        playerWasdMenu?.Add("Current Map", (player, option) =>
-                        {
-                            // Close menu
-                            _menuFactory.CloseWasdMenu(player);
-
-                            // Print to chat
-                            if (player != null)
+                            MainMenu.AddMenuOption("Current Map", (player, option) =>
                             {
-                                player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.CurrentMap.DisplayName));
-                            }
-                        });
-                        break;
-                        case "!timeleft":
-                        playerWasdMenu?.Add("Time Left", (player, option) =>
-                        {
-                            // Close menu
-                            _menuFactory.CloseWasdMenu(player);
+                                menuFactory.BaseMenus.CloseMenu(player);
 
-                            // Print to chat
-                            if (player != null)
-                            {
-                                player.PrintToChat(_localizer.LocalizeWithPrefixInternal("timeleft.prefix", _timeLimitManager.GetTimeLeftMessage()));
-                            }
-                        });
-                        break;
+                                if (player != null)
+                                {
+                                    player.PrintToChat(localizer.Localize("currentmap.message", pluginState.Game.CurrentMap.Name));
+                                }
+                            });
+                            break;
                         case "!nextmap":
-                        playerWasdMenu?.Add("Next Map", (player, option) =>
-                        {
-                             // Close menu
-                            _menuFactory.CloseWasdMenu(player);
-
-                            // Print to chat
-                            if (player != null)
+                            MainMenu.AddMenuOption("Next Map", (player, option) =>
                             {
-                                if (_pluginState.NextMap != null && _pluginState.NextMode == null)
+                                menuFactory.BaseMenus.CloseMenu(player);
+
+                                if (player != null)
                                 {
-                                    player.PrintToChat(_localizer.Localize("rtv.nextmap.message", _pluginState.NextMap.DisplayName));
+                                    if (pluginState.RTV.NextMap != null && pluginState.RTV.NextMode == null)
+                                    {
+                                        player.PrintToChat(localizer.Localize("rtv.nextmap.message", pluginState.RTV.NextMap.DisplayName));
+                                    }
+                                    else if (pluginState.RTV.NextMap == null && pluginState.RTV.NextMode != null)
+                                    {
+                                        player.PrintToChat(localizer.Localize("rtv.nextmap.message", "Random"));
+                                    }
+                                    else
+                                    {
+                                        player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.no-vote"));
+                                    }
                                 }
-                                else if (_pluginState.NextMap == null && _pluginState.NextMode != null)
-                                {
-                                    player.PrintToChat(_localizer.Localize("rtv.nextmap.message", "Random"));
-                                }
-                                else
-                                {
-                                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.no-vote"));
-                                }
-                            }
-                        });
-                        break;
+                            });
+                            break;
                         case "!nextmode":
-                        playerWasdMenu?.Add("Next Mode", (player, option) =>
-                        {
-                             // Close menu
-                            _menuFactory.CloseWasdMenu(player);
-
-                            // Print to chat
-                            if (player != null)
+                            MainMenu.AddMenuOption("Next Mode", (player, option) =>
                             {
-                                if (_pluginState.NextMode != null)
+                                menuFactory.BaseMenus.CloseMenu(player);
+
+                                if (player != null)
                                 {
-                                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.nextmode.message", _pluginState.NextMode.Name));
+                                    if (pluginState.RTV.NextMode != null)
+                                    {
+                                        player.PrintToChat(localizer.Localize("rtv.nextmode.message", pluginState.RTV.NextMode.Name));
+                                    }
+                                    else if (pluginState.RTV.NextMap != null && pluginState.RTV.NextMode == null)
+                                    {
+                                        player.PrintToChat(localizer.Localize("rtv.nextmode.message", pluginState.Game.CurrentMode.Name));
+                                    }
+                                    else
+                                    {
+                                        player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.no-vote"));
+                                    }
                                 }
-                                else if (_pluginState.NextMap != null && _pluginState.NextMode == null)
-                                {
-                                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.nextmode.message", _pluginState.CurrentMode.Name));
-                                }
-                                else
-                                {
-                                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.no-vote"));
-                                }
-                            }
-                        });
-                        break;
+                            });
+                            break;
                         case "!rtv":
-                        playerWasdMenu?.Add("RockTheVote", (player, option) =>
-                        {
-                            // Close menu
-                            _menuFactory.CloseWasdMenu(player);
-
-                            // Add vote
-                            _asyncVoteManager.RTVCounter(player);
-                        });
-                        break;
-                        case "!nominate":
-                        playerWasdMenu?.Add("Nominate", (player, option) =>
-                        {
-                            // Close menu
-                            _menuFactory.CloseWasdMenu(player);
-
-                            // Open nomination menu
-                            if (player != null)
+                            MainMenu.AddMenuOption("RockTheVote", (player, option) =>
                             {
-                                if (_pluginState.EofVoteHappened)
-                                {
-                                    if (!_timeLimitManager.UnlimitedTime())
-                                    {
-                                        string timeleft = _voteManager.GetTimeLeft();
-                                        player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix","rtv.schedule-change", timeleft));
-                                    }
-                                    else if (!_maxRoundsManager.UnlimitedRounds)
-                                    {
-                                        string roundsleft = _voteManager.GetRoundsLeft();
-                                        player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix","rtv.schedule-change", roundsleft));
-                                    }
-                                    return;
-                                }
+                                menuFactory.BaseMenus.CloseMenu(player);
+                                asyncVoteManager.RTVCounter(player);
 
-                                if (_pluginState.DisableCommands || !_pluginState.NominationEnabled)
-                                {
-                                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.disabled"));
-                                    return;
-                                }
+                            });
+                            break;
+                        case "!nominate":
+                            MainMenu.AddMenuOption("Nominate", (player, option) =>
+                            {
+                                menuFactory.BaseMenus.CloseMenu(player);
 
-                                if (_gameRules.WarmupRunning)
+                                if (player != null)
                                 {
-                                    if (!_config.RTV.EnabledInWarmup)
+                                    if (pluginState.RTV.EofVoteHappened)
                                     {
-                                        player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.warmup"));
+                                        if (!timeLimitManager.UnlimitedTime())
+                                        {
+                                            string timeleft = voteManager.GetTimeLeft();
+                                            player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.schedule-change", timeleft));
+                                        }
+                                        else if (!maxRoundsManager.UnlimitedRounds)
+                                        {
+                                            string roundsleft = voteManager.GetRoundsLeft();
+                                            player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.schedule-change", roundsleft));
+                                        }
                                         return;
                                     }
-                                }
-                                else if (_config.RTV.MinRounds > 0 && _config.RTV.MinRounds > _gameRules.TotalRoundsPlayed)
-                                {
-                                    player!.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.minimum-rounds", _config.RTV.MinRounds));
-                                    return;
-                                }
 
-                                if (Extensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
-                                {
-                                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.minimum-players", _config!.RTV.MinPlayers));
-                                    return;
-                                }
-
-                                if (_config.RTV.IncludeModes)
-                                {
-                                    IWasdMenu? menu;
-                                    menu = _nominateMenus.GetWasdMenu("All");
-
-                                    if (menu != null)
+                                    if (pluginState.RTV.DisableCommands || !pluginState.RTV.NominationEnabled)
                                     {
-                                        menu.Prev = option.Parent?.Options?.Find(option);
-                                        _menuFactory.OpenWasdSubMenu(player, menu);
+                                        player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.disabled"));
+                                        return;
                                     }
-                                }
-                                else
-                                {
-                                    IWasdMenu? menu;
-                                    menu = _nominateMenus.GetWasdMenu("Map");
 
-                                    if (menu != null)
+                                    if (gameRules.WarmupRunning)
                                     {
-                                        menu.Prev = option.Parent?.Options?.Find(option);
-                                        _menuFactory.OpenWasdSubMenu(player, menu);
+                                        if (!config.RTV.EnabledInWarmup)
+                                        {
+                                            player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.warmup"));
+                                            return;
+                                        }
                                     }
+                                    else if (config.RTV.MinRounds > 0 && config.RTV.MinRounds > gameRules.TotalRoundsPlayed)
+                                    {
+                                        player!.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.minimum-rounds", config.RTV.MinRounds));
+                                        return;
+                                    }
+
+                                    if (PlayerExtensions.ValidPlayerCount() < config!.RTV.MinPlayers)
+                                    {
+                                        player.PrintToChat(localizer.LocalizeWithPrefix("general.validation.minimum-players", config!.RTV.MinPlayers));
+                                        return;
+                                    }
+
+                                    nominateMenus.BaseMenus.Load();
+                                    BaseMenu menu = nominateMenus.BaseMenus.MainMenu;
+                                    menuFactory.BaseMenus.OpenMenu(menu, player);
                                 }
-                            }
-                        });
-                        break;
+                            });
+                            break;
+                        case "!timeleft":
+                            MainMenu.AddMenuOption("Time Left", (player, option) =>
+                            {
+                                menuFactory.BaseMenus.CloseMenu(player);
+
+                                if (player != null)
+                                {
+                                    player.PrintToChat(localizer.LocalizeWithPrefixInternal("timeleft.prefix", timeLimitManager.GetTimeLeftMessage()));
+                                }
+                            });
+                            break;
+                    }
+                }
+            }
+
+        }
+
+        // Define WasdMenuController class
+        public class WasdMenuController(PluginState pluginState, StringLocalizer localizer, TimeLimitManager timeLimitManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager,
+        AsyncVoteManager asyncVoteManager, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, NominateMenus nominateMenus, Config config)
+        {
+            // Define class properties
+            public IWasdMenu? MainMenu;
+            private MenuFactory menuFactory = new MenuFactory();
+
+            // Define load method
+            public void Load()
+            {
+                if (config.Commands.Style.Equals("wasd"))
+                {
+                    // Create main menu
+                    MainMenu = menuFactory.WasdMenus.AssignMenu("Game Commands");
+
+                    foreach (string _command in pluginState.Game.PlayerCommands)
+                    {
+                        switch (_command)
+                        {
+                            case "!changemap":
+                                MainMenu?.Add("Change Map", (player, option) =>
+                                {
+                                    if (player != null && config.Votes.Enabled)
+                                    {
+                                        if (config.Votes.Maps)
+                                        {
+                                            mapMenus.WasdMenus.Load();
+                                            IWasdMenu? menu = mapMenus.WasdMenus.VoteMenu;
+
+                                            if (menu != null)
+                                            {
+                                                menu.Prev = option.Parent?.Options?.Find(option);
+                                                menuFactory.WasdMenus.OpenSubMenu(player, menu);
+                                            }
+                                        }
+                                    }
+                                });
+                                break;
+                            case "!changemode":
+                                MainMenu?.Add("Change Mode", (player, option) =>
+                                {
+                                    if (player != null && config.Votes.Enabled && config.Votes.GameModes)
+                                    {
+                                        modeMenus.WasdMenus.Load();
+                                        IWasdMenu? menu = modeMenus.WasdMenus.VoteMenu;
+
+                                        if (menu != null)
+                                        {
+                                            menu.Prev = option.Parent?.Options?.Find(option);
+                                            menuFactory.WasdMenus.OpenMenu(player, menu);
+                                        }
+                                    }
+                                });
+                                break;
+                            case "!changesetting":
+                                MainMenu?.Add("Change Setting", (player, option) =>
+                                {
+                                    if (player != null && config.Votes.Enabled && config.Votes.GameSettings)
+                                    {
+                                        settingMenus.WasdMenus.Load();
+                                        IWasdMenu? menu = settingMenus.WasdMenus.VoteMenu;
+
+                                        if (menu != null)
+                                        {
+                                            menu.Prev = option.Parent?.Options?.Find(option);
+                                            menuFactory.WasdMenus.OpenSubMenu(player, menu);
+
+                                        }
+                                    }
+                                });
+                                break;
+                            case "!currentmode":
+                                MainMenu?.Add("Current Mode", (player, option) =>
+                                {
+                                    menuFactory.WasdMenus.CloseMenu(player);
+
+                                    if (player != null)
+                                    {
+                                        player.PrintToChat(localizer.Localize("currentmode.message", pluginState.Game.CurrentMode.Name));
+                                    }
+                                });
+                                break;
+                            case "!currentmap":
+                                MainMenu?.Add("Current Map", (player, option) =>
+                                {
+                                    menuFactory.WasdMenus.CloseMenu(player);
+
+                                    if (player != null)
+                                    {
+                                        player.PrintToChat(localizer.Localize("currentmap.message", pluginState.Game.CurrentMap.DisplayName));
+                                    }
+                                });
+                                break;
+                            case "!timeleft":
+                                MainMenu?.Add("Time Left", (player, option) =>
+                                {
+                                    menuFactory.WasdMenus.CloseMenu(player);
+
+                                    if (player != null)
+                                    {
+                                        player.PrintToChat(localizer.LocalizeWithPrefixInternal("timeleft.prefix", timeLimitManager.GetTimeLeftMessage()));
+                                    }
+                                });
+                                break;
+                            case "!nextmap":
+                                MainMenu?.Add("Next Map", (player, option) =>
+                                {
+                                    menuFactory.WasdMenus.CloseMenu(player);
+
+                                    if (player != null)
+                                    {
+                                        if (pluginState.RTV.NextMap != null && pluginState.RTV.NextMode == null)
+                                        {
+                                            player.PrintToChat(localizer.Localize("rtv.nextmap.message", pluginState.RTV.NextMap.DisplayName));
+                                        }
+                                        else if (pluginState.RTV.NextMap == null && pluginState.RTV.NextMode != null)
+                                        {
+                                            player.PrintToChat(localizer.Localize("rtv.nextmap.message", "Random"));
+                                        }
+                                        else
+                                        {
+                                            player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.no-vote"));
+                                        }
+                                    }
+                                });
+                                break;
+                            case "!nextmode":
+                                MainMenu?.Add("Next Mode", (player, option) =>
+                                {
+                                    menuFactory.WasdMenus.CloseMenu(player);
+
+                                    if (player != null)
+                                    {
+                                        if (pluginState.RTV.NextMode != null)
+                                        {
+                                            player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.nextmode.message", pluginState.RTV.NextMode.Name));
+                                        }
+                                        else if (pluginState.RTV.NextMap != null && pluginState.RTV.NextMode == null)
+                                        {
+                                            player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.nextmode.message", pluginState.Game.CurrentMode.Name));
+                                        }
+                                        else
+                                        {
+                                            player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.no-vote"));
+                                        }
+                                    }
+                                });
+                                break;
+                            case "!rtv":
+                                MainMenu?.Add("RockTheVote", (player, option) =>
+                                {
+                                    menuFactory.WasdMenus.CloseMenu(player);
+                                    asyncVoteManager.RTVCounter(player);
+                                });
+                                break;
+                            case "!nominate":
+                                MainMenu?.Add("Nominate", (player, option) =>
+                                {
+                                    menuFactory.WasdMenus.CloseMenu(player);
+
+                                    if (player != null)
+                                    {
+                                        if (pluginState.RTV.EofVoteHappened)
+                                        {
+                                            if (!timeLimitManager.UnlimitedTime())
+                                            {
+                                                string timeleft = voteManager.GetTimeLeft();
+                                                player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.schedule-change", timeleft));
+                                            }
+                                            else if (!maxRoundsManager.UnlimitedRounds)
+                                            {
+                                                string roundsleft = voteManager.GetRoundsLeft();
+                                                player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.schedule-change", roundsleft));
+                                            }
+                                            return;
+                                        }
+
+                                        if (pluginState.RTV.DisableCommands || !pluginState.RTV.NominationEnabled)
+                                        {
+                                            player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.disabled"));
+                                            return;
+                                        }
+
+                                        if (gameRules.WarmupRunning)
+                                        {
+                                            if (!config.RTV.EnabledInWarmup)
+                                            {
+                                                player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.warmup"));
+                                                return;
+                                            }
+                                        }
+                                        else if (config.RTV.MinRounds > 0 && config.RTV.MinRounds > gameRules.TotalRoundsPlayed)
+                                        {
+                                            player!.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.minimum-rounds", config.RTV.MinRounds));
+                                            return;
+                                        }
+
+                                        if (PlayerExtensions.ValidPlayerCount() < config!.RTV.MinPlayers)
+                                        {
+                                            player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.minimum-players", config!.RTV.MinPlayers));
+                                            return;
+                                        }
+                                        nominateMenus.WasdMenus.Load();
+                                        IWasdMenu? menu = nominateMenus.WasdMenus.MainMenu;
+
+                                        if (menu != null)
+                                        {
+                                            menu.Prev = option.Parent?.Options?.Find(option);
+                                            menuFactory.WasdMenus.OpenSubMenu(player, menu);
+                                        }
+                                    }
+                                });
+                                break;
+                        }
                     }
                 }
             }

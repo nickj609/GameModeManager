@@ -74,15 +74,15 @@ namespace GameModeManager.Features
         }
 
         // Define class methods
-        void KillTimer()
+        public void KillTimer()
         {
             timer?.Kill();
             timer = null;
         }
 
-         public void StartVote()
+        public void StartVote()
         {
-            if (_pluginState.EndOfMapVote && !_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
+            if (_pluginState.RTV.EndOfMapVote && !_pluginState.RTV.EofVoteHappened && !_pluginState.RTV.EofVoteHappening)
             {
                 KillTimer();
                 _asyncVoteManager.StartVote(null, null);
@@ -91,32 +91,32 @@ namespace GameModeManager.Features
 
         bool CheckTimeLeft()
         {
-            return !_timeLimitManager.UnlimitedTime() && _timeLimitManager.TimeRemaining() <= _pluginState.RTVSecondsBeforeEnd;
+            return !_timeLimitManager.UnlimitedTime() && _timeLimitManager.TimeRemaining() <= _pluginState.RTV.SecondsBeforeEnd;
         }
 
-        bool CheckMaxRounds()
+        public bool CheckMaxRounds()
         {
             if (_maxRoundsManager.UnlimitedRounds)
             {
                 return false;
             }
-            if (_maxRoundsManager.RemainingRounds <= _pluginState.RTVRoundsBeforeEnd)
+            if (_maxRoundsManager.RemainingRounds <= _pluginState.RTV.RoundsBeforeEnd)
             {
                 return true;
             }
-            return _maxRoundsManager.CanClinch && _maxRoundsManager.RemainingWins <= _pluginState.RTVRoundsBeforeEnd;
+            return _maxRoundsManager.CanClinch && _maxRoundsManager.RemainingWins <= _pluginState.RTV.RoundsBeforeEnd;
         }
 
         public void StartTimer()
         {
             KillTimer();
-            if (_pluginState.EndOfMapVote && !_pluginState.EofVoteHappened && !_pluginState.EofVoteHappening)
+            if (_pluginState.RTV.EndOfMapVote && !_pluginState.RTV.EofVoteHappened && !_pluginState.RTV.EofVoteHappening)
             {
                 if (!_timeLimitManager.UnlimitedTime())
                 {
                     timer = _plugin?.AddTimer(1.0F, () =>
                     {
-                        if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimitManager.TimeRemaining() > 0)
+                        if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.RTV.DisableCommands && _timeLimitManager.TimeRemaining() > 0)
                         {
                             if (CheckTimeLeft())
                             {
@@ -130,7 +130,7 @@ namespace GameModeManager.Features
                 {
                     timer = _plugin?.AddTimer(1.0F, () =>
                     {
-                        if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimitManager.TimeRemaining() > 0 && _pluginState.TimeLimitCustom)
+                        if (_gameRules != null && !_gameRules.WarmupRunning && !_pluginState.RTV.DisableCommands && _timeLimitManager.TimeRemaining() > 0 && _pluginState.TimeLimit.CustomLimit)
                         {
                             if (CheckTimeLeft())
                             {
@@ -148,8 +148,8 @@ namespace GameModeManager.Features
         {
             if (armsRace & !killsReached)
             {
-                var player = Extensions.ValidPlayers(true).OrderByDescending(p => p.Score).FirstOrDefault();
-                if (player?.ActionTrackingServices?.MatchStats?.Kills >= _pluginState.RTVKillsBeforeEnd)
+                var player = PlayerExtensions.ValidPlayers(true).OrderByDescending(p => p.Score).FirstOrDefault();
+                if (player?.ActionTrackingServices?.MatchStats?.Kills >= _pluginState.RTV.KillsBeforeEnd)
                 {
                     killsReached = true;
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.armsrace.message", player.PlayerName));
@@ -162,7 +162,7 @@ namespace GameModeManager.Features
 
         public HookResult EventRoundStartHandler(EventRoundStart @event, GameEventInfo info)
         {
-            if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds())
+            if (!_pluginState.RTV.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds())
             {
                 StartVote();
             }

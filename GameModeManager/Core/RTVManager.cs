@@ -1,5 +1,4 @@
 // Included libraries
-using GameModeManager.Menus;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
@@ -16,16 +15,14 @@ namespace GameModeManager.Core
         // Define class dependencies
         private Plugin? _plugin;
         private Config _config = new();
-        private PlayerMenu _playerMenu;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private ILogger<WarmupManager> _logger;
 
         // Define class instance
-        public RTVManager(PluginState pluginState, ILogger<WarmupManager> logger, IStringLocalizer iLocalizer, PlayerMenu playerMenu)
+        public RTVManager(PluginState pluginState, ILogger<WarmupManager> logger, IStringLocalizer iLocalizer)
         {
             _logger = logger;
-            _playerMenu = playerMenu;
             _pluginState = pluginState;
             _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
         }
@@ -34,12 +31,12 @@ namespace GameModeManager.Core
         public void OnConfigParsed(Config config)
         {
             _config = config;
-            _pluginState.RTVEnabled = _config.RTV.Enabled;
-            _pluginState.EndOfMapVote = _config.RTV.EndOfMapVote;
-            _pluginState.ChangeImmediately = _config.RTV.ChangeImmediately;
-            _pluginState.RTVKillsBeforeEnd = _config.RTV.TriggerKillsBeforeEnd;
-            _pluginState.RTVRoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
-            _pluginState.RTVSecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
+            _pluginState.RTV.Enabled = _config.RTV.Enabled;
+            _pluginState.RTV.EndOfMapVote = _config.RTV.EndOfMapVote;
+            _pluginState.RTV.ChangeImmediately = _config.RTV.ChangeImmediately;
+            _pluginState.RTV.KillsBeforeEnd = _config.RTV.TriggerKillsBeforeEnd;
+            _pluginState.RTV.RoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
+            _pluginState.RTV.SecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
         }
 
         // Define on load behavior
@@ -47,7 +44,7 @@ namespace GameModeManager.Core
         {
             _plugin = plugin;
             
-            if (_pluginState.RTVEnabled)
+            if (_pluginState.RTV.Enabled)
             {
                 EnableRTV();
             }
@@ -56,43 +53,41 @@ namespace GameModeManager.Core
         // Define class methods
         public void EnableRTV()
         {
-            _pluginState.RTVEnabled = true;
+            _pluginState.RTV.Enabled = true;
             _logger.LogDebug($"Enabling RTV...");
             _plugin?.AddCommand("css_nextmap", "Displays current map.", OnNextMapCommand);
             _plugin?.AddCommand("css_nextmode", "Displays current map.", OnNextModeCommand);
 
-            _pluginState.PlayerCommands.Add("!rtv");
-            if(_pluginState.NominationEnabled)
+            _pluginState.Game.PlayerCommands.Add("!rtv");
+            if(_pluginState.RTV.NominationEnabled)
             {
-                _pluginState.PlayerCommands.Add("!nominate");
+                _pluginState.Game.PlayerCommands.Add("!nominate");
             }
 
-            _pluginState.PlayerCommands.Add("!nextmap");
-            _pluginState.PlayerCommands.Add("!nextmode");
-            _playerMenu.Load();
+            _pluginState.Game.PlayerCommands.Add("!nextmap");
+            _pluginState.Game.PlayerCommands.Add("!nextmode");
 
             _logger.LogDebug($"Disabling rotations...");
-            _pluginState.RotationsEnabled = false;
+            _pluginState.Game.RotationsEnabled = false;
         }
         
         public void DisableRTV()
         {
-            _pluginState.RTVEnabled = false;
+            _pluginState.RTV.Enabled = false;
             _logger.LogInformation($"Disabling RTV...");
             _plugin?.RemoveCommand("css_nextmap", OnNextMapCommand);
             _plugin?.RemoveCommand("css_nextmode", OnNextModeCommand);
 
-            _pluginState.PlayerCommands.Remove("!rtv");
-            if(_pluginState.NominationEnabled)
+            _pluginState.Game.PlayerCommands.Remove("!rtv");
+            if(_pluginState.RTV.NominationEnabled)
             {
-                _pluginState.PlayerCommands.Remove("!nominate");
+                _pluginState.Game.PlayerCommands.Remove("!nominate");
             }
-            _pluginState.PlayerCommands.Remove("!nextmap");
-            _pluginState.PlayerCommands.Remove("!nextmode");
-            _playerMenu.Load();
+            _pluginState.Game.PlayerCommands.Remove("!nextmap");
+            _pluginState.Game.PlayerCommands.Remove("!nextmode");
 
             _logger.LogInformation($"Enabling rotations...");
-            _pluginState.RotationsEnabled = true;
+            _pluginState.Game.RotationsEnabled = true;
         }
 
         // Define command handlers
@@ -101,11 +96,11 @@ namespace GameModeManager.Core
         {
             if (player != null)
             {
-                if (_pluginState.NextMap != null)
+                if (_pluginState.RTV.NextMap != null)
                 {
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmap.message", _pluginState.NextMap.DisplayName));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmap.message", _pluginState.RTV.NextMap.DisplayName));
                 }
-                else if (_pluginState.NextMap == null && _pluginState.NextMode != null)
+                else if (_pluginState.RTV.NextMap == null && _pluginState.RTV.NextMode != null)
                 {
                     player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmap.message", "Random"));
                 }
@@ -121,13 +116,13 @@ namespace GameModeManager.Core
         {
             if (player != null)
             {
-                if (_pluginState.NextMode != null)
+                if (_pluginState.RTV.NextMode != null)
                 {
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmode.message", _pluginState.NextMode.Name));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmode.message", _pluginState.RTV.NextMode.Name));
                 }
-                else if (_pluginState.NextMap != null && _pluginState.NextMode == null)
+                else if (_pluginState.RTV.NextMap != null && _pluginState.RTV.NextMode == null)
                 {
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmode.message", _pluginState.CurrentMode.Name));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.nextmode.message", _pluginState.Game.CurrentMode.Name));
                 }
                 else
                 {

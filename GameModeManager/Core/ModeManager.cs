@@ -1,10 +1,10 @@
 // Included libraries
-using GameModeManager.Menus;
-using GameModeManager.Models;
 using CounterStrikeSharp.API;
+using GameModeManager.Models;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
+using GameModeManager.Shared.Models;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 // Declare namespace
@@ -15,17 +15,13 @@ namespace GameModeManager.Core
     {
         // Define class dependencies
         private PluginState _pluginState;
-        private readonly MapMenus _mapMenus;
         private ILogger<ModeManager> _logger;
-        private readonly ModeMenus _modeMenus;
         private Config _config = new Config();
 
         // Define class instance
-        public ModeManager(PluginState pluginState, ModeMenus modeMenus, MapMenus mapMenus, ILogger<ModeManager> logger)
+        public ModeManager(PluginState pluginState, ILogger<ModeManager> logger)
         {
             _logger = logger;
-            _mapMenus = mapMenus;
-            _modeMenus = modeMenus;
             _pluginState = pluginState;
         }
 
@@ -37,7 +33,7 @@ namespace GameModeManager.Core
 
         public void OnMapStart(string map)
         {
-            string _modeConfig = Extensions.RemoveCfgExtension(_pluginState.CurrentMode.Config);
+            string _modeConfig = PluginExtensions.RemoveCfgExtension(_pluginState.Game.CurrentMode.Config);
             string _settingsConfig = $"{_modeConfig}_settings.cfg";
 
             new Timer(.5f, () =>
@@ -51,11 +47,11 @@ namespace GameModeManager.Core
         {
             foreach (ModeEntry _mode in _config.GameModes.List)
             {
-                List<MapGroup> mapGroups = new List<MapGroup>();
+                List<IMapGroup> mapGroups = new List<IMapGroup>();
 
                 foreach (string _mapGroup in _mode.MapGroups)
                 {
-                    MapGroup? mapGroup = _pluginState.MapGroups.FirstOrDefault(m => m.Name.Equals(_mapGroup, StringComparison.OrdinalIgnoreCase));
+                    IMapGroup? mapGroup = _pluginState.Game.MapGroups.FirstOrDefault(m => m.Name.Equals(_mapGroup, StringComparison.OrdinalIgnoreCase));
 
                     if (mapGroup != null)
                     {
@@ -67,7 +63,7 @@ namespace GameModeManager.Core
                     }
                 }
 
-                Mode? gameMode;
+                IMode? gameMode;
 
                 if (mapGroups.Count > 0)
                 {
@@ -80,7 +76,7 @@ namespace GameModeManager.Core
                         gameMode = new Mode(_mode.Name, _mode.Config, mapGroups);
                     }
 
-                    _pluginState.Modes.Add(gameMode);
+                    _pluginState.Game.Modes.Add(gameMode);
                 }
                 else
                 {
@@ -88,19 +84,16 @@ namespace GameModeManager.Core
                 }
             }
 
-            Mode? currentMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(_config.GameModes.Default.Name, StringComparison.OrdinalIgnoreCase));
+            IMode? currentMode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals(_config.GameModes.Default.Name, StringComparison.OrdinalIgnoreCase));
 
             if (currentMode != null)
             {
-                _pluginState.CurrentMode = currentMode;
+                _pluginState.Game.CurrentMode = currentMode;
             }
             else
             {
                 _logger.LogError($"Cannot find mode {_config.GameModes.Default.Name} in modes list.");
             }
-
-            _mapMenus.Load();
-            _modeMenus.Load();
         }
     }
 }

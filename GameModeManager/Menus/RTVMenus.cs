@@ -1,7 +1,6 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Core;
-using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Menu;
 
@@ -9,75 +8,64 @@ using CounterStrikeSharp.API.Modules.Menu;
 namespace GameModeManager.Menus
 {
     // Define class
-    public class RTVMenus : IPluginDependency<Plugin, Config>
+    public class RTVMenus
     {
         // Define class dependencies
-        private PluginState _pluginState;
-        private MenuFactory _menuFactory;
-        private VoteManager _voteManager;
-        private StringLocalizer _localizer;
-        private Config _config = new Config();
+        public WasdMenuController WasdMenus;
+        public BaseMenuController BaseMenus;
 
         // Define class instance
-        public RTVMenus(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, VoteManager voteManager)
+        public RTVMenus(PluginState pluginState, StringLocalizer localizer, VoteManager voteManager, Config config)
         {
-            _localizer = localizer;
-            _pluginState = pluginState;
-            _menuFactory = menuFactory;
-            _voteManager = voteManager;
+            WasdMenus = new WasdMenuController(pluginState, localizer, voteManager);
+            BaseMenus = new BaseMenuController(pluginState, localizer, voteManager, config);
         }
 
-        // Define class properties
-        private IWasdMenu? rtvWasdMenu;
-        private BaseMenu rtvMenu = new ChatMenu("RTV List");
-
-        // Load config
-        public void OnConfigParsed(Config config)
+        // Define WasdMenuController class
+        public class WasdMenuController(PluginState pluginState, StringLocalizer localizer, VoteManager voteManager)
         {
-            _config = config;
-        }
+            // Define class properties
+            public IWasdMenu? MainMenu;
+            private MenuFactory menuFactory = new MenuFactory();
 
-        // Define methods to get vote menus
-        public BaseMenu GetMenu()
-        {
-            return rtvMenu;
-        }
-
-        public IWasdMenu? GetWasdMenu()
-        {   
-            return rtvWasdMenu;
-        }
-
-        // Define method to load vote menu
-        public void Load(List<string> options)
-        {
-            _pluginState.Votes.Clear();
-            
-            if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
+            // Define load method
+            public void Load(List<string> options)
             {
-                rtvWasdMenu = _menuFactory.AssignWasdMenu(_localizer.Localize("rtv.hud.menu-title"));
+                pluginState.RTV.Votes.Clear();
+                MainMenu = menuFactory.WasdMenus.AssignMenu(localizer.Localize("rtv.hud.menu-title"));
 
                 foreach (var optionName in options)
                 {
-                    _pluginState.Votes[optionName] = 0;
-                    rtvWasdMenu?.Add(optionName, (player, option) =>
+                    pluginState.RTV.Votes[optionName] = 0;
+                    MainMenu?.Add(optionName, (player, option) =>
                     {
-                        _voteManager.AddVote(player, optionName);
-                        _menuFactory.CloseWasdMenu(player);
+                        voteManager.AddVote(player, optionName);
+                        menuFactory.WasdMenus.CloseMenu(player);
                     });
                 }
             }
-            else
-            {
-                rtvMenu = _menuFactory.AssignMenu(_config.RTV.Style, _localizer.Localize("rtv.hud.menu-title"));
+        }
 
-                foreach (var optionName in options.Take(_config.RTV.OptionsToShow))
+        // Define BaseMenuController class
+        public class BaseMenuController(PluginState pluginState, StringLocalizer localizer, VoteManager voteManager, Config config)
+        {
+            // Define class properties
+            private MenuFactory menuFactory = new MenuFactory();
+            public BaseMenu MainMenu = new ChatMenu(localizer.Localize("rtv.hud.menu-title"));
+
+            // Define load method
+            public void Load(List<string> options)
+            {
+                pluginState.RTV.Votes.Clear();
+                MainMenu = menuFactory.BaseMenus.AssignMenu(config.RTV.Style, localizer.Localize("rtv.hud.menu-title"));
+
+                foreach (var optionName in options.Take(config.RTV.OptionsToShow))
                 {
-                    _pluginState.Votes[optionName] = 0;
-                    rtvMenu.AddMenuOption(optionName, (player, option) =>
+                    pluginState.RTV.Votes[optionName] = 0;
+                    MainMenu.AddMenuOption(optionName, (player, option) =>
                     {
-                        _voteManager.AddVote(player, optionName);
-                        MenuManager.CloseActiveMenu(player);
+                        voteManager.AddVote(player, optionName);
+                        menuFactory.BaseMenus.CloseMenu(player);
                     });
                 }
             }

@@ -1,9 +1,9 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Core;
 using GameModeManager.Menus;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
@@ -13,9 +13,6 @@ using CounterStrikeSharp.API.Modules.Menu;
 // Declare namespace
 namespace GameModeManager.Features
 {
-    // Define records
-    public record VoteResult(VoteResultEnum Result, int VoteCount, int RequiredVotes);
-    
     // Define class
     public class AsyncVoteManager : IPluginDependency<Plugin, Config>
     {
@@ -24,25 +21,24 @@ namespace GameModeManager.Features
         private GameRules _gameRules;
         private PluginState _pluginState;
         private VoteManager _voteManager;
-        private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private MaxRoundsManager _maxRoundsManager;
         private TimeLimitManager _timeLimitManager;
         private VoteOptionManager _voteOptionManager;
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public AsyncVoteManager(PluginState pluginState, IStringLocalizer iLocalizer, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManager, RTVMenus rtvMenus, MenuFactory menuFactory)
+        public AsyncVoteManager(PluginState pluginState, IStringLocalizer iLocalizer, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManager)
         {
-            _rtvMenus = rtvMenus;
             _gameRules = gameRules;
             _voteManager = voteManager;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
             _maxRoundsManager = maxRoundsManager;
-            _timeLimitManager = timeLimitManager; 
+            _timeLimitManager = timeLimitManager;
             _voteOptionManager = voteOptionManager;
             _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
+            _rtvMenus = new RTVMenus(pluginState, _localizer, voteManager, _config);
         }
 
         // Define class properties
@@ -50,7 +46,8 @@ namespace GameModeManager.Features
         private float VotePercentage = 0F;
         public int VoteCount => Votes.Count;
         public bool VotesAlreadyReached { get; set; } = false;
-        public int RequiredVotes { get => (int)Math.Round(Extensions.ValidPlayerCount() * VotePercentage); }
+        public record VoteResult(VoteResultEnum Result, int VoteCount, int RequiredVotes);
+        public int RequiredVotes { get => (int)Math.Round(PlayerExtensions.ValidPlayerCount() * VotePercentage); }
 
         // Load config
         public void OnConfigParsed(Config config)
@@ -62,7 +59,7 @@ namespace GameModeManager.Features
         // Define on map start behavior 
         public void OnMapStart(string _mapName)
         {
-            if(_pluginState.RTVEnabled)
+            if(_pluginState.RTV.Enabled)
             {
                 Votes.Clear();
                 VotesAlreadyReached = false;
@@ -120,33 +117,32 @@ namespace GameModeManager.Features
 
             // Start vote
             _voteOptionManager.LoadOptions();
-            _rtvMenus.Load(_voteOptionManager.ScrambleOptions());
-            _voteManager.StartVote(_pluginState.RTVDuration);
+            _voteManager.StartVote(_pluginState.RTV.Duration);
 
             // Display vote menu
             if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
             {
-                foreach (var validPlayer in Extensions.ValidPlayers())
+                foreach (var validPlayer in PlayerExtensions.ValidPlayers())
                 {
-                    IWasdMenu? menu;
-                    menu = _rtvMenus.GetWasdMenu();
+                    _rtvMenus.WasdMenus.Load(_voteOptionManager.ScrambleOptions());
+                    IWasdMenu? menu = _rtvMenus.WasdMenus.MainMenu;
 
                     if (menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(validPlayer, menu);
+                        _menuFactory.WasdMenus.OpenMenu(validPlayer, menu);
                     }
                 }
             }
             else
             {
-                foreach (var validPlayer in Extensions.ValidPlayers())
+                foreach (var validPlayer in PlayerExtensions.ValidPlayers())
                 {
-                    BaseMenu menu;
-                    menu = _rtvMenus.GetMenu();
+                    _rtvMenus.BaseMenus.Load(_voteOptionManager.ScrambleOptions());
+                    BaseMenu menu = _rtvMenus.BaseMenus.MainMenu;
 
                     if (menu != null)
                     {
-                        _menuFactory.OpenMenu(menu, validPlayer);
+                        _menuFactory.BaseMenus.OpenMenu(menu, validPlayer);
                     }
                 }
             }
@@ -154,7 +150,7 @@ namespace GameModeManager.Features
 
         public void RTVCounter(CCSPlayerController player)
         {
-            if (_pluginState.EofVoteHappened)
+            if (_pluginState.RTV.EofVoteHappened)
             {
                 if (!_timeLimitManager.UnlimitedTime())
                 {
@@ -169,7 +165,7 @@ namespace GameModeManager.Features
                 return;
             }
 
-            if (_pluginState.DisableCommands || !_config.RTV.Enabled)
+            if (_pluginState.RTV.DisableCommands || !_config.RTV.Enabled)
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
                 return;
@@ -189,15 +185,9 @@ namespace GameModeManager.Features
                 return;
             }
 
-            if (Extensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
+            if (PlayerExtensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.RTV.MinPlayers));
-                return;
-            }
-
-            if (_pluginState.NextMap != null & _pluginState.NextMap != null)
-            {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
                 return;
             }
 

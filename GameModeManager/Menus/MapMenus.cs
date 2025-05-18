@@ -1,226 +1,184 @@
 // Included libraries
-using WASDSharedAPI;
+using GameModeManager.Core;
 using CounterStrikeSharp.API;
-using GameModeManager.Models;
-using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
 namespace GameModeManager.Menus
 {
     // Define class
-    public class MapMenus : IPluginDependency<Plugin, Config>
+    public class MapMenus
     {
         // Define class dependencies
-        private PluginState _pluginState;
-        private MenuFactory _menuFactory;
-        private StringLocalizer _localizer;
-        private ServerManager _serverManager;
-        private Config _config = new Config();
+        public WasdMenuController WasdMenus;
+        public BaseMenuController BaseMenus;
 
         // Define class instance
-        public MapMenus(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
+        public MapMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
         {
-            _localizer = localizer;
-            _pluginState = pluginState;
-            _menuFactory = menuFactory;
-            _serverManager = serverManager;
+            WasdMenus = new WasdMenuController(config, pluginState, localizer, serverManager);
+            BaseMenus = new BaseMenuController(config, pluginState, localizer, serverManager);
         }
 
-        // Define class properties
-        private IWasdMenu? mapWasdMenu;
-        private IWasdMenu? voteMapWasdMenu;
-        private IWasdMenu? voteMapsWasdMenu;
-        private BaseMenu mapMenu = new ChatMenu("Map List");
-        private BaseMenu mapsMenu = new ChatMenu("Map List");
-        private BaseMenu voteMapMenu = new ChatMenu("Map List");
-
-        // Load config
-        public void OnConfigParsed(Config config)
+        // Define WasdMenuController class
+        public class WasdMenuController(Config config, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
         {
-            _config = config;
-        }
-        
-        // Define methods to get menus
-        public BaseMenu GetMenu(string Name)
-        {
-            if (Name.Equals("All"))
-            {
-                return mapsMenu;
-            }
-            else if (Name.Equals("CurrentMode"))
-            {
-                return mapMenu;
-            }
-            else
-            {
-                return voteMapMenu;
-            }
-        }
+            // Define class properties
+            public IWasdMenu? MainMenu;
+            public IWasdMenu? VoteMenu;
+            private MenuFactory menuFactory = new MenuFactory();
 
-        public IWasdMenu? GetWasdMenu(string Name)
-        {
-            if (Name.Equals("CurrentMode"))
+            // Define load method  
+            public void Load()
             {
-                return mapWasdMenu;
-            }
-            else if (Name.Equals("VoteAll"))
-            {
-                return voteMapWasdMenu;
-            }
-            else
-            {
-                return voteMapsWasdMenu;
-            }
-        }
-
-        // Define load behavior
-        public void Load()
-        {
-            // Create map menus (maps from current game mode)
-            UpdateMenus();
-
-            // Create all maps menu
-            if (_config.Maps.Mode == 1)
-            {
-                mapsMenu = _menuFactory.AssignMenu(_config.Maps.Style, "Select a game mode.");
-
-                // Add menu option for each game mode in game mode list
-                foreach (Mode _mode in _pluginState.Modes)
+                if (config.Maps.Mode == 1)
                 {
-                    mapsMenu.AddMenuOption(_mode.Name, (player, option) =>
-                    {
-                        // Create sub menu
-                        BaseMenu subMenu;
-                        subMenu = _menuFactory.AssignMenu(_config.Maps.Style, _localizer.Localize("maps.menu-title"));
+                    // Create main menu
+                    MainMenu = menuFactory.WasdMenus.AssignMenu(localizer.Localize("maps.menu-title"));
 
-                        // Add menu option for each map in map list
-                        foreach (Map _map in _mode.Maps)
+                    foreach (IMap _map in pluginState.Game.Maps)
+                    {
+                        MainMenu?.Add(_map.DisplayName, (player, option) =>
                         {
-                            subMenu.AddMenuOption(_map.DisplayName, (player, option) =>
+                            menuFactory.WasdMenus.CloseMenu(player);
+                            Server.PrintToChatAll(localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
+                            serverManager.ChangeMap(_map, config.Maps.Delay);
+                        });
+                    }
+
+                    // Create vote menu
+                    VoteMenu = menuFactory.WasdMenus.AssignMenu(localizer.Localize("maps.menu-title"));
+
+                    foreach (IMap _map in pluginState.Game.Maps)
+                    {
+                        VoteMenu?.Add(_map.DisplayName, (player, option) =>
+                        {
+                            menuFactory.WasdMenus.CloseMenu(player);
+                            CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, _map.Name);
+                        });
+                    }
+                }
+                else if (config.Maps.Mode == 0)
+                {
+                    // Create main menu
+                    MainMenu = menuFactory.WasdMenus.AssignMenu(localizer.Localize("maps.menu-title"));
+
+                    foreach (IMap _map in pluginState.Game.CurrentMode.Maps)
+                    {
+                        MainMenu?.Add(_map.DisplayName, (player, option) =>
+                        {
+                            menuFactory.WasdMenus.CloseMenu(player);
+                            Server.PrintToChatAll(localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
+                            serverManager.ChangeMap(_map, config.Maps.Delay);
+                        });
+                    }
+
+                    // Create vote menu
+                    VoteMenu = menuFactory.WasdMenus.AssignMenu(localizer.Localize("maps.menu-title"));
+
+                    foreach (IMap _map in pluginState.Game.CurrentMode.Maps)
+                    {
+                        // Add menu option
+                        VoteMenu?.Add(_map.DisplayName, (player, option) =>
+                        {
+                            menuFactory.WasdMenus.CloseMenu(player);
+                            CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, _map.Name);
+                        });
+                    }
+                }
+            }
+        }
+
+        // Define BaseMenuController class
+        public class BaseMenuController(Config config, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
+        {
+            // Define class properties
+            private MenuFactory menuFactory = new MenuFactory();
+            public BaseMenu MainMenu = new ChatMenu(localizer.Localize("maps.menu-title"));
+            public BaseMenu VoteMenu = new ChatMenu(localizer.Localize("maps.menu-title"));
+
+            // Define load method
+            public void Load()
+            {
+                if (config.Maps.Mode == 1)
+                {
+                    // Create main menu
+                    MainMenu = menuFactory.BaseMenus.AssignMenu(config.Maps.Style, localizer.Localize("modes.menu-title"));
+
+                    foreach (IMode _mode in pluginState.Game.Modes)
+                    {
+                        MainMenu.AddMenuOption(_mode.Name, (player, option) =>
+                        {
+                            // Create sub menu
+                            BaseMenu subMenu = menuFactory.BaseMenus.AssignMenu(config.Maps.Style, localizer.Localize("maps.menu-title"));
+
+                            foreach (IMap _map in _mode.Maps)
                             {
-                                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
-                                MenuManager.CloseActiveMenu(player);
-                                _serverManager.ChangeMap(_map, _config.Maps.Delay);
-                            });
-                        } 
-                        // Open menu
-                        _menuFactory.OpenMenu(subMenu, player);
-                    });
-                }
-            }
-        }
+                                subMenu.AddMenuOption(_map.DisplayName, (player, option) =>
+                                {
+                                    Server.PrintToChatAll(localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
+                                    menuFactory.BaseMenus.CloseMenu(player);
+                                    serverManager.ChangeMap(_map, config.Maps.Delay);
+                                });
+                            }
+                            // Open sub menu
+                            menuFactory.BaseMenus.OpenMenu(subMenu, player);
+                        });
+                    }
 
-        // Define method to load WASD menus
-        public void LoadWASDMenus()
-        {
-            // Update map menus
-            if (_config.Maps.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
-            {
-                UpdateWASDMenus();
-            }
+                    // Create vote menu
+                    VoteMenu = menuFactory.BaseMenus.AssignMenu(config.Maps.Style, localizer.Localize("modes.menu-title"));
 
-            // Create all map(s) menu
-            if (_config.Maps.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase) && _config.Maps.Mode == 1)
-            {
-                mapWasdMenu = _menuFactory.AssignWasdMenu("Map List");
-
-                // Add menu options for each map in the new map list
-                foreach (Map _map in _pluginState.Maps)
-                {
-                    mapWasdMenu?.Add(_map.DisplayName, (player, option) =>
+                    foreach (IMode _mode in pluginState.Game.Modes)
                     {
-                        _menuFactory.CloseWasdMenu(player);
-                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
-                        _serverManager.ChangeMap(_map, _config.Maps.Delay);
-                    });
+                        VoteMenu.AddMenuOption(_mode.Name, (player, option) =>
+                        {
+                            // Create sub menu
+                            BaseMenu subMenu = menuFactory.BaseMenus.AssignMenu(config.Maps.Style, localizer.Localize("maps.menu-title"));
+
+                            foreach (IMap _map in _mode.Maps)
+                            {
+                                subMenu.AddMenuOption(_map.DisplayName, (player, option) =>
+                                {
+                                    menuFactory.BaseMenus.CloseMenu(player);
+                                    CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, _map.Name);
+                                });
+                            }
+                            // Open sub menu
+                            menuFactory.BaseMenus.OpenMenu(subMenu, player);
+                        });
+                    }
                 }
-            }
-
-            // Create vote all map(s) menu
-            if (_config.Maps.Style.Equals("wasd") && _config.Votes.Maps)
-            {
-                voteMapsWasdMenu = _menuFactory.AssignWasdMenu("Map List");
-
-                // Add menu options for each map in map list
-                foreach (Map _map in _pluginState.Maps)
+                else if (config.Maps.Mode == 0)
                 {
-                    voteMapsWasdMenu?.Add(_map.DisplayName, (player, option) =>
+                    // Create main menu
+                    MainMenu = menuFactory.BaseMenus.AssignMenu(config.Maps.Style, localizer.Localize("maps.menu-title"));
+
+                    foreach (IMap _map in pluginState.Game.CurrentMode.Maps)
                     {
-                         _menuFactory.CloseWasdMenu(player);
-                         _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, _map.Name);
-                    });
+                        MainMenu.AddMenuOption(_map.DisplayName, (player, option) =>
+                        {
+                            menuFactory.BaseMenus.CloseMenu(player);
+                            Server.PrintToChatAll(localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
+                            serverManager.ChangeMap(_map, config.Maps.Delay);
+                        });
+                    }
+
+                    // Create vote menu
+                    VoteMenu = menuFactory.BaseMenus.AssignMenu(config.Maps.Style, localizer.Localize("maps.menu-title"));
+
+                    foreach (IMap _map in pluginState.Game.CurrentMode.Maps)
+                    {
+                        VoteMenu.AddMenuOption(_map.DisplayName, (player, option) =>
+                        {
+                            menuFactory.BaseMenus.CloseMenu(player);
+                            CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, _map.Name);
+                        });
+                    }
                 }
-            }
-        }
-
-        // Define method to update the map menu
-        public void UpdateMenus()
-        {
-            // Update map menu 
-            mapMenu = _menuFactory.AssignMenu(_config.Maps.Style, "Map List");
-
-            // Add menu options for each map in the new map list
-            foreach (Map _map in _pluginState.CurrentMode.Maps)
-            {
-                mapMenu.AddMenuOption(_map.DisplayName, (player, option) =>
-                {
-                    MenuManager.CloseActiveMenu(player);
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
-                    _serverManager.ChangeMap(_map, _config.Maps.Delay);
-                });
-            }
-
-            // Update vote map menu
-            voteMapMenu = _menuFactory.AssignMenu(_config.Maps.Style, "Map List");
-
-            // Add menu options for each map in the current mode map list
-            foreach (Map _map in _pluginState.CurrentMode.Maps)
-            {
-                voteMapMenu.AddMenuOption(_map.DisplayName, (player, option) =>
-                {
-                    // Close menu
-                    MenuManager.CloseActiveMenu(player);
-
-                    // Start vote
-                    _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, _map.Name);
-                });
-            }  
-        }
-
-        // Define method to update the map menu
-        public void UpdateWASDMenus()
-        {  
-            // Update map menu
-            mapWasdMenu = _menuFactory.AssignWasdMenu("Map List");
-
-            // Add menu options for each map in the new map list
-            foreach (Map _map in _pluginState.CurrentMode.Maps)
-            {
-                mapWasdMenu?.Add(_map.DisplayName, (player, option) =>
-                {
-                    _menuFactory.CloseWasdMenu(player);
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
-                    _serverManager.ChangeMap(_map, _config.Maps.Delay);
-                });
-            }
-
-            // Update vote map menu
-            voteMapWasdMenu = _menuFactory.AssignWasdMenu("Map List");
-
-            // Add menu options for each map in the current mode map list
-            foreach (Map _map in _pluginState.CurrentMode.Maps)
-            {
-                // Add menu option
-                voteMapWasdMenu?.Add(_map.DisplayName, (player, option) =>
-                {
-                    // Close menu
-                    _menuFactory.CloseWasdMenu(player);
-
-                    // Start vote
-                    _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, _map.Name);
-                });
             }
         }
     }

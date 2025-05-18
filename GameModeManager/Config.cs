@@ -33,7 +33,6 @@ namespace GameModeManager
         public string Style { get; set; } = "wasd"; // Changes vote menu type (i.e. "chat", "center" or "wasd")
         public bool PerMap { get; set; } = false; // Enables per map RTV configuration
         public bool HideHud { get; set; } = false; // Hides vote results hud
-        public bool HudMenu { get; set; } = false; // Enables hud menu
         public int MinRounds { get; set; } = 1; // Minimum number of rounds for RTV
         public int MinPlayers { get; set; } = 3; // Minimum number of players for RTV
         public int VoteDuration { get; set; } = 60; // Vote duration in seconds
@@ -48,10 +47,10 @@ namespace GameModeManager
         public int ExtendRounds { get; set; } = 5; // Sets the number of rounds to extend
         public int ModePercentage { get; set; } = 40; // Sets percent of modes in RTV list
         public bool EnabledInWarmup { get; set; } = false; // Enables RTV in warmup
-        public bool HideHudAfterVote { get; set; } = false; // Hides hud after vote
+        public bool HideHudAfterVote { get; set; } = false; // Hides vote results hud after voting
         public bool NominationEnabled { get; set; } = true; // Enables nomination
-        public int MaxNominationWinners { get; set; } = 1; // Sets max nomination winners
-        public bool ChangeImmediately { get; set; } = false; // Enables change map/mode immediately
+        public int MaxNominationWinners { get; set; } = 1; // Sets max nomination winners per option type
+        public bool ChangeImmediately { get; set; } = false; // Enables change map/mode immediately after winner is selected
         public int TriggerKillsBeforeEnd { get; set; } = 13; // Kills needed to trigger end of map vote (armsrace/gungame)
         public int TriggerRoundsBeforeEnd { get; set; } = 2; // Rounds remaining to trigger end of map vote
         public int TriggerSecondsBeforeEnd { get; set; } = 120; // Seconds remaining to trigger end of map vote
@@ -171,7 +170,7 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-        public int Version { get; set; } = 11;
+        public int Version { get; set; } = 12;
         public RTVSettings RTV { get; set; } = new();
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
@@ -225,16 +224,16 @@ namespace GameModeManager
                 Logger.LogError("Invalid: Maps Style must be 'center', 'chat', or 'wasd'");
                 throw new Exception("Invalid: Maps Style must be 'center', 'chat', or 'wasd'");
             }
-            if (_config.Settings.Enabled && !Directory.Exists(Path.Combine(PluginState.ConfigDirectory, _config.Settings.Folder)))
+            if (_config.Settings.Enabled && !Directory.Exists(Path.Combine(PluginState.GameController.ConfigDirectory, _config.Settings.Folder)))
             {
-                Logger.LogError($"Cannot find 'Settings Folder': {PluginState.SettingsDirectory}");
-                throw new Exception($"Cannot find 'Settings Folder': {PluginState.SettingsDirectory}");
+                Logger.LogError($"Cannot find 'Settings Folder': {PluginState.GameController.SettingsDirectory}");
+                throw new Exception($"Cannot find 'Settings Folder': {PluginState.GameController.SettingsDirectory}");
             }
 
             // Game mode settings
-            if (File.Exists(Path.Join(PluginState.GameDirectory, _config.GameModes.MapGroupFile)))
+            if (File.Exists(Path.Join(PluginState.GameController.GameDirectory, _config.GameModes.MapGroupFile)))
             {
-                _config.GameModes.MapGroupFile = Path.Join(PluginState.GameDirectory, _config.GameModes.MapGroupFile);
+                _config.GameModes.MapGroupFile = Path.Join(PluginState.GameController.GameDirectory, _config.GameModes.MapGroupFile);
             }
             else
             {
@@ -366,7 +365,7 @@ namespace GameModeManager
             }
 
             // Config version check
-            if (_config.Version < 11)
+            if (_config.Version < 12)
             {
                 throw new Exception("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it");
             }

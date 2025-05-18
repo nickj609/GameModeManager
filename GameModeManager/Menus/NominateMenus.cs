@@ -1,213 +1,176 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Core;
-using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.CrossCutting;
-using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
 namespace GameModeManager.Menus
 {
     // Define class
-    public class NominateMenus : IPluginDependency<Plugin, Config>
+    public class NominateMenus
     {
         // Define class dependencies
-        private PluginState _pluginState;
-        private MenuFactory _menuFactory;
-        private StringLocalizer _localizer;
-        private Config _config = new Config();
-        private ILogger<NominateMenus> _logger;
-        private NominateManager _nominateManager;
-        private VoteOptionManager _voteOptionManager;
+        public WasdMenuController WasdMenus;
+        public BaseMenuController BaseMenus;
 
         // Define class instance
-        public NominateMenus(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, VoteOptionManager voteOptionManager, NominateManager nominateManager, ILogger<NominateMenus> logger)
+        public NominateMenus(PluginState pluginState, StringLocalizer localizer, VoteOptionManager voteOptionManager, NominateManager nominateManager, Config config)
         {
-            _logger = logger;
-            _localizer = localizer;
-            _pluginState = pluginState;
-            _menuFactory = menuFactory;
-            _nominateManager = nominateManager;
-            _voteOptionManager = voteOptionManager;
+            WasdMenus = new WasdMenuController(pluginState, localizer, nominateManager, voteOptionManager, config);
+            BaseMenus = new BaseMenuController(pluginState, localizer, nominateManager, voteOptionManager, config);
         }
 
-        // Define class properties
-        private IWasdMenu? nominationWasdMenu;
-        private IWasdMenu? nominateMapWasdMenu;
-        private IWasdMenu? nominateModeWasdMenu;
-        private BaseMenu nominationMenu = new ChatMenu("Nominations");
-        private BaseMenu nominateMapMenu = new ChatMenu("Nominations");
-        private BaseMenu nominateModeMenu = new ChatMenu("Nominations");
-
-        // Load config
-        public void OnConfigParsed(Config config)
+        // Define WasdMenuController class
+        public class WasdMenuController(PluginState pluginState, StringLocalizer localizer, NominateManager nominateManager, VoteOptionManager voteOptionManager, Config config)
         {
-            _config = config;
-        }
+            // Define class properties
+            public IWasdMenu? MainMenu;
+            public IWasdMenu? MapMenu;
+            public IWasdMenu? ModeMenu;
+            private MenuFactory menuFactory = new MenuFactory();
 
-        // Define methods to get menus
-        public BaseMenu GetMenu(string Name)
-        {
-            if (Name.Equals("Modes"))
+            // Define load method
+            public void Load()
             {
-                return nominationMenu;
-            }
-            else
-            {
-                return nominateMapMenu;   
-            }
-        }
-        
-        public IWasdMenu? GetWasdMenu(string Name)
-        {
-
-            if (Name.Equals("Modes"))
-            {
-                return nominationWasdMenu;
-            }
-            else
-            {
-                return nominateMapWasdMenu;   
-            }
-        }
-
-        // Define on load behavior
-        public void Load()
-        {
-            if(_pluginState.RTVEnabled)
-            {
-                nominationMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
-                nominateMapMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
-                nominateModeMenu = _menuFactory.AssignMenu(_config.RTV.Style, "Nominate");
-
-                // Get options
-                List<string> options = _voteOptionManager.GetOptions();
-
-                // Add map and mode menu options
-                foreach (string optionName in options)
+                if (pluginState.RTV.Enabled)
                 {
-                    if (_voteOptionManager.OptionExists(optionName))
+                    if (config.RTV.Style.Equals("wasd"))
                     {
+                        // Create menus
+                        MainMenu = menuFactory.WasdMenus.AssignMenu("Nominate");
+                        MapMenu = menuFactory.WasdMenus.AssignMenu("Nominate");
+                        ModeMenu = menuFactory.WasdMenus.AssignMenu("Nominate");
 
-                        if (_voteOptionManager.OptionType(optionName) == "map")
+                        // Get options
+                        List<string> options = voteOptionManager.GetOptions();
+
+                        // Add menu options
+                        foreach (string optionName in options)
                         {
-                            nominateMapMenu.AddMenuOption(optionName, (player, option) =>
+                            if (voteOptionManager.OptionExists(optionName))
                             {
-                                _nominateManager.Nominate(player, optionName);
-                                MenuManager.CloseActiveMenu(player);
-                            });
+                                if (voteOptionManager.OptionType(optionName) == "map")
+                                {
+                                    MapMenu?.Add(optionName, (player, option) =>
+                                    {
+                                        nominateManager.Nominate(player, optionName);
+                                        menuFactory.WasdMenus.CloseMenu(player);
+                                    });
+                                }
+                                else if (voteOptionManager.OptionType(optionName) == "mode")
+                                {
+                                    ModeMenu?.Add(optionName, (player, option) =>
+                                    {
+                                        nominateManager.Nominate(player, optionName);
+                                        menuFactory.WasdMenus.CloseMenu(player);
+                                    });
+                                }
+                            }
                         }
-                        else if (_voteOptionManager.OptionType(optionName) == "mode")
-                        {   
-                            nominateModeMenu.AddMenuOption(optionName, (player, option) =>
-                            {
-                                _nominateManager.Nominate(player, optionName);
-                                MenuManager.CloseActiveMenu(player);
-                            });
-                        }
-                        else
+
+                        // Create sub menu options
+                        MainMenu?.Add(localizer.Localize("menu.maps"), (player, option) =>
                         {
-                            _logger.LogDebug($"Unable to identify option type for option {optionName}.");
-                        }
+                            if (MapMenu != null)
+                            {
+                                MapMenu.Prev = option.Parent?.Options?.Find(option);
+                                menuFactory.WasdMenus.OpenSubMenu(player, MapMenu);
+                            }
+                        });
+
+                        MainMenu?.Add(localizer.Localize("menu.modes"), (player, option) =>
+                        {
+                            if (ModeMenu != null)
+                            {
+                                ModeMenu.Prev = option.Parent?.Options?.Find(option);
+                                menuFactory.WasdMenus.OpenSubMenu(player, ModeMenu);
+                            }
+                        });
                     }
                 }
-                
-                // Create sub menu options
-                if(_pluginState.IncludeExtend && _pluginState.MapExtends < _pluginState.MaxExtends)
-                {
-                     nominationMenu.AddMenuOption("Extend", (player, option) =>
-                    {
-                        _nominateManager.Nominate(player, "Extend");
-                        _menuFactory.CloseWasdMenu(player);
-                    });
-                }
-
-                nominationMenu.AddMenuOption("Map", (player, option) =>
-                {
-                    nominateMapMenu.Title = _localizer.Localize("nominate.menu-title");
-
-                    if(player != null)
-                    {
-                        _menuFactory.OpenMenu(nominateMapMenu, player);
-                    }
-                });
-
-                nominationMenu.AddMenuOption("Mode", (player, option) =>
-                {
-                    nominateModeMenu.Title = _localizer.Localize("nominate.menu-title");
-
-                    if(player != null)
-                    {
-                        _menuFactory.OpenMenu(nominateModeMenu, player);   
-                    }
-                });
             }
         }
 
-        // Define method to load WASD menus
-        public void LoadWASDMenu()
+        // Define BaseMenuController class
+        public class BaseMenuController(PluginState pluginState, StringLocalizer localizer, NominateManager nominateManager, VoteOptionManager voteOptionManager, Config config)
         {
-            if(_pluginState.RTVEnabled)
+            // Define class properties
+            private MenuFactory menuFactory = new MenuFactory();
+            public BaseMenu MainMenu = new ChatMenu("Nominations");
+            public BaseMenu MapMenu = new ChatMenu("Nominations");
+            public BaseMenu ModeMenu = new ChatMenu("Nominations");
+
+            // Define load method
+            public void Load()
             {
-                if (_config.RTV.Style.Equals("wasd"))
+                if (pluginState.RTV.Enabled)
                 {
-                    nominationWasdMenu = _menuFactory.AssignWasdMenu("Nominate");
-                    nominateMapWasdMenu = _menuFactory.AssignWasdMenu("Nominate");
-                    nominateModeWasdMenu = _menuFactory.AssignWasdMenu("Nominate");
+                    // Create menus
+                    MainMenu = menuFactory.BaseMenus.AssignMenu(config.RTV.Style, "Nominate");
+                    MapMenu = menuFactory.BaseMenus.AssignMenu(config.RTV.Style, "Nominate");
+                    ModeMenu = menuFactory.BaseMenus.AssignMenu(config.RTV.Style, "Nominate");
 
                     // Get options
-                    List<string> options = _voteOptionManager.GetOptions();
+                    List<string> options = voteOptionManager.GetOptions();
 
-                    // Add map and mode menu options
+                    // Add menu options
                     foreach (string optionName in options)
                     {
-                        if (_voteOptionManager.OptionExists(optionName))
+                        if (voteOptionManager.OptionExists(optionName))
                         {
-                            if (_voteOptionManager.OptionType(optionName) == "map")
+
+                            if (voteOptionManager.OptionType(optionName) == "map")
                             {
-                                nominateMapWasdMenu?.Add(optionName, (player, option) =>
+                                MapMenu.AddMenuOption(optionName, (player, option) =>
                                 {
-                                    _nominateManager.Nominate(player, optionName);
-                                    _menuFactory.CloseWasdMenu(player);
+                                    nominateManager.Nominate(player, optionName);
+                                    menuFactory.BaseMenus.CloseMenu(player);
                                 });
                             }
-                            else if (_voteOptionManager.OptionType(optionName) == "mode")
+                            else if (voteOptionManager.OptionType(optionName) == "mode")
                             {
-                                nominateModeWasdMenu?.Add(optionName, (player, option) =>
+                                ModeMenu.AddMenuOption(optionName, (player, option) =>
                                 {
-                                    _nominateManager.Nominate(player, optionName);
-                                    _menuFactory.CloseWasdMenu(player);
+                                    nominateManager.Nominate(player, optionName);
+                                    menuFactory.BaseMenus.CloseMenu(player);
                                 });
-                            }
-                            else
-                            {
-                                _logger.LogDebug($"Unable to identify option type for option {optionName}.");
                             }
                         }
                     }
 
-                    // create map sub menu option
-                    nominationWasdMenu?.Add(_localizer.Localize("menu.maps"), (player, option) =>
+                    // Create sub menu options
+                    if (pluginState.RTV.IncludeExtend && pluginState.RTV.MapExtends < pluginState.RTV.MaxExtends)
                     {
-                        if(nominateMapWasdMenu != null)
+                        MainMenu.AddMenuOption("Extend", (player, option) =>
+                    {
+                        nominateManager.Nominate(player, "Extend");
+                        menuFactory.WasdMenus.CloseMenu(player);
+                    });
+                    }
+
+                    MainMenu.AddMenuOption("Map", (player, option) =>
+                    {
+                        MapMenu.Title = localizer.Localize("nominate.menu-title");
+
+                        if (player != null)
                         {
-                            nominateMapWasdMenu.Prev = option.Parent?.Options?.Find(option);
-                            _menuFactory.OpenWasdSubMenu(player, nominateMapWasdMenu);
+                            menuFactory.BaseMenus.OpenMenu(MapMenu, player);
                         }
                     });
 
-                    // Create mode sub menu option
-                    nominationWasdMenu?.Add(_localizer.Localize("menu.modes"), (player, option) =>
+                    MainMenu.AddMenuOption("Mode", (player, option) =>
                     {
-                        if(nominateModeWasdMenu != null)
+                        ModeMenu.Title = localizer.Localize("nominate.menu-title");
+
+                        if (player != null)
                         {
-                            nominateModeWasdMenu.Prev = option.Parent?.Options?.Find(option);
-                            _menuFactory.OpenWasdSubMenu(player, nominateModeWasdMenu);
+                            menuFactory.BaseMenus.OpenMenu(ModeMenu, player);
                         }
                     });
                 }
             }
         }
+
     }
 }

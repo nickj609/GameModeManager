@@ -1,12 +1,13 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Menus;
 using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Commands;
+using GameModeManager.Core;
 
 // Declare namespace
 namespace GameModeManager.Features
@@ -19,21 +20,25 @@ namespace GameModeManager.Features
         private ModeMenus _modeMenus;
         private PlayerMenu _playerMenu;
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
-        private SettingMenus _settingMenus;
         private StringLocalizer _localizer;
+        private SettingMenus _settingMenus;
+        private ServerManager _serverManager;
+        private NominateMenus _nominateMenus;
         private Config _config = new Config();
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public PlayerCommands(PluginState pluginState, IStringLocalizer iLocalizer, MenuFactory menuFactory, SettingMenus settingMenus, PlayerMenu playerMenu, MapMenus mapMenus, ModeMenus modeMenus)
+        public PlayerCommands(PluginState pluginState, IStringLocalizer iLocalizer, ServerManager serverManager, VoteManager voteManager, GameRules gameRules,
+        MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManagerManager, NominateManager nominateManager, AsyncVoteManager asyncVoteManager)
         {
-            _mapMenus = mapMenus;
-            _modeMenus = modeMenus;
-            _playerMenu = playerMenu;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
-            _settingMenus = settingMenus;
+            _serverManager = serverManager;
             _localizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
+            _settingMenus = new SettingMenus(pluginState, _localizer, _config);
+            _mapMenus = new MapMenus(pluginState, _localizer, _serverManager, _config);
+            _modeMenus = new ModeMenus(pluginState, _localizer, _serverManager, _config);
+            _nominateMenus = new NominateMenus(pluginState, _localizer, voteOptionManagerManager, nominateManager, _config);
+            _playerMenu = new PlayerMenu(pluginState, _localizer, timeLimitManager, gameRules, voteManager, maxRoundsManager, asyncVoteManager, _mapMenus, _modeMenus, _settingMenus, _nominateMenus, _config);
         }
 
         // Load config
@@ -70,47 +75,26 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null && _config.Maps.Mode == 1)
+            if(player != null)
             {     
                 if (_config.Votes.Style.Equals("wasd"))
                 {
-                    IWasdMenu? menu;
-                    menu = _mapMenus.GetWasdMenu("VoteAll");
+                    _mapMenus.WasdMenus.Load();
+                    IWasdMenu? menu = _mapMenus.WasdMenus.VoteMenu;
 
                     if(menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(player, menu);
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
                 { 
-                    BaseMenu menu;
-                    menu = _mapMenus.GetMenu("All");
+                    _mapMenus.BaseMenus.Load();
+                    BaseMenu menu =_mapMenus.BaseMenus.VoteMenu;
                     menu.Title = _localizer.Localize ("modes.menu-title");
-                    _menuFactory.OpenMenu(menu, player);
+                    _menuFactory.BaseMenus.OpenMenu(menu, player);
                 }
-                
             }              
-            else if(player != null && _config.Maps.Mode == 0)
-            {
-                if (_config.Votes.Style.Equals("wasd"))
-                {
-                    IWasdMenu? menu;
-                    menu = _mapMenus.GetWasdMenu("VoteCurrentMode");
-
-                    if(menu != null)
-                    {
-                        _menuFactory.OpenWasdMenu(player, menu);
-                    }
-                }
-                else
-                {
-                    BaseMenu menu;
-                    menu = _mapMenus.GetMenu("CurrentMode");
-                    menu.Title = _localizer.Localize ("maps.menu-title");
-                    _menuFactory.OpenMenu(menu, player);
-                }
-            }   
         }
 
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
@@ -120,20 +104,20 @@ namespace GameModeManager.Features
             {
                 if (_config.Votes.Style.Equals("wasd"))
                 {
-                    IWasdMenu? menu;
-                    menu = _modeMenus.GetWasdMenu("Vote");
+                    _modeMenus.WasdMenus.Load();
+                    IWasdMenu? menu = _modeMenus.WasdMenus.VoteMenu;
 
                     if(menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(player, menu);
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
                 {
-                    BaseMenu menu;
-                    menu = _modeMenus.GetMenu("Vote");
+                    _modeMenus.BaseMenus.Load();
+                    BaseMenu menu = _modeMenus.BaseMenus.VoteMenu;
                     menu.Title = _localizer.Localize("modes.menu-title");
-                    _menuFactory.OpenMenu(menu, player);
+                    _menuFactory.BaseMenus.OpenMenu(menu, player);
                 }
             } 
         }
@@ -145,23 +129,24 @@ namespace GameModeManager.Features
             {
                 if (_config.Settings.Style.Equals("wasd"))
                 {  
-                    IWasdMenu? menu;
-                    menu = _settingMenus.GetWasdMenu("Vote");
+                    _settingMenus.WasdMenus.Load();
+                    IWasdMenu? menu = _settingMenus.WasdMenus.VoteMenu;
 
                     if(menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(player, menu);
+                        menu.Title = _localizer.Localize("settings.menu-actions");
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
                 {
-                    BaseMenu menu;
-                    menu = _settingMenus.GetMenu("Vote");
+                    _settingMenus.BaseMenus.Load();
+                    BaseMenu menu = _settingMenus.BaseMenus.VoteMenu;
 
                     if (menu != null)
                     {
                          menu.Title = _localizer.Localize("settings.menu-actions");
-                        _menuFactory.OpenMenu(menu, player);
+                        _menuFactory.BaseMenus.OpenMenu(menu, player);
                     }
                 }
             }
@@ -174,23 +159,23 @@ namespace GameModeManager.Features
             {
                 if (_config.Commands.Style.Equals("wasd"))
                 {
-                    IWasdMenu? menu;
-                    menu = _playerMenu.GetWasdMenu();
+                    _playerMenu.WasdMenus.Load();
+                    IWasdMenu? menu = _playerMenu.WasdMenus.MainMenu;
                     
                     if (menu != null)
                     {
-                        _menuFactory.OpenWasdMenu(player, menu);
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
                 {
-                    BaseMenu menu;
-                    menu = _playerMenu.GetMenu();
+                    _playerMenu.BaseMenus.Load();
+                    BaseMenu menu = _playerMenu.BaseMenus.MainMenu;
 
                     if (menu != null)
                     {
                         menu.Title = _localizer.Localize("game.menu-title");
-                        _menuFactory.OpenMenu(menu, player);
+                        _menuFactory.BaseMenus.OpenMenu(menu, player);
                     }
                 }
             }
@@ -201,7 +186,7 @@ namespace GameModeManager.Features
         {
             if (player != null)
             {
-                player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.CurrentMap.DisplayName));
+                player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.Game.CurrentMap.DisplayName));
             }
         }
 
@@ -210,7 +195,7 @@ namespace GameModeManager.Features
         {
             if (player != null)
             {
-                player.PrintToChat(_localizer.Localize("currentmode.message", _pluginState.CurrentMode.Name));
+                player.PrintToChat(_localizer.Localize("currentmode.message", _pluginState.Game.CurrentMode.Name));
             }
         } 
     }

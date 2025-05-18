@@ -1,144 +1,110 @@
 // Included libraries
-using WASDSharedAPI;
+using GameModeManager.Core;
 using CounterStrikeSharp.API;
-using GameModeManager.Models;
-using GameModeManager.Contracts;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
 namespace GameModeManager.Menus
 {
     // Define class
-    public class ModeMenus : IPluginDependency<Plugin, Config>
+    public class ModeMenus
     {
         // Define class dependencies
-        private PluginState _pluginState;
-        private MenuFactory _menuFactory;
-        private StringLocalizer _localizer;
-        private ServerManager _serverManager;
-        private Config _config = new Config();
+        public WasdMenuController WasdMenus;
+        public BaseMenuController BaseMenus;
 
         // Define class instance
-        public ModeMenus(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
+        public ModeMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
         {
-            _localizer = localizer;
-            _pluginState = pluginState;
-            _menuFactory = menuFactory;
-            _serverManager = serverManager;
-        }
-
-        // Define class properties
-        private IWasdMenu? modeWasdMenu;
-        private IWasdMenu? voteModesWasdMenu;
-        private BaseMenu modeMenu = new ChatMenu("Mode List");
-        private BaseMenu voteModesMenu = new ChatMenu("Mode List");
-
-        // Load config
-        public void OnConfigParsed(Config config)
-        {
-            _config = config;
-        }
-
-        // Define methods to get menus
-        public BaseMenu GetMenu(string Name)
-        {
-            if (Name.Equals("Vote"))
-            {
-                return voteModesMenu;
-            }
-            else
-            {
-                return modeMenu;
-            }
-        }
-
-        public IWasdMenu? GetWasdMenu(string Name)
-        {
-            if (Name.Equals("Vote"))
-            {
-                return voteModesWasdMenu;
-            }
-            else
-            {
-                return modeWasdMenu;
-            }
-        }
-
-        // Define on load behavior
-        public void Load()
-        {
-            modeMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
-
-            // Add menu option for each game mode in game mode list
-            foreach (Mode _mode in _pluginState.Modes)
-            {
-                modeMenu.AddMenuOption(_mode.Name, (player, option) =>
-                {
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text));
-                    MenuManager.CloseActiveMenu(player);
-                    _serverManager.ChangeMode(_mode);
-                });
-            }
-
-            // Create vote mode menu
-            if (_config.Votes.GameModes)
-            {
-                voteModesMenu = _menuFactory.AssignMenu(_config.GameModes.Style, "Game Mode List");
-
-                // Add vote menu option for each game mode in game mode list
-                foreach (Mode _mode in _pluginState.Modes)
-                {
-                    voteModesMenu.AddMenuOption(_mode.Name, (player, option) =>
-                    {
-                        // Close menu
-                        MenuManager.CloseActiveMenu(player);
-
-                        // Start vote
-                        _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, Extensions.RemoveCfgExtension(_mode.Config));
-                    });
-                }
-            }
+            WasdMenus = new WasdMenuController(pluginState, localizer, serverManager, config);
+            BaseMenus = new BaseMenuController(pluginState, localizer, serverManager, config);
         }
         
-        // Define method to load WASD menus
-        public void LoadWASDMenus()
+        // Define WasdMenuController class
+        public class WasdMenuController(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
         {
-            // Create mode menu
-            if (_config.GameModes.Style.Equals("wasd"))
+            // Define class properties
+            public IWasdMenu? MainMenu;
+            public IWasdMenu? VoteMenu;
+            private MenuFactory menuFactory = new MenuFactory();
+
+            // Define load method
+            public void Load()
             {
-                modeWasdMenu = _menuFactory.AssignWasdMenu("Game Mode List");
-
-                // Add menu option for each game mode in game mode list
-                foreach (Mode _mode in _pluginState.Modes)
+                if (config.GameModes.Style.Equals("wasd"))
                 {
-                    modeWasdMenu?.Add(_mode.Name, (player, option) =>
-                    {
-                        // Close menu
-                       _menuFactory.CloseWasdMenu(player);
+                     // Create mode menu
+                    MainMenu = menuFactory.WasdMenus.AssignMenu(localizer.Localize("modes.menu-title"));
 
-                        // Change mode
-                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
-                        _serverManager.ChangeMode(_mode);
-                    });
+                    foreach (IMode _mode in pluginState.Game.Modes)
+                    {
+                        MainMenu?.Add(_mode.Name, (player, option) =>
+                        {
+                            menuFactory.WasdMenus.CloseMenu(player);
+                            Server.PrintToChatAll(localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
+                            serverManager.ChangeMode(_mode);
+                        });
+                    }
+                }
+
+                if (config.GameModes.Style.Equals("wasd") && config.Votes.GameModes)
+                {
+                    // Create vote menu
+                    VoteMenu = menuFactory.WasdMenus.AssignMenu(localizer.Localize("modes.menu-title"));
+
+                    foreach (IMode _mode in pluginState.Game.Modes)
+                    {
+                        VoteMenu?.Add(_mode.Name, (player, option) =>
+                        {
+                            menuFactory.WasdMenus.CloseMenu(player);
+                            CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, PluginExtensions.RemoveCfgExtension(_mode.Config));
+                        });
+                    }
                 }
             }
 
-            if (_config.GameModes.Style.Equals("wasd") && _config.Votes.GameModes)
+        }
+
+        // Define BaseMenuController class
+        public class BaseMenuController(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
+        {
+            // Define class properties
+            private MenuFactory menuFactory = new MenuFactory();
+            public BaseMenu MainMenu = new ChatMenu(localizer.Localize("modes.menu-title"));
+            public BaseMenu VoteMenu = new ChatMenu(localizer.Localize("modes.menu-title"));
+
+            // Define load method
+            public void Load()
             {
-                voteModesWasdMenu = _menuFactory.AssignWasdMenu("Game Mode List");
+                // Create main menu
+                MainMenu = menuFactory.BaseMenus.AssignMenu(config.GameModes.Style, localizer.Localize("modes.menu-title"));
 
-                // Add vote menu option for each game mode in game mode list
-                foreach (Mode _mode in _pluginState.Modes)
+                foreach (IMode _mode in pluginState.Game.Modes)
                 {
-                    voteModesWasdMenu?.Add(_mode.Name, (player, option) =>
+                    MainMenu.AddMenuOption(_mode.Name, (player, option) =>
                     {
-                        // Close menu
-                        _menuFactory.CloseWasdMenu(player);
-
-                        // Start vote
-                        _pluginState.CustomVotesApi.Get()?.StartCustomVote(player, Extensions.RemoveCfgExtension(_mode.Config));
+                        Server.PrintToChatAll(localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text));
+                        menuFactory.BaseMenus.CloseMenu(player);
+                        serverManager.ChangeMode(_mode);
                     });
+                }
+
+                if (config.Votes.GameModes)
+                {
+                    // Create vote menu
+                    VoteMenu = menuFactory.BaseMenus.AssignMenu(config.GameModes.Style, localizer.Localize("modes.menu-title"));
+
+                    foreach (IMode _mode in pluginState.Game.Modes)
+                    {
+                        VoteMenu.AddMenuOption(_mode.Name, (player, option) =>
+                        {
+                            menuFactory.BaseMenus.CloseMenu(player);
+                            CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, PluginExtensions.RemoveCfgExtension(_mode.Config));
+                        });
+                    }
                 }
             }
         }

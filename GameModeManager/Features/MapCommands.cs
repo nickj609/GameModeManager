@@ -1,11 +1,12 @@
 // Included libraries
-using WASDSharedAPI;
 using GameModeManager.Menus;
 using GameModeManager.Models;
 using CounterStrikeSharp.API;
+using WASDMenuAPI.Shared.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -19,19 +20,18 @@ namespace GameModeManager.Features
         // Define class dependencies
         private MapMenus _mapMenus;
         private PluginState _pluginState;
-        private MenuFactory _menuFactory;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private Config _config = new Config();
+        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public MapCommands(PluginState pluginState, MenuFactory menuFactory, StringLocalizer localizer, ServerManager serverManager, MapMenus mapMenus)
+        public MapCommands(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
         {
-            _mapMenus = mapMenus;
             _localizer = localizer;
             _pluginState = pluginState;
-            _menuFactory = menuFactory;
             _serverManager = serverManager;
+            _mapMenus = new MapMenus(pluginState, localizer, serverManager, _config);
         }
 
         // Load config
@@ -62,41 +62,19 @@ namespace GameModeManager.Features
             {
                 if (_config.Maps.Style.Equals("wasd"))
                 {
-                    if (_config.Maps.Mode == 0)
-                    {
-                        IWasdMenu? menu;
-                        menu = _mapMenus.GetWasdMenu("CurrentMode");
+                    _mapMenus.WasdMenus.Load();
+                    IWasdMenu? menu =_mapMenus.WasdMenus.MainMenu;
 
-                        if(menu != null)
-                        {
-                            _menuFactory.OpenWasdMenu(player, menu);
-                        }
-                    }
-                    else if (_config.Maps.Mode == 1)
+                    if(menu != null)
                     {
-                        IWasdMenu? menu;
-                        menu = _mapMenus.GetWasdMenu("All");
-
-                        if(menu != null)
-                        {
-                            _menuFactory.OpenWasdMenu(player, menu);
-                        }
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
                 {
-                    if (_config.Maps.Mode == 0)
-                    {
-                        BaseMenu menu;
-                        menu = _mapMenus.GetMenu("CurrentMode");
-                        _menuFactory.OpenMenu(menu, player);
-                    }
-                    else
-                    {
-                        BaseMenu menu;
-                        menu = _mapMenus.GetMenu("All");
-                        _menuFactory.OpenMenu(menu, player);
-                    }
+                    _mapMenus.BaseMenus.Load();
+                    BaseMenu menu = _mapMenus.BaseMenus.MainMenu;
+                    _menuFactory.BaseMenus.OpenMenu(menu, player);
                 }
             }
         }
@@ -106,8 +84,8 @@ namespace GameModeManager.Features
         [CommandHelper(minArgs: 1, usage: "<map name> optional: <workshop id>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            Map _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
-            Map? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || g.WorkshopId.ToString().Equals("{command.ArgByIndex(2)}", StringComparison.OrdinalIgnoreCase));
+            IMap _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
+            IMap? _foundMap = _pluginState.Game.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || g.WorkshopId.ToString().Equals("{command.ArgByIndex(2)}", StringComparison.OrdinalIgnoreCase));
 
             if (_foundMap != null)
             {
