@@ -224,16 +224,16 @@ namespace GameModeManager
                 Logger.LogError("Invalid: Maps Style must be 'center', 'chat', or 'wasd'");
                 throw new Exception("Invalid: Maps Style must be 'center', 'chat', or 'wasd'");
             }
-            if (_config.Settings.Enabled && !Directory.Exists(Path.Combine(PluginState.ConfigDirectory, _config.Settings.Folder)))
+            if (_config.Settings.Enabled && !Directory.Exists(Path.Combine(PluginState.GameController.ConfigDirectory, _config.Settings.Folder)))
             {
-                Logger.LogError($"Cannot find 'Settings Folder': {PluginState.SettingsDirectory}");
-                throw new Exception($"Cannot find 'Settings Folder': {PluginState.SettingsDirectory}");
+                Logger.LogError($"Cannot find 'Settings Folder': {PluginState.GameController.SettingsDirectory}");
+                throw new Exception($"Cannot find 'Settings Folder': {PluginState.GameController.SettingsDirectory}");
             }
 
             // Game mode settings
-            if (File.Exists(Path.Join(PluginState.GameDirectory, _config.GameModes.MapGroupFile)))
+            if (File.Exists(Path.Join(PluginState.GameController.GameDirectory, _config.GameModes.MapGroupFile)))
             {
-                _config.GameModes.MapGroupFile = Path.Join(PluginState.GameDirectory, _config.GameModes.MapGroupFile);
+                _config.GameModes.MapGroupFile = Path.Join(PluginState.GameController.GameDirectory, _config.GameModes.MapGroupFile);
             }
             else
             {

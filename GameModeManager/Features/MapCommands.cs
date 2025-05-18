@@ -26,12 +26,12 @@ namespace GameModeManager.Features
         private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public MapCommands(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, MapMenus mapMenus)
+        public MapCommands(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
         {
-            _mapMenus = mapMenus;
             _localizer = localizer;
             _pluginState = pluginState;
             _serverManager = serverManager;
+            _mapMenus = new MapMenus(pluginState, localizer, serverManager, _config);
         }
 
         // Load config
@@ -62,41 +62,19 @@ namespace GameModeManager.Features
             {
                 if (_config.Maps.Style.Equals("wasd"))
                 {
-                    if (_config.Maps.Mode == 0)
-                    {
-                        IWasdMenu? menu;
-                        menu = _mapMenus.GetWasdMenu("CurrentMode");
+                    _mapMenus.WasdMenus.Load();
+                    IWasdMenu? menu =_mapMenus.WasdMenus.MainMenu;
 
-                        if(menu != null)
-                        {
-                            _menuFactory.WasdMenus.OpenMenu(player, menu);
-                        }
-                    }
-                    else if (_config.Maps.Mode == 1)
+                    if(menu != null)
                     {
-                        IWasdMenu? menu;
-                        menu = _mapMenus.GetWasdMenu("All");
-
-                        if(menu != null)
-                        {
-                            _menuFactory.WasdMenus.OpenMenu(player, menu);
-                        }
+                        _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
                 {
-                    if (_config.Maps.Mode == 0)
-                    {
-                        BaseMenu menu;
-                        menu = _mapMenus.GetMenu("CurrentMode");
-                        _menuFactory.BaseMenus.OpenMenu(menu, player);
-                    }
-                    else
-                    {
-                        BaseMenu menu;
-                        menu = _mapMenus.GetMenu("All");
-                        _menuFactory.BaseMenus.OpenMenu(menu, player);
-                    }
+                    _mapMenus.BaseMenus.Load();
+                    BaseMenu menu = _mapMenus.BaseMenus.MainMenu;
+                    _menuFactory.BaseMenus.OpenMenu(menu, player);
                 }
             }
         }
@@ -107,7 +85,7 @@ namespace GameModeManager.Features
         public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
         {
             IMap _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
-            IMap? _foundMap = _pluginState.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || g.WorkshopId.ToString().Equals("{command.ArgByIndex(2)}", StringComparison.OrdinalIgnoreCase));
+            IMap? _foundMap = _pluginState.Game.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || g.WorkshopId.ToString().Equals("{command.ArgByIndex(2)}", StringComparison.OrdinalIgnoreCase));
 
             if (_foundMap != null)
             {

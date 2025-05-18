@@ -31,18 +31,18 @@ namespace GameModeManager.Features
         private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public NominateCommands(PluginState pluginState, IStringLocalizer iLocalizer, ILogger<ModeCommands> logger, NominateManager nominateManager, GameRules gameRules, VoteOptionManager voteOptionManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, NominateMenus nominateMenus, VoteManager voteManager)
+        public NominateCommands(PluginState pluginState, IStringLocalizer iLocalizer, ILogger<ModeCommands> logger, NominateManager nominateManager, GameRules gameRules, VoteOptionManager voteOptionManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteManager voteManager)
         {
             _logger = logger;
             _gameRules = gameRules;
             _voteManager = voteManager;
             _pluginState = pluginState;
-            _nominateMenus = nominateMenus;
             _nominateManager = nominateManager;
             _maxRoundsManager = maxRoundsManager;
             _timeLimitManager = timeLimitManager;
             _voteOptionManager = voteOptionManager;
             _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
+            _nominateMenus = new NominateMenus(pluginState, _localizer, voteOptionManager, nominateManager, _config);
         }
 
         // Load config
@@ -54,9 +54,9 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            if (_pluginState.RTVEnabled)
+            if (_pluginState.RTV.Enabled)
             {
-                if (_pluginState.NominationEnabled)
+                if (_pluginState.RTV.NominationEnabled)
                 {
                     plugin.AddCommand("css_nominate", "Nominates a map or game mode.", OnNominateCommand);
                     plugin.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnected, HookMode.Pre);
@@ -71,7 +71,7 @@ namespace GameModeManager.Features
             if (player != null)
             {
                 // Check if RTV vote happened already
-                if (_pluginState.EofVoteHappened)
+                if (_pluginState.RTV.EofVoteHappened)
                 {
                     if (!_timeLimitManager.UnlimitedTime())
                     {
@@ -91,7 +91,7 @@ namespace GameModeManager.Features
                 }
 
                 // Check if disabled
-                if (_pluginState.DisableCommands || !_pluginState.NominationEnabled || _pluginState.EofVoteHappening)
+                if (_pluginState.RTV.DisableCommands || !_pluginState.RTV.NominationEnabled || _pluginState.RTV.EofVoteHappening)
                 {
                     player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
                     return;
@@ -128,8 +128,8 @@ namespace GameModeManager.Features
                     {
                         if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
                         {
-                            IWasdMenu? menu;
-                            menu = _nominateMenus.GetWasdMenu("All");
+                            _nominateMenus.WasdMenus.Load();
+                            IWasdMenu? menu = _nominateMenus.WasdMenus.MainMenu;
 
                             if (menu != null)
                             {
@@ -138,8 +138,8 @@ namespace GameModeManager.Features
                         }
                         else
                         {
-                            BaseMenu menu;
-                            menu = _nominateMenus.GetMenu("All");
+                            _nominateMenus.BaseMenus.Load();
+                            BaseMenu menu = _nominateMenus.BaseMenus.MainMenu;
                             _menuFactory.BaseMenus.OpenMenu(menu, player);
                         }
                     }
@@ -147,8 +147,8 @@ namespace GameModeManager.Features
                     {
                         if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
                         {
-                            IWasdMenu? menu;
-                            menu = _nominateMenus.GetWasdMenu("Map");
+                            _nominateMenus.WasdMenus.Load();
+                            IWasdMenu? menu = _nominateMenus.WasdMenus.MapMenu;
 
                             if (menu != null)
                             {
@@ -157,8 +157,8 @@ namespace GameModeManager.Features
                         }
                         else
                         {
-                            BaseMenu menu;
-                            menu = _nominateMenus.GetMenu("Map");
+                            _nominateMenus.BaseMenus.Load();
+                            BaseMenu menu = _nominateMenus.BaseMenus.MapMenu;
                             _menuFactory.BaseMenus.OpenMenu(menu, player);
                         }
                     }
@@ -184,13 +184,13 @@ namespace GameModeManager.Features
         {
             if (player == null)
             {
-                if (command.ArgByIndex(1).Equals("true", StringComparison.OrdinalIgnoreCase) && !_pluginState.NominationEnabled)
+                if (command.ArgByIndex(1).Equals("true", StringComparison.OrdinalIgnoreCase) && !_pluginState.RTV.NominationEnabled)
                 {
-                    _pluginState.NominationEnabled = true;
+                    _pluginState.RTV.NominationEnabled = true;
                 }
-                else if (command.ArgByIndex(1).Equals("false", StringComparison.OrdinalIgnoreCase) && _pluginState.NominationEnabled)
+                else if (command.ArgByIndex(1).Equals("false", StringComparison.OrdinalIgnoreCase) && _pluginState.RTV.NominationEnabled)
                 {
-                    _pluginState.NominationEnabled = false;
+                    _pluginState.RTV.NominationEnabled = false;
                 }
                 else
                 {
@@ -207,7 +207,7 @@ namespace GameModeManager.Features
             {
                 if (int.TryParse(command.ArgByIndex(1), out var max))
                 {
-                    _pluginState.MaxNominationWinners = max;
+                    _pluginState.RTV.MaxNominationWinners = max;
                 }
                 else
                 {

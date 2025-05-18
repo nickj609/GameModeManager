@@ -42,14 +42,14 @@ namespace GameModeManager.Services
             public GameState(PluginState pluginState) => _pluginState = pluginState;
 
             // Define class properties
-            public List<IMap> Maps => _pluginState.Maps;
-            public List<IMode> Modes => _pluginState.Modes;
-            public IMap CurrentMap => _pluginState.CurrentMap;
-            public IMode WarmupMode => _pluginState.WarmupMode;
-            public IMode CurrentMode => _pluginState.CurrentMode;
-            public List<ISetting> Settings => _pluginState.Settings;
-            public List<IMapGroup> MapGroups => _pluginState.MapGroups;
-            public bool WarmupScheduled => _pluginState.WarmupScheduled;
+            public List<IMap> Maps => _pluginState.Game.Maps;
+            public List<IMode> Modes => _pluginState.Game.Modes;
+            public IMap CurrentMap => _pluginState.Game.CurrentMap;
+            public IMode WarmupMode => _pluginState.Game.WarmupMode;
+            public IMode CurrentMode => _pluginState.Game.CurrentMode;
+            public List<ISetting> Settings => _pluginState.Game.Settings;
+            public List<IMapGroup> MapGroups => _pluginState.Game.MapGroups;
+            public bool WarmupScheduled => _pluginState.Game.WarmupScheduled;
         }
 
         private class GameModeController : IGameModeControl

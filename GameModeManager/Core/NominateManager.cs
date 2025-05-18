@@ -32,17 +32,17 @@ namespace GameModeManager.Core
         public void OnConfigParsed(Config config)
         {
             _config = config;
-            _pluginState.InCoolDown = config.RTV.OptionsInCoolDown;
-            _pluginState.NominationEnabled = _config.RTV.NominationEnabled;
-            _pluginState.MaxNominationWinners = _config.RTV.MaxNominationWinners;
+            _pluginState.RTV.InCoolDown = config.RTV.OptionsInCoolDown;
+            _pluginState.RTV.NominationEnabled = _config.RTV.NominationEnabled;
+            _pluginState.RTV.MaxNominationWinners = _config.RTV.MaxNominationWinners;
         }
 
         // Define on map start behavior 
         public void OnMapStart(string _mapName)
         {
-            if(_pluginState.RTVEnabled)
+            if(_pluginState.RTV.Enabled)
             {
-                if(_pluginState.NominationEnabled)
+                if(_pluginState.RTV.NominationEnabled)
                 {
                     MapNominations.Clear();
                     ModeNominations.Clear();
@@ -50,16 +50,16 @@ namespace GameModeManager.Core
                     var map = Server.MapName;
                     if(map is not null)
                     {
-                        if (_pluginState.InCoolDown == 0)
+                        if (_pluginState.RTV.InCoolDown == 0)
                         {
-                            _pluginState.OptionsOnCoolDown.Clear();
+                            _pluginState.RTV.OptionsOnCoolDown.Clear();
                             return;
                         }
-                        if (_pluginState.OptionsOnCoolDown.Count > _pluginState.InCoolDown)
+                        if (_pluginState.RTV.OptionsOnCoolDown.Count > _pluginState.RTV.InCoolDown)
                         {
-                            _pluginState.OptionsOnCoolDown.RemoveAt(0);
+                            _pluginState.RTV.OptionsOnCoolDown.RemoveAt(0);
                         }
-                        _pluginState.OptionsOnCoolDown.Add(map.Trim().ToLower());
+                        _pluginState.RTV.OptionsOnCoolDown.Add(map.Trim().ToLower());
                     }
                 }
             }
@@ -75,16 +75,16 @@ namespace GameModeManager.Core
             // Find map or mode nominated
             if (_config.RTV.IncludeModes)
             {
-                mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase));
+                mode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase));
             }
 
             if(_config.Maps.Mode == 1)
             {
-                map = _pluginState.Maps.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(option, StringComparison.OrdinalIgnoreCase));
+                map = _pluginState.Game.Maps.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(option, StringComparison.OrdinalIgnoreCase));
             }
             else
             {
-                map = _pluginState.CurrentMode.Maps.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(option, StringComparison.OrdinalIgnoreCase));
+                map = _pluginState.Game.CurrentMode.Maps.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(option, StringComparison.OrdinalIgnoreCase));
             }
 
             if (map == null & mode == null)
@@ -103,7 +103,7 @@ namespace GameModeManager.Core
             // Nominate map or mode
             if(mode != null)
             {
-                if (_pluginState.CurrentMode.Name.Equals(mode.Name, StringComparison.OrdinalIgnoreCase))
+                if (_pluginState.Game.CurrentMode.Name.Equals(mode.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
                     return;
@@ -160,7 +160,7 @@ namespace GameModeManager.Core
         // Define method to check if map is in cooldown
         public bool IsOptionInCooldown(string option)
         {
-            return _pluginState.OptionsOnCoolDown.IndexOf(option) > -1;
+            return _pluginState.RTV.OptionsOnCoolDown.IndexOf(option) > -1;
         }
 
         // List of map nomination winners
@@ -181,9 +181,9 @@ namespace GameModeManager.Core
                 .ToList();
 
             // Take only the top nomination(s)
-            if (winners.Count > _pluginState.MaxNominationWinners)
+            if (winners.Count > _pluginState.RTV.MaxNominationWinners)
             {
-                winners = winners.Take(_pluginState.MaxNominationWinners).ToList();
+                winners = winners.Take(_pluginState.RTV.MaxNominationWinners).ToList();
             }
 
             return winners;
@@ -207,9 +207,9 @@ namespace GameModeManager.Core
                 .ToList();
 
             // Take only the top nomination(s)
-            if (winners.Count > _pluginState.MaxNominationWinners)
+            if (winners.Count > _pluginState.RTV.MaxNominationWinners)
             {
-                winners = winners.Take(_pluginState.MaxNominationWinners).ToList();
+                winners = winners.Take(_pluginState.RTV.MaxNominationWinners).ToList();
             }
             return winners;
         }

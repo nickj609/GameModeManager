@@ -30,7 +30,7 @@ namespace GameModeManager.Core
         public void OnConfigParsed(Config config)
         {
             _config = config;
-            _pluginState.RotationsEnabled = _config.Rotation.Enabled;
+            _pluginState.Game.RotationsEnabled = _config.Rotation.Enabled;
         }
 
         // Define on load behavior

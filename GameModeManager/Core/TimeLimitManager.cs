@@ -48,11 +48,11 @@ namespace GameModeManager.Core
                 if (_gameRules.WarmupRunning)
                     return 0;
 
-                if (_pluginState.TimeLimitCustom && _pluginState.CustomTimeLimitStartTime > 0)
+                if (_pluginState.TimeLimit.CustomLimit && _pluginState.TimeLimit.CustomStartTime > 0)
                 {
-                    return (decimal)(Server.CurrentTime - _pluginState.CustomTimeLimitStartTime);
+                    return (decimal)(Server.CurrentTime - _pluginState.TimeLimit.CustomStartTime);
                 }
-                else if (!_pluginState.TimeLimitCustom)
+                else if (!_pluginState.TimeLimit.CustomLimit)
                 {
                      if (_gameRules.GameStartTime > 0)
                         return (decimal)(Server.CurrentTime - _gameRules.GameStartTime);
@@ -71,12 +71,12 @@ namespace GameModeManager.Core
         {
             get
             {
-                if (_pluginState.TimeLimitCustom)
+                if (_pluginState.TimeLimit.CustomLimit)
                 {
-                    if (_pluginState.CustomTimeLimitStartTime > 0 && _pluginState.TimeLimit > 0)
+                    if (_pluginState.TimeLimit.CustomStartTime > 0 && _pluginState.TimeLimit.Duration > 0)
                     {
-                        decimal elapsed = (decimal)(Server.CurrentTime - _pluginState.CustomTimeLimitStartTime);
-                        decimal totalDuration = (decimal)_pluginState.TimeLimit; 
+                        decimal elapsed = (decimal)(Server.CurrentTime - _pluginState.TimeLimit.CustomStartTime);
+                        decimal totalDuration = (decimal)_pluginState.TimeLimit.Duration; 
                         decimal remaining = totalDuration - elapsed;
                         return remaining > 0 ? remaining : 0;
                     }
@@ -102,8 +102,8 @@ namespace GameModeManager.Core
         public void OnConfigParsed(Config config)
         {
             _config = config;
-            _pluginState.MaxExtends = _config.RTV.MaxExtends;
-            _pluginState.IncludeExtend = _config.RTV.IncludeExtend;
+            _pluginState.RTV.MaxExtends = _config.RTV.MaxExtends;
+            _pluginState.RTV.IncludeExtend = _config.RTV.IncludeExtend;
         }
 
         // Define on load behavior
@@ -122,13 +122,13 @@ namespace GameModeManager.Core
         public void OnMapStart(string map)
         {
             LoadCvar();
-            _pluginState.TimeLimitCustom = false;
-            _pluginState.TimeLimit = 0f;
-            _pluginState.CustomTimeLimitStartTime = 0f;
-            _pluginState.TimeLimitEnabled = false;
-            _pluginState.TimeLimitScheduled = false;
-            _pluginState.MapExtends = 0;
-            _pluginState.MaxExtends = _config.RTV.MaxExtends; 
+            _pluginState.TimeLimit.CustomLimit = false;
+            _pluginState.TimeLimit.Duration = 0f;
+            _pluginState.TimeLimit.CustomStartTime = 0f;
+            _pluginState.TimeLimit.Enabled = false;
+            _pluginState.TimeLimit.Scheduled = false;
+            _pluginState.RTV.MapExtends = 0;
+            _pluginState.RTV.MaxExtends = _config.RTV.MaxExtends; 
         }
 
         // Define class methods
@@ -154,17 +154,17 @@ namespace GameModeManager.Core
 
         public void ExtendMap()
         {
-            if (_pluginState.TimeLimitCustom)
+            if (_pluginState.TimeLimit.CustomLimit)
             {
                  float extensionSeconds = _config.RTV.ExtendTime * 60f;
-                 _pluginState.TimeLimit += extensionSeconds;
+                 _pluginState.TimeLimit.Duration += extensionSeconds;
 
                  // If the timer is already running, kill and restart it with the new total remaining time
                  if (timer != null)
                  {
                      timer.Kill();
-                     decimal elapsed = (decimal)(Server.CurrentTime - _pluginState.CustomTimeLimitStartTime);
-                     decimal newTotalDuration = (decimal)_pluginState.TimeLimit;
+                     decimal elapsed = (decimal)(Server.CurrentTime - _pluginState.TimeLimit.CustomStartTime);
+                     decimal newTotalDuration = (decimal)_pluginState.TimeLimit.Duration;
                      decimal newRemaining = newTotalDuration - elapsed;
 
                      if (newRemaining > 0)
@@ -222,7 +222,7 @@ namespace GameModeManager.Core
             {
                 _logger.LogWarning("Can't extend map because mp_timelimit and mp_maxrounds are not set.");
             }
-            _pluginState.MapExtends++;
+            _pluginState.RTV.MapExtends++;
         }
 
         public void DisableTimeLimit()
@@ -233,11 +233,11 @@ namespace GameModeManager.Core
                 timer = null;
             }
             
-            _pluginState.TimeLimitCustom = false;
-            _pluginState.TimeLimitEnabled = false;
-            _pluginState.TimeLimitScheduled = false;
-            _pluginState.TimeLimit = 0f;
-            _pluginState.CustomTimeLimitStartTime = 0f;
+            _pluginState.TimeLimit.CustomLimit = false;
+            _pluginState.TimeLimit.Enabled = false;
+            _pluginState.TimeLimit.Scheduled = false;
+            _pluginState.TimeLimit.Duration = 0f;
+            _pluginState.TimeLimit.CustomStartTime = 0f;
             _logger.LogDebug("Time limit timer disabled and state reset.");
         }
 
@@ -252,9 +252,9 @@ namespace GameModeManager.Core
 
                  if (remaining > 0) 
                  {
-                    _pluginState.TimeLimitCustom = false; 
-                    _pluginState.TimeLimitEnabled = true;
-                    _pluginState.TimeLimitScheduled = false; 
+                    _pluginState.TimeLimit.CustomLimit = false; 
+                    _pluginState.TimeLimit.Enabled = true;
+                    _pluginState.TimeLimit.Scheduled = false; 
                     
                      timer = new Timer((float)remaining, () =>
                     {
@@ -285,11 +285,11 @@ namespace GameModeManager.Core
                  return;
              }
 
-            _pluginState.TimeLimitCustom = true; 
-            _pluginState.TimeLimitEnabled = true; 
-            _pluginState.TimeLimitScheduled = false; 
-            _pluginState.TimeLimit = customDurationSeconds; 
-            _pluginState.CustomTimeLimitStartTime = Server.CurrentTime; 
+            _pluginState.TimeLimit.CustomLimit = true; 
+            _pluginState.TimeLimit.Enabled = true; 
+            _pluginState.TimeLimit.Scheduled = false; 
+            _pluginState.TimeLimit.Duration = customDurationSeconds; 
+            _pluginState.TimeLimit.CustomStartTime = Server.CurrentTime; 
 
             // Set time limit cvar
             var timeLimitConVar = ConVar.Find("mp_timelimit");
@@ -365,21 +365,21 @@ namespace GameModeManager.Core
         public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
         {
              _logger.LogDebug("EventRoundAnnounceMatchStart triggered."); 
-            if (_pluginState.TimeLimitScheduled)
+            if (_pluginState.TimeLimit.Scheduled)
             {
-                 _logger.LogDebug($"TimeLimitScheduled is true. Custom: {_pluginState.TimeLimitCustom}");
+                 _logger.LogDebug($"TimeLimitScheduled is true. Custom: {_pluginState.TimeLimit.CustomLimit}");
 
-                if (_pluginState.TimeLimitCustom)
+                if (_pluginState.TimeLimit.CustomLimit)
                 {
-                     _logger.LogDebug($"Enabling scheduled custom time limit: {_pluginState.TimeLimit}s");
-                    EnableTimeLimit(_pluginState.TimeLimit); 
+                     _logger.LogDebug($"Enabling scheduled custom time limit: {_pluginState.TimeLimit.Duration}s");
+                    EnableTimeLimit(_pluginState.TimeLimit.Duration); 
                 }
                 else
                 {
                      _logger.LogDebug("Enabling scheduled standard time limit.");
                     EnableTimeLimit();
                 }
-                 _pluginState.TimeLimitScheduled = false;
+                 _pluginState.TimeLimit.Scheduled = false;
             }
             else
             {

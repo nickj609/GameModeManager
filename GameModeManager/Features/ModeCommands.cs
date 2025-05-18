@@ -19,7 +19,6 @@ namespace GameModeManager.Features
     public class ModeCommands : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private MapMenus _mapMenus;
         private ModeMenus _modeMenus;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
@@ -30,15 +29,14 @@ namespace GameModeManager.Features
         private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public ModeCommands(PluginState pluginState, StringLocalizer localizer, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager, MapMenus mapMenus, ModeMenus modeMenus)
+        public ModeCommands(PluginState pluginState, StringLocalizer localizer, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager)
         {
             _logger = logger;
-            _mapMenus = mapMenus;
-            _modeMenus = modeMenus;
             _localizer = localizer;
             _pluginState = pluginState;
             _serverManager = serverManager;
             _customVoteManager = customVoteManager;
+            _modeMenus = new ModeMenus(pluginState, localizer, serverManager, _config);
         }
 
         // Load config
@@ -67,9 +65,9 @@ namespace GameModeManager.Features
         {
             if (player == null) 
             {
-                IMode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
+                IMode? _mode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
                 
-                if(_mode != null && _pluginState.CurrentMode != _mode)
+                if(_mode != null && _pluginState.Game.CurrentMode != _mode)
                 {   
                     if (_config.Votes.Enabled && _config.Votes.Maps)
                     {                        
@@ -77,23 +75,17 @@ namespace GameModeManager.Features
                         _customVoteManager.DeregisterMapVotes();
 
                         // Set mode
-                        _pluginState.CurrentMode = _mode;
-
-                        // Update map menus
-                        _mapMenus.UpdateMenus();
-                        _mapMenus.UpdateWASDMenus();
+                        _pluginState.Game.CurrentMode = _mode;
         
                         // Register map votes for new mode
                         _customVoteManager.RegisterMapVotes();
                     }
                     else
                     {
-                        _pluginState.CurrentMode = _mode;
-                        _mapMenus.UpdateMenus();
-                        _mapMenus.UpdateWASDMenus();
+                        _pluginState.Game.CurrentMode = _mode;
                     }
                 }
-                else if (_pluginState.CurrentMode == _mode)
+                else if (_pluginState.Game.CurrentMode == _mode)
                 {
                     _logger.LogWarning($"The mode is already set to {_mode.Name}.");
                 }
@@ -109,7 +101,7 @@ namespace GameModeManager.Features
         [CommandHelper(minArgs: 1, usage: "<mode>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnModeCommand(CCSPlayerController? player, CommandInfo command)
         {
-            IMode? _mode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
+            IMode? _mode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
 
             if (_mode != null)
             {
@@ -134,8 +126,8 @@ namespace GameModeManager.Features
             {
                 if (_config.GameModes.Style.Equals("wasd"))
                 {
-                    IWasdMenu? menu;
-                    menu = _modeMenus.GetWasdMenu("Mode");
+                    _modeMenus.WasdMenus.Load();
+                    IWasdMenu? menu = _modeMenus.WasdMenus.MainMenu;
 
                     if(menu != null)
                     {
@@ -144,8 +136,8 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    BaseMenu menu;
-                    menu = _modeMenus.GetMenu("Mode");
+                    _modeMenus.BaseMenus.Load();
+                    BaseMenu menu = _modeMenus.BaseMenus.MainMenu;
                     menu.Title = _localizer.Localize("modes.menu-title");
                     _menuFactory.BaseMenus.OpenMenu(menu, player);
                 }

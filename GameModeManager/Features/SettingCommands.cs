@@ -24,11 +24,11 @@ namespace GameModeManager.Features
         private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
-        public SettingCommands(PluginState pluginState, StringLocalizer localizer, SettingMenus settingMenus)
+        public SettingCommands(PluginState pluginState, StringLocalizer localizer)
         {
             _localizer = localizer;
             _pluginState = pluginState;
-            _settingMenus = settingMenus;
+            _settingMenus = new SettingMenus(pluginState, localizer, _config);
         }
 
         // Load config
@@ -56,7 +56,7 @@ namespace GameModeManager.Features
             {
                 string _status = $"{command.ArgByIndex(1)}";
                 string _settingName = $"{command.ArgByIndex(2)}";
-                ISetting? _option = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_settingName, StringComparison.OrdinalIgnoreCase));
+                ISetting? _option = _pluginState.Game.Settings.FirstOrDefault(s => s.Name.Equals(_settingName, StringComparison.OrdinalIgnoreCase));
 
                 if(_option != null) 
                 {
@@ -90,8 +90,8 @@ namespace GameModeManager.Features
             {
                 if (_config.Settings.Style.Equals("wasd"))
                 {  
-                    IWasdMenu? menu;
-                    menu = _settingMenus.GetWasdMenu("Main Menu");
+                    _settingMenus.WasdMenus.Load();
+                    IWasdMenu? menu = _settingMenus.WasdMenus.MainMenu;
 
                     if(menu != null)
                     {
@@ -100,8 +100,8 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    BaseMenu menu;
-                    menu = _settingMenus.GetMenu("Main Menu");
+                    _settingMenus.BaseMenus.Load();
+                    BaseMenu menu = _settingMenus.BaseMenus.MainMenu;
 
                     if (menu != null)
                     {

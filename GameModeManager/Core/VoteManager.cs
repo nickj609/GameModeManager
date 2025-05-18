@@ -68,27 +68,27 @@ namespace GameModeManager.Core
         // Define on map start behavior
         public void OnMapStart(string map)
         {
-            if (_pluginState.RTVEnabled)
+            if (_pluginState.RTV.Enabled)
             {
                 if (voted.Count > 0)
                 {
                     voted.Clear();
                 }
 
-                if(_pluginState.Votes.Count > 0)
+                if(_pluginState.RTV.Votes.Count > 0)
                 {
-                    _pluginState.Votes.Clear();
+                    _pluginState.RTV.Votes.Clear();
                 }
                 
                 timeLeft = 0;
                 percent = 0;
                 maxVotes = 0;
                 totalVotes = 0;
-                _pluginState.RTVWinner = "";
-                _pluginState.NextMap = null;
-                _pluginState.NextMode = null;
-                _pluginState.EofVoteHappened = false;
-                _pluginState.EofVoteHappening = false;
+                _pluginState.RTV.Winner = "";
+                _pluginState.RTV.NextMap = null;
+                _pluginState.RTV.NextMode = null;
+                _pluginState.RTV.EofVoteHappened = false;
+                _pluginState.RTV.EofVoteHappening = false;
                 winner = new KeyValuePair<string, int>("", 0);
                 KillTimer();
             }
@@ -107,7 +107,7 @@ namespace GameModeManager.Core
 
         public void AddVote(CCSPlayerController player, string option)
         {
-            _pluginState.Votes[option] += 1;
+            _pluginState.RTV.Votes[option] += 1;
             player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.you-voted", option));
 
             if (_config!.RTV.HideHudAfterVote)
@@ -125,7 +125,7 @@ namespace GameModeManager.Core
                 voted.Clear();
             }
 
-            _pluginState.EofVoteHappening = true;
+            _pluginState.RTV.EofVoteHappening = true;
 
             if (!_config.RTV.HideHud)
             {
@@ -149,15 +149,15 @@ namespace GameModeManager.Core
         private void CheckForWinner()
         {
             Random rnd = new();
-            maxVotes = _pluginState.Votes.Select(x => x.Value).Max();
-            totalVotes = _pluginState.Votes.Select(x => x.Value).Sum();
-            IEnumerable<KeyValuePair<string, int>> potentialWinners = _pluginState.Votes.Where(x => x.Value == maxVotes);
+            maxVotes = _pluginState.RTV.Votes.Select(x => x.Value).Max();
+            totalVotes = _pluginState.RTV.Votes.Select(x => x.Value).Sum();
+            IEnumerable<KeyValuePair<string, int>> potentialWinners = _pluginState.RTV.Votes.Where(x => x.Value == maxVotes);
             winner = potentialWinners.ElementAt(rnd.Next(0, potentialWinners.Count()));
 
             if (winner.Value >= RequiredVotes)
             {
                 percent = totalVotes > 0 ? winner.Value / totalVotes * 100M : 0;
-                _pluginState.RTVWinner = winner.Key;
+                _pluginState.RTV.Winner = winner.Key;
                 EndVote();
             }
         }
@@ -174,7 +174,7 @@ namespace GameModeManager.Core
             {
                 List<string> options = _voteOptionManager.GetOptions();
                 string randomOption = options[new Random().Next(0, options.Count)];
-                _pluginState.RTVWinner = randomOption;
+                _pluginState.RTV.Winner = randomOption;
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.vote-ended-no-votes", randomOption));
             }
             if (!_config.RTV.HideHud)
@@ -185,18 +185,18 @@ namespace GameModeManager.Core
                 });
             }
 
-            if (_voteOptionManager.OptionType(_pluginState.RTVWinner) == "mode")
+            if (_voteOptionManager.OptionType(_pluginState.RTV.Winner) == "mode")
             {
-                _pluginState.NextMode = _pluginState.Modes.FirstOrDefault(m => m.Name.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase));
+                _pluginState.RTV.NextMode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals(_pluginState.RTV.Winner, StringComparison.OrdinalIgnoreCase));
 
-                if (_pluginState.NextMode?.DefaultMap != null)
+                if (_pluginState.RTV.NextMode?.DefaultMap != null)
                 {
-                    _pluginState.NextMap = _pluginState.NextMode.DefaultMap;
+                    _pluginState.RTV.NextMap = _pluginState.RTV.NextMode.DefaultMap;
                 }
 
-                if (_pluginState.ChangeImmediately && _pluginState.NextMode != null)
+                if (_pluginState.RTV.ChangeImmediately && _pluginState.RTV.NextMode != null)
                 {
-                    _serverManager.ChangeMode(_pluginState.NextMode);
+                    _serverManager.ChangeMode(_pluginState.RTV.NextMode);
                     return;
                 }
                 else
@@ -216,15 +216,15 @@ namespace GameModeManager.Core
                         _logger.LogWarning("RTV: No timelimit or max rounds is set for the current map/mode.");
                     }
                 }
-                _pluginState.EofVoteHappened = true;
+                _pluginState.RTV.EofVoteHappened = true;
             }
-            else if (_voteOptionManager.OptionType(_pluginState.RTVWinner) == "map")
+            else if (_voteOptionManager.OptionType(_pluginState.RTV.Winner) == "map")
             {
-                _pluginState.NextMap = _pluginState.Maps.FirstOrDefault(m => m.DisplayName.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase) || m.Name.Equals(_pluginState.RTVWinner, StringComparison.OrdinalIgnoreCase));
+                _pluginState.RTV.NextMap = _pluginState.Game.Maps.FirstOrDefault(m => m.DisplayName.Equals(_pluginState.RTV.Winner, StringComparison.OrdinalIgnoreCase) || m.Name.Equals(_pluginState.RTV.Winner, StringComparison.OrdinalIgnoreCase));
 
-                if (_pluginState.ChangeImmediately && _pluginState.NextMap != null)
+                if (_pluginState.RTV.ChangeImmediately && _pluginState.RTV.NextMap != null)
                 {
-                    _serverManager.ChangeMap(_pluginState.NextMap, _config.Maps.Delay);
+                    _serverManager.ChangeMap(_pluginState.RTV.NextMap, _config.Maps.Delay);
                     return;
                 }
                 else
@@ -244,19 +244,19 @@ namespace GameModeManager.Core
                         _logger.LogError("RTV: No timelimit or max rounds set for for the current map/mode");
                     }
                 }
-                _pluginState.EofVoteHappened = true;
+                _pluginState.RTV.EofVoteHappened = true;
             }
-            else if (_pluginState.RTVWinner.Equals("Extend", StringComparison.OrdinalIgnoreCase))
+            else if (_pluginState.RTV.Winner.Equals("Extend", StringComparison.OrdinalIgnoreCase))
             {
-                _pluginState.EofVoteHappened = false;
+                _pluginState.RTV.EofVoteHappened = false;
                 _timeLimitManager.ExtendMap();
             }
             else
             {
-                _pluginState.EofVoteHappened = true;
-                _logger.LogError($"RTV: Map or mode {_pluginState.RTVWinner} not found");
+                _pluginState.RTV.EofVoteHappened = true;
+                _logger.LogError($"RTV: Map or mode {_pluginState.RTV.Winner} not found");
             }
-            _pluginState.EofVoteHappening = false;
+            _pluginState.RTV.EofVoteHappening = false;
         }
 
         public string GetRoundsLeft()
@@ -309,7 +309,7 @@ namespace GameModeManager.Core
 
             if (timeLeft >= 0)
             {
-                foreach (var kv in _pluginState.Votes.OrderByDescending(x => x.Value).Take(VoteOptionManager.MAX_OPTIONS_HUD_MENU))
+                foreach (var kv in _pluginState.RTV.Votes.OrderByDescending(x => x.Value).Take(VoteOptionManager.MAX_OPTIONS_HUD_MENU))
                 {
                     stringBuilder.AppendFormat($"<br>{kv.Key} <font color='green'>({kv.Value})</font>");
                 }
@@ -321,11 +321,11 @@ namespace GameModeManager.Core
             }
             else
             {
-                if (_pluginState.EofVoteHappened == true)
+                if (_pluginState.RTV.EofVoteHappened == true)
                 {
                     foreach (CCSPlayerController player in PlayerExtensions.ValidPlayers())
                     {
-                        player.PrintToCenterHtml(_localizer.Localize("rtv.hud.finished", _pluginState.RTVWinner));
+                        player.PrintToCenterHtml(_localizer.Localize("rtv.hud.finished", _pluginState.RTV.Winner));
                     }
                 }
             }

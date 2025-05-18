@@ -33,7 +33,7 @@ namespace GameModeManager.Core
         public void OnConfigParsed(Config config)
         {
             _config = config;
-            _pluginState.PerMapWarmup = _config.Warmup.PerMap;
+            _pluginState.Game.PerMapWarmup = _config.Warmup.PerMap;
         }
 
         // Define on load behavior
@@ -48,15 +48,15 @@ namespace GameModeManager.Core
                 foreach(WarmupModeEntry _mode in _config.Warmup.List)
                 {
                     IMode _warmupMode = new Mode(_mode.Name, _mode.Config, new List<IMapGroup>());
-                    _pluginState.WarmupModes.Add(_warmupMode);
+                    _pluginState.Game.WarmupModes.Add(_warmupMode);
                 }
 
                 // Set default warmup mode  
-                IMode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(_config.Warmup.Default.Name, StringComparison.OrdinalIgnoreCase));
+                IMode? warmupMode = _pluginState.Game.WarmupModes.FirstOrDefault(m => m.Name.Equals(_config.Warmup.Default.Name, StringComparison.OrdinalIgnoreCase));
 
                 if(warmupMode != null)
                 {
-                    _pluginState.WarmupMode = warmupMode;
+                    _pluginState.Game.WarmupMode = warmupMode;
                 }
                 else
                 {
@@ -68,12 +68,12 @@ namespace GameModeManager.Core
         // Define class methods
         public bool ScheduleWarmup(string modeName)
         {
-            IMode? warmupMode = _pluginState.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase) || m.Config.Contains(modeName, StringComparison.OrdinalIgnoreCase));
+            IMode? warmupMode = _pluginState.Game.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase) || m.Config.Contains(modeName, StringComparison.OrdinalIgnoreCase));
 
             if(warmupMode != null)
             {   
-                _pluginState.WarmupMode = warmupMode;
-                _pluginState.WarmupScheduled = true;
+                _pluginState.Game.WarmupMode = warmupMode;
+                _pluginState.Game.WarmupScheduled = true;
                 return true;
             } 
             else
@@ -85,9 +85,9 @@ namespace GameModeManager.Core
         
         public void StartWarmup(IMode warmupMode)
         {
-            if (_pluginState.WarmupScheduled && !_pluginState.WarmupRunning && !_gameRules.HasMatchStarted)
+            if (_pluginState.Game.WarmupScheduled && !_pluginState.Game.WarmupRunning && !_gameRules.HasMatchStarted)
             {
-                _pluginState.WarmupRunning = true;
+                _pluginState.Game.WarmupRunning = true;
                 Server.ExecuteCommand($"exec {warmupMode.Config}");
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.start.message",  warmupMode.Name));
             }
@@ -95,18 +95,18 @@ namespace GameModeManager.Core
 
         public void EndWarmup()
         {
-           if (_pluginState.WarmupRunning)
+           if (_pluginState.Game.WarmupRunning)
             {
-                Server.ExecuteCommand($"exec {_pluginState.CurrentMode.Config}");
+                Server.ExecuteCommand($"exec {_pluginState.Game.CurrentMode.Config}");
                 Server.ExecuteCommand($"mp_restartgame 1; mp_warmup_end");
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.end.message",  _pluginState.CurrentMode.Name)); 
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.end.message",  _pluginState.Game.CurrentMode.Name)); 
 
-                if (_pluginState.PerMapWarmup)
+                if (_pluginState.Game.PerMapWarmup)
                 {
-                    _pluginState.WarmupScheduled = false;
+                    _pluginState.Game.WarmupScheduled = false;
                 } 
 
-                _pluginState.WarmupRunning = false;
+                _pluginState.Game.WarmupRunning = false;
             }
         }
 
@@ -115,7 +115,7 @@ namespace GameModeManager.Core
         {
             if (PlayerExtensions.ValidPlayerCount(false) == 1)
             {
-                StartWarmup(_pluginState.WarmupMode);
+                StartWarmup(_pluginState.Game.WarmupMode);
             }
             return HookResult.Continue;
         }
@@ -130,9 +130,9 @@ namespace GameModeManager.Core
         {
             if (ServerExtensions.IsServerEmpty())
             {
-                if (_pluginState.WarmupRunning)
+                if (_pluginState.Game.WarmupRunning)
                 {
-                    _pluginState.WarmupRunning = false;
+                    _pluginState.Game.WarmupRunning = false;
                     Server.ExecuteCommand("mp_warmup_end");
                 }
             }

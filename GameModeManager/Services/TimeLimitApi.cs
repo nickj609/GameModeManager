@@ -48,10 +48,10 @@ namespace GameModeManager.Services
 
             // Define class properties
             public int MaxWins => _maxRoundsManager.MaxWins;
-            public float TimeLimit => _pluginState.TimeLimit;
-            public bool Custom => _pluginState.TimeLimitCustom;
-            public bool Enabled => _pluginState.TimeLimitEnabled;
-            public bool Scheduled => _pluginState.TimeLimitScheduled;
+            public float TimeLimit => _pluginState.TimeLimit.Duration;
+            public bool Custom => _pluginState.TimeLimit.CustomLimit;
+            public bool Enabled => _pluginState.TimeLimit.Enabled;
+            public bool Scheduled => _pluginState.TimeLimit.Scheduled;
             public decimal TimePlayed => _timeLimitManager.TimePlayed();
             public int RemainingWins => _maxRoundsManager.RemainingWins;
             public bool UnlimitedTime => _timeLimitManager.UnlimitedTime();

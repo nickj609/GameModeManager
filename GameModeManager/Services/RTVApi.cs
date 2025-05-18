@@ -39,20 +39,20 @@ namespace GameModeManager.Services
             public RTVApiState(PluginState pluginState) => _pluginState = pluginState;
 
             // Define class properties
-            public IMap? NextMap => _pluginState.NextMap;
-            public int Duration => _pluginState.RTVDuration;
-            public bool Enabled => _pluginState.RTVEnabled;
-            public IMode? NextMode => _pluginState.NextMode;
-            public bool EndOfMapVote => _pluginState.EndOfMapVote;
-            public bool IncludeExtend => _pluginState.IncludeExtend;
-            public int KillsBeforeEnd => _pluginState.RTVKillsBeforeEnd;
-            public int RoundsBeforeEnd => _pluginState.RTVRoundsBeforeEnd;
-            public bool EofVoteHappened => _pluginState.EofVoteHappened;
-            public int SecondsBeforeEnd => _pluginState.RTVSecondsBeforeEnd;
-            public bool NominationEnabled => _pluginState.NominationEnabled;
-            public bool EofVoteHappening => _pluginState.EofVoteHappening;
-            public bool ChangeImmediately => _pluginState.ChangeImmediately;
-            public int MaxNominationWinners => _pluginState.MaxNominationWinners;
+            public IMap? NextMap => _pluginState.RTV.NextMap;
+            public int Duration => _pluginState.RTV.Duration;
+            public bool Enabled => _pluginState.RTV.Enabled;
+            public IMode? NextMode => _pluginState.RTV.NextMode;
+            public bool EndOfMapVote => _pluginState.RTV.EndOfMapVote;
+            public bool IncludeExtend => _pluginState.RTV.IncludeExtend;
+            public int KillsBeforeEnd => _pluginState.RTV.KillsBeforeEnd;
+            public int RoundsBeforeEnd => _pluginState.RTV.RoundsBeforeEnd;
+            public bool EofVoteHappened => _pluginState.RTV.EofVoteHappened;
+            public int SecondsBeforeEnd => _pluginState.RTV.SecondsBeforeEnd;
+            public bool NominationEnabled => _pluginState.RTV.NominationEnabled;
+            public bool EofVoteHappening => _pluginState.RTV.EofVoteHappening;
+            public bool ChangeImmediately => _pluginState.RTV.ChangeImmediately;
+            public int MaxNominationWinners => _pluginState.RTV.MaxNominationWinners;
         }
 
         private class RTVApiController : IRTVControl
@@ -73,37 +73,37 @@ namespace GameModeManager.Services
             public void Disable() => _rtvManager.DisableRTV();
             public IRTVControl SetDuration(int duration)
             {
-                _pluginState.RTVDuration = duration;
+                _pluginState.RTV.Duration = duration;
                 return this;
             }
             public IRTVControl SetRoundsBeforeEnd(int rounds)
             {
-                _pluginState.RTVRoundsBeforeEnd = rounds;
+                _pluginState.RTV.RoundsBeforeEnd = rounds;
                 return this;
             }
             public IRTVControl SetKillsBeforeEnd(int kills)
             {
-                _pluginState.RTVKillsBeforeEnd = kills;
+                _pluginState.RTV.KillsBeforeEnd = kills;
                 return this;
             }
             public IRTVControl SetSecondsBeforeEnd(int seconds)
             {
-                _pluginState.RTVSecondsBeforeEnd = seconds;
+                _pluginState.RTV.SecondsBeforeEnd = seconds;
                 return this;
             }
             public IRTVControl SetEndOfMapVote(bool endOfMapVote)
             {
-                _pluginState.EndOfMapVote = endOfMapVote;
+                _pluginState.RTV.EndOfMapVote = endOfMapVote;
                 return this;
             }
             public IRTVControl SetIncludeExtend(bool includeExtend)
             {
-                _pluginState.IncludeExtend = includeExtend;
+                _pluginState.RTV.IncludeExtend = includeExtend;
                 return this;
             }
             public IRTVControl SetChangeImmediately(bool changeImmediately)
             {
-                _pluginState.ChangeImmediately = changeImmediately;
+                _pluginState.RTV.ChangeImmediately = changeImmediately;
                 return this;
             }
         }
@@ -116,19 +116,15 @@ namespace GameModeManager.Services
             // Define class instance
             public RTVApiNomination(PluginState pluginState) => _pluginState = pluginState;
 
-            // Define class properties
-            public bool NominationEnabled => _pluginState.NominationEnabled;
-            public int MaxNominationWinners => _pluginState.MaxNominationWinners;
-
             // Define class methods
             public IRTVNomination SetNominationEnabled(bool nominationEnabled)
             {
-                _pluginState.NominationEnabled = nominationEnabled;
+                _pluginState.RTV.NominationEnabled = nominationEnabled;
                 return this;
             }
             public IRTVNomination SetMaxNominationWinners(int maxNominationWinners)
             {
-                _pluginState.MaxNominationWinners = maxNominationWinners;
+                _pluginState.RTV.MaxNominationWinners = maxNominationWinners;
                 return this;
             }
         }

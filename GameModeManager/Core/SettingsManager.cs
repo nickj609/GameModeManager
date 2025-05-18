@@ -1,5 +1,4 @@
 // Included libraries
-using GameModeManager.Menus;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
@@ -15,14 +14,12 @@ namespace GameModeManager.Core
         private PluginState _pluginState;
         private Config _config = new Config();
         private ILogger<SettingsManager> _logger;
-        private readonly SettingMenus _settingMenus;
 
         // Define class instance
-        public SettingsManager(PluginState pluginState, ILogger<SettingsManager> logger, SettingMenus settingMenus)
+        public SettingsManager(PluginState pluginState, ILogger<SettingsManager> logger)
         {
             _logger = logger;
             _pluginState = pluginState;
-            _settingMenus = settingMenus;
         }
 
         // Load config
@@ -36,10 +33,10 @@ namespace GameModeManager.Core
         { 
             if (_config.Settings.Enabled)
             {
-                if (Directory.Exists(PluginState.SettingsDirectory))
+                if (Directory.Exists(PluginState.GameController.SettingsDirectory))
                 {
                     // Get all .cfg files
-                    string[] _cfgFiles = Directory.GetFiles(PluginState.SettingsDirectory, "*.cfg");
+                    string[] _cfgFiles = Directory.GetFiles(PluginState.GameController.SettingsDirectory, "*.cfg");
 
                     if (_cfgFiles.Length != 0)
                     {
@@ -55,13 +52,13 @@ namespace GameModeManager.Core
                             if (_match.Success) 
                             {
                                 _name = _name.Substring(_match.Length);
-                                var _setting = _pluginState.Settings.FirstOrDefault(s => s.Name.Equals(_name, StringComparison.OrdinalIgnoreCase));
+                                var _setting = _pluginState.Game.Settings.FirstOrDefault(s => s.Name.Equals(_name, StringComparison.OrdinalIgnoreCase));
                                 
                                 // Create a new setting if not found
                                 if (_setting == null)
                                 {
                                     _setting = new Setting(_name);
-                                    _pluginState.Settings.Add(_setting);
+                                    _pluginState.Game.Settings.Add(_setting);
                                 }
 
                                 // Assign config path based on prefix
@@ -90,8 +87,6 @@ namespace GameModeManager.Core
                     _logger.LogError("Settings folder not found.");
                 }
             }
-            // Create settings menus
-            _settingMenus.Load();
         }
     }
 }

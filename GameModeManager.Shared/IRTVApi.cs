@@ -38,8 +38,6 @@ public interface IRTVControl
 
 public interface IRTVNomination
 {
-    bool NominationEnabled { get; }
-    int MaxNominationWinners { get; }
     IRTVNomination SetNominationEnabled(bool nominationEnabled);
     IRTVNomination SetMaxNominationWinners(int maxNominationWinners);
 }

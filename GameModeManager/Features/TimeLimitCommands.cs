@@ -47,7 +47,7 @@ namespace GameModeManager.Features
             }
             if (_config.Commands.TimeLeft)
             {
-                _pluginState.PlayerCommands.Add("!timeleft");
+                _pluginState.Game.PlayerCommands.Add("!timeleft");
                 plugin.AddCommand("timeleft", "Prints in the chat the timeleft in the current map", OnTimeLeftCommand);
             }
         }
@@ -66,12 +66,12 @@ namespace GameModeManager.Features
             }
 
             // Check if timelimit is already enabled/disabled
-            if (enableRequested && _pluginState.TimeLimitEnabled)
+            if (enableRequested && _pluginState.TimeLimit.Enabled)
             {
                 command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.enabled-error")); // Already enabled
                 return;
             }
-            if (!enableRequested && !_pluginState.TimeLimitEnabled)
+            if (!enableRequested && !_pluginState.TimeLimit.Enabled)
             {
                 command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.disabled-error")); // Already disabled
                 return;
@@ -123,7 +123,8 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnTimeLeftCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player == null) return;
+            if (player == null)
+                return;
 
             player.PrintToChat(_timeLeftLocalizer.LocalizeWithPrefix(_timeLimitManager.GetTimeLeftMessage()));
         }

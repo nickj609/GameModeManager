@@ -1,6 +1,5 @@
 ﻿// Included libraries
 using GameModeManager.Core;
-using GameModeManager.Menus;
 using GameModeManager.Shared;
 using GameModeManager.Services;
 using CounterStrikeSharp.API.Core;
@@ -35,28 +34,17 @@ namespace GameModeManager
         
         // Define class dependencies
         private readonly RTVApi _rtvApi;
-        private readonly MapMenus _mapMenus;
-        private readonly ModeMenus _modeMenus;
-        private readonly PlayerMenu _playerMenu;
         private readonly GameModeApi _gameModeApi;
         private readonly TimeLimitApi _timeLimitApi;
-        private readonly SettingMenus _settingMenus;
-        private readonly NominateMenus _nominateMenus;
         private readonly CustomVoteManager _customVoteManager;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Define class instance
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager, CustomVoteManager customVoteManager, PlayerMenu playerMenu,
-        MapMenus mapMenus, SettingMenus settingMenus, ModeMenus modeMenus, NominateMenus nominateMenus, GameModeApi gameModeApi, TimeLimitApi timeLimitApi, RTVApi rtvApi)
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager, CustomVoteManager customVoteManager, GameModeApi gameModeApi, TimeLimitApi timeLimitApi, RTVApi rtvApi)
         {
             _rtvApi = rtvApi;
-            _mapMenus = mapMenus;
-            _modeMenus = modeMenus;
-            _playerMenu = playerMenu;
             _gameModeApi = gameModeApi;
             _timeLimitApi = timeLimitApi;
-            _settingMenus = settingMenus;
-            _nominateMenus = nominateMenus;
             _customVoteManager = customVoteManager;
             _dependencyManager = dependencyManager;
         }
@@ -114,16 +102,11 @@ namespace GameModeManager
                 try
                 {
                     if (MenuFactory.WasdMenuManager.Get() is null){}
-                    _mapMenus.LoadWASDMenus();
-                    _playerMenu.LoadWASDMenu(); 
-                    _modeMenus.LoadWASDMenus();         
-                    _settingMenus.LoadWASDMenu();
-                    _nominateMenus.LoadWASDMenu();
                     return;
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogWarning("WASDSharedAPI plugin not found. WASD menus will not be work.");
+                    Logger.LogWarning("WASDSharedAPI plugin not found. WASD menus will not work.");
                     Logger.LogDebug(ex.Message);
                     return;
                 }
