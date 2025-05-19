@@ -50,6 +50,14 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 
 - `css_gamemode <mode>` - Sets the current mode.
 
+- `css_endwarmup` - Ends the custom warmup mode.
+
+- `css_startwarmup <mode>` - Starts the custom warmup mode.
+
+- `css_warmupmode <mode>` - Schedules and sets the warmup mode.
+
+- `css_timelimit <true|false> <seconds>` - Enables or disables time limit.
+
 - `css_rtv_extend <true|false>` - Enables or disables extending map.
 
 - `css_rtv_enabled <true|false>` - Enables or disables RTV.
@@ -66,22 +74,10 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 
 - `css_rtv_start_vote <duration> <true|false>` - Starts rtv vote, where true or false determines if map or mode changes immediately. 
 
-- `css_warmupmode <mode>` - Schedules and sets the warmup mode.
-
-- `css_endwarmup` - Ends the custom warmup mode.
-
-- `css_startwarmup <mode>` - Starts the custom warmup mode.
-
-- `css_timelimit <true|false> optional: <seconds>` - Enables or disables time limit.
-
 </details>
 	
 <details>
 <summary>Admin Commands</summary>
-
-- `!timelimit <true|false|> optional: <seconds>` - Sets the time limit for the current map.
-
-   ![Screenshot 2024-09-24 171240](https://github.com/user-attachments/assets/1d91ad0e-cf4e-4c87-b221-b36806c0ffe5) 
 
 - `!maps` - Displays an admin menu for changing the map. 
 
@@ -89,28 +85,33 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 
    ![Screenshot 2024-10-20 205255](https://github.com/user-attachments/assets/3bf9e64d-bd2c-4a9c-8075-7c288852fe83)
    ![Screenshot 2024-06-15 215052](https://github.com/nickj609/GameModeManager/assets/32173425/a3d701c6-bba5-446f-90b4-fe849b901a84)
-
-- `!map <map name> <workshop id>` - Changes the map to the map specified.
-  
-   > _The workshop ID is *optional* and only required for maps that aren't explicitly set for a given map group._
    
 - `!modes` - Displays an admin menu for changing the game mode.
 
    ![Screenshot 2024-10-20 205327](https://github.com/user-attachments/assets/706ab1f9-74fa-4ffe-a4e4-925fdcfd7716)
    ![image](https://github.com/nickj609/GameModeManager/assets/32173425/3f517755-d3cf-48fd-a331-d0332cfd48b3)
 
-- `!mode <mode name>` - Changes the game mode to the mode specified.
-  
-   > _For example, for **mg_surf** you would do **!mode surf**._
-
 - `!settings` - Displays an admin menu for enabling or disabling custom game settings.
 
    ![Screenshot 2024-10-20 205406](https://github.com/user-attachments/assets/ebb042bf-d423-4047-95f8-33a762c5a9da)
    ![Screenshot 2024-06-15 215321](https://github.com/nickj609/GameModeManager/assets/32173425/882da0f6-36f4-4bc1-b70b-096535526a78)
 
+- `!map <map name> <workshop id>` - Changes the map to the map specified.
+  
+   > _The workshop ID is *optional* and only required for maps that aren't explicitly set for a given map group._
+
+- `!mode <mode name>` - Changes the game mode to the mode specified.
+  
+   > _For example, for **mg_surf** you would do **!mode surf**._
+
+
 - `!setting <enable|disable> <setting name>` - Enables or disables a custom game setting.
   
    > _For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**._
+
+- `!timelimit <true|false|> <seconds>` - Sets the time limit for the current map.
+
+   ![Screenshot 2024-09-24 171240](https://github.com/user-attachments/assets/1d91ad0e-cf4e-4c87-b221-b36806c0ffe5) 
 
 </details>
 
@@ -162,12 +163,21 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 
 </details>
 
+# Getting Started
+> [!IMPORTANT]
+> If this is your first time setting up a modded server, I highly suggest checking out the [CS2-Modded-Server Repo by Kus](https://github.com/kus/cs2-modded-server). It's a great resource for understanding how to set up custom game modes, which aren't included with this plugin. Additionally, it includes a preconfigured version of this plugin for beginners.
+
+To get started, make sure all of the following prerequisites are met:
+
+- All of your mode config files are located in `/csgo/cfg/`.
+- Both [Metamode:Source](https://github.com/alliedmodders/metamod-source/) and [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) are installed.
+- Your `gamemodes_server.txt` or custom map group file is in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and contains a list of map groups.
+
 ## Installation
-1. Install [Metamod:Source](https://github.com/alliedmodders/metamod-source/) and [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp).
-2. Copy `addons` and `cfg` folders to `/csgo/`.
-3. Make sure your `gamemodes_server.txt` or custom map group file is in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and contains a list of map groups.
-4. Update each game mode configuration file (i.e. comp.cfg) to include `css_gamemode <mode>`.
-5. After the first run, update the configuration file `GameModeManager.json`.
+1. Download the [Latest Release](https://github.com/nickj609/GameModeManager/releases/latest). 
+2. Copy the `addons` and `cfg` folders to `/csgo/`.
+3. Update each game mode configuration file (i.e. comp.cfg) to include `css_gamemode <mode>`.
+4. After the first run, update the configuration file `GameModeManager.json`.
 
 For more information about the configuration of this plugin and the use of the [Shared API](https://github.com/nickj609/GameModeManager/wiki/Shared-API), see our [Wiki](https://github.com/nickj609/GameModeManager/wiki).
 
