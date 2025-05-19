@@ -43,7 +43,7 @@ namespace GameModeManager.Features
         {
             if (_config.Commands.TimeLimit)
             {
-                plugin.AddCommand("timelimit", "Forces rotation on time limit end. Usage: timelimit <true|false> [seconds]", OnTimeLimitCommand);
+                plugin.AddCommand("css_timelimit", "Forces rotation on time limit end. Usage: timelimit <true|false> [seconds]", OnTimeLimitCommand);
             }
             if (_config.Commands.TimeLeft)
             {
