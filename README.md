@@ -47,127 +47,80 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 ## Commands
 <details>
 <summary>Server Commands</summary>
+	
+<br>
 
-- `css_gamemode <mode>` - Sets the current mode.
-
-- `css_rtv_extend <true|false>` - Enables or disables extending map.
-
-- `css_rtv_enabled <true|false>` - Enables or disables RTV.
-
-- `css_rtv_duration <seconds>` - Sets the RTV vote duration.
-
-- `css_rtv_max_extends <extends>` - Sets the max number of map extends.
-
-- `css_rtv_end_of_map_vote <true|false>` - Enables or disables end of map vote.
-
-- `css_rtv_rounds_before_end <rounds>` - Sets the rounds before the end of map vote.
-
-- `css_rtv_seconds_before_end <seconds>` - Sets the seconds before the end of map vote.
-
-- `css_rtv_start_vote <duration> <true|false>` - Starts rtv vote, where true or false determines if map or mode changes immediately. 
-
-- `css_warmupmode <mode>` - Schedules and sets the warmup mode.
-
-- `css_endwarmup` - Ends the custom warmup mode.
-
-- `css_startwarmup <mode>` - Starts the custom warmup mode.
-
-- `css_timelimit <true|false> optional: <seconds>` - Enables or disables time limit.
+| Command                                       | Description                                                                                              |
+| :-------------------------------------------- | :------------------------------------------------------------------------------------------------------- |
+| css_gamemode <mode>                           | Sets the current mode.                                                                                   |
+| css_warmupmode <mode>                         | Schedules and sets the game mode to be used during the warmup period.                                    |
+| css_endwarmup                                 | Ends the custom warmup mode, transitioning to the scheduled or default game mode.                        |
+| css_startwarmup <mode>                        | Immediately starts a custom warmup mode with the specified mode.                                         |
+| css_timelimit <true\|false> <seconds>         | Enables or disables a time limit for the map. Optionally, you can specify the time limit in seconds.     |
+| css_rtv_extend <true\|false>                  | Enables or disables extending the current map.                                                           |
+| css_rtv_enabled <true\|false>                 | Enables or disables the Rock the Vote (RTV) system.                                                      |
+| css_rtv_duration <seconds>                    | Sets the duration of an RTV vote in seconds.                                                             |
+| css_rtv_max_extends <extends>                 | Sets the maximum number of times a map can be extended via RTV.                                          |
+| css_rtv_end_of_map_vote <true\|false>         | Enables or disables a vote to change the map at the end of the current map.                              |
+| css_rtv_rounds_before_end <rounds>            | Sets the number of rounds remaining before an end-of-map vote can be initiated.                          |
+| css_rtv_seconds_before_end <seconds>          | Sets the number of seconds remaining before an end-of-map vote can be initiated.                         |
+| css_rtv_start_vote <duration> <true\|false>   | Starts an RTV vote with a specified duration. You can immediately change the map or game mode.           |
 
 </details>
 	
 <details>
 <summary>Admin Commands</summary>
 
-- `!timelimit <true|false|> optional: <seconds>` - Sets the time limit for the current map.
+<br>
 
-   ![Screenshot 2024-09-24 171240](https://github.com/user-attachments/assets/1d91ad0e-cf4e-4c87-b221-b36806c0ffe5) 
-
-- `!maps` - Displays an admin menu for changing the map. 
-
-   > _Depending on map mode, it shows maps for the current game mode or all modes._
-
-   ![Screenshot 2024-10-20 205255](https://github.com/user-attachments/assets/3bf9e64d-bd2c-4a9c-8075-7c288852fe83)
-   ![Screenshot 2024-06-15 215052](https://github.com/nickj609/GameModeManager/assets/32173425/a3d701c6-bba5-446f-90b4-fe849b901a84)
-
-- `!map <map name> <workshop id>` - Changes the map to the map specified.
-  
-   > _The workshop ID is *optional* and only required for maps that aren't explicitly set for a given map group._
-   
-- `!modes` - Displays an admin menu for changing the game mode.
-
-   ![Screenshot 2024-10-20 205327](https://github.com/user-attachments/assets/706ab1f9-74fa-4ffe-a4e4-925fdcfd7716)
-   ![image](https://github.com/nickj609/GameModeManager/assets/32173425/3f517755-d3cf-48fd-a331-d0332cfd48b3)
-
-- `!mode <mode name>` - Changes the game mode to the mode specified.
-  
-   > _For example, for **mg_surf** you would do **!mode surf**._
-
-- `!settings` - Displays an admin menu for enabling or disabling custom game settings.
-
-   ![Screenshot 2024-10-20 205406](https://github.com/user-attachments/assets/ebb042bf-d423-4047-95f8-33a762c5a9da)
-   ![Screenshot 2024-06-15 215321](https://github.com/nickj609/GameModeManager/assets/32173425/882da0f6-36f4-4bc1-b70b-096535526a78)
-
-- `!setting <enable|disable> <setting name>` - Enables or disables a custom game setting.
-  
-   > _For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**._
+| Command                                   | Description                                                                                                            |
+| :---------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| !maps                                     | Displays an admin menu for changing the map.                                                                           |
+| !modes                                    | Displays an admin menu for changing the game mode.                                                                     |
+| !settings                                 | Displays an admin menu for enabling or disabling custom game settings.                                                 |   
+| !mode <mode name>                         | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**.                 |    
+| !map <map name> <workshop id>             | Changes the map to the map specified. The workshop ID is optional.                                                     |                                                                                                                                         
+| !timelimit <true\|false> <seconds>        | Sets the time limit for the current map.                                                                               |
+| !setting <enable\|disable> <setting name> | Enables or disables a custom game setting. For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**. |
 
 </details>
 
 <details>
 <summary>Player Commands</summary>
 
-- `!rtv` - Rocks the vote!
+<br>
 
-  ![Untitled3](https://github.com/user-attachments/assets/e2515257-517a-48c9-b17c-071a8c14fc98)
-
-
-- `!nominate <map|mode>` - Nominates a map or game mode for the RTV vote.
-
-   ![Untitled](https://github.com/user-attachments/assets/7cf31114-d36f-44bb-bc9a-ffea6fbebd77)
-
-- `!game` - Displays a **dynamic** menu of all player commands.
-
-   ![image](https://github.com/user-attachments/assets/5f45876d-7c4b-45a7-95fe-fc96f0dae57f)
-
-- `!nextmap` - Displays the next map. 
-
-- `!nextmode` - Displays the next mode. 
-
-- `!currentmap` - Displays the current map. 
-
-   ![Screenshot 2024-06-15 202240](https://github.com/nickj609/GameModeManager/assets/32173425/1d9f9e12-2320-4ab8-a021-c4a5477e533a)
-
-- `!changemap` - Displays a **dynamic** menu of all per-map votes that can be created.
-
-  > _Depending on map mode, it shows maps for the current game mode or all modes._
-
-   ![Screenshot 2024-10-20 205255](https://github.com/user-attachments/assets/5f5ba46d-72b6-4873-b5b2-f367155543c6)
-
-- `!timeleft` - Displays the timeleft in the current map.
-
-   ![Screenshot 2024-09-24 171203](https://github.com/user-attachments/assets/a5aabd36-1a59-4a0d-a7aa-42d40ee1ea4f)
-
-- `!currentmode` - Displays the current game mode.
-
-   ![Screenshot 2024-06-15 202302](https://github.com/nickj609/GameModeManager/assets/32173425/b546851b-6e2d-4e3a-a012-be8b4223a8cb)
-
-- `!changemode` - Displays a menu of all per-mode votes that can be created.
-
-   ![Screenshot 2024-10-20 205327](https://github.com/user-attachments/assets/706ab1f9-74fa-4ffe-a4e4-925fdcfd7716)
-
-- `!changesetting` - Displays a menu of all per-setting votes that can be created.
-
-   ![Screenshot 2024-10-20 215225](https://github.com/user-attachments/assets/93769872-a4d2-4bee-9470-bffca7796136)
+| Command        | Description                                                              |
+| :------------- | :----------------------------------------------------------------------- |
+| !rtv           | Rocks the vote!                                                          |
+| !game          | Displays a **dynamic** menu of all player commands.                      |
+| !nominate      | Nominates a map or game mode for the RTV vote.                           |
+| !nextmap       | Displays the next map.                                                   |
+| !nextmode      | Displays the next mode.                                                  |
+| !timeleft      | Displays the time left in the current map.                               |
+| !currentmap    | Displays the current map.                                                |
+| !changemap     | Displays a **dynamic** menu of all per-map votes that can be created.    |
+| !currentmode   | Displays the current game mode.                                          |
+| !changemode    | Displays a menu of all per-mode votes that can be created.               |
+| !changesetting | Displays a menu of all per-setting votes that can be created.            |
 
 </details>
 
+# Getting Started
+> [!IMPORTANT]
+> If this is your first time setting up a modded server, I highly suggest checking out the [CS2-Modded-Server Repo by Kus](https://github.com/kus/cs2-modded-server). It's a great resource for understanding how to set up custom game modes, which aren't included with this plugin. Additionally, it includes a preconfigured version of this plugin for beginners.
+
+To get started, make sure all of the following prerequisites are met:
+
+- All of your mode config files are located in `/csgo/cfg/`.
+- Both [Metamode:Source](https://github.com/alliedmodders/metamod-source/) and [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) are installed.
+- Your `gamemodes_server.txt` or custom map group file is in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and contains a list of map groups.
+
 ## Installation
-1. Install [Metamod:Source](https://github.com/alliedmodders/metamod-source/) and [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp).
-2. Copy `addons` and `cfg` folders to `/csgo/`.
-3. Make sure your `gamemodes_server.txt` or custom map group file is in [VDF Format](https://developer.valvesoftware.com/wiki/VDF) and contains a list of map groups.
-4. Update each game mode configuration file (i.e. comp.cfg) to include `css_gamemode <mode>`.
-5. After the first run, update the configuration file `GameModeManager.json`.
+1. Download the [Latest Release](https://github.com/nickj609/GameModeManager/releases/latest). 
+2. Copy the `addons` and `cfg` folders to `/csgo/`.
+3. Update each game mode configuration file (i.e. comp.cfg) to include `css_gamemode <mode>`.
+4. After the first run, update the configuration file `GameModeManager.json`.
 
 For more information about the configuration of this plugin and the use of the [Shared API](https://github.com/nickj609/GameModeManager/wiki/Shared-API), see our [Wiki](https://github.com/nickj609/GameModeManager/wiki).
 
