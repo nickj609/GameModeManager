@@ -54,10 +54,7 @@ namespace GameModeManager.Core
                 }
                 else if (!_pluginState.TimeLimit.CustomLimit)
                 {
-                     if (_gameRules.GameStartTime > 0)
-                        return (decimal)(Server.CurrentTime - _gameRules.GameStartTime);
-                     else
-                        return 0; 
+                    return (decimal)(Server.CurrentTime - _gameRules.GameStartTime);
                 }
                 else
                 {
