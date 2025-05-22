@@ -17,18 +17,17 @@ namespace GameModeManager.Features
     public class NominateCommands : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
+        private Plugin? _plugin;
         private GameRules _gameRules;
         private VoteManager _voteManager;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
-        private NominateMenus _nominateMenus;
         private Config _config = new Config();
         private ILogger<ModeCommands> _logger;
         private NominateManager _nominateManager;
         private MaxRoundsManager _maxRoundsManager;
         private TimeLimitManager _timeLimitManager;
         private VoteOptionManager _voteOptionManager;
-        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
         public NominateCommands(PluginState pluginState, IStringLocalizer iLocalizer, ILogger<ModeCommands> logger, NominateManager nominateManager, GameRules gameRules, VoteOptionManager voteOptionManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteManager voteManager)
@@ -42,7 +41,6 @@ namespace GameModeManager.Features
             _timeLimitManager = timeLimitManager;
             _voteOptionManager = voteOptionManager;
             _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
-            _nominateMenus = new NominateMenus(pluginState, _localizer, voteOptionManager, nominateManager, _config);
         }
 
         // Load config
@@ -54,6 +52,8 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
+            _plugin = plugin;
+
             if (_pluginState.RTV.Enabled)
             {
                 if (_pluginState.RTV.NominationEnabled)
@@ -68,6 +68,9 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnNominateCommand(CCSPlayerController? player, CommandInfo command)
         {
+            MenuFactory menuFactory = new MenuFactory(_plugin);
+            NominateMenus nominateMenus = new NominateMenus(_plugin, _pluginState, _localizer, _voteOptionManager, _nominateManager, _config);
+
             if (player != null)
             {
                 // Check if RTV vote happened already
@@ -123,43 +126,43 @@ namespace GameModeManager.Features
                 string option = command.GetArg(1);
 
                 if (string.IsNullOrEmpty(option))
-                {  
+                {
                     if (_config.RTV.IncludeModes)
                     {
                         if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
                         {
-                            _nominateMenus.WasdMenus.Load();
-                            IWasdMenu? menu = _nominateMenus.WasdMenus.MainMenu;
+                            nominateMenus.WasdMenus.Load();
+                            IWasdMenu? menu = nominateMenus.WasdMenus.MainMenu;
 
                             if (menu != null)
                             {
-                                _menuFactory.WasdMenus.OpenMenu(player, menu);
+                                menuFactory.WasdMenus.OpenMenu(player, menu);
                             }
                         }
                         else
                         {
-                            _nominateMenus.BaseMenus.Load();
-                            BaseMenu menu = _nominateMenus.BaseMenus.MainMenu;
-                            _menuFactory.BaseMenus.OpenMenu(menu, player);
+                            nominateMenus.BaseMenus.Load();
+                            BaseMenu menu = nominateMenus.BaseMenus.MainMenu;
+                            menuFactory.BaseMenus.OpenMenu(menu, player);
                         }
                     }
                     else
                     {
                         if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
                         {
-                            _nominateMenus.WasdMenus.Load();
-                            IWasdMenu? menu = _nominateMenus.WasdMenus.MapMenu;
+                            nominateMenus.WasdMenus.Load();
+                            IWasdMenu? menu = nominateMenus.WasdMenus.MapMenu;
 
                             if (menu != null)
                             {
-                                _menuFactory.WasdMenus.OpenMenu(player, menu);
+                                menuFactory.WasdMenus.OpenMenu(player, menu);
                             }
                         }
                         else
                         {
-                            _nominateMenus.BaseMenus.Load();
-                            BaseMenu menu = _nominateMenus.BaseMenus.MapMenu;
-                            _menuFactory.BaseMenus.OpenMenu(menu, player);
+                            nominateMenus.BaseMenus.Load();
+                            BaseMenu menu = nominateMenus.BaseMenus.MapMenu;
+                            menuFactory.BaseMenus.OpenMenu(menu, player);
                         }
                     }
                 }

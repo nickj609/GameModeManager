@@ -17,19 +17,18 @@ namespace GameModeManager.Menus
         public BaseMenuController BaseMenus;
 
         // Define class instance
-        public MapMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
+        public MapMenus(Plugin? plugin, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
         {
-            WasdMenus = new WasdMenuController(config, pluginState, localizer, serverManager);
-            BaseMenus = new BaseMenuController(config, pluginState, localizer, serverManager);
+            WasdMenus = new WasdMenuController(new MenuFactory(plugin), config, pluginState, localizer, serverManager);
+            BaseMenus = new BaseMenuController(new MenuFactory(plugin), config, pluginState, localizer, serverManager);
         }
 
         // Define WasdMenuController class
-        public class WasdMenuController(Config config, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
+        public class WasdMenuController(MenuFactory menuFactory, Config config, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
         {
             // Define class properties
             public IWasdMenu? MainMenu;
             public IWasdMenu? VoteMenu;
-            private MenuFactory menuFactory = new MenuFactory();
 
             // Define load method  
             public void Load()
@@ -81,7 +80,6 @@ namespace GameModeManager.Menus
 
                     foreach (IMap _map in pluginState.Game.CurrentMode.Maps)
                     {
-                        // Add menu option
                         VoteMenu?.Add(_map.DisplayName, (player, option) =>
                         {
                             menuFactory.WasdMenus.CloseMenu(player);
@@ -93,12 +91,11 @@ namespace GameModeManager.Menus
         }
 
         // Define BaseMenuController class
-        public class BaseMenuController(Config config, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
+        public class BaseMenuController(MenuFactory menuFactory, Config config, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
         {
             // Define class properties
-            private MenuFactory menuFactory = new MenuFactory();
-            public BaseMenu MainMenu = new ChatMenu(localizer.Localize("maps.menu-title"));
-            public BaseMenu VoteMenu = new ChatMenu(localizer.Localize("maps.menu-title"));
+            public BaseMenu MainMenu = new ChatMenu("Map List");
+            public BaseMenu VoteMenu = new ChatMenu("Map List");
 
             // Define load method
             public void Load()

@@ -13,11 +13,11 @@ namespace GameModeManager.Menus
     {
 
         // Define class instance
-        public PlayerMenu(PluginState pluginState, StringLocalizer localizer, TimeLimitManager timeLimitManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager,
+        public PlayerMenu(Plugin? plugin, PluginState pluginState, StringLocalizer localizer, TimeLimitManager timeLimitManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager,
         AsyncVoteManager asyncVoteManager, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, NominateMenus nominateMenus, Config config)
         {
-            BaseMenus = new BaseMenuController(pluginState, localizer, timeLimitManager, gameRules, voteManager, maxRoundsManager, asyncVoteManager, mapMenus, modeMenus, settingMenus, nominateMenus, config);
-            WasdMenus = new WasdMenuController(pluginState, localizer, timeLimitManager, gameRules, voteManager, maxRoundsManager, asyncVoteManager, mapMenus, modeMenus, settingMenus, nominateMenus, config);
+            BaseMenus = new BaseMenuController(new MenuFactory(plugin), pluginState, localizer, timeLimitManager, gameRules, voteManager, maxRoundsManager, asyncVoteManager, mapMenus, modeMenus, settingMenus, nominateMenus, config);
+            WasdMenus = new WasdMenuController(new MenuFactory(plugin), pluginState, localizer, timeLimitManager, gameRules, voteManager, maxRoundsManager, asyncVoteManager, mapMenus, modeMenus, settingMenus, nominateMenus, config);
         }
 
         // Define class properties
@@ -25,11 +25,10 @@ namespace GameModeManager.Menus
         public WasdMenuController WasdMenus;
 
         // Define BaseMenuController class
-        public class BaseMenuController(PluginState pluginState, StringLocalizer localizer, TimeLimitManager timeLimitManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager,
+        public class BaseMenuController(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, TimeLimitManager timeLimitManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager,
         AsyncVoteManager asyncVoteManager, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, NominateMenus nominateMenus, Config config)
         {
             // Define class properties
-            private MenuFactory menuFactory = new MenuFactory();
             public BaseMenu MainMenu = new ChatMenu("Command List");
 
             // Define load method
@@ -222,16 +221,14 @@ namespace GameModeManager.Menus
                     }
                 }
             }
-
         }
 
         // Define WasdMenuController class
-        public class WasdMenuController(PluginState pluginState, StringLocalizer localizer, TimeLimitManager timeLimitManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager,
+        public class WasdMenuController(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, TimeLimitManager timeLimitManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager,
         AsyncVoteManager asyncVoteManager, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, NominateMenus nominateMenus, Config config)
         {
             // Define class properties
             public IWasdMenu? MainMenu;
-            private MenuFactory menuFactory = new MenuFactory();
 
             // Define load method
             public void Load()

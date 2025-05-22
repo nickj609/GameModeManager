@@ -15,20 +15,19 @@ namespace GameModeManager.Menus
         public BaseMenuController BaseMenus;
 
         // Define class instance
-        public NominateMenus(PluginState pluginState, StringLocalizer localizer, VoteOptionManager voteOptionManager, NominateManager nominateManager, Config config)
+        public NominateMenus(Plugin? plugin, PluginState pluginState, StringLocalizer localizer, VoteOptionManager voteOptionManager, NominateManager nominateManager, Config config)
         {
-            WasdMenus = new WasdMenuController(pluginState, localizer, nominateManager, voteOptionManager, config);
-            BaseMenus = new BaseMenuController(pluginState, localizer, nominateManager, voteOptionManager, config);
+            WasdMenus = new WasdMenuController(new MenuFactory(plugin), pluginState, localizer, nominateManager, voteOptionManager, config);
+            BaseMenus = new BaseMenuController(new MenuFactory(plugin), pluginState, localizer, nominateManager, voteOptionManager, config);
         }
 
         // Define WasdMenuController class
-        public class WasdMenuController(PluginState pluginState, StringLocalizer localizer, NominateManager nominateManager, VoteOptionManager voteOptionManager, Config config)
+        public class WasdMenuController(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, NominateManager nominateManager, VoteOptionManager voteOptionManager, Config config)
         {
             // Define class properties
             public IWasdMenu? MainMenu;
             public IWasdMenu? MapMenu;
             public IWasdMenu? ModeMenu;
-            private MenuFactory menuFactory = new MenuFactory();
 
             // Define load method
             public void Load()
@@ -93,10 +92,9 @@ namespace GameModeManager.Menus
         }
 
         // Define BaseMenuController class
-        public class BaseMenuController(PluginState pluginState, StringLocalizer localizer, NominateManager nominateManager, VoteOptionManager voteOptionManager, Config config)
+        public class BaseMenuController(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, NominateManager nominateManager, VoteOptionManager voteOptionManager, Config config)
         {
             // Define class properties
-            private MenuFactory menuFactory = new MenuFactory();
             public BaseMenu MainMenu = new ChatMenu("Nominations");
             public BaseMenu MapMenu = new ChatMenu("Nominations");
             public BaseMenu ModeMenu = new ChatMenu("Nominations");

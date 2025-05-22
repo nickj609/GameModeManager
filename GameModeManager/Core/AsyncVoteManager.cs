@@ -17,7 +17,7 @@ namespace GameModeManager.Features
     public class AsyncVoteManager : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private RTVMenus _rtvMenus;
+        private Plugin? _plugin;
         private GameRules _gameRules;
         private PluginState _pluginState;
         private VoteManager _voteManager;
@@ -26,7 +26,6 @@ namespace GameModeManager.Features
         private MaxRoundsManager _maxRoundsManager;
         private TimeLimitManager _timeLimitManager;
         private VoteOptionManager _voteOptionManager;
-        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
         public AsyncVoteManager(PluginState pluginState, IStringLocalizer iLocalizer, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManager)
@@ -38,7 +37,6 @@ namespace GameModeManager.Features
             _timeLimitManager = timeLimitManager;
             _voteOptionManager = voteOptionManager;
             _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
-            _rtvMenus = new RTVMenus(pluginState, _localizer, voteManager, _config);
         }
 
         // Define class properties
@@ -56,10 +54,16 @@ namespace GameModeManager.Features
             VotePercentage = _config.RTV.VotePercentage / 100F;
         }
 
+        // Define on load behavior
+        public void OnLoad(Plugin plugin)
+        {
+            _plugin = plugin;
+        }
+
         // Define on map start behavior 
         public void OnMapStart(string _mapName)
         {
-            if(_pluginState.RTV.Enabled)
+            if (_pluginState.RTV.Enabled)
             {
                 Votes.Clear();
                 VotesAlreadyReached = false;
@@ -109,7 +113,10 @@ namespace GameModeManager.Features
 
         public void StartVote(VoteResult? result, CCSPlayerController? player)
         {
-            if(player?.PlayerName != null && result?.VoteCount != null)
+            MenuFactory menuFactory = new MenuFactory(_plugin);
+            RTVMenus rtvMenus = new RTVMenus(_plugin, _pluginState, _localizer, _voteManager, _config);
+
+            if (player?.PlayerName != null && result?.VoteCount != null)
             {
                 Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("rtv.rocked-the-vote", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.votes-reached"));
@@ -124,12 +131,12 @@ namespace GameModeManager.Features
             {
                 foreach (var validPlayer in PlayerExtensions.ValidPlayers())
                 {
-                    _rtvMenus.WasdMenus.Load(_voteOptionManager.ScrambleOptions());
-                    IWasdMenu? menu = _rtvMenus.WasdMenus.MainMenu;
+                    rtvMenus.WasdMenus.Load(_voteOptionManager.ScrambleOptions());
+                    IWasdMenu? menu = rtvMenus.WasdMenus.MainMenu;
 
                     if (menu != null)
                     {
-                        _menuFactory.WasdMenus.OpenMenu(validPlayer, menu);
+                        menuFactory.WasdMenus.OpenMenu(validPlayer, menu);
                     }
                 }
             }
@@ -137,12 +144,12 @@ namespace GameModeManager.Features
             {
                 foreach (var validPlayer in PlayerExtensions.ValidPlayers())
                 {
-                    _rtvMenus.BaseMenus.Load(_voteOptionManager.ScrambleOptions());
-                    BaseMenu menu = _rtvMenus.BaseMenus.MainMenu;
+                    rtvMenus.BaseMenus.Load(_voteOptionManager.ScrambleOptions());
+                    BaseMenu menu = rtvMenus.BaseMenus.MainMenu;
 
                     if (menu != null)
                     {
-                        _menuFactory.BaseMenus.OpenMenu(menu, validPlayer);
+                        menuFactory.BaseMenus.OpenMenu(menu, validPlayer);
                     }
                 }
             }

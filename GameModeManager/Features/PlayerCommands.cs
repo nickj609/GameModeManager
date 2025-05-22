@@ -1,4 +1,5 @@
 // Included libraries
+using GameModeManager.Core;
 using GameModeManager.Menus;
 using GameModeManager.Contracts;
 using WASDMenuAPI.Shared.Models;
@@ -7,7 +8,6 @@ using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Commands;
-using GameModeManager.Core;
 
 // Declare namespace
 namespace GameModeManager.Features
@@ -16,29 +16,34 @@ namespace GameModeManager.Features
     public class PlayerCommands : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private MapMenus _mapMenus;
-        private ModeMenus _modeMenus;
-        private PlayerMenu _playerMenu;
+        private Plugin? _plugin;
+        private GameRules _gameRules;
         private PluginState _pluginState;
+        private VoteManager _voteManager;
+        private MenuFactory? _menuFactory;
         private StringLocalizer _localizer;
-        private SettingMenus _settingMenus;
         private ServerManager _serverManager;
-        private NominateMenus _nominateMenus;
         private Config _config = new Config();
-        private MenuFactory _menuFactory = new MenuFactory();
+        private NominateManager _nominateManager;
+        private TimeLimitManager _timeLimitManager;
+        private MaxRoundsManager _maxRoundsManager;
+        private AsyncVoteManager _asyncVoteManager;
+        private VoteOptionManager _voteOptionManager;
 
         // Define class instance
         public PlayerCommands(PluginState pluginState, IStringLocalizer iLocalizer, ServerManager serverManager, VoteManager voteManager, GameRules gameRules,
         MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManagerManager, NominateManager nominateManager, AsyncVoteManager asyncVoteManager)
         {
+            _gameRules = gameRules;
             _pluginState = pluginState;
+            _voteManager = voteManager;
             _serverManager = serverManager;
+            _nominateManager = nominateManager;
+            _timeLimitManager = timeLimitManager;
+            _maxRoundsManager = maxRoundsManager;
+            _asyncVoteManager = asyncVoteManager;
+            _voteOptionManager = voteOptionManagerManager;
             _localizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
-            _settingMenus = new SettingMenus(pluginState, _localizer, _config);
-            _mapMenus = new MapMenus(pluginState, _localizer, _serverManager, _config);
-            _modeMenus = new ModeMenus(pluginState, _localizer, _serverManager, _config);
-            _nominateMenus = new NominateMenus(pluginState, _localizer, voteOptionManagerManager, nominateManager, _config);
-            _playerMenu = new PlayerMenu(pluginState, _localizer, timeLimitManager, gameRules, voteManager, maxRoundsManager, asyncVoteManager, _mapMenus, _modeMenus, _settingMenus, _nominateMenus, _config);
         }
 
         // Load config
@@ -50,6 +55,9 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
+            _plugin = plugin;
+            _menuFactory = new MenuFactory(_plugin);
+
             plugin.AddCommand("css_game", "Displays list of player commands", OnGameCommand);
             plugin.AddCommand("css_currentmap", "Displays current map.", OnCurrentMapCommand);
             plugin.AddCommand("css_currentmode", "Displays current map.", OnCurrentModeCommand);
@@ -75,24 +83,26 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null)
-            {     
+            MapMenus? _mapMenus = new MapMenus(_plugin, _pluginState, _localizer, _serverManager, _config);
+
+            if (player != null)
+            {
                 if (_config.Votes.Style.Equals("wasd"))
                 {
-                    _mapMenus.WasdMenus.Load();
-                    IWasdMenu? menu = _mapMenus.WasdMenus.VoteMenu;
+                    _mapMenus?.WasdMenus.Load();
+                    IWasdMenu? menu = _mapMenus?.WasdMenus.VoteMenu;
 
-                    if(menu != null)
+                    if (menu != null)
                     {
-                        _menuFactory.WasdMenus.OpenMenu(player, menu);
+                        _menuFactory?.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
-                { 
+                {
                     _mapMenus.BaseMenus.Load();
-                    BaseMenu menu =_mapMenus.BaseMenus.VoteMenu;
-                    menu.Title = _localizer.Localize ("modes.menu-title");
-                    _menuFactory.BaseMenus.OpenMenu(menu, player);
+                    BaseMenu menu = _mapMenus.BaseMenus.VoteMenu;
+                    menu.Title = _localizer.Localize("modes.menu-title");
+                    _menuFactory?.BaseMenus.OpenMenu(menu, player);
                 }
             }              
         }
@@ -100,16 +110,18 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeModeCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null)
+            ModeMenus? _modeMenus = new ModeMenus(_plugin, _pluginState, _localizer, _serverManager, _config);
+
+            if (player != null)
             {
                 if (_config.Votes.Style.Equals("wasd"))
                 {
                     _modeMenus.WasdMenus.Load();
                     IWasdMenu? menu = _modeMenus.WasdMenus.VoteMenu;
 
-                    if(menu != null)
+                    if (menu != null)
                     {
-                        _menuFactory.WasdMenus.OpenMenu(player, menu);
+                        _menuFactory?.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
@@ -117,7 +129,7 @@ namespace GameModeManager.Features
                     _modeMenus.BaseMenus.Load();
                     BaseMenu menu = _modeMenus.BaseMenus.VoteMenu;
                     menu.Title = _localizer.Localize("modes.menu-title");
-                    _menuFactory.BaseMenus.OpenMenu(menu, player);
+                    _menuFactory?.BaseMenus.OpenMenu(menu, player);
                 }
             } 
         }
@@ -125,17 +137,19 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeSettingCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null)
+            SettingMenus? _settingMenus = new SettingMenus(_plugin, _pluginState, _localizer, _config);
+
+            if (player != null)
             {
                 if (_config.Settings.Style.Equals("wasd"))
-                {  
+                {
                     _settingMenus.WasdMenus.Load();
                     IWasdMenu? menu = _settingMenus.WasdMenus.VoteMenu;
 
-                    if(menu != null)
+                    if (menu != null)
                     {
                         menu.Title = _localizer.Localize("settings.menu-actions");
-                        _menuFactory.WasdMenus.OpenMenu(player, menu);
+                        _menuFactory?.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
@@ -145,8 +159,8 @@ namespace GameModeManager.Features
 
                     if (menu != null)
                     {
-                         menu.Title = _localizer.Localize("settings.menu-actions");
-                        _menuFactory.BaseMenus.OpenMenu(menu, player);
+                        menu.Title = _localizer.Localize("settings.menu-actions");
+                        _menuFactory?.BaseMenus.OpenMenu(menu, player);
                     }
                 }
             }
@@ -155,16 +169,22 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnGameCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null)
+            MapMenus? _mapMenus = new MapMenus(_plugin, _pluginState, _localizer, _serverManager, _config);
+            ModeMenus? _modeMenus = new ModeMenus(_plugin, _pluginState, _localizer, _serverManager, _config);
+            SettingMenus? _settingMenus = new SettingMenus(_plugin, _pluginState, _localizer, _config);
+            NominateMenus? _nominateMenus = new NominateMenus(_plugin, _pluginState, _localizer, _voteOptionManager, _nominateManager, _config);
+            PlayerMenu? _playerMenu = new PlayerMenu(_plugin, _pluginState, _localizer, _timeLimitManager, _gameRules, _voteManager, _maxRoundsManager, _asyncVoteManager, _mapMenus, _modeMenus, _settingMenus, _nominateMenus, _config);
+
+            if (player != null)
             {
                 if (_config.Commands.Style.Equals("wasd"))
                 {
                     _playerMenu.WasdMenus.Load();
                     IWasdMenu? menu = _playerMenu.WasdMenus.MainMenu;
-                    
+
                     if (menu != null)
                     {
-                        _menuFactory.WasdMenus.OpenMenu(player, menu);
+                        _menuFactory?.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
@@ -175,7 +195,7 @@ namespace GameModeManager.Features
                     if (menu != null)
                     {
                         menu.Title = _localizer.Localize("game.menu-title");
-                        _menuFactory.BaseMenus.OpenMenu(menu, player);
+                        _menuFactory?.BaseMenus.OpenMenu(menu, player);
                     }
                 }
             }

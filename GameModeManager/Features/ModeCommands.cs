@@ -19,14 +19,13 @@ namespace GameModeManager.Features
     public class ModeCommands : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private ModeMenus _modeMenus;
+        private Plugin? _plugin;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private Config _config = new Config();
         private ILogger<ModeCommands> _logger;
         private CustomVoteManager _customVoteManager;
-        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
         public ModeCommands(PluginState pluginState, StringLocalizer localizer, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager)
@@ -36,7 +35,6 @@ namespace GameModeManager.Features
             _pluginState = pluginState;
             _serverManager = serverManager;
             _customVoteManager = customVoteManager;
-            _modeMenus = new ModeMenus(pluginState, localizer, serverManager, _config);
         }
 
         // Load config
@@ -48,6 +46,8 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
+            _plugin = plugin;
+
             if (_config.Commands.Mode)
             {
                 plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
@@ -122,24 +122,27 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnModesCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null)
+            MenuFactory menuFactory = new MenuFactory(_plugin);
+            ModeMenus modeMenus = new ModeMenus(_plugin, _pluginState, _localizer, _serverManager, _config);
+
+            if (player != null)
             {
                 if (_config.GameModes.Style.Equals("wasd"))
                 {
-                    _modeMenus.WasdMenus.Load();
-                    IWasdMenu? menu = _modeMenus.WasdMenus.MainMenu;
+                    modeMenus.WasdMenus.Load();
+                    IWasdMenu? menu = modeMenus.WasdMenus.MainMenu;
 
-                    if(menu != null)
+                    if (menu != null)
                     {
-                        _menuFactory.WasdMenus.OpenMenu(player, menu);
+                        menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
                 {
-                    _modeMenus.BaseMenus.Load();
-                    BaseMenu menu = _modeMenus.BaseMenus.MainMenu;
+                    modeMenus.BaseMenus.Load();
+                    BaseMenu menu = modeMenus.BaseMenus.MainMenu;
                     menu.Title = _localizer.Localize("modes.menu-title");
-                    _menuFactory.BaseMenus.OpenMenu(menu, player);
+                    menuFactory.BaseMenus.OpenMenu(menu, player);
                 }
             }
         }

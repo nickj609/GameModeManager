@@ -17,19 +17,18 @@ namespace GameModeManager.Menus
         public BaseMenuController BaseMenus;
 
         // Define class instance
-        public ModeMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
+        public ModeMenus(Plugin? plugin, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
         {
-            WasdMenus = new WasdMenuController(pluginState, localizer, serverManager, config);
-            BaseMenus = new BaseMenuController(pluginState, localizer, serverManager, config);
+            WasdMenus = new WasdMenuController(new MenuFactory(plugin), pluginState, localizer, serverManager, config);
+            BaseMenus = new BaseMenuController(new MenuFactory(plugin), pluginState, localizer, serverManager, config);
         }
         
         // Define WasdMenuController class
-        public class WasdMenuController(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
+        public class WasdMenuController(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
         {
             // Define class properties
             public IWasdMenu? MainMenu;
             public IWasdMenu? VoteMenu;
-            private MenuFactory menuFactory = new MenuFactory();
 
             // Define load method
             public void Load()
@@ -69,10 +68,9 @@ namespace GameModeManager.Menus
         }
 
         // Define BaseMenuController class
-        public class BaseMenuController(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
+        public class BaseMenuController(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
         {
             // Define class properties
-            private MenuFactory menuFactory = new MenuFactory();
             public BaseMenu MainMenu = new ChatMenu(localizer.Localize("modes.menu-title"));
             public BaseMenu VoteMenu = new ChatMenu(localizer.Localize("modes.menu-title"));
 

@@ -18,12 +18,11 @@ namespace GameModeManager.Features
     public class MapCommands : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private MapMenus _mapMenus;
+        private Plugin? _plugin;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private Config _config = new Config();
-        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
         public MapCommands(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
@@ -31,7 +30,6 @@ namespace GameModeManager.Features
             _localizer = localizer;
             _pluginState = pluginState;
             _serverManager = serverManager;
-            _mapMenus = new MapMenus(pluginState, localizer, serverManager, _config);
         }
 
         // Load config
@@ -43,6 +41,8 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
+            _plugin = plugin;
+
             if (_config.Commands.Map)
             {
                 plugin.AddCommand("css_map", "Changes the map to the map specified in the command argument.", OnMapCommand);
@@ -58,23 +58,26 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null)
+            MenuFactory menuFactory = new MenuFactory(_plugin);
+            MapMenus mapMenus = new MapMenus(_plugin, _pluginState, _localizer, _serverManager, _config);
+
+            if (player != null)
             {
                 if (_config.Maps.Style.Equals("wasd"))
                 {
-                    _mapMenus.WasdMenus.Load();
-                    IWasdMenu? menu =_mapMenus.WasdMenus.MainMenu;
+                    mapMenus.WasdMenus.Load();
+                    IWasdMenu? menu = mapMenus.WasdMenus.MainMenu;
 
-                    if(menu != null)
+                    if (menu != null)
                     {
-                        _menuFactory.WasdMenus.OpenMenu(player, menu);
+                        menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
                 }
                 else
                 {
-                    _mapMenus.BaseMenus.Load();
-                    BaseMenu menu = _mapMenus.BaseMenus.MainMenu;
-                    _menuFactory.BaseMenus.OpenMenu(menu, player);
+                    mapMenus.BaseMenus.Load();
+                    BaseMenu menu = mapMenus.BaseMenus.MainMenu;
+                    menuFactory.BaseMenus.OpenMenu(menu, player);
                 }
             }
         }

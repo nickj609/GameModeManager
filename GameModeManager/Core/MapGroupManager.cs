@@ -1,15 +1,11 @@
 // Included libraries
 using System.Text;
+using Gameloop.Vdf;       
+using Gameloop.Vdf.Linq;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
 using GameModeManager.Shared.Models;
-
-// Copyright (c) 2016 Shravan Rajinikanth
-// https://github.com/shravan2x/Gameloop.Vdf/
-using Gameloop.Vdf;       
-using Gameloop.Vdf.Linq;
-// ------------------------------------------
 
 // Declare namespace
 namespace GameModeManager.Core

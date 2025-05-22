@@ -1,9 +1,9 @@
 // Included libraries
-using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 using Microsoft.Extensions.Localization;
 
 // Declare namespace

@@ -1,7 +1,6 @@
 // Included libraries
 using WASDMenuAPI.Shared;
 using WASDMenuAPI.Shared.Models;
-using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Core.Capabilities;
@@ -10,28 +9,19 @@ using CounterStrikeSharp.API.Core.Capabilities;
 namespace GameModeManager.CrossCutting
 {
     // Define class
-    public class MenuFactory : IPluginDependency<Plugin, Config>
-    {
-        // Define class dependencies
-        private Plugin? _plugin;
-        
-        // Define class instance
-        public MenuFactory()
-        {
-            BaseMenus = new BaseMenuController(_plugin);
-            WasdMenus = new WasdMenuController(WasdMenuManager);
-        }
-
-        // Define on load behavior
-        public void OnLoad(Plugin plugin)
-        {
-            _plugin = plugin;
-        }
-
+    public class MenuFactory
+    {   
         // Define class properties
         public BaseMenuController BaseMenus;
         public WasdMenuController WasdMenus;
         public static PluginCapability<IWasdMenuManager> WasdMenuManager { get; } = new("wasdmenu:manager");
+
+        // Define class instance
+        public MenuFactory(Plugin? plugin)
+        {
+            BaseMenus = new BaseMenuController(plugin);
+            WasdMenus = new WasdMenuController(WasdMenuManager);
+        }
 
         // Define BaseMenu class
         public class BaseMenuController(Plugin? plugin)
@@ -74,7 +64,6 @@ namespace GameModeManager.CrossCutting
             {
                 MenuManager.CloseActiveMenu(player);
             }
-            
         }
 
         // Define WASDMenu class

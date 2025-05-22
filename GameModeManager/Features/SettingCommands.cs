@@ -17,18 +17,16 @@ namespace GameModeManager.Features
     public class SettingCommands : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
+        private Plugin? _plugin;
         private PluginState _pluginState;
-        private SettingMenus _settingMenus;
         private StringLocalizer _localizer;
         private Config _config = new Config();
-        private MenuFactory _menuFactory = new MenuFactory();
 
         // Define class instance
         public SettingCommands(PluginState pluginState, StringLocalizer localizer)
         {
             _localizer = localizer;
             _pluginState = pluginState;
-            _settingMenus = new SettingMenus(pluginState, localizer, _config);
         }
 
         // Load config
@@ -40,7 +38,9 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            if(_config.Settings.Enabled)
+            _plugin = plugin;
+
+            if (_config.Settings.Enabled)
             {
                 plugin.AddCommand("css_setting", "Changes the game setting.", OnSettingCommand);
                 plugin.AddCommand("css_settings", "Shows a list of game settings.", OnSettingsCommand);
@@ -86,14 +86,17 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null)
+            MenuFactory _menuFactory = new MenuFactory(_plugin);
+            SettingMenus _settingMenus = new SettingMenus(_plugin, _pluginState, _localizer, _config);
+            
+            if (player != null)
             {
                 if (_config.Settings.Style.Equals("wasd"))
-                {  
+                {
                     _settingMenus.WasdMenus.Load();
                     IWasdMenu? menu = _settingMenus.WasdMenus.MainMenu;
 
-                    if(menu != null)
+                    if (menu != null)
                     {
                         _menuFactory.WasdMenus.OpenMenu(player, menu);
                     }
@@ -105,7 +108,7 @@ namespace GameModeManager.Features
 
                     if (menu != null)
                     {
-                         menu.Title = _localizer.Localize("settings.menu-actions");
+                        menu.Title = _localizer.Localize("settings.menu-actions");
                         _menuFactory.BaseMenus.OpenMenu(menu, player);
                     }
                 }

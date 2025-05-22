@@ -4,12 +4,8 @@ using GameModeManager.Models;
 using CS2_CustomVotes.Shared;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
-using CounterStrikeSharp.API.Core.Capabilities;
-
-// Copyright (c) 2024 imi-tat0r
-// https://github.com/imi-tat0r/CS2-CustomVotes/
 using CS2_CustomVotes.Shared.Models;
-// ---------------------------------------------
+using CounterStrikeSharp.API.Core.Capabilities;
 
 // Declare namespace
 namespace GameModeManager.Core
