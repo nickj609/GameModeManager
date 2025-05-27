@@ -69,11 +69,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ steps.version_info.outputs.current_module_version }}
-          name: Release Game Mode Manager v${{ steps.version_info.outputs.current_module_version }}
+          name: GameModeManager v${{ steps.version_info.outputs.current_module_version }}
           body: |
-            # Game Mode Manager v${{ steps.version_info.outputs.current_module_version }}
             ${{ steps.check_version_change.outputs.config_version_changed == 'true' && '> [!IMPORTANT]
-            > - If moving from v${{ steps.version_info.outputs.previous_module_version }} or earlier, back up your `GameModeManager.json` configuration file and let the plugin generate the new version. This version has minor changes to the configuration file.
+            > - Back up your `GameModeManager.json` configuration file and let the plugin generate the new version. This version has minor changes to the configuration file.
             >' || '' }}
           append_body: |
             ## Installation
