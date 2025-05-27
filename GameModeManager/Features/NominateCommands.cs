@@ -131,7 +131,6 @@ namespace GameModeManager.Features
                     {
                         if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
                         {
-                            nominateMenus.WasdMenus.Load();
                             IWasdMenu? menu = nominateMenus.WasdMenus.MainMenu;
 
                             if (menu != null)
@@ -141,7 +140,6 @@ namespace GameModeManager.Features
                         }
                         else
                         {
-                            nominateMenus.BaseMenus.Load();
                             BaseMenu menu = nominateMenus.BaseMenus.MainMenu;
                             menuFactory.BaseMenus.OpenMenu(menu, player);
                         }
@@ -150,7 +148,6 @@ namespace GameModeManager.Features
                     {
                         if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
                         {
-                            nominateMenus.WasdMenus.Load();
                             IWasdMenu? menu = nominateMenus.WasdMenus.MapMenu;
 
                             if (menu != null)
@@ -160,7 +157,6 @@ namespace GameModeManager.Features
                         }
                         else
                         {
-                            nominateMenus.BaseMenus.Load();
                             BaseMenu menu = nominateMenus.BaseMenus.MapMenu;
                             menuFactory.BaseMenus.OpenMenu(menu, player);
                         }

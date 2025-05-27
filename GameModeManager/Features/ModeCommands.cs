@@ -129,7 +129,6 @@ namespace GameModeManager.Features
             {
                 if (_config.GameModes.Style.Equals("wasd"))
                 {
-                    modeMenus.WasdMenus.Load();
                     IWasdMenu? menu = modeMenus.WasdMenus.MainMenu;
 
                     if (menu != null)
@@ -139,7 +138,6 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    modeMenus.BaseMenus.Load();
                     BaseMenu menu = modeMenus.BaseMenus.MainMenu;
                     menu.Title = _localizer.Localize("modes.menu-title");
                     menuFactory.BaseMenus.OpenMenu(menu, player);

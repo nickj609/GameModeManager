@@ -18,6 +18,8 @@ namespace GameModeManager.Menus
         {
             BaseMenus = new BaseMenuController(new MenuFactory(plugin), pluginState, localizer, timeLimitManager, gameRules, voteManager, maxRoundsManager, asyncVoteManager, mapMenus, modeMenus, settingMenus, nominateMenus, config);
             WasdMenus = new WasdMenuController(new MenuFactory(plugin), pluginState, localizer, timeLimitManager, gameRules, voteManager, maxRoundsManager, asyncVoteManager, mapMenus, modeMenus, settingMenus, nominateMenus, config);
+            BaseMenus.Load();
+            WasdMenus.Load();
         }
 
         // Define class properties
@@ -48,7 +50,6 @@ namespace GameModeManager.Menus
 
                                 if (player != null && config.Votes.Enabled && config.Votes.Maps)
                                 {
-                                    mapMenus.BaseMenus.Load();
                                     BaseMenu menu = mapMenus.BaseMenus.VoteMenu;
                                     menuFactory.BaseMenus.OpenMenu(menu, player);
                                 }
@@ -61,7 +62,6 @@ namespace GameModeManager.Menus
 
                                 if (player != null && config.Votes.Enabled && config.Votes.GameModes)
                                 {
-                                    modeMenus.BaseMenus.Load();
                                     BaseMenu menu = modeMenus.BaseMenus.VoteMenu;
                                     menuFactory.BaseMenus.OpenMenu(menu, player);
                                 }
@@ -74,7 +74,6 @@ namespace GameModeManager.Menus
 
                                 if (player != null && config.Votes.Enabled && config.Votes.GameSettings)
                                 {
-                                    settingMenus.BaseMenus.Load();
                                     menuFactory.BaseMenus.OpenMenu(settingMenus.BaseMenus.MainMenu, player);
                                 }
                             });
@@ -201,7 +200,6 @@ namespace GameModeManager.Menus
                                         return;
                                     }
 
-                                    nominateMenus.BaseMenus.Load();
                                     BaseMenu menu = nominateMenus.BaseMenus.MainMenu;
                                     menuFactory.BaseMenus.OpenMenu(menu, player);
                                 }
@@ -249,7 +247,6 @@ namespace GameModeManager.Menus
                                     {
                                         if (config.Votes.Maps)
                                         {
-                                            mapMenus.WasdMenus.Load();
                                             IWasdMenu? menu = mapMenus.WasdMenus.VoteMenu;
 
                                             if (menu != null)
@@ -266,7 +263,6 @@ namespace GameModeManager.Menus
                                 {
                                     if (player != null && config.Votes.Enabled && config.Votes.GameModes)
                                     {
-                                        modeMenus.WasdMenus.Load();
                                         IWasdMenu? menu = modeMenus.WasdMenus.VoteMenu;
 
                                         if (menu != null)
@@ -282,7 +278,6 @@ namespace GameModeManager.Menus
                                 {
                                     if (player != null && config.Votes.Enabled && config.Votes.GameSettings)
                                     {
-                                        settingMenus.WasdMenus.Load();
                                         IWasdMenu? menu = settingMenus.WasdMenus.VoteMenu;
 
                                         if (menu != null)
@@ -425,7 +420,6 @@ namespace GameModeManager.Menus
                                             player.PrintToChat(localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.minimum-players", config!.RTV.MinPlayers));
                                             return;
                                         }
-                                        nominateMenus.WasdMenus.Load();
                                         IWasdMenu? menu = nominateMenus.WasdMenus.MainMenu;
 
                                         if (menu != null)

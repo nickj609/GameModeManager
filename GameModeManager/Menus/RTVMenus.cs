@@ -15,20 +15,22 @@ namespace GameModeManager.Menus
         public BaseMenuController BaseMenus;
 
         // Define class instance
-        public RTVMenus(Plugin? plugin, PluginState pluginState, StringLocalizer localizer, VoteManager voteManager, Config config)
+        public RTVMenus(Plugin? plugin, PluginState pluginState, StringLocalizer localizer, VoteManager voteManager, List<string> options, Config config)
         {
-            WasdMenus = new WasdMenuController(new MenuFactory(plugin), pluginState, localizer, voteManager);
-            BaseMenus = new BaseMenuController(new MenuFactory(plugin), pluginState, localizer, voteManager, config);
+            WasdMenus = new WasdMenuController(new MenuFactory(plugin), pluginState, localizer, voteManager, options);
+            BaseMenus = new BaseMenuController(new MenuFactory(plugin), pluginState, localizer, voteManager, options, config);
+            BaseMenus.Load();
+            WasdMenus.Load();
         }
 
         // Define WasdMenuController class
-        public class WasdMenuController(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, VoteManager voteManager)
+        public class WasdMenuController(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, VoteManager voteManager, List<string> options)
         {
             // Define class properties
             public IWasdMenu? MainMenu;
 
             // Define load method
-            public void Load(List<string> options)
+            public void Load()
             {
                 pluginState.RTV.Votes.Clear();
                 MainMenu = menuFactory.WasdMenus.AssignMenu(localizer.Localize("rtv.hud.menu-title"));
@@ -46,13 +48,13 @@ namespace GameModeManager.Menus
         }
 
         // Define BaseMenuController class
-        public class BaseMenuController(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, VoteManager voteManager, Config config)
+        public class BaseMenuController(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, VoteManager voteManager, List<string> options, Config config)
         {
             // Define class properties
             public BaseMenu MainMenu = new ChatMenu(localizer.Localize("rtv.hud.menu-title"));
 
             // Define load method
-            public void Load(List<string> options)
+            public void Load()
             {
                 pluginState.RTV.Votes.Clear();
                 MainMenu = menuFactory.BaseMenus.AssignMenu(config.RTV.Style, localizer.Localize("rtv.hud.menu-title"));

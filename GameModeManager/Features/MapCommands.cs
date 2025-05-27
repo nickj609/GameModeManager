@@ -65,7 +65,6 @@ namespace GameModeManager.Features
             {
                 if (_config.Maps.Style.Equals("wasd"))
                 {
-                    mapMenus.WasdMenus.Load();
                     IWasdMenu? menu = mapMenus.WasdMenus.MainMenu;
 
                     if (menu != null)
@@ -75,7 +74,6 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    mapMenus.BaseMenus.Load();
                     BaseMenu menu = mapMenus.BaseMenus.MainMenu;
                     menuFactory.BaseMenus.OpenMenu(menu, player);
                 }

@@ -21,6 +21,8 @@ namespace GameModeManager.Menus
         {
             WasdMenus = new WasdMenuController(new MenuFactory(plugin), config, pluginState, localizer, serverManager);
             BaseMenus = new BaseMenuController(new MenuFactory(plugin), config, pluginState, localizer, serverManager);
+            BaseMenus.Load();
+            WasdMenus.Load();
         }
 
         // Define WasdMenuController class

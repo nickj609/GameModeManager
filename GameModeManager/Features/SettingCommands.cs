@@ -93,7 +93,6 @@ namespace GameModeManager.Features
             {
                 if (_config.Settings.Style.Equals("wasd"))
                 {
-                    _settingMenus.WasdMenus.Load();
                     IWasdMenu? menu = _settingMenus.WasdMenus.MainMenu;
 
                     if (menu != null)
@@ -103,7 +102,6 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    _settingMenus.BaseMenus.Load();
                     BaseMenu menu = _settingMenus.BaseMenus.MainMenu;
 
                     if (menu != null)

@@ -113,25 +113,25 @@ namespace GameModeManager.Features
 
         public void StartVote(VoteResult? result, CCSPlayerController? player)
         {
-            MenuFactory menuFactory = new MenuFactory(_plugin);
-            RTVMenus rtvMenus = new RTVMenus(_plugin, _pluginState, _localizer, _voteManager, _config);
-
+            // If player started the vote, display a message
             if (player?.PlayerName != null && result?.VoteCount != null)
             {
                 Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("rtv.rocked-the-vote", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.votes-reached"));
             }
 
-            // Start vote
+            // Load vote options
             _voteOptionManager.LoadOptions();
             _voteManager.StartVote(_pluginState.RTV.Duration);
 
             // Display vote menu
+            MenuFactory menuFactory = new MenuFactory(_plugin);
+            RTVMenus rtvMenus = new RTVMenus(_plugin, _pluginState, _localizer, _voteManager,_voteOptionManager.GetOptions(), _config);
+
             if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
             {
                 foreach (var validPlayer in PlayerExtensions.ValidPlayers())
                 {
-                    rtvMenus.WasdMenus.Load(_voteOptionManager.ScrambleOptions());
                     IWasdMenu? menu = rtvMenus.WasdMenus.MainMenu;
 
                     if (menu != null)
@@ -144,7 +144,6 @@ namespace GameModeManager.Features
             {
                 foreach (var validPlayer in PlayerExtensions.ValidPlayers())
                 {
-                    rtvMenus.BaseMenus.Load(_voteOptionManager.ScrambleOptions());
                     BaseMenu menu = rtvMenus.BaseMenus.MainMenu;
 
                     if (menu != null)

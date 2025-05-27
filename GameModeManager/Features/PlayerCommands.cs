@@ -83,14 +83,13 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            MapMenus? _mapMenus = new MapMenus(_plugin, _pluginState, _localizer, _serverManager, _config);
+            MapMenus _mapMenus = new MapMenus(_plugin, _pluginState, _localizer, _serverManager, _config);
 
             if (player != null)
             {
                 if (_config.Votes.Style.Equals("wasd"))
                 {
-                    _mapMenus?.WasdMenus.Load();
-                    IWasdMenu? menu = _mapMenus?.WasdMenus.VoteMenu;
+                    IWasdMenu? menu = _mapMenus.WasdMenus.VoteMenu;
 
                     if (menu != null)
                     {
@@ -99,7 +98,6 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    _mapMenus.BaseMenus.Load();
                     BaseMenu menu = _mapMenus.BaseMenus.VoteMenu;
                     menu.Title = _localizer.Localize("modes.menu-title");
                     _menuFactory?.BaseMenus.OpenMenu(menu, player);
@@ -116,7 +114,6 @@ namespace GameModeManager.Features
             {
                 if (_config.Votes.Style.Equals("wasd"))
                 {
-                    _modeMenus.WasdMenus.Load();
                     IWasdMenu? menu = _modeMenus.WasdMenus.VoteMenu;
 
                     if (menu != null)
@@ -126,7 +123,6 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    _modeMenus.BaseMenus.Load();
                     BaseMenu menu = _modeMenus.BaseMenus.VoteMenu;
                     menu.Title = _localizer.Localize("modes.menu-title");
                     _menuFactory?.BaseMenus.OpenMenu(menu, player);
@@ -143,7 +139,6 @@ namespace GameModeManager.Features
             {
                 if (_config.Settings.Style.Equals("wasd"))
                 {
-                    _settingMenus.WasdMenus.Load();
                     IWasdMenu? menu = _settingMenus.WasdMenus.VoteMenu;
 
                     if (menu != null)
@@ -154,7 +149,6 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    _settingMenus.BaseMenus.Load();
                     BaseMenu menu = _settingMenus.BaseMenus.VoteMenu;
 
                     if (menu != null)
@@ -169,9 +163,9 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnGameCommand(CCSPlayerController? player, CommandInfo command)
         {
+            SettingMenus? _settingMenus = new SettingMenus(_plugin, _pluginState, _localizer, _config);
             MapMenus? _mapMenus = new MapMenus(_plugin, _pluginState, _localizer, _serverManager, _config);
             ModeMenus? _modeMenus = new ModeMenus(_plugin, _pluginState, _localizer, _serverManager, _config);
-            SettingMenus? _settingMenus = new SettingMenus(_plugin, _pluginState, _localizer, _config);
             NominateMenus? _nominateMenus = new NominateMenus(_plugin, _pluginState, _localizer, _voteOptionManager, _nominateManager, _config);
             PlayerMenu? _playerMenu = new PlayerMenu(_plugin, _pluginState, _localizer, _timeLimitManager, _gameRules, _voteManager, _maxRoundsManager, _asyncVoteManager, _mapMenus, _modeMenus, _settingMenus, _nominateMenus, _config);
 
@@ -179,7 +173,6 @@ namespace GameModeManager.Features
             {
                 if (_config.Commands.Style.Equals("wasd"))
                 {
-                    _playerMenu.WasdMenus.Load();
                     IWasdMenu? menu = _playerMenu.WasdMenus.MainMenu;
 
                     if (menu != null)
@@ -189,7 +182,6 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    _playerMenu.BaseMenus.Load();
                     BaseMenu menu = _playerMenu.BaseMenus.MainMenu;
 
                     if (menu != null)
