@@ -1,5 +1,4 @@
 // Included libraries
-using GameModeManager.Menus;
 using GameModeManager.Models;
 using CS2_CustomVotes.Shared;
 using GameModeManager.Contracts;
