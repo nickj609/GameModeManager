@@ -1,5 +1,6 @@
 // Included libraries
 using GameModeManager.Shared.Models;
+
 // Declare namespace
 namespace GameModeManager.Models
 {
