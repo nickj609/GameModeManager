@@ -74,7 +74,7 @@ jobs:
             ${{ steps.check_version_change.outputs.config_version_changed == 'true' && '> [!IMPORTANT]
             > - Back up your `GameModeManager.json` configuration file and let the plugin generate the new version. This version has minor changes to the configuration file.
             >' || '' }}
-          append_body: |
+
             ## Installation
             1. Extract and copy `addons` and `cfg` folders to `/csgo/`.
             2. Update each game mode configuration file (i.e. comp.cfg) to include `css_gamemode <mode>`.
@@ -83,10 +83,9 @@ jobs:
             For more information on the configuration of these features, please see the updated [Wiki](https://github.com/nickj609/GameModeManager/wiki).
 
             # Need Help?
-            If you have a question, check out our [FAQ](https://github.com/nickj609/GameModeManager/wiki/FAQ-(Frequently-Asked-Questions)) and if you still need help, [create a new issue](https://github.com/nickj609/GameModeManager/issues/new/choose).   
-
-            **Full Changelog**: https://github.com/nickj609/GameModeManager/compare/v${{ steps.version_info.outputs.previous_module_version }}...v${{ steps.version_info.outputs.current_module_version }}
+            If you have a question, check out our [FAQ](https://github.com/nickj609/GameModeManager/wiki/FAQ-(Frequently-Asked-Questions)) and if you still need help, [create a new issue](https://github.com/nickj609/GameModeManager/issues/new/choose).
           draft: false
+          append_body: true
           prerelease: false
           generate_release_notes: true
       - name: Upload Release Asset
