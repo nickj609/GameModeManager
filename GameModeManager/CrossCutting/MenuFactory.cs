@@ -34,6 +34,10 @@ namespace GameModeManager.CrossCutting
                 {
                     _baseMenu = new CenterHtmlMenu(menuName, plugin);
                 }
+                else if (menuType.Equals("console", StringComparison.OrdinalIgnoreCase))
+                {
+                    _baseMenu = new ConsoleMenu(menuName);
+                }
                 else
                 {
                     _baseMenu = new ChatMenu(menuName);
