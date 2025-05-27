@@ -2,17 +2,16 @@ changelog:
   categories:
     - title: Features
       labels: 
-        - enhancement
         - feat
+        - feature
+        - enhancement
     - title: Bug Fixes
       labels: 
         - bug
         - fix
-    - title: Miscellaneous
+        - bugfix
+    - title: Misc
       labels:
         - chore
+        - misc
         - other
-    - title: Documentation
-      labels:
-        - documentation
-        - docs
