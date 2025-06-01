@@ -1,0 +1,330 @@
+name: Build & Publish
+
+# Remove default permissions of GITHUB_TOKEN for security
+# https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
+permissions: {}
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'GameModeManager/Plugin.cs'
+      - 'GameModeManager/Config.cs'
+      - 'SECURITY.md'
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'GameModeManager/Plugin.cs'
+      - 'GameModeManager/Config.cs'
+      - 'SECURITY.md'
+
+jobs:
+  get-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      module_current_version: ${{ steps.version_info.outputs.module_current_version }}
+      module_previous_version: ${{ steps.version_info.outputs.module_previous_version }}
+      config_current_version: ${{ steps.version_info.outputs.config_current_version }}
+      config_previous_version: ${{ steps.version_info.outputs.config_previous_version }}
+      module_version_changed: ${{ steps.check_version_change.outputs.module_version_changed }}
+      config_version_changed: ${{ steps.check_version_change.outputs.config_version_changed }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version information
+        id: version_info
+        run: |
+          echo "Getting current and previous version information..."
+          module_current_version=$(grep -oP 'ModuleVersion => "\K[^"]+' GameModeManager/Plugin.cs)
+          echo "module_current_version=$module_current_version" >> $GITHUB_OUTPUT
+          previous_module_version=$(git show HEAD~1:GameModeManager/Plugin.cs | grep -oP 'ModuleVersion => "\K[^"]+')
+          echo "module_previous_version=$previous_module_version" >> $GITHUB_OUTPUT
+          config_current_version=$(grep -oP 'public int Version { get; set; } = \K\d+' GameModeManager/Config.cs)
+          echo "config_current_version=$config_current_version" >> $GITHUB_OUTPUT
+          # CORRECTED: Removed redundant file path from grep command when piping
+          config_previous_version=$(git show HEAD~1:GameModeManager/Config.cs | grep -oP 'public int Version { get; set; } = \K\d+')
+          echo "config_previous_version=$config_previous_version" >> $GITHUB_OUTPUT
+
+      - name: Check for version changes
+        id: check_version_change
+        run: |
+          module_version_changed="false"
+          config_version_changed="false"
+          if [[ "${{ steps.version_info.outputs.module_current_version }}" != "${{ steps.version_info.outputs.module_previous_version }}" ]]; then
+            module_version_changed="true"
+          fi
+          echo "module_version_changed=$module_version_changed" >> $GITHUB_OUTPUT
+          if [[ "${{ steps.version_info.outputs.config_current_version }}" != "${{ steps.version_info.outputs.config_previous_version }}" ]]; then
+            config_version_changed="true"
+          fi
+          echo "config_version_changed=$config_version_changed" >> $GITHUB_OUTPUT
+
+  version-check:
+    runs-on: ubuntu-latest
+    needs: get-versions
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get plugin version from Plugin.cs
+        id: get_plugin_version
+        run: |
+          VERSION=$(grep -oP 'ModuleVersion => "\K[^"]+' GameModeManager/Plugin.cs)
+          echo "plugin_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get plugin version from SECURITY.md
+        id: get_security_current_version
+        run: |
+          VERSION=$(grep -oP '\- v\K[^ ]+(?=\s+\*\*\([Cc]urrent [Vv]ersion\)\*\*|\s+\*\*\([Mm]ajor [Vv]ersion\)\*\*|\s+\*\*\([Ll]atest [Vv]ersion\)\*\*|\s+\*\*\([Rr]ecommended [Vv]ersion\)\*\*)' SECURITY.md)
+          echo "security_current_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get previous version from SECURITY.md
+        id: get_security_previous_version
+        run: |
+          VERSION=$(grep -oP '\- v\K[^ ]+(?=\s+\*\*\([Pp]revious [Mm]ajor [Vv]ersion\)\*\*)' SECURITY.md)
+          echo "security_previous_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Calculate expected previous version
+        id: calculate_previous_version
+        run: |
+          CURRENT_VERSION="${{ steps.get_plugin_version.outputs.plugin_version }}"
+          if ! [[ "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Invalid plugin version format found: $CURRENT_VERSION"
+            exit 1
+          fi
+          VERSION_PARTS=($(echo "$CURRENT_VERSION" | tr '.' ' '))
+          MAJOR=${VERSION_PARTS[0]}
+          MINOR=${VERSION_PARTS[1]}
+          PATCH=${VERSION_PARTS[2]}
+
+          EXPECTED_PREVIOUS_VERSION=""
+
+          if [[ $PATCH -gt 0 ]]; then
+            PREVIOUS_PATCH=$((PATCH - 1))
+            EXPECTED_PREVIOUS_VERSION="$MAJOR.$MINOR.$PREVIOUS_PATCH"
+          elif [[ $MINOR -gt 0 ]]; then
+            PREVIOUS_MINOR=$((MINOR - 1))
+            EXPECTED_PREVIOUS_VERSION="$MAJOR.$PREVIOUS_MINOR.0"
+          elif [[ $MAJOR -gt 0 ]]; then
+            PREVIOUS_MAJOR=$((MAJOR - 1))
+            EXPECTED_PREVIOUS_VERSION="$PREVIOUS_MAJOR.0.0"
+          else
+            echo "Warning: Cannot determine previous version for $CURRENT_VERSION. Assuming 0.0.0 for comparison."
+            EXPECTED_PREVIOUS_VERSION="0.0.0"
+          fi
+          echo "expected_previous_version=$EXPECTED_PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get config version from Config.cs (Class Definition)
+        id: get_config_class_version
+        run: |
+          CONFIG_CLASS_VERSION=$(grep -oP 'public\s+int\s+Version\s*{\s*get;\s*set;\s*}\s*=\s*\K\d+' GameModeManager/Config.cs)
+          if [[ -z "$CONFIG_CLASS_VERSION" ]]; then
+            echo "Error: Could not find Config Class Version in GameModeManager/Config.cs"
+            exit 1
+          fi
+          echo "config_class_version=$CONFIG_CLASS_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get config version from Config.cs (OnConfigParsed Check)
+        id: get_config_parsed_version
+        run: |
+          CONFIG_PARSED_VERSION=$(grep -oP 'if\s*\(_config\.Version\s*<\s*\K\d+' GameModeManager/Config.cs)
+          if [[ -z "$CONFIG_PARSED_VERSION" ]]; then
+            echo "Error: Could not find Config Parsed Version check in GameModeManager/Config.cs"
+            exit 1
+          fi
+          echo "config_parsed_version=$CONFIG_PARSED_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check version consistency
+        run: |
+          PLUGIN_VERSION="${{ steps.get_plugin_version.outputs.plugin_version }}"
+          SECURITY_CURRENT_VERSION="${{ steps.get_security_current_version.outputs.security_current_version }}"
+          SECURITY_PREVIOUS_VERSION="${{ steps.get_security_previous_version.outputs.security_previous_version }}"
+          EXPECTED_PREVIOUS_VERSION="${{ steps.calculate_previous_version.outputs.expected_previous_version }}"
+          CONFIG_CLASS_VERSION="${{ steps.get_config_class_version.outputs.config_class_version }}"
+          CONFIG_PARSED_VERSION="${{ steps.get_config_parsed_version.outputs.config_parsed_version }}"
+
+          ERROR_DETECTED=false
+
+          echo "--- Version Consistency Check Summary ---"
+          echo "Plugin.cs (Module) Version:         $PLUGIN_VERSION"
+          echo "SECURITY.md Current Version:        $SECURITY_CURRENT_VERSION"
+          echo "SECURITY.md Previous Major Version: $SECURITY_PREVIOUS_VERSION"
+          echo "Calculated Expected Previous:       $EXPECTED_PREVIOUS_VERSION"
+          echo "Config.cs (Class Definition) V:     $CONFIG_CLASS_VERSION"
+          echo "Config.cs (OnConfigParsed Check) V: $CONFIG_PARSED_VERSION"
+          echo "---------------------------------------"
+
+          if [[ "$PLUGIN_VERSION" != "$SECURITY_CURRENT_VERSION" ]]; then
+            echo "Error: Plugin.cs version ($PLUGIN_VERSION) does NOT match SECURITY.md current version ($SECURITY_CURRENT_VERSION)!"
+            ERROR_DETECTED=true
+          fi
+
+          if [[ -n "$SECURITY_PREVIOUS_VERSION" && "$EXPECTED_PREVIOUS_VERSION" != "0.0.0" && "$SECURITY_PREVIOUS_VERSION" != "$EXPECTED_PREVIOUS_VERSION" ]]; then
+            echo "Error: SECURITY.md Previous Version ($SECURITY_PREVIOUS_VERSION) does NOT match Calculated Expected Previous Version ($EXPECTED_PREVIOUS_VERSION)!"
+            ERROR_DETECTED=true
+          elif [[ -z "$SECURITY_PREVIOUS_VERSION" && "$EXPECTED_PREVIOUS_VERSION" != "0.0.0" ]]; then
+            echo "Warning: SECURITY.md Previous Version not found, but expected a previous version ($EXPECTED_PREVIOUS_VERSION). Manual check advised."
+          fi
+
+          if [[ "$CONFIG_CLASS_VERSION" != "$CONFIG_PARSED_VERSION" ]]; then
+            echo "Error: Config.cs Class Version ($CONFIG_CLASS_VERSION) does NOT match Config.cs Parsed Check Version ($CONFIG_PARSED_VERSION)!"
+            ERROR_DETECTED=true
+          fi
+
+          if [[ "$ERROR_DETECTED" == true ]]; then
+            echo "--- Version consistency checks FAILED! ---"
+            exit 1
+          else
+            echo "--- All versions are consistent! ---"
+          fi
+
+  code-quality:
+    runs-on: ubuntu-latest
+    needs: [get-versions, version-check]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install dotnet-format tool
+        run: dotnet tool install --global dotnet-format
+
+      - name: Run dotnet-format check
+        run: dotnet format --check --folder GameModeManager.sln --verbosity normal --verify-no-changes
+
+  test:
+    runs-on: ubuntu-latest
+    needs: [get-versions, version-check, code-quality]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install dependencies
+        run: dotnet restore GameModeManager.sln
+
+      - name: Run unit and integration tests
+        run: dotnet test --configuration Debug GameModeManager.sln --no-build --verbosity normal
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [get-versions, version-check, code-quality, test]
+    if: ${{ github.event_name == 'push' && needs.get-versions.outputs.module_version_changed == 'true' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Clear nuget http-cache
+        run: dotnet nuget locals http-cache --clear
+
+      - name: Install dependencies
+        run: dotnet restore GameModeManager.sln
+
+      - name: Run security vulnerability check
+        run: dotnet list package --vulnerable --include-transitive
+
+      - name: Build solution
+        run: dotnet build --configuration Debug GameModeManager.sln
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-mode-manager-build-output
+          path: bin/Debug/net8.0/Public/
+          retention-days: 1
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [get-versions, version-check, build]
+    if: ${{ github.event_name == 'push' && needs.get-versions.outputs.module_version_changed == 'true' }}
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: game-mode-manager-build-output
+          path: bin/Debug/net8.0/Public/
+
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          config: .github/config/cliff.toml
+          args: --current -s footer
+
+      - name: Create ZIP archive
+        run: |
+          zip -r GameModeManager_v${{needs.get-versions.outputs.module_current_version }}.zip bin/Debug/net8.0/Public/*
+
+      - name: Generate ZIP checksum
+        id: generate_checksum
+        run: |
+          ZIP_FILE_NAME="GameModeManager_v${{needs.get-versions.outputs.module_current_version }}.zip"
+          CHECKSUM_FILE_NAME="${ZIP_FILE_NAME}.sha256"
+          sha256sum "$ZIP_FILE_NAME" > "$CHECKSUM_FILE_NAME"
+          echo "Generated checksum for $ZIP_FILE_NAME:"
+          cat "$CHECKSUM_FILE_NAME"
+          echo "checksum_file_path=$CHECKSUM_FILE_NAME" >> $GITHUB_OUTPUT
+
+      - name: Release
+        id: release
+        uses: softprops/action-gh-release@v2.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{needs.get-versions.outputs.module_current_version }}
+          name: GameModeManager v${{needs.get-versions.outputs.module_current_version }}
+          append_body: true
+          body: |
+            ${{needs.get-versions.outputs.config_version_changed == 'true' && '> [!IMPORTANT]
+            > - Back up your `GameModeManager.json` configuration file and let the plugin generate the new version. This version has minor changes to the configuration file.
+            >' || '' }}
+
+            ${{ steps.git-cliff.outputs.content }}
+
+            **Full Changelog**: https://github.com/nickj609/GameModeManager/compare/v${{needs.get-versions.outputs.module_previous_version }}...v${{needs.get-versions.outputs.module_current_version }}
+
+            ## Installation
+            1. Extract and copy `addons` and `cfg` folders to `/csgo/`.
+            2. Update each game mode configuration file (i.e. comp.cfg) to include `css_gamemode <mode>`.
+            3. After the first run, update the configuration file `GameModeManager.json`.
+
+            For more information on the configuration of these features, please see the updated [Wiki](https://github.com/nickj609/GameModeManager/wiki).
+
+            # Need Help?
+            If you have a question, check out our [FAQ](https://github.com/nickj609/GameModeManager/wiki/FAQ-(Frequently-Asked-Questions)) and if you still need help, [create a new issue](https://github.com/nickj609/GameModeManager/issues/new/choose).
+
+          files: |
+            - ./GameModeManager_v${{needs.get-versions.outputs.module_current_version }}.zip
+            - ${{ steps.generate_checksum.outputs.checksum_file_path }}
