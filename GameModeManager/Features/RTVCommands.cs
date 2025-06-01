@@ -43,13 +43,14 @@ namespace GameModeManager.Features
 
             if (_config.RTV.Enabled)
             {
-                _plugin.AddCommand("css_rtv", "Rocks the Vote!", OnRTVCommand);
+                _plugin.AddCommand("css_rtv", "Rocks the vote!", OnRTVCommand);
                 _plugin.AddCommand("css_rtv_start_vote", "Starts RTV vote.", OnRTVStartVoteCommand);
                 _plugin.AddCommand("css_rtv_enabled", "Enables or disables RTV.", OnRTVEnabledCommand);
                 _plugin.AddCommand("css_rtv_max_extends", "Sets max map extends.", OnRTVMaxExtendsCommand);
                 _plugin.AddCommand("css_rtv_extend", "Enables or disables map extend.", OnRTVExtendCommand);
                 _plugin.AddCommand("css_rtv_end_of_map_vote", "Enables end of map vote", OnRTVEndOfMapVoteCommand);
                 _plugin.AddCommand("css_rtv_duration", "Sets the duration of the RTV vote.", OnRTVDurationCommand);
+                _plugin.AddCommand("css_rtv_kills_before_end", "Sets the kills before end that the vote starts.", OnRTVKillsBeforeEndCommand);
                 _plugin.AddCommand("css_rtv_rounds_before_end", "Sets the rounds before end that the vote starts.", OnRTVRoundsBeforeEndCommand);
                 _plugin.AddCommand("css_rtv_seconds_before_end", "Sets the seconds before end that the vote starts.", OnRTVSecondsBeforeEndCommand);
                 _plugin.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnected, HookMode.Pre);
@@ -57,7 +58,6 @@ namespace GameModeManager.Features
         }
 
         // Define command handlers
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(minArgs: 1, usage: "<duration>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVDurationCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -75,7 +75,6 @@ namespace GameModeManager.Features
             return;
         }
 
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(minArgs: 1, usage: "<seconds>",whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVSecondsBeforeEndCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -93,7 +92,6 @@ namespace GameModeManager.Features
             return;
         }
 
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(minArgs: 1, usage: "<rounds>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVRoundsBeforeEndCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -111,7 +109,22 @@ namespace GameModeManager.Features
             return;
         }
 
-        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(minArgs: 1, usage: "<kills>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnRTVKillsBeforeEndCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null)
+            {
+                if (int.TryParse(command.ArgByIndex(1), out var kills))
+                {
+                    _pluginState.RTV.KillsBeforeEnd = kills;
+                }
+                else
+                {
+                    _logger.LogWarning("RTV: Invalid kills before end. Use a number.");
+                }
+            }
+            return;
+        }
         [CommandHelper(minArgs: 1, usage: "<true|false>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVEndOfMapVoteCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -168,7 +181,6 @@ namespace GameModeManager.Features
             return;
         }
 
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(minArgs: 1, usage: "<true|false>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVExtendCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -186,7 +198,6 @@ namespace GameModeManager.Features
             return;
         }
 
-        [RequiresPermissions("@css/cvar")]
         [CommandHelper(minArgs: 1, usage: "<extends>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnRTVMaxExtendsCommand(CCSPlayerController? player, CommandInfo command)
         {
