@@ -1,7 +1,7 @@
 // Included libraries
 using GameModeManager.Core;
 using CounterStrikeSharp.API;
-using WASDMenuAPI.Shared.Models;
+using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
 using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
@@ -10,102 +10,51 @@ using CounterStrikeSharp.API.Modules.Menu;
 namespace GameModeManager.Menus
 {
     // Define class
-    public class ModeMenus
+    public class ModeMenus : IPluginDependency<Plugin, Config>
     {
-        // Define class dependencies
-        public WasdMenuController WasdMenus;
-        public BaseMenuController BaseMenus;
+       // Define class dependencies
+        private PluginState _pluginState;
+        private StringLocalizer _localizer;
+        private ServerManager _serverManager;
 
-        // Define class instance
-        public ModeMenus(Plugin? plugin, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
+        // Define class constructor
+        public ModeMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
         {
-            WasdMenus = new WasdMenuController(new MenuFactory(plugin), pluginState, localizer, serverManager, config);
-            BaseMenus = new BaseMenuController(new MenuFactory(plugin), pluginState, localizer, serverManager, config);
-            BaseMenus.Load();
-            WasdMenus.Load();
+            _localizer = localizer;
+            _pluginState = pluginState;
+            _serverManager = serverManager;
         }
         
-        // Define WasdMenuController class
-        public class WasdMenuController(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
+        // Define class properties
+        public IMenu? MainMenu;
+        public IMenu? VoteMenu;
+
+        // Define load method
+        public void Load()
         {
-            // Define class properties
-            public IWasdMenu? MainMenu;
-            public IWasdMenu? VoteMenu;
+            // Create main menu
+            MainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("modes.menu-title"));
 
-            // Define load method
-            public void Load()
+            foreach (IMode? _mode in _pluginState.Game.Modes.Values)
             {
-                if (config.GameModes.Style.Equals("wasd"))
+                MainMenu?.AddMenuOption(_mode.Name, (player, option) =>
                 {
-                     // Create mode menu
-                    MainMenu = menuFactory.WasdMenus.AssignMenu(localizer.Localize("modes.menu-title"));
-
-                    foreach (IMode _mode in pluginState.Game.Modes)
-                    {
-                        MainMenu?.Add(_mode.Name, (player, option) =>
-                        {
-                            menuFactory.WasdMenus.CloseMenu(player);
-                            Server.PrintToChatAll(localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
-                            serverManager.ChangeMode(_mode);
-                        });
-                    }
-                }
-
-                if (config.GameModes.Style.Equals("wasd") && config.Votes.GameModes)
-                {
-                    // Create vote menu
-                    VoteMenu = menuFactory.WasdMenus.AssignMenu(localizer.Localize("modes.menu-title"));
-
-                    foreach (IMode _mode in pluginState.Game.Modes)
-                    {
-                        VoteMenu?.Add(_mode.Name, (player, option) =>
-                        {
-                            menuFactory.WasdMenus.CloseMenu(player);
-                            CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, PluginExtensions.RemoveCfgExtension(_mode.Config));
-                        });
-                    }
-                }
+                    MenuFactory.Api?.CloseMenu(player);
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
+                    _serverManager.ChangeMode(_mode);
+                });
             }
 
-        }
+            // Create vote menu
+            VoteMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("modes.menu-title"));
 
-        // Define BaseMenuController class
-        public class BaseMenuController(MenuFactory menuFactory, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, Config config)
-        {
-            // Define class properties
-            public BaseMenu MainMenu = new ChatMenu(localizer.Localize("modes.menu-title"));
-            public BaseMenu VoteMenu = new ChatMenu(localizer.Localize("modes.menu-title"));
-
-            // Define load method
-            public void Load()
+            foreach (IMode? _mode in _pluginState.Game.Modes.Values)
             {
-                // Create main menu
-                MainMenu = menuFactory.BaseMenus.AssignMenu(config.GameModes.Style, localizer.Localize("modes.menu-title"));
-
-                foreach (IMode _mode in pluginState.Game.Modes)
+                VoteMenu?.AddMenuOption(_mode.Name, (player, option) =>
                 {
-                    MainMenu.AddMenuOption(_mode.Name, (player, option) =>
-                    {
-                        Server.PrintToChatAll(localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, option.Text));
-                        menuFactory.BaseMenus.CloseMenu(player);
-                        serverManager.ChangeMode(_mode);
-                    });
-                }
-
-                if (config.Votes.GameModes)
-                {
-                    // Create vote menu
-                    VoteMenu = menuFactory.BaseMenus.AssignMenu(config.GameModes.Style, localizer.Localize("modes.menu-title"));
-
-                    foreach (IMode _mode in pluginState.Game.Modes)
-                    {
-                        VoteMenu.AddMenuOption(_mode.Name, (player, option) =>
-                        {
-                            menuFactory.BaseMenus.CloseMenu(player);
-                            CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, PluginExtensions.RemoveCfgExtension(_mode.Config));
-                        });
-                    }
-                }
+                    MenuFactory.Api?.CloseMenu(player);
+                    CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, PluginExtensions.RemoveCfgExtension(_mode.Config));
+                });
             }
         }
     }

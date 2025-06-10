@@ -1,13 +1,12 @@
 // Included libraries
 using GameModeManager.Core;
 using GameModeManager.Menus;
+using GameModeManager.Models;
 using GameModeManager.Contracts;
-using WASDMenuAPI.Shared.Models;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Localization;
-using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Commands;
 
 // Declare namespace
@@ -17,11 +16,11 @@ namespace GameModeManager.Features
     public class NominateCommands : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private Plugin? _plugin;
         private GameRules _gameRules;
         private VoteManager _voteManager;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
+        private NominateMenus _nominateMenus;
         private Config _config = new Config();
         private ILogger<ModeCommands> _logger;
         private NominateManager _nominateManager;
@@ -29,13 +28,14 @@ namespace GameModeManager.Features
         private TimeLimitManager _timeLimitManager;
         private VoteOptionManager _voteOptionManager;
 
-        // Define class instance
-        public NominateCommands(PluginState pluginState, IStringLocalizer iLocalizer, ILogger<ModeCommands> logger, NominateManager nominateManager, GameRules gameRules, VoteOptionManager voteOptionManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteManager voteManager)
+        // Define class constructor
+        public NominateCommands(PluginState pluginState, IStringLocalizer iLocalizer, ILogger<ModeCommands> logger, NominateManager nominateManager, GameRules gameRules, VoteOptionManager voteOptionManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteManager voteManager, NominateMenus nominateMenus)
         {
             _logger = logger;
             _gameRules = gameRules;
             _voteManager = voteManager;
             _pluginState = pluginState;
+            _nominateMenus = nominateMenus;
             _nominateManager = nominateManager;
             _maxRoundsManager = maxRoundsManager;
             _timeLimitManager = timeLimitManager;
@@ -52,8 +52,6 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            _plugin = plugin;
-
             if (_pluginState.RTV.Enabled)
             {
                 if (_pluginState.RTV.NominationEnabled)
@@ -68,8 +66,6 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnNominateCommand(CCSPlayerController? player, CommandInfo command)
         {
-            MenuFactory menuFactory = new MenuFactory(_plugin);
-            NominateMenus nominateMenus = new NominateMenus(_plugin, _pluginState, _localizer, _voteOptionManager, _nominateManager, _config);
 
             if (player != null)
             {
@@ -129,44 +125,32 @@ namespace GameModeManager.Features
                 {
                     if (_config.RTV.IncludeModes)
                     {
-                        if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
-                        {
-                            IWasdMenu? menu = nominateMenus.WasdMenus.MainMenu;
-
-                            if (menu != null)
-                            {
-                                menuFactory.WasdMenus.OpenMenu(player, menu);
-                            }
-                        }
-                        else
-                        {
-                            BaseMenu menu = nominateMenus.BaseMenus.MainMenu;
-                            menuFactory.BaseMenus.OpenMenu(menu, player);
-                        }
+                        _nominateMenus.MainMenu?.Open(player);
                     }
                     else
                     {
-                        if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
-                        {
-                            IWasdMenu? menu = nominateMenus.WasdMenus.MapMenu;
-
-                            if (menu != null)
-                            {
-                                menuFactory.WasdMenus.OpenMenu(player, menu);
-                            }
-                        }
-                        else
-                        {
-                            BaseMenu menu = nominateMenus.BaseMenus.MapMenu;
-                            menuFactory.BaseMenus.OpenMenu(menu, player);
-                        }
+                        _nominateMenus.MapMenu?.Open(player);
                     }
                 }
                 else
                 {
-                    if (_voteOptionManager.OptionExists(option))
+                    if (long.TryParse(option, out long id))
                     {
-                        _nominateManager.Nominate(player, option);
+                        VoteOption? voteOption = _voteOptionManager.GetOptionById(id);
+
+                        if (voteOption != null)
+                        {
+                            _nominateManager.Nominate(player, voteOption);
+                        }
+                    }
+                    else if (_voteOptionManager.GetOptionByName(option) != null)
+                    {
+                        VoteOption? voteOption = _voteOptionManager.GetOptionByName(option);
+
+                        if (voteOption != null)
+                        {
+                            _nominateManager.Nominate(player, voteOption);
+                        }
                     }
                     else
                     {

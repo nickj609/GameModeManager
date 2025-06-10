@@ -1,0 +1,14 @@
+{
+	"menumanager.footer": "W-向上 S-向下 E-选择 R-退出",
+	"menumanager.select_type": "选择菜单类型",
+	"menumanager.console": "控制台",
+	"menumanager.chat": "聊天菜单",
+	"menumanager.center": "居中菜单 (标准)",
+	"menumanager.control": "居中菜单 (控制)",
+	"menumanager.metamod":"元菜单 (聊天菜单|控制)",
+	"menumanager.selected_type": "已选择的菜单类型：",
+	"menumanager.back": "返回",
+	"menumanager.empty": "没有可显示的内容",
+	"menumanager.selected_item":"► [MENUITEM] ◄",
+	"menumanager.disabled_item":"<font color='#aaaaaa'>[MENUITEM]</font>"
+}

@@ -14,9 +14,9 @@
       <Private>false</Private>
       <HintPath>lib\counterstrikesharp\shared\CS2-CustomVotes.Shared\CS2-CustomVotes.Shared.dll</HintPath>
     </Reference>
-    <Reference Include="WASDMenuAPI.Shared" Version="1.0.6">
+    <Reference Include="MenuManagerApi" Version="1.4.1">
       <Private>false</Private>
-      <HintPath>lib\counterstrikesharp\shared\WASDMenuAPI.Shared\WASDMenuAPI.Shared.dll</HintPath>
+      <HintPath>lib\counterstrikesharp\shared\MenuManagerApi\MenuManagerApi.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -35,7 +35,7 @@
     <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(ProjectDir)lib/csgo/* $(SolutionDir)bin/Debug/$(TargetFramework)/Public/" />
     <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R $(ProjectDir)lang\*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang\" />
     <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(ProjectDir)lang/* $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/plugins/GameModeManager/lang/" />
-    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /E $(ProjectDir)lib\csgo\addons\counterstrikesharp\shared\WASDMenuAPI.Shared\WASDMenuAPI.Shared.dll $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
-    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp $(ProjectDir)lib/csgo/addons/counterstrikesharp/shared/WASDMenuAPI.Shared/WASDMenuAPI.Shared.dll $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/plugins/GameModeManager/" />
+    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /E $(ProjectDir)lib\csgo\addons\counterstrikesharp\shared\MenuManagerApi\MenuManagerApi.dll $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
+    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp $(ProjectDir)lib/csgo/addons/counterstrikesharp/shared/MenuManagerApi/MenuManagerApi.dll $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/plugins/GameModeManager/" />
   </Target>
 </Project>

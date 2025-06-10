@@ -3,12 +3,10 @@ using GameModeManager.Core;
 using GameModeManager.Menus;
 using CounterStrikeSharp.API;
 using GameModeManager.Models;
-using WASDMenuAPI.Shared.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Localization;
-using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
 namespace GameModeManager.Features
@@ -17,7 +15,7 @@ namespace GameModeManager.Features
     public class AsyncVoteManager : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private Plugin? _plugin;
+        private RTVMenus _rtvMenus;
         private GameRules _gameRules;
         private PluginState _pluginState;
         private VoteManager _voteManager;
@@ -27,9 +25,10 @@ namespace GameModeManager.Features
         private TimeLimitManager _timeLimitManager;
         private VoteOptionManager _voteOptionManager;
 
-        // Define class instance
-        public AsyncVoteManager(PluginState pluginState, IStringLocalizer iLocalizer, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManager)
+        // Define class constructor
+        public AsyncVoteManager(RTVMenus rtvMenus, PluginState pluginState, IStringLocalizer iLocalizer, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteOptionManager voteOptionManager)
         {
+            _rtvMenus = rtvMenus;
             _gameRules = gameRules;
             _voteManager = voteManager;
             _pluginState = pluginState;
@@ -52,12 +51,6 @@ namespace GameModeManager.Features
         {
             _config = config;
             VotePercentage = _config.RTV.VotePercentage / 100F;
-        }
-
-        // Define on load behavior
-        public void OnLoad(Plugin plugin)
-        {
-            _plugin = plugin;
         }
 
         // Define on map start behavior 
@@ -125,32 +118,9 @@ namespace GameModeManager.Features
             _voteManager.StartVote(_pluginState.RTV.Duration);
 
             // Display vote menu
-            MenuFactory menuFactory = new MenuFactory(_plugin);
-            RTVMenus rtvMenus = new RTVMenus(_plugin, _pluginState, _localizer, _voteManager,_voteOptionManager.GetOptions(), _config);
-
-            if (_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
+            foreach (var validPlayer in PlayerExtensions.ValidPlayers())
             {
-                foreach (var validPlayer in PlayerExtensions.ValidPlayers())
-                {
-                    IWasdMenu? menu = rtvMenus.WasdMenus.MainMenu;
-
-                    if (menu != null)
-                    {
-                        menuFactory.WasdMenus.OpenMenu(validPlayer, menu);
-                    }
-                }
-            }
-            else
-            {
-                foreach (var validPlayer in PlayerExtensions.ValidPlayers())
-                {
-                    BaseMenu menu = rtvMenus.BaseMenus.MainMenu;
-
-                    if (menu != null)
-                    {
-                        menuFactory.BaseMenus.OpenMenu(menu, validPlayer);
-                    }
-                }
+                _rtvMenus.MainMenu?.Open(validPlayer);
             }
         }
 

@@ -1,103 +1,52 @@
 // Included libraries
-using WASDMenuAPI.Shared;
-using WASDMenuAPI.Shared.Models;
-using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Menu;
+using MenuManager;
+using GameModeManager.Menus;
+using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core.Capabilities;
 
 // Declare namespace
 namespace GameModeManager.CrossCutting
 {
     // Define class
-    public class MenuFactory
-    {   
+    public class MenuFactory : IPluginDependency<Plugin, Config>
+    {
+        // Define class dependencies
+        private RTVMenus _rtvMenus;
+        private MapMenus _mapMenus;
+        private ModeMenus _modeMenus;
+        private PlayerMenu _playerMenu;
+        private SettingMenus _settingMenus;
+        private NominateMenus _nominateMenus;
+        private readonly PluginCapability<IMenuApi> _pluginCapability = new("menu:nfcore");
+
+        // Define class constructor
+        public MenuFactory(RTVMenus rtvMenus, MapMenus mapMenus, ModeMenus modeMenus, PlayerMenu playerMenu, SettingMenus settingMenus, NominateMenus nominateMenus)
+        {
+            _rtvMenus = rtvMenus;
+            _mapMenus = mapMenus;
+            _modeMenus = modeMenus;
+            _playerMenu = playerMenu;
+            _settingMenus = settingMenus;
+            _nominateMenus = nominateMenus;
+        }
+
         // Define class properties
-        public BaseMenuController BaseMenus;
-        public WasdMenuController WasdMenus;
-        public static PluginCapability<IWasdMenuManager> WasdMenuManager { get; } = new("wasdmenu:manager");
+        public static IMenuApi? Api;
 
-        // Define class instance
-        public MenuFactory(Plugin? plugin)
+        // Define class methods
+        public void Load()
         {
-            BaseMenus = new BaseMenuController(plugin);
-            WasdMenus = new WasdMenuController(WasdMenuManager);
+            Api = _pluginCapability.Get();
         }
 
-        // Define BaseMenu class
-        public class BaseMenuController(Plugin? plugin)
+        public void LoadMenus()
         {
-            public BaseMenu AssignMenu(string menuType, string menuName)
-            {
-                BaseMenu _baseMenu;
-
-                if (menuType.Equals("center", StringComparison.OrdinalIgnoreCase) && plugin != null)
-                {
-                    _baseMenu = new CenterHtmlMenu(menuName, plugin);
-                }
-                else if (menuType.Equals("console", StringComparison.OrdinalIgnoreCase))
-                {
-                    _baseMenu = new ConsoleMenu(menuName);
-                }
-                else
-                {
-                    _baseMenu = new ChatMenu(menuName);
-                }
-                return _baseMenu;
-            }
-
-            public void OpenMenu(BaseMenu menu, CCSPlayerController player)
-            {
-                if (plugin != null)
-                {
-                    switch (menu)
-                    {
-                        case CenterHtmlMenu centerHtmlMenu:
-                            MenuManager.OpenCenterHtmlMenu(plugin, player, centerHtmlMenu);
-                            break;
-                        case ChatMenu chatMenu:
-                            MenuManager.OpenChatMenu(player, chatMenu);
-                            break;
-                        case ConsoleMenu consoleMenu:
-                            MenuManager.OpenConsoleMenu(player, consoleMenu);
-                            break;
-                    }
-                }
-            }
-
-            public void CloseMenu(CCSPlayerController player)
-            {
-                MenuManager.CloseActiveMenu(player);
-            }
-        }
-
-        // Define WASDMenu class
-        public class WasdMenuController (PluginCapability<IWasdMenuManager> wasdMenuManager)
-        {
-            public IWasdMenu? AssignMenu(string menuName)
-            {
-                IWasdMenu? menu = wasdMenuManager.Get()?.CreateMenu(menuName);
-                return menu;
-            }
-
-            public void OpenMenu(CCSPlayerController player, IWasdMenu menu)
-            {
-                wasdMenuManager.Get()?.OpenMainMenu(player, menu);
-            }
-
-            public void OpenSubMenu(CCSPlayerController player, IWasdMenu menu)
-            {
-                wasdMenuManager.Get()?.OpenSubMenu(player, menu);
-            }
-
-            public void CloseMenu(CCSPlayerController player)
-            {
-                wasdMenuManager.Get()?.CloseMenu(player);
-            }
-
-            public void CloseSubMenu(CCSPlayerController player)
-            {
-                wasdMenuManager.Get()?.CloseSubMenu(player);
-            }
+            _rtvMenus.Load();
+            _mapMenus.Load();
+            _modeMenus.Load();
+            _playerMenu.Load();
+            _settingMenus.Load();
+            _nominateMenus.Load();
         }
     }
 }

@@ -2,12 +2,10 @@
 using GameModeManager.Menus;
 using GameModeManager.Models;
 using CounterStrikeSharp.API;
-using WASDMenuAPI.Shared.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using GameModeManager.Shared.Models;
-using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -18,15 +16,16 @@ namespace GameModeManager.Features
     public class MapCommands : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private Plugin? _plugin;
+        private MapMenus _mapMenus;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private Config _config = new Config();
 
-        // Define class instance
-        public MapCommands(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
+        // Define class constructor
+        public MapCommands(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, MapMenus mapMenus)
         {
+            _mapMenus = mapMenus;
             _localizer = localizer;
             _pluginState = pluginState;
             _serverManager = serverManager;
@@ -41,8 +40,6 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            _plugin = plugin;
-
             if (_config.Commands.Map)
             {
                 plugin.AddCommand("css_map", "Changes the map to the map specified in the command argument.", OnMapCommand);
@@ -58,25 +55,9 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            MenuFactory menuFactory = new MenuFactory(_plugin);
-            MapMenus mapMenus = new MapMenus(_plugin, _pluginState, _localizer, _serverManager, _config);
-
             if (player != null)
             {
-                if (_config.Maps.Style.Equals("wasd"))
-                {
-                    IWasdMenu? menu = mapMenus.WasdMenus.MainMenu;
-
-                    if (menu != null)
-                    {
-                        menuFactory.WasdMenus.OpenMenu(player, menu);
-                    }
-                }
-                else
-                {
-                    BaseMenu menu = mapMenus.BaseMenus.MainMenu;
-                    menuFactory.BaseMenus.OpenMenu(menu, player);
-                }
+                _mapMenus.MainMenu?.Open(player);
             }
         }
 
@@ -85,20 +66,34 @@ namespace GameModeManager.Features
         [CommandHelper(minArgs: 1, usage: "<map name> optional: <workshop id>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnMapCommand(CCSPlayerController? player, CommandInfo command)
         {
-            IMap _newMap = new Map($"{command.ArgByIndex(1)}",$"{command.ArgByIndex(2)}");
-            IMap? _foundMap = _pluginState.Game.Maps.FirstOrDefault(g => g.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || g.WorkshopId.ToString().Equals("{command.ArgByIndex(2)}", StringComparison.OrdinalIgnoreCase));
-
-            if (_foundMap != null)
-            {
-                _newMap = _foundMap; 
-            }
-
-            if(player != null)
-            {
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _newMap.Name));
-            }
+            IMap? newMap;
+            string mapName = command.ArgByIndex(1);
             
-            _serverManager.ChangeMap(_newMap, _config.Maps.Delay);
+            if (long.TryParse(command.ArgByIndex(2), out long workshopId) && _pluginState.Game.MapsByWorkshopId.TryGetValue(workshopId, out IMap? workshopMap))
+            {
+                newMap = workshopMap;
+            }
+            else if (_pluginState.Game.Maps.TryGetValue(mapName, out IMap? map))
+            {
+                newMap = map;
+            }
+            else
+            {
+                newMap = new Map(mapName, workshopId);
+            }
+
+            if (newMap == null)
+            {
+                command.ReplyToCommand($"Failed to find or create map for command: {mapName} (Workshop ID: {workshopId})");
+                return; 
+            }
+
+            if (player != null)
+            {
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, newMap.DisplayName));
+            }
+
+            _serverManager.ChangeMap(newMap, _config.Maps.Delay);
         }
     }
 }

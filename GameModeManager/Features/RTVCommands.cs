@@ -20,7 +20,7 @@ namespace GameModeManager.Features
         private Config _config = new Config();
         private AsyncVoteManager _asyncVoteManager;
 
-        // Define class instance
+        // Define class constructor
         public RTVCommands(PluginState pluginState, RTVManager rtvManager, AsyncVoteManager asyncVoteManager, ILogger<RTVCommands> logger)
         {
             _logger = logger;
@@ -151,7 +151,6 @@ namespace GameModeManager.Features
                 if (int.TryParse(command.ArgByIndex(1), out var duration))
                 {
                     _pluginState.RTV.Duration = duration;
-                    
                 }
                 else
                 {

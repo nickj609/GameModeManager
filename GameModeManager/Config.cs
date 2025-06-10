@@ -29,8 +29,7 @@ namespace GameModeManager
     // Define RTV settings
     public class RTVSettings
     {
-        public bool Enabled { get; set; } = true; // Enables RTV
-        public string Style { get; set; } = "wasd"; // Changes vote menu type (i.e. "chat", "center", "console", or "wasd")
+        public bool Enabled { get; set; } = true; // Enables RTv
         public bool PerMap { get; set; } = false; // Enables per map RTV configuration
         public bool HideHud { get; set; } = false; // Hides vote results hud
         public int MinRounds { get; set; } = 1; // Minimum number of rounds for RTV
@@ -61,7 +60,6 @@ namespace GameModeManager
     {
         public int Mode { get; set; } = 0; // 0 for current mode maps, 1 for all maps
         public int Delay { get; set; } = 5; // Map change delay in seconds
-        public string Style { get; set; } = "wasd"; // Changes map menu type 
         public string Default { get; set; } = "de_dust2"; // Default map on server start
     }
 
@@ -70,7 +68,6 @@ namespace GameModeManager
     {
         public bool Enabled { get; set; } = false; // Enables CS2-CustomVotes compatibility
         public bool Maps { get; set; } = false; // Enables vote to change map
-        public string Style { get; set; } = "wasd"; // Changes vote menu type (i.e. "chat", "center", "console", or "wasd")
         public bool GameModes { get; set; } = false; // Enables vote to change game mode
         public bool GameSettings { get; set; } = false; // Enables vote to change game setting
     }
@@ -79,7 +76,6 @@ namespace GameModeManager
     public class GameSettings
     {
         public bool Enabled { get; set; } = true; // Enable game settings
-        public string Style { get; set; } = "wasd"; // Changes settings menu type (i.e. "chat", "center", "console", or "wasd")
         public string Folder { get; set; } = "settings"; // Default settings folder
     }
 
@@ -92,7 +88,6 @@ namespace GameModeManager
         public bool Modes { get; set; } = true; // Enables or disables !modes admin command 
         public bool TimeLeft { get; set; } = true; // Enables or disables !timeleft admin command
         public bool TimeLimit { get; set; } = true; // Enables or disables !timelimit admin command
-        public string Style { get; set; } = "wasd"; // Changes command menu type (i.e. "chat", "center", "console", or "wasd")
     }
 
     public class WarmupSettings
@@ -129,7 +124,6 @@ namespace GameModeManager
     // Define game mode settings
     public class GameModeSettings
     {
-        public string Style { get; set; } = "wasd"; // Changes mode menu type (i.e. "chat", "center", "console", or "wasd")
         public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Casual", Config = "casual.cfg", MapGroups = new List<string>() { "mg_active", "mg_comp" } }; // Default mode on server start
         public string MapGroupFile { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
 
@@ -190,11 +184,6 @@ namespace GameModeManager
         public void OnConfigParsed(Config _config)
         {
             // Maps settings
-            if (!_config.Maps.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Maps.Style.Equals("console", StringComparison.OrdinalIgnoreCase)  && !_config.Maps.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
-            {
-                Logger.LogError("Invalid: Maps Style must be 'center', 'chat', 'console' or 'wasd'");
-                throw new Exception("Invalid: Maps Style must be 'center', 'chat', 'console' or 'wasd'");
-            }
             if (String.IsNullOrEmpty(_config.Maps.Default))
             {
                 Logger.LogError("Invalid: Default map must not be empty.");
@@ -211,19 +200,7 @@ namespace GameModeManager
                 throw new Exception("Invalid: Maps Delay cannot be negative.");
             }
 
-            // Vote Settings
-            if (!_config.Votes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("console", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
-            {
-                Logger.LogError("Invalid: Vote Style must be 'center', 'chat', 'console' or 'wasd'");
-                throw new Exception("Invalid: Vote Style must be 'center', 'chat', 'console' or 'wasd'");
-            }
-
             // Game Settings
-            if (!_config.Settings.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Settings.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Settings.Style.Equals("console", StringComparison.OrdinalIgnoreCase) && !_config.Settings.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
-            {
-                Logger.LogError("Invalid: Maps Style must be 'center', 'chat', 'console' or 'wasd'");
-                throw new Exception("Invalid: Maps Style must be 'center', 'chat', 'console' or 'wasd'");
-            }
             if (_config.Settings.Enabled && !Directory.Exists(Path.Combine(PluginState.GameController.ConfigDirectory, _config.Settings.Folder)))
             {
                 Logger.LogError($"Cannot find 'Settings Folder': {PluginState.GameController.SettingsDirectory}");
@@ -245,12 +222,6 @@ namespace GameModeManager
             {
                 Logger.LogError("Undefined: Game modes list cannot be empty.");
                 throw new Exception("Undefined: Game modes list cannot be empty.");
-            }
-
-            if (_config.GameModes.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && _config.GameModes.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.GameModes.Style.Equals("console", StringComparison.OrdinalIgnoreCase)  && !_config.GameModes.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
-            {
-                Logger.LogError("Invalid: GameModes Style must be 'center' or 'chat'");
-                throw new Exception("Invalid: GameModes Style must be 'center' or 'chat'");
             }
 
             if (_config.GameModes.Default == null)
@@ -286,12 +257,6 @@ namespace GameModeManager
             }
 
             // RTV Settings
-            if (!_config.RTV.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.RTV.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.RTV.Style.Equals("console", StringComparison.OrdinalIgnoreCase)  && !_config.RTV.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
-            {
-                Logger.LogError("Invalid: RTV Style must be 'center', 'chat', 'console' or 'wasd'");
-                throw new Exception("Invalid: RTV Style must be 'center', 'chat', 'console' or 'wasd'");
-            }
-
             if (_config.RTV.MinRounds < 0) {
                 Logger.LogError("Invalid: MinRounds cannot be negative.");
                 throw new Exception("Invalid: MinRounds cannot be negative.");
@@ -362,13 +327,6 @@ namespace GameModeManager
             {
                 Logger.LogError("Invalid: Warmup Time cannot be negative.");
                 throw new Exception("Invalid: Warmup Time cannot be negative.");
-            }
-
-            // Commands settings
-            if (!_config.Commands.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && !_config.Commands.Style.Equals("chat", StringComparison.OrdinalIgnoreCase) && !_config.Commands.Style.Equals("console", StringComparison.OrdinalIgnoreCase)  && !_config.Commands.Style.Equals("wasd", StringComparison.OrdinalIgnoreCase))
-            {
-                Logger.LogError("Invalid: Commands Style must be 'center', 'chat', 'console' or 'wasd'");
-                throw new Exception("Invalid: Commands Style must be 'center', 'chat', 'console' or 'wasd'");
             }
 
             // Config version check

@@ -34,15 +34,17 @@ namespace GameModeManager
         
         // Define class dependencies
         private readonly RTVApi _rtvApi;
+        private readonly MenuFactory _menuFactory;
         private readonly GameModeApi _gameModeApi;
         private readonly TimeLimitApi _timeLimitApi;
         private readonly CustomVoteManager _customVoteManager;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
-        // Define class instance
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager, CustomVoteManager customVoteManager, GameModeApi gameModeApi, TimeLimitApi timeLimitApi, RTVApi rtvApi)
+        // Define class constructor
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager, CustomVoteManager customVoteManager, GameModeApi gameModeApi, TimeLimitApi timeLimitApi, RTVApi rtvApi, MenuFactory menuFactory)
         {
             _rtvApi = rtvApi;
+            _menuFactory = menuFactory;
             _gameModeApi = gameModeApi;
             _timeLimitApi = timeLimitApi;
             _customVoteManager = customVoteManager;
@@ -96,20 +98,19 @@ namespace GameModeManager
                 }
             }
 
-            // Check if WASD menus are enabled
-            if (Config.GameModes.Style.Equals("wasd") || Config.Maps.Style.Equals("wasd") || Config.Settings.Style.Equals("wasd") || Config.Votes.Style.Equals("wasd"))
+            // Check if MenuManagerApi is enabled
+            try
             {
-                try
-                {
-                    if (MenuFactory.WasdMenuManager.Get() is null){}
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogWarning("WASDSharedAPI plugin not found. WASD menus will not work.");
-                    Logger.LogDebug(ex.Message);
-                    return;
-                }
+                _menuFactory.Load();
+                if (MenuFactory.Api is null){}
+                _menuFactory.LoadMenus();
+                return;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("MenuManager plugin not found.");
+                Logger.LogDebug(ex.Message);
+                return;
             }
         }
 

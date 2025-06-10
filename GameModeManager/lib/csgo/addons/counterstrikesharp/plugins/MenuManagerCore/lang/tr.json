@@ -1,0 +1,14 @@
+{
+	"menumanager.footer": "W - yukarı S - aşağı E - seç R - çıkış",
+	"menumanager.select_type":"Menü seç",
+	"menumanager.console":"Konsol",
+	"menumanager.chat":"Sohbet menüsü",
+	"menumanager.center":"Center (Standart)",
+	"menumanager.control":"Center (Kontrol)",
+	"menumanager.selected_type":"Seçilen menü türü:",
+	"menumanager.metamod":"Meta-menu (Sohbet|Kontrol)",
+	"menumanager.back":"Geri",
+	"menumanager.empty":"Gösterilecek bir şey yok",
+	"menumanager.selected_item":"► [MENUITEM] ◄",
+	"menumanager.disabled_item":"<font color='#aaaaaa'>[MENUITEM]</font>"
+}

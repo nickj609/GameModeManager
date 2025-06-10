@@ -1,0 +1,14 @@
+{
+	"menumanager.footer": "W - вверх S - вниз E - выбор R - выход",	
+	"menumanager.select_type":"Выбор меню",
+	"menumanager.console":"Консольное",	
+	"menumanager.chat":"Чат-меню",
+	"menumanager.center":"Центр (Стандартное)",
+	"menumanager.control":"Центр (Управляемое)",
+	"menumanager.metamod":"Мета-меню (Чат|Управляемое)",
+	"menumanager.selected_type":"Выбранный тип меню:",
+	"menumanager.back":"Назад",
+	"menumanager.empty":"Нет элементов для отображения",
+	"menumanager.selected_item":"► [MENUITEM] ◄",
+	"menumanager.disabled_item":"<font color='#aaaaaa'>[MENUITEM]</font>"
+}

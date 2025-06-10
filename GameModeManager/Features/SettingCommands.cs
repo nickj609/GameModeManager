@@ -2,11 +2,9 @@
 using GameModeManager.Menus;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
-using WASDMenuAPI.Shared.Models;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using GameModeManager.Shared.Models;
-using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -17,16 +15,17 @@ namespace GameModeManager.Features
     public class SettingCommands : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private Plugin? _plugin;
         private PluginState _pluginState;
+        private SettingMenus _settingMenus;
         private StringLocalizer _localizer;
         private Config _config = new Config();
 
-        // Define class instance
-        public SettingCommands(PluginState pluginState, StringLocalizer localizer)
+        // Define class constructor
+        public SettingCommands(PluginState pluginState, StringLocalizer localizer, SettingMenus settingMenus)
         {
             _localizer = localizer;
             _pluginState = pluginState;
+            _settingMenus = settingMenus;
         }
 
         // Load config
@@ -38,8 +37,6 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            _plugin = plugin;
-
             if (_config.Settings.Enabled)
             {
                 plugin.AddCommand("css_setting", "Changes the game setting.", OnSettingCommand);
@@ -56,19 +53,18 @@ namespace GameModeManager.Features
             {
                 string _status = $"{command.ArgByIndex(1)}";
                 string _settingName = $"{command.ArgByIndex(2)}";
-                ISetting? _option = _pluginState.Game.Settings.FirstOrDefault(s => s.Name.Equals(_settingName, StringComparison.OrdinalIgnoreCase));
 
-                if(_option != null) 
+                if(_pluginState.Game.Settings.TryGetValue(_settingName, out ISetting? _setting)) 
                 {
                     if (_status.Equals("enable", StringComparison.OrdinalIgnoreCase)) 
                     {
                         Server.PrintToChatAll(_localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, _settingName));
-                        Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_option.Enable}");
+                        Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Enable}");
                     }
                     else if (_status.Equals("disable", StringComparison.OrdinalIgnoreCase))
                     {
                         Server.PrintToChatAll(_localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, _settingName));
-                        Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_option.Disable}");
+                        Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Disable}");
                     }
                     else
                     {
@@ -86,30 +82,9 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            MenuFactory _menuFactory = new MenuFactory(_plugin);
-            SettingMenus _settingMenus = new SettingMenus(_plugin, _pluginState, _localizer, _config);
-            
             if (player != null)
             {
-                if (_config.Settings.Style.Equals("wasd"))
-                {
-                    IWasdMenu? menu = _settingMenus.WasdMenus.MainMenu;
-
-                    if (menu != null)
-                    {
-                        _menuFactory.WasdMenus.OpenMenu(player, menu);
-                    }
-                }
-                else
-                {
-                    BaseMenu menu = _settingMenus.BaseMenus.MainMenu;
-
-                    if (menu != null)
-                    {
-                        menu.Title = _localizer.Localize("settings.menu-actions");
-                        _menuFactory.BaseMenus.OpenMenu(menu, player);
-                    }
-                }
+                _settingMenus.MainMenu?.Open(player);
             }
         }
     }
