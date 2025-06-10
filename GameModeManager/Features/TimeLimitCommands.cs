@@ -22,7 +22,7 @@ namespace GameModeManager.Features
         private TimeLimitManager _timeLimitManager;
         private StringLocalizer _timeLimitLocalizer;
 
-        // Define class instance
+        // Define class constructor
         public TimeLimitCommands(TimeLimitManager timeLimitManager, PluginState pluginState, IStringLocalizer iLocalizer, ILogger<TimeLimitCommands> logger)
         {
             _logger = logger;
@@ -88,7 +88,7 @@ namespace GameModeManager.Features
                 {
                     if (int.TryParse(command.ArgByIndex(2), out int seconds) && seconds >= 0)
                     {
-                         specificTime = seconds;
+                        specificTime = seconds;
                     }
                     else
                     {
@@ -102,7 +102,7 @@ namespace GameModeManager.Features
                 {
                     _timeLimitManager.EnableTimeLimit(specificTime.Value); 
                     command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.enabled")); 
-                     _logger.LogInformation("Time limit enabled by {Executor} with duration: {Seconds} seconds.", executor, specificTime.Value);
+                    _logger.LogInformation("Time limit enabled by {Executor} with duration: {Seconds} seconds.", executor, specificTime.Value);
                 }
                 else
                 {

@@ -2,6 +2,7 @@
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using Microsoft.Extensions.Logging;
+using GameModeManager.Shared.Models;
 using System.Text.RegularExpressions;
 
 // Declare namespace
@@ -15,7 +16,7 @@ namespace GameModeManager.Core
         private Config _config = new Config();
         private ILogger<SettingsManager> _logger;
 
-        // Define class instance
+        // Define class constructor
         public SettingsManager(PluginState pluginState, ILogger<SettingsManager> logger)
         {
             _logger = logger;
@@ -52,24 +53,25 @@ namespace GameModeManager.Core
                             if (_match.Success) 
                             {
                                 _name = _name.Substring(_match.Length);
-                                var _setting = _pluginState.Game.Settings.FirstOrDefault(s => s.Name.Equals(_name, StringComparison.OrdinalIgnoreCase));
-                                
+
                                 // Create a new setting if not found
-                                if (_setting == null)
+                                if (!_pluginState.Game.Settings.ContainsKey(_name))
                                 {
-                                    _setting = new Setting(_name);
-                                    _pluginState.Game.Settings.Add(_setting);
+                                    Setting _newSetting = new Setting(_name);
+                                    _pluginState.Game.Settings.Add(_name, _newSetting); 
                                 }
 
-                                // Assign config path based on prefix
-                                if (_fileName.StartsWith("enable_")) 
+                                if (_pluginState.Game.Settings.TryGetValue(_name, out ISetting? _setting))
                                 {
-                                    _setting.Enable = _fileName;
-                                } 
-                                else 
-                                {
-                                    _setting.Disable = _fileName;
-                                }      
+                                    if (_fileName.StartsWith("enable_"))
+                                    {
+                                        _setting.Enable = _fileName;
+                                    }
+                                    else
+                                    {
+                                        _setting.Disable = _fileName;
+                                    }  
+                                }
                             }
                             else
                             {

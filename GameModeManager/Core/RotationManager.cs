@@ -19,7 +19,7 @@ namespace GameModeManager.Core
         private ServerManager _serverManager;
         private Config _config = new Config();
 
-        // Define class instance
+        // Define class constructor
         public RotationManager(ServerManager serverManager, PluginState pluginState)
         {
             _pluginState = pluginState;

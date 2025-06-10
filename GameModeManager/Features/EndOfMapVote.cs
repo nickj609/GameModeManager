@@ -25,7 +25,7 @@ namespace GameModeManager.Features
         private MaxRoundsManager _maxRoundsManager;
         private AsyncVoteManager _asyncVoteManager;
 
-        // Define class instance
+        // Define class constructor
         public EndOfMapVote(TimeLimitManager timeLimitManager, IStringLocalizer iLocalizer, MaxRoundsManager maxRoundsManager, PluginState pluginState, GameRules gameRules, AsyncVoteManager asyncVoteManager)
         {
             _gameRules = gameRules;

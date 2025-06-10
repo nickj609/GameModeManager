@@ -46,14 +46,14 @@ If you have an idea for a new feature or improvement, please:
 
 If you'd like to contribute code to GameModeManager, please follow these steps:
 
-1.  **Fork the repository** on GitHub.
-2.  **Create a new branch** for your contribution. Choose a descriptive name for your branch (e.g., `feature/new-feature`, `bugfix/issue-123`).
-3.  **Make your changes** following the project's coding style and best practices.
-4.  **Write tests** for any new functionality or bug fixes. Ensure that all tests pass.
-5.  **Update the documentation** if your changes introduce new features or modify existing ones.
-6.  **Commit your changes** with clear and concise commit messages. Follow conventional commit message guidelines if applicable.
-7.  **Push your branch** to your forked repository.
-8.  **Open a Pull Request (PR)** on GitHub against the `main` branch (or the designated development branch) of the main repository.
+1. **Fork the repository** on GitHub.
+2. **Create a new branch** for your contribution. Choose a descriptive name for your branch (e.g., `feature/new-feature`, `bugfix/issue-123`).
+3. **Make your changes** following the project's coding style and best practices.
+4. **Write tests** for any new functionality or bug fixes. Ensure that all tests pass.
+5. **Update the documentation** if your changes introduce new features or modify existing ones.
+6. **Commit your changes** with clear and concise commit messages. Follow conventional commit message guidelines if applicable.
+7. **Push your branch** to your forked repository.
+8. **Open a Pull Request (PR)** on GitHub against the `main` branch (or the designated development branch) of the main repository.
 
 When submitting a pull request, please:
 

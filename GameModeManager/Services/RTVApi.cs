@@ -10,18 +10,12 @@ namespace GameModeManager.Services
     // Define class
     public class RTVApi : IRTVApi, IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
-        private readonly RTVManager _rtvManager;
-        private readonly PluginState _pluginState;
-
-        // Define class instance
+        // Define class constructor
         public RTVApi(PluginState pluginState, RTVManager rtvManager)
         {
-            _rtvManager = rtvManager;
-            _pluginState = pluginState;
-            State = new RTVApiState(_pluginState);
-            Control = new RTVApiController(_rtvManager, _pluginState);
-            Nomination = new RTVApiNomination(_pluginState);
+            State = new RTVApiState(pluginState);
+            Nomination = new RTVApiNomination(pluginState);
+            Control = new RTVApiController(rtvManager, pluginState);
         }
 
         // Define class properties
@@ -35,7 +29,7 @@ namespace GameModeManager.Services
             // Define class dependencies
             private readonly PluginState _pluginState;
 
-            // Define class instance
+            // Define class constructor
             public RTVApiState(PluginState pluginState) => _pluginState = pluginState;
 
             // Define class properties
@@ -61,7 +55,7 @@ namespace GameModeManager.Services
             private readonly RTVManager _rtvManager;
             private readonly PluginState _pluginState;
 
-            // Define class instance
+            // Define class constructor
             public RTVApiController(RTVManager rtvManager, PluginState pluginState)
             {
                 _rtvManager = rtvManager;
@@ -113,7 +107,7 @@ namespace GameModeManager.Services
             // Define class dependencies
             private readonly PluginState _pluginState;
 
-            // Define class instance
+            // Define class constructor
             public RTVApiNomination(PluginState pluginState) => _pluginState = pluginState;
 
             // Define class methods

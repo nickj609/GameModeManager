@@ -3,7 +3,6 @@ using GameModeManager.Models;
 using CS2_CustomVotes.Shared;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
-using CS2_CustomVotes.Shared.Models;
 using CounterStrikeSharp.API.Core.Capabilities;
 
 // Declare namespace
@@ -17,7 +16,7 @@ namespace GameModeManager.Core
         private PluginState _pluginState;
         private StringLocalizer _localizer;
 
-        // Define class instance
+        // Define class constructor
         public CustomVoteManager(PluginState pluginState, StringLocalizer localizer)
         {
             _localizer = localizer;
@@ -45,17 +44,17 @@ namespace GameModeManager.Core
                 _pluginState.Game.PlayerCommands.Add("!changemode");
 
                 // Define mode options
-                var _modeOptions = new Dictionary<string, VoteOption>
+                var _modeOptions = new Dictionary<string, CS2_CustomVotes.Shared.Models.VoteOption>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>()) }
+                    { "No", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.no"), new List<string>()) }
                 };
 
                 // Add vote menu option for each game mode in game mode list
-                foreach (Mode _mode in _pluginState.Game.Modes)
+                foreach (Mode _mode in _pluginState.Game.Modes.Values)
                 {
                     // Add mode to all modes vote
                     string _modeCommand = PluginExtensions.RemoveCfgExtension(_mode.Config);
-                    _modeOptions.Add(_mode.Name, new VoteOption(_mode.Name, new List<string> { $"css_mode {_mode.Name}"}));
+                    _modeOptions.Add(_mode.Name, new CS2_CustomVotes.Shared.Models.VoteOption(_mode.Name, new List<string> { $"css_mode {_mode.Name}"}));
 
                     // Create per mode vote
                     CustomVotesApi.Get()?.AddCustomVote(
@@ -64,10 +63,10 @@ namespace GameModeManager.Core
                         _localizer.Localize("mode.vote.menu-title", _mode.Name), 
                         "No", 
                         30, 
-                        new Dictionary<string, VoteOption> // vote options
+                        new Dictionary<string, CS2_CustomVotes.Shared.Models.VoteOption>(StringComparer.OrdinalIgnoreCase) // vote options
                         {
-                            { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"css_mode {_mode.Name}" })},
-                            { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
+                            { "Yes", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"css_mode {_mode.Name}" })},
+                            { "No", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.no"), new List<string>())},
                         },
                         "center", 
                         -1 
@@ -98,7 +97,7 @@ namespace GameModeManager.Core
             // Register game settings
             if(_config.Votes.GameSettings)
             {
-                foreach (Setting _setting in _pluginState.Game.Settings)
+                foreach (Setting _setting in _pluginState.Game.Settings.Values)
                 {
                     CustomVotesApi.Get()?.AddCustomVote(
                         _setting.Name, 
@@ -106,11 +105,11 @@ namespace GameModeManager.Core
                         _localizer.Localize("setting.vote.menu-title", _setting.DisplayName), 
                         "No", 
                         30, 
-                        new Dictionary<string, VoteOption> 
+                        new Dictionary<string, CS2_CustomVotes.Shared.Models.VoteOption>(StringComparer.OrdinalIgnoreCase) 
                         {
-                            { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
-                            { "Enable", new VoteOption(_localizer.Localize("menu.enable"), new List<string> { $"exec {_config.Settings.Folder}/{_setting.Enable}" })},
-                            { "Disable", new VoteOption(_localizer.Localize("menu.disable"), new List<string>{ $"exec {_config.Settings.Folder}/{_setting.Disable}" })},
+                            { "No", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.no"), new List<string>())},
+                            { "Enable", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.enable"), new List<string> { $"exec {_config.Settings.Folder}/{_setting.Enable}" })},
+                            { "Disable", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.disable"), new List<string>{ $"exec {_config.Settings.Folder}/{_setting.Disable}" })},
                         },
                         "center", 
                         -1 
@@ -133,10 +132,10 @@ namespace GameModeManager.Core
                     _localizer.Localize("map.vote.menu-title", _map.Name), 
                     "No", 
                     30,
-                    new Dictionary<string, VoteOption> 
+                    new Dictionary<string, CS2_CustomVotes.Shared.Models.VoteOption>(StringComparer.OrdinalIgnoreCase)
                     {
-                        { "Yes", new VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"css_map {_map.Name} {_map.WorkshopId}" })},
-                        { "No", new VoteOption(_localizer.Localize("menu.no"), new List<string>())},
+                        { "Yes", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"css_map {_map.Name} {_map.WorkshopId}" })},
+                        { "No", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.no"), new List<string>())},
                     },
                     "center", 
                     -1 
@@ -170,7 +169,7 @@ namespace GameModeManager.Core
             {
                 CustomVotesApi.Get()?.RemoveCustomVote("changemode");
 
-                foreach (Mode _mode in _pluginState.Game.Modes)
+                foreach (var (modeName, _mode) in _pluginState.Game.Modes)
                 {
                     string _modeCommand = PluginExtensions.RemoveCfgExtension(_mode.Config);
                     CustomVotesApi.Get()?.RemoveCustomVote(_modeCommand);    
@@ -180,7 +179,7 @@ namespace GameModeManager.Core
             // Deregister per-setting votes
             if (SettingVote)
             {
-                foreach (Setting _setting in _pluginState.Game.Settings)
+                foreach (Setting _setting in _pluginState.Game.Settings.Values)
                 {
                     CustomVotesApi.Get()?.RemoveCustomVote(_setting.Name);
                 }

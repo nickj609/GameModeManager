@@ -19,7 +19,7 @@ namespace GameModeManager.Core
         private StringLocalizer _localizer;
         private ILogger<WarmupManager> _logger;
 
-        // Define class instance
+        // Define class constructor
         public RTVManager(PluginState pluginState, ILogger<WarmupManager> logger, IStringLocalizer iLocalizer)
         {
             _logger = logger;
@@ -43,7 +43,7 @@ namespace GameModeManager.Core
         public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
-            
+
             if (_pluginState.RTV.Enabled)
             {
                 EnableRTV();

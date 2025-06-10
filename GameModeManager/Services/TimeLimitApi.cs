@@ -9,20 +9,12 @@ namespace GameModeManager.Services
     // Define class
     public class TimeLimitApi : ITimeLimitApi, IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
-        private readonly PluginState _pluginState;
-        private readonly TimeLimitManager _timeLimitManager;
-        private readonly MaxRoundsManager _maxRoundsManager;
-
-        // Define class instance
+        // Define class constructor
         public TimeLimitApi(PluginState pluginState, TimeLimitManager timeLimitManager, MaxRoundsManager maxRoundsManager)
         {
-            _pluginState = pluginState;
-            _timeLimitManager = timeLimitManager;
-            _maxRoundsManager = maxRoundsManager;
-            State = new TimeLimitState(_pluginState, _maxRoundsManager, _timeLimitManager);
-            Control = new TimeLimitController(_timeLimitManager);
-            Messaging = new TimeLimitMessenger(_timeLimitManager);
+            Control = new TimeLimitController(timeLimitManager);
+            Messaging = new TimeLimitMessenger(timeLimitManager);
+            State = new TimeLimitState(pluginState, maxRoundsManager, timeLimitManager);
         }
 
         // Define class properties
@@ -38,7 +30,7 @@ namespace GameModeManager.Services
             private readonly TimeLimitManager _timeLimitManager;
             private readonly MaxRoundsManager _maxRoundsManager;
 
-            // Define class instance
+            // Define class constructor
             public TimeLimitState(PluginState pluginState, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager)
             {
                 _pluginState = pluginState;
@@ -48,9 +40,9 @@ namespace GameModeManager.Services
 
             // Define class properties
             public int MaxWins => _maxRoundsManager.MaxWins;
-            public float TimeLimit => _pluginState.TimeLimit.Duration;
-            public bool Custom => _pluginState.TimeLimit.CustomLimit;
             public bool Enabled => _pluginState.TimeLimit.Enabled;
+            public bool Custom => _pluginState.TimeLimit.CustomLimit;
+            public float TimeLimit => _pluginState.TimeLimit.Duration;
             public bool Scheduled => _pluginState.TimeLimit.Scheduled;
             public decimal TimePlayed => _timeLimitManager.TimePlayed();
             public int RemainingWins => _maxRoundsManager.RemainingWins;
@@ -64,8 +56,7 @@ namespace GameModeManager.Services
             // Define class dependencies
             private readonly TimeLimitManager _timeLimitManager;
 
-            // Define class instance
-
+            // Define class constructor
             public TimeLimitController(TimeLimitManager timeLimitManager)
             {
                 _timeLimitManager = timeLimitManager;
@@ -82,7 +73,7 @@ namespace GameModeManager.Services
             // Define class dependencies
             private readonly TimeLimitManager _timeLimitManager;
 
-            // Define class instance
+            // Define class constructor
             public TimeLimitMessenger(TimeLimitManager timeLimitManager)
             {
                 _timeLimitManager = timeLimitManager;

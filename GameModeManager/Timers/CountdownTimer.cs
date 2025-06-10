@@ -1,7 +1,6 @@
 // Included libraries
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
-using CounterStrikeSharp.API.Modules.Menu;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using TimerFlags = CounterStrikeSharp.API.Modules.Timers.TimerFlags;
 
@@ -16,7 +15,7 @@ namespace GameModeManager.Timers
         private float interval;
         private Action? callback;
 
-        // Define class instance
+        // Define class constructor
         public CountdownTimer(float totalTime, Action onFinish, string message)
         {
             interval = totalTime;
@@ -34,7 +33,7 @@ namespace GameModeManager.Timers
         {
             foreach (CCSPlayerController player in PlayerExtensions.ValidPlayers(false))
             {
-                MenuManager.GetActiveMenus().Clear();
+                CounterStrikeSharp.API.Modules.Menu.MenuManager.GetActiveMenus().Clear();
                 player.PrintToCenterAlert(message + " " + interval.ToString() + "...");
             }
 

@@ -14,7 +14,7 @@ namespace GameModeManager.Core
         // Define class dependencies
         private GameRules _gameRules;
 
-        // Define class instance
+        // Define class constructor
         public MaxRoundsManager(GameRules gameRules)
         {
             _gameRules = gameRules;

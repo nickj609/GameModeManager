@@ -23,7 +23,7 @@ namespace GameModeManager.Core
         private readonly ServerManager _serverManager;
         private readonly MaxRoundsManager _maxRoundsManager;
 
-        // Define class instance
+        // Define class constructor
         public TimeLimitManager(GameRules gameRules, ServerManager serverManager, PluginState pluginState, MaxRoundsManager maxRoundsManager, IStringLocalizer iLocalizer, ILogger<TimeLimitManager> logger)
         {
             _logger = logger;

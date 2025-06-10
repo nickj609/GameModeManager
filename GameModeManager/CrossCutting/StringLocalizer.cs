@@ -11,7 +11,7 @@ namespace GameModeManager.CrossCutting
         private readonly string _prefix;
         private IStringLocalizer _localizer;
 
-        // Define class instances
+        // Define class constructors
         public StringLocalizer(IStringLocalizer localizer)
         {
             _localizer = localizer;
