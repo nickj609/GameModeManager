@@ -1,11 +1,13 @@
 // Included libraries
 using System.Data;
 using System.Text;
+using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
+using GameModeManager.Shared.Models;
 using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Timers;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
@@ -27,7 +29,7 @@ namespace GameModeManager.Core
         private MaxRoundsManager _maxRoundsManager;
         private VoteOptionManager _voteOptionManager;
 
-        // Define class instance
+        // Define class constructor
         public VoteManager(PluginState pluginState, IStringLocalizer iLocalizer, ILogger<VoteManager> logger, ServerManager serverManager, TimeLimitManager timeLimitManager, MaxRoundsManager maxRoundsManager, VoteOptionManager voteOptionManager)
         {
             _logger = logger;
@@ -62,7 +64,7 @@ namespace GameModeManager.Core
         private decimal maxVotes = 0;
         private decimal totalVotes = 0;
         private float votePercentage = 0F;
-        private KeyValuePair<string, int> winner;
+        private KeyValuePair<VoteOption, int> winner;
         private int RequiredVotes { get => (int)Math.Round(PlayerExtensions.ValidPlayerCount() * votePercentage); }
 
         // Define on map start behavior
@@ -84,12 +86,12 @@ namespace GameModeManager.Core
                 percent = 0;
                 maxVotes = 0;
                 totalVotes = 0;
-                _pluginState.RTV.Winner = "";
+                _pluginState.RTV.Winner = null;
                 _pluginState.RTV.NextMap = null;
                 _pluginState.RTV.NextMode = null;
                 _pluginState.RTV.EofVoteHappened = false;
                 _pluginState.RTV.EofVoteHappening = false;
-                winner = new KeyValuePair<string, int>("", 0);
+                winner = new KeyValuePair<VoteOption, int>();
                 KillTimer();
             }
         }
@@ -105,7 +107,7 @@ namespace GameModeManager.Core
             }
         }
 
-        public void AddVote(CCSPlayerController player, string option)
+        public void AddVote(CCSPlayerController player, VoteOption option)
         {
             _pluginState.RTV.Votes[option] += 1;
             player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.you-voted", option));
@@ -151,7 +153,7 @@ namespace GameModeManager.Core
             Random rnd = new();
             maxVotes = _pluginState.RTV.Votes.Select(x => x.Value).Max();
             totalVotes = _pluginState.RTV.Votes.Select(x => x.Value).Sum();
-            IEnumerable<KeyValuePair<string, int>> potentialWinners = _pluginState.RTV.Votes.Where(x => x.Value == maxVotes);
+            IEnumerable<KeyValuePair<VoteOption, int>> potentialWinners = _pluginState.RTV.Votes.Where(x => x.Value == maxVotes);
             winner = potentialWinners.ElementAt(rnd.Next(0, potentialWinners.Count()));
 
             if (winner.Value >= RequiredVotes)
@@ -172,10 +174,10 @@ namespace GameModeManager.Core
             }
             else
             {
-                List<string> options = _voteOptionManager.GetOptions();
-                string randomOption = options[new Random().Next(0, options.Count)];
-                _pluginState.RTV.Winner = randomOption;
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.vote-ended-no-votes", randomOption));
+                List<VoteOption> options = _voteOptionManager.GetOptions();
+                _pluginState.RTV.Winner = options[new Random().Next(0, options.Count)];
+
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.vote-ended-no-votes", _pluginState.RTV.Winner.DisplayName));
             }
             if (!_config.RTV.HideHud)
             {
@@ -185,9 +187,9 @@ namespace GameModeManager.Core
                 });
             }
 
-            if (_voteOptionManager.OptionType(_pluginState.RTV.Winner) == "mode")
+            if (_pluginState.RTV.Winner?.Type is VoteOptionType.Mode)
             {
-                _pluginState.RTV.NextMode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals(_pluginState.RTV.Winner, StringComparison.OrdinalIgnoreCase));
+                _pluginState.RTV.NextMode = _pluginState.Game.Modes.TryGetValue(_pluginState.RTV.Winner.Name, out IMode? mode) ? mode : null;
 
                 if (_pluginState.RTV.NextMode?.DefaultMap != null)
                 {
@@ -218,9 +220,9 @@ namespace GameModeManager.Core
                 }
                 _pluginState.RTV.EofVoteHappened = true;
             }
-            else if (_voteOptionManager.OptionType(_pluginState.RTV.Winner) == "map")
+            else if (_pluginState.RTV.Winner?.Type is VoteOptionType.Map)
             {
-                _pluginState.RTV.NextMap = _pluginState.Game.Maps.FirstOrDefault(m => m.DisplayName.Equals(_pluginState.RTV.Winner, StringComparison.OrdinalIgnoreCase) || m.Name.Equals(_pluginState.RTV.Winner, StringComparison.OrdinalIgnoreCase));
+                _pluginState.RTV.NextMap = _pluginState.Game.Maps.TryGetValue(_pluginState.RTV.Winner.Name, out IMap? map) ? map : null;
 
                 if (_pluginState.RTV.ChangeImmediately && _pluginState.RTV.NextMap != null)
                 {
@@ -246,7 +248,7 @@ namespace GameModeManager.Core
                 }
                 _pluginState.RTV.EofVoteHappened = true;
             }
-            else if (_pluginState.RTV.Winner.Equals("Extend", StringComparison.OrdinalIgnoreCase))
+            else if (_pluginState.RTV.Winner?.Type is VoteOptionType.Extend)
             {
                 _pluginState.RTV.EofVoteHappened = false;
                 _timeLimitManager.ExtendMap();
@@ -321,7 +323,7 @@ namespace GameModeManager.Core
             }
             else
             {
-                if (_pluginState.RTV.EofVoteHappened == true)
+                if (_pluginState.RTV.EofVoteHappened == true && _pluginState.RTV.Winner != null)
                 {
                     foreach (CCSPlayerController player in PlayerExtensions.ValidPlayers())
                     {

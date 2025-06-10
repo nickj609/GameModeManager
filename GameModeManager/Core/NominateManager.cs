@@ -1,4 +1,5 @@
 // Included libraries
+using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
@@ -17,22 +18,24 @@ namespace GameModeManager.Core
         private PluginState _pluginState;
         private StringLocalizer _localizer;
 
-        // Define class instance
+        // Define class constructor
         public NominateManager(PluginState pluginState, IStringLocalizer iLocalizer)
         {
             _pluginState = pluginState;
             _localizer = new StringLocalizer(iLocalizer, "rtv.prefix");
         }
-        
+
         // Define class properties
-        public Dictionary<int, List<string>> MapNominations = new();
-        public Dictionary<int, List<string>> ModeNominations = new();
-    
+        private Dictionary<VoteOption, int> _mapVoteCounts = new();
+        private Dictionary<VoteOption, int> _modeVoteCounts = new();
+        public Dictionary<int, List<VoteOption>> MapNominations = new();
+        public Dictionary<int, List<VoteOption>> ModeNominations = new();
+        
         // Load config
         public void OnConfigParsed(Config config)
         {
             _config = config;
-            _pluginState.RTV.InCoolDown = config.RTV.OptionsInCoolDown;
+            _pluginState.RTV.InCoolDown = config.RTV.OptionsInCoolDown; 
             _pluginState.RTV.NominationEnabled = _config.RTV.NominationEnabled;
             _pluginState.RTV.MaxNominationWinners = _config.RTV.MaxNominationWinners;
         }
@@ -46,6 +49,8 @@ namespace GameModeManager.Core
                 {
                     MapNominations.Clear();
                     ModeNominations.Clear();
+                    _mapVoteCounts.Clear(); 
+                    _modeVoteCounts.Clear(); 
 
                     var map = Server.MapName;
                     if(map is not null)
@@ -53,45 +58,32 @@ namespace GameModeManager.Core
                         if (_pluginState.RTV.InCoolDown == 0)
                         {
                             _pluginState.RTV.OptionsOnCoolDown.Clear();
+                            _pluginState.RTV.OptionsOnCoolDownSet.Clear();
                             return;
                         }
-                        if (_pluginState.RTV.OptionsOnCoolDown.Count > _pluginState.RTV.InCoolDown)
+                        
+                        // Use Queue.Count and Dequeue
+                        if (_pluginState.RTV.OptionsOnCoolDown.Count >= _pluginState.RTV.InCoolDown) 
                         {
-                            _pluginState.RTV.OptionsOnCoolDown.RemoveAt(0);
+                            var removedOption = _pluginState.RTV.OptionsOnCoolDown.Dequeue();
+                            _pluginState.RTV.OptionsOnCoolDownSet.Remove(removedOption);
                         }
-                        _pluginState.RTV.OptionsOnCoolDown.Add(map.Trim().ToLower());
+
+                        if (_pluginState.Game.Maps.TryGetValue(map.Trim(), out IMap? mapOption))
+                        {
+                            var newOption = new VoteOption(mapOption.Name, mapOption.DisplayName, VoteOptionType.Map);
+                            _pluginState.RTV.OptionsOnCoolDown.Enqueue(newOption);
+                            _pluginState.RTV.OptionsOnCoolDownSet.Add(newOption);
+                        }
                     }
                 }
             }
         }
 
-         // Function to nominate a map or mode
-        public void Nominate(CCSPlayerController player, string option)
+        // Function to nominate a map or mode
+        public void Nominate(CCSPlayerController player, VoteOption option)
         {
-            IMap? map = null;
-            IMode? mode = null;
             var userId = player.UserId!.Value;
-
-            // Find map or mode nominated
-            if (_config.RTV.IncludeModes)
-            {
-                mode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if(_config.Maps.Mode == 1)
-            {
-                map = _pluginState.Game.Maps.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(option, StringComparison.OrdinalIgnoreCase));
-            }
-            else
-            {
-                map = _pluginState.Game.CurrentMode.Maps.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(option, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (map == null & mode == null)
-            {
-                 player.PrintToChat("Can't find map or mode.");
-                 return;
-            }
 
             // Check if option is in cooldown
             if (IsOptionInCooldown(option))
@@ -101,9 +93,9 @@ namespace GameModeManager.Core
             }
 
             // Nominate map or mode
-            if(mode != null)
+            if(option.Type is VoteOptionType.Mode)
             {
-                if (_pluginState.Game.CurrentMode.Name.Equals(mode.Name, StringComparison.OrdinalIgnoreCase))
+                if (_pluginState.Game.CurrentMode.Name.Equals(option.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
                     return;
@@ -114,23 +106,24 @@ namespace GameModeManager.Core
                     ModeNominations[userId] = new();
                 }
 
-                bool alreadyVoted = ModeNominations[userId].IndexOf(mode.Name) != -1;
+                // Use Contains instead of IndexOf
+                bool alreadyVoted = ModeNominations[userId].Contains(option);
 
                 if (!alreadyVoted)
                 {
-                    ModeNominations[userId].Add(mode.Name);
-                    var totalVotes = ModeNominations.Select(x => x.Value.Where(y => y == mode.Name).Count()).Sum();
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("nominate.nominated", player.PlayerName, mode.Name, totalVotes));
+                    ModeNominations[userId].Add(option);
+                    // Update direct vote count for O(1) totalVotes
+                    _modeVoteCounts[option] = _modeVoteCounts.GetValueOrDefault(option, 0) + 1;
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("nominate.nominated", player.PlayerName, option.Name, _modeVoteCounts[option]));
                 }
                 else
                 {
-                    var totalVotes = ModeNominations.Select(x => x.Value.Where(y => y == mode.Name).Count()).Sum();
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("nominate.already-nominated", mode.Name, totalVotes));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("nominate.already-nominated", option.Name, _modeVoteCounts.GetValueOrDefault(option, 0)));
                 }
             }
-            else if (map != null)
+            else if (option.Type is VoteOptionType.Map)
             {
-                if (Server.MapName.Equals(map.Name, StringComparison.OrdinalIgnoreCase))
+                if (Server.MapName.Equals(option.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
                     return;
@@ -141,44 +134,47 @@ namespace GameModeManager.Core
                     MapNominations[userId] = new();
                 }
 
-                bool alreadyVoted = MapNominations[userId].IndexOf(map.DisplayName) != -1;
+                // Use Contains instead of IndexOf
+                bool alreadyVoted = MapNominations[userId].Contains(option);
 
                 if (!alreadyVoted)
                 {
-                    MapNominations[userId].Add(map.DisplayName);
-                    var totalVotes = MapNominations.Select(x => x.Value.Where(y => y == map.DisplayName).Count()).Sum();
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("nominate.nominated", player.PlayerName, map.DisplayName, totalVotes));
+                    MapNominations[userId].Add(option);
+                    // Update direct vote count for O(1) totalVotes
+                    _mapVoteCounts[option] = _mapVoteCounts.GetValueOrDefault(option, 0) + 1;
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("nominate.nominated", player.PlayerName, option.DisplayName, _mapVoteCounts[option]));
                 }
                 else
                 {
-                    var totalVotes = MapNominations.Select(x => x.Value.Where(y => y == map.DisplayName).Count()).Sum();
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("nominate.already-nominated", map.DisplayName, totalVotes));
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("nominate.already-nominated", option.DisplayName, _mapVoteCounts.GetValueOrDefault(option, 0)));
                 }
             }
         }
 
-        // Define method to check if map is in cooldown
-        public bool IsOptionInCooldown(string option)
+        // Define method to check if option is in cooldown
+        // Now uses the HashSet for O(1) lookup
+        public bool IsOptionInCooldown(VoteOption option)
         {
-            return _pluginState.RTV.OptionsOnCoolDown.IndexOf(option) > -1;
+            return _pluginState.RTV.OptionsOnCoolDownSet.Contains(option);
         }
 
         // List of map nomination winners
-        public List<string> MapNominationWinners()
+        public List<VoteOption> MapNominationWinners()
         {
             if (MapNominations.Count == 0)
-                return new List<string>();
+                return new List<VoteOption>();
 
+            // Use SelectMany for more efficient flattening
             var rawNominations = MapNominations
-                .Select(x => x.Value)
-                .Aggregate((acc, x) => acc.Concat(x).ToList());
+                .SelectMany(x => x.Value); 
 
-            List<string> winners = rawNominations
-                .Distinct()
-                .Select(map => new KeyValuePair<string, int>(map, rawNominations.Count(x => x == map)))
-                .OrderByDescending(x => x.Value)
-                .Select(x => x.Key)
-                .ToList();
+            // Use GroupBy to count votes efficiently in one pass (O(N))
+            List<VoteOption> winners = rawNominations
+                .GroupBy(option => option) // Group by the VoteOption itself
+                .Select(group => new { Option = group.Key, Count = group.Count() }) // Create anonymous type with option and its total count
+                .OrderByDescending(x => x.Count) // Order by the count
+                .Select(x => x.Option) // Select only the VoteOption
+                .ToList(); // Convert to List
 
             // Take only the top nomination(s)
             if (winners.Count > _pluginState.RTV.MaxNominationWinners)
@@ -190,21 +186,22 @@ namespace GameModeManager.Core
         }
 
         // List of mode nomination winners
-        public List<string> ModeNominationWinners()
+        public List<VoteOption> ModeNominationWinners()
         {
             if (ModeNominations.Count == 0)
-                return new List<string>();
+                return new List<VoteOption>();
 
+            // Use SelectMany for more efficient flattening
             var rawNominations = ModeNominations
-                .Select(x => x.Value)
-                .Aggregate((acc, x) => acc.Concat(x).ToList());
+                .SelectMany(x => x.Value); // This is now IEnumerable<VoteOption>
 
-            List<string> winners = rawNominations
-                .Distinct()
-                .Select(mode => new KeyValuePair<string, int>(mode, rawNominations.Count(x => x == mode)))
-                .OrderByDescending(x => x.Value)
-                .Select(x => x.Key)
-                .ToList();
+            // Use GroupBy to count votes efficiently in one pass (O(N))
+            List<VoteOption> winners = rawNominations
+                .GroupBy(option => option) // Group by the VoteOption itself
+                .Select(group => new { Option = group.Key, Count = group.Count() }) // Create anonymous type with option and its total count
+                .OrderByDescending(x => x.Count) // Order by the count
+                .Select(x => x.Option) // Select only the VoteOption
+                .ToList(); // Convert to List
 
             // Take only the top nomination(s)
             if (winners.Count > _pluginState.RTV.MaxNominationWinners)

@@ -11,45 +11,37 @@ namespace GameModeManager.Services
     // Define class
     public class GameModeApi : IGameModeApi, IPluginDependency<Plugin, Config>
     {
-        // Define dependencies
-        private readonly PluginState _pluginState;
-        private readonly ServerManager _serverManager;
-        private readonly WarmupManager _warmupManager;
-
-        // Define class instance
+        // Define class constructor
         public GameModeApi(PluginState pluginState, ServerManager serverManager, WarmupManager warmupManager)
         {
-            _pluginState = pluginState;
-            _serverManager = serverManager;
-            _warmupManager = warmupManager;
-            State = new GameState(_pluginState);
-            Control = new GameModeController(_serverManager);
-            Warmup = new WarmupController(_warmupManager);
+            State = new GameState(pluginState);
+            Control = new GameModeController(serverManager);
+            Warmup = new WarmupController(warmupManager);
         }
 
         // Define class properties
         public IGameState State { get; }
-        public IGameModeControl Control { get; }
         public IWarmupControl Warmup { get; }
+        public IGameModeControl Control { get; }
 
         // Define child classes
         private class GameState : IGameState
         {
             // Define class dependencies
             private readonly PluginState _pluginState;
-            
-            // Define class instance
+
+            // Define class constructor
             public GameState(PluginState pluginState) => _pluginState = pluginState;
 
             // Define class properties
-            public List<IMap> Maps => _pluginState.Game.Maps;
-            public List<IMode> Modes => _pluginState.Game.Modes;
             public IMap CurrentMap => _pluginState.Game.CurrentMap;
             public IMode WarmupMode => _pluginState.Game.WarmupMode;
             public IMode CurrentMode => _pluginState.Game.CurrentMode;
-            public List<ISetting> Settings => _pluginState.Game.Settings;
-            public List<IMapGroup> MapGroups => _pluginState.Game.MapGroups;
+            public Dictionary<string, IMap> Maps => _pluginState.Game.Maps;
             public bool WarmupScheduled => _pluginState.Game.WarmupScheduled;
+            public Dictionary<string, IMode> Modes => _pluginState.Game.Modes;
+            public Dictionary<string, ISetting> Settings => _pluginState.Game.Settings;
+            public Dictionary<string, IMapGroup> MapGroups => _pluginState.Game.MapGroups;
         }
 
         private class GameModeController : IGameModeControl
@@ -57,7 +49,7 @@ namespace GameModeManager.Services
             // Define class dependencies
             private readonly ServerManager _serverManager;
 
-            // Define class instance
+            // Define class constructor
             public GameModeController(ServerManager serverManager) => _serverManager = serverManager;
 
             // define class methods
@@ -71,7 +63,7 @@ namespace GameModeManager.Services
             // Define class dependencies
             private readonly WarmupManager _warmupManager;
             
-            // Define class instance
+            // Define class constructor
             public WarmupController(WarmupManager warmupManager) => _warmupManager = warmupManager;
 
             // Define class methods

@@ -7,14 +7,14 @@ namespace GameModeManager.Shared;
 // Define interfaces
 public interface IGameState
 {
-    List<IMap> Maps { get; }
-    List<IMode> Modes { get; }
     IMap CurrentMap { get; }
     IMode WarmupMode { get; }
     IMode CurrentMode { get; }
-    List<ISetting> Settings { get; }
-    List<IMapGroup> MapGroups { get; }
     bool WarmupScheduled { get; }
+    Dictionary<string, IMap> Maps { get; }
+    Dictionary<string, IMode> Modes { get; }
+    Dictionary<string, ISetting> Settings { get; }
+    Dictionary<string, IMapGroup> MapGroups { get; }
 }
 
 public interface IGameModeControl

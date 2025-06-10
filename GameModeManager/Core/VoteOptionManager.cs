@@ -1,5 +1,5 @@
 // Included libraries
-using System.Data;
+using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
@@ -16,7 +16,7 @@ namespace GameModeManager.Core
         private PluginState _pluginState;
         private NominateManager _nominateManager;
 
-        // Define class instance
+        // Define class constructor
         public VoteOptionManager(PluginState pluginState, NominateManager nominateManager)
         {
             _pluginState = pluginState;
@@ -26,15 +26,17 @@ namespace GameModeManager.Core
         // Define class properties
         private int optionsToShow = 5;
         private List<IMap> maps = new();
-        private List<IMode> modes = new();  
-        private List<string> allOptions = new();
+        private List<IMode> modes = new();
         public const int MAX_OPTIONS_HUD_MENU = 5; 
+        private HashSet<VoteOption> allOptions = new(); 
+        private Dictionary<long, VoteOption> optionsById = new();
+        private Dictionary<string, VoteOption> optionsByName = new(StringComparer.OrdinalIgnoreCase);
 
         // Load config
         public void OnConfigParsed(Config config)
         {
             _config = config;
-            optionsToShow = _config.RTV.OptionsToShow;
+            optionsToShow = _config.RTV.OptionsToShow == 0 ? MAX_OPTIONS_HUD_MENU : _config.RTV.OptionsToShow;
             _pluginState.RTV.IncludeExtend = _config.RTV.IncludeExtend;
         }
 
@@ -47,7 +49,7 @@ namespace GameModeManager.Core
             }
         }
 
-         // Define on map start behavior
+        // Define on map start behavior
         public void OnMapStart(string map)
         {
             if(_pluginState.RTV.Enabled)
@@ -57,9 +59,20 @@ namespace GameModeManager.Core
         }
 
         // Define class methods
-        public List<string> GetOptions()
+        public List<VoteOption> GetOptions()
         {
-            return allOptions;
+            List<VoteOption> options = [.. allOptions];
+            return options;
+        }
+
+        public VoteOption? GetOptionByName(string name)
+        {
+            return optionsByName.TryGetValue(name, out VoteOption? option) ? option : null;
+        }
+
+        public VoteOption? GetOptionById(long id)
+        {
+            return optionsById.TryGetValue(id, out VoteOption? option) ? option : null;
         }
 
         public void LoadOptions()
@@ -67,139 +80,89 @@ namespace GameModeManager.Core
             allOptions.Clear();
             optionsToShow = _config!.RTV.OptionsToShow == 0 ? MAX_OPTIONS_HUD_MENU : _config!.RTV.OptionsToShow;
 
-            if (_config.RTV.Style.Equals("center", StringComparison.OrdinalIgnoreCase) && optionsToShow > MAX_OPTIONS_HUD_MENU)
+            if (_config.Maps.Mode == 1)
             {
-                optionsToShow = MAX_OPTIONS_HUD_MENU;
-            }
-            
-            if(_config.Maps.Mode == 1)
-            {
-                maps = _pluginState.Game.Maps.Where(m => m.Name != Server.MapName && !_nominateManager.IsOptionInCooldown(m.DisplayName)).ToList();
+                maps = _pluginState.Game.Maps.Values.ToList();
             }
             else
             {
-                maps = _pluginState.Game.CurrentMode.Maps.Where(m => m.Name != Server.MapName && !_nominateManager.IsOptionInCooldown(m.DisplayName)).ToList();
+                maps = _pluginState.Game.CurrentMode.Maps.ToList();
             }
-
-            if(_config.RTV.IncludeModes)
-            {
-                modes = _pluginState.Game.Modes.Where(m => m.Name != _pluginState.Game.CurrentMode.Name && !_nominateManager.IsOptionInCooldown(m.Name)).ToList();
-            }
-
-            foreach(IMap map in maps)
-            {
-                allOptions.Add(map.DisplayName);
-            }
-            
-            foreach(IMode mode in modes)
-            {
-                allOptions.Add(mode.Name);
-            }
-        }
-        public bool OptionExists(string option)
-        {
-            IMap? map = null;
-            IMode? mode = null;
 
             if (_config.RTV.IncludeModes)
             {
-                mode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase) & !_nominateManager.IsOptionInCooldown(m.Name));
+                modes = _pluginState.Game.Modes.Values.ToList();
             }
 
-            if(_config.Maps.Mode == 1)
+            foreach (IMap map in maps)
             {
-                map = _pluginState.Game.Maps.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(option, StringComparison.OrdinalIgnoreCase) & !_nominateManager.IsOptionInCooldown(m.DisplayName));
-            }
-            else
-            {
-                map = _pluginState.Game.CurrentMode.Maps.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(option, StringComparison.OrdinalIgnoreCase) & !_nominateManager.IsOptionInCooldown(m.DisplayName));
+                VoteOption option = new VoteOption(map.Name, map.WorkshopId, map.DisplayName, VoteOptionType.Map);
+
+                if (!option.Name.Equals(Server.MapName) && !_nominateManager.IsOptionInCooldown(option))
+                {
+                    allOptions.Add(option);
+                    optionsByName.TryAdd(map.Name, option);
+
+                    if (option.WorkshopId > 0)
+                    {
+                        optionsById.TryAdd(option.WorkshopId, option);
+                    }
+                }
             }
 
-            if (mode != null || map != null)
+            foreach (IMode mode in modes)
             {
-                return true;
-            }
-            else
-            {
-               return false;
-            }
-        }
+                VoteOption option = new VoteOption(mode.Name, VoteOptionType.Mode);
 
-        public string OptionType(string option)
-        {
-            IMap? map = null;
-            IMode? mode = null;
-
-            if (_config.RTV.IncludeModes)
-            {
-                mode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if(_config.Maps.Mode == 1)
-            {
-                map = _pluginState.Game.Maps.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(option, StringComparison.OrdinalIgnoreCase));
-            }
-            else
-            {
-                map = _pluginState.Game.CurrentMode.Maps.FirstOrDefault(m => m.Name.Equals(option, StringComparison.OrdinalIgnoreCase) || m.DisplayName.Equals(option, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (mode != null)
-            {
-                return "mode";
-            }
-            else if (map != null)
-            {
-                return "map";
-            }
-            else
-            {
-                return "not found";
+                if (!option.Name.Equals(_pluginState.Game.CurrentMode.Name) && !_nominateManager.IsOptionInCooldown(option))
+                {
+                    allOptions.Add(option);
+                    optionsByName.TryAdd(mode.Name, option);
+                }
             }
         }
         
-        public List<string> ScrambleOptions()
+        public List<VoteOption> ScrambleOptions()
         {
-            List<string> options = new();
-            List<string> mapsEllected = new ();
-            List<string> modesEllected = new ();
-            List<IMap> mapsScrambled = (List<IMap>)PluginExtensions.Shuffle(new Random(), maps);
-            List<IMode> modesScrambled = (List<IMode>)PluginExtensions.Shuffle(new Random(), modes);
+            List<VoteOption> options = new();
+            List<VoteOption> optionsEllected;
+            List<VoteOption> mapNominationWinners = _nominateManager.MapNominationWinners();
+            List<VoteOption> modeNominationWinners = _nominateManager.ModeNominationWinners();
+            List<IMap> mapsScrambled = PluginExtensions.Shuffle(new Random(), maps).ToList();
+            List<IMode> modesScrambled = PluginExtensions.Shuffle(new Random(), modes).ToList();
 
             if(_pluginState.RTV.IncludeExtend && _pluginState.RTV.MapExtends < _pluginState.RTV.MaxExtends)
             {
-                options.Add("Extend");
+                options.Add(new VoteOption("Extend", VoteOptionType.Extend));
                 optionsToShow--;
             }
             
             if (_config.RTV.IncludeModes)
             {
-                int modesToInclude = (int)((optionsToShow * (_config.RTV.ModePercentage / 100.0)) - _nominateManager.ModeNominationWinners().Count);
-                int mapsToInclude = optionsToShow - modesToInclude - _nominateManager.MapNominationWinners().Count;
+                int modesToInclude = (int)((optionsToShow * (_config.RTV.ModePercentage / 100.0)) - modeNominationWinners.Count);
+                int mapsToInclude = optionsToShow - modesToInclude - mapNominationWinners.Count;
 
                 foreach (IMode mode in modesScrambled.Take(modesToInclude))
                 {
-                    options.Add(mode.Name);
+                    options.Add(new VoteOption(mode.Name, VoteOptionType.Mode));
                 }
                 foreach (IMap map in mapsScrambled.Take(mapsToInclude))
                 {
-                    options.Add(map.DisplayName);
+                    options.Add(new VoteOption(map.Name, map.WorkshopId, map.DisplayName, VoteOptionType.Map));
                 }
-
-                modesEllected = _nominateManager.ModeNominationWinners().Distinct().ToList();
+                optionsEllected = modeNominationWinners.Distinct().ToList(); 
             }
             else
             {
-                foreach (IMap map in mapsScrambled.Take(optionsToShow - _nominateManager.MapNominationWinners().Count))
+                foreach (IMap map in mapsScrambled.Take(optionsToShow - mapNominationWinners.Count))
                 {
-                    options.Add(map.DisplayName);
+                    options.Add(new VoteOption(map.Name, map.WorkshopId, map.DisplayName, VoteOptionType.Map));
                 }
-
-                mapsEllected = _nominateManager.MapNominationWinners().Distinct().ToList();
+                optionsEllected = mapNominationWinners.Distinct().ToList();
             }
-
-            List<string> optionsScrambled = (List<string>)PluginExtensions.Shuffle(new Random(), options);
-            List<string> optionsEllected = modesEllected.Concat(mapsEllected).Concat(optionsScrambled).Distinct().ToList();
+        
+            List<VoteOption> optionsScrambled = PluginExtensions.Shuffle(new Random(), options).ToList();
+            optionsEllected = optionsEllected.Concat(optionsScrambled).Distinct().ToList();
 
             return optionsEllected;
         }

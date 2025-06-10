@@ -20,7 +20,7 @@ namespace GameModeManager.Core
         private Config _config = new Config();
         private ILogger<WarmupManager> _logger;
 
-        // Define class instance
+        // Define class constructor
         public WarmupManager(PluginState pluginState, ILogger<WarmupManager> logger, StringLocalizer localizer, GameRules gameRules)
         {
             _logger = logger;
@@ -47,14 +47,12 @@ namespace GameModeManager.Core
 
                 foreach(WarmupModeEntry _mode in _config.Warmup.List)
                 {
-                    IMode _warmupMode = new Mode(_mode.Name, _mode.Config, new List<IMapGroup>());
-                    _pluginState.Game.WarmupModes.Add(_warmupMode);
+                    IMode _warmupMode = new Mode(_mode.Name, _mode.Config, new HashSet<IMapGroup>());
+                    _pluginState.Game.WarmupModes.TryAdd(_warmupMode.Name, _warmupMode);
                 }
 
-                // Set default warmup mode  
-                IMode? warmupMode = _pluginState.Game.WarmupModes.FirstOrDefault(m => m.Name.Equals(_config.Warmup.Default.Name, StringComparison.OrdinalIgnoreCase));
-
-                if(warmupMode != null)
+                // Set default warmup mode
+                if(_pluginState.Game.WarmupModes.TryGetValue(_config.Warmup.Default.Name, out IMode? warmupMode))
                 {
                     _pluginState.Game.WarmupMode = warmupMode;
                 }
@@ -68,9 +66,7 @@ namespace GameModeManager.Core
         // Define class methods
         public bool ScheduleWarmup(string modeName)
         {
-            IMode? warmupMode = _pluginState.Game.WarmupModes.FirstOrDefault(m => m.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase) || m.Config.Contains(modeName, StringComparison.OrdinalIgnoreCase));
-
-            if(warmupMode != null)
+            if(_pluginState.Game.Modes.TryGetValue(modeName, out IMode? warmupMode))
             {   
                 _pluginState.Game.WarmupMode = warmupMode;
                 _pluginState.Game.WarmupScheduled = true;

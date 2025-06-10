@@ -6,10 +6,11 @@ namespace GameModeManager.Shared.Models
     {
         // Define interface properties
         public string Name { get; }
-        public List<IMap> Maps { get; }
+        public HashSet<IMap> Maps { get; }
 
         // Define interface methods
         public void Clear();
-        public bool Equals(IMapGroup? other);
+        public int GetHashCode();
+        public bool Equals(object? obj);
     }
 }

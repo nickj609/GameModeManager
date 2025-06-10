@@ -10,10 +10,9 @@ namespace GameModeManager.Shared.Models
         public string Disable { get; set; }
         public string DisplayName { get; }
 
-
         // Define interface methods
         public void Clear();
-        public bool Equals(ISetting? other);
-        public string FormatSettingName(string name);
+        public int GetHashCode();
+        public bool Equals(object? obj);
     }
 }

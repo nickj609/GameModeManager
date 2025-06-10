@@ -18,7 +18,7 @@ namespace GameModeManager.Core
         private ILogger<ModeManager> _logger;
         private Config _config = new Config();
 
-        // Define class instance
+        // Define class constructor
         public ModeManager(PluginState pluginState, ILogger<ModeManager> logger)
         {
             _logger = logger;
@@ -47,13 +47,11 @@ namespace GameModeManager.Core
         {
             foreach (ModeEntry _mode in _config.GameModes.List)
             {
-                List<IMapGroup> mapGroups = new List<IMapGroup>();
+                HashSet<IMapGroup> mapGroups = new HashSet<IMapGroup>();
 
                 foreach (string _mapGroup in _mode.MapGroups)
                 {
-                    IMapGroup? mapGroup = _pluginState.Game.MapGroups.FirstOrDefault(m => m.Name.Equals(_mapGroup, StringComparison.OrdinalIgnoreCase));
-
-                    if (mapGroup != null)
+                    if (_pluginState.Game.MapGroups.TryGetValue(_mapGroup, out IMapGroup? mapGroup))
                     {
                         mapGroups.Add(mapGroup);
                     }
@@ -69,30 +67,40 @@ namespace GameModeManager.Core
                 {
                     if (_mode.DefaultMap != null)
                     {
-                        gameMode = new Mode(_mode.Name, _mode.Config, _mode.DefaultMap, mapGroups);
+                        if (long.TryParse(_mode.DefaultMap, out long workshopId) && _pluginState.Game.MapsByWorkshopId.TryGetValue(workshopId, out IMap? workshopMap))
+                        {
+                            gameMode = new Mode(_mode.Name, _mode.Config, workshopMap, mapGroups);
+                        }
+                        else if (_pluginState.Game.Maps.TryGetValue(_mode.DefaultMap, out IMap? defaultMap))
+                        {
+                            gameMode = new Mode(_mode.Name, _mode.Config, defaultMap, mapGroups);
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Cannot find default map {_mode.DefaultMap} in maps list for mode {_mode.Name}.");
+                            gameMode = new Mode(_mode.Name, _mode.Config, mapGroups);
+                        }
                     }
                     else
                     {
                         gameMode = new Mode(_mode.Name, _mode.Config, mapGroups);
                     }
 
-                    _pluginState.Game.Modes.Add(gameMode);
+                    _pluginState.Game.Modes.Add(_mode.Name, gameMode);
                 }
                 else
                 {
-                    _logger.LogError($"Cannot create map group list.");
+                    _logger.LogWarning($"No mapgroups found for mode {_mode.Name}. No map list created.");
                 }
-            }
+            };
 
-            IMode? currentMode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals(_config.GameModes.Default.Name, StringComparison.OrdinalIgnoreCase));
-
-            if (currentMode != null)
+            if (_pluginState.Game.Modes.TryGetValue(_config.GameModes.Default.Name, out IMode? currentMode))
             {
                 _pluginState.Game.CurrentMode = currentMode;
             }
             else
             {
-                _logger.LogError($"Cannot find mode {_config.GameModes.Default.Name} in modes list.");
+                _logger.LogWarning($"Cannot find mode {_config.GameModes.Default.Name} in mode list.");
             }
         }
     }

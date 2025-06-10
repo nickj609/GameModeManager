@@ -15,7 +15,7 @@ namespace GameModeManager
         public GameController Game;
         public TimeLimitController TimeLimit;
 
-        // Define class instance
+        // Define class constructor
         public PluginState()
         {
             RTV = new RTVController();
@@ -33,7 +33,7 @@ namespace GameModeManager
             public int InCoolDown = 0;
             public int MapExtends = 0;
             public int MaxExtends = 0;
-            public string Winner = "";
+            public VoteOption? Winner;
             public bool Enabled = false;
             public int KillsBeforeEnd = 13;
             public int RoundsBeforeEnd = 2;
@@ -46,8 +46,9 @@ namespace GameModeManager
             public bool EofVoteHappening = false;
             public bool NominationEnabled = true;
             public bool ChangeImmediately = false;
-            public Dictionary<string, int> Votes = new();
-            public List<string> OptionsOnCoolDown = new();
+            public Dictionary<VoteOption, int> Votes = new();
+            public Queue<VoteOption> OptionsOnCoolDown { get; set; } = new Queue<VoteOption>();
+            public HashSet<VoteOption> OptionsOnCoolDownSet { get; set; } = new HashSet<VoteOption>();
         }
 
         // Define GameMode class
@@ -69,14 +70,13 @@ namespace GameModeManager
                 new Map("de_nuke", "Nuke"),
                 new Map("de_vertigo", "Vertigo")
             };
-            public static IMapGroup DefaultMapGroup = new MapGroup("mg_active", DefaultMaps);
-            public static List<IMapGroup> DefaultMapGroups = new List<IMapGroup>{DefaultMapGroup};
-            public static IMode DefaultMode = new Mode("Casual", "casual.cfg", DefaultMapGroups);
-            public static IMode DefaultWarmup = new Mode("Deathmatch", "warmup/dm.cfg", new List<IMapGroup>());
+            public static IMapGroup DefaultMapGroup = new MapGroup("mg_active", DefaultMaps.ToHashSet());
+            public static Dictionary<string, IMapGroup> DefaultMapGroups = new Dictionary<string, IMapGroup>(StringComparer.OrdinalIgnoreCase) { { DefaultMapGroup.Name, DefaultMapGroup } };
+            public static IMode DefaultMode = new Mode("Casual", "casual.cfg", DefaultMapGroups.Values.ToHashSet());
+            public static IMode DefaultWarmup = new Mode("Deathmatch", "warmup/dm.cfg", new HashSet<IMapGroup>());
 
             // Define dynamic properties
             public int MapRotations = 0;
-            public List<IMode> Modes = new();
             public bool PerMapWarmup = false;
             public bool WarmupRunning = false;
             public IMap CurrentMap = DefaultMap;
@@ -84,11 +84,13 @@ namespace GameModeManager
             public bool WarmupScheduled = false;
             public bool CountdownRunning = false;
             public IMode CurrentMode = DefaultMode;
-            public List<IMode> WarmupModes = new();
-            public List<ISetting> Settings = new();
             public IMode WarmupMode = DefaultWarmup;
-            public List<IMapGroup> MapGroups = new();
-            public List<IMap> Maps = [.. DefaultMaps];
+            public Dictionary<string, IMode> Modes = new(StringComparer.OrdinalIgnoreCase);
+            public Dictionary<string, IMode> WarmupModes = new(StringComparer.OrdinalIgnoreCase);
+            public Dictionary<string, ISetting> Settings = new(StringComparer.OrdinalIgnoreCase);
+            public Dictionary<string, IMapGroup> MapGroups = new(StringComparer.OrdinalIgnoreCase);
+            public Dictionary<long, IMap> MapsByWorkshopId = new();
+            public Dictionary<string, IMap> Maps = DefaultMaps.ToDictionary(m => m.Name, m => m, StringComparer.OrdinalIgnoreCase);
             public List<string> PlayerCommands = new()
             {
                 "!currentmode",

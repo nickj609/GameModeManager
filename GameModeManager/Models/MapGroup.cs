@@ -9,31 +9,36 @@ namespace GameModeManager.Models
     {
         // Define class properties
         public string Name { get; set; }
-        public List<IMap> Maps { get; set; }
+        public HashSet<IMap> Maps { get; set; }
 
-        // Define class instances
-        public MapGroup(string _name) 
+        // Define class constructors
+        public MapGroup(string _name)
         {
             Name = _name;
-            Maps = new List<IMap>();
+            Maps = new HashSet<IMap>();
         }
 
-        public MapGroup(string _name, List<IMap> _maps) 
+        public MapGroup(string _name, HashSet<IMap> _maps)
         {
             Name = _name;
-            Maps = _maps; 
+            Maps = _maps;
         }
 
         // Define class methods
         public void Clear()
         {
             Name = "";
-            Maps = new List<IMap>();
+            Maps = new HashSet<IMap>();
         }
-        public bool Equals(IMapGroup? other) 
+        public bool Equals(IMapGroup? other)
         {
-            if(other == null) return false;
-            return Name == other.Name && Maps.SequenceEqual(other.Maps);
+            if (other == null) return false;
+            return Name.Equals(other.Name, StringComparison.OrdinalIgnoreCase) && Maps.SequenceEqual(other.Maps);
+        }
+        
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name.GetHashCode(StringComparison.OrdinalIgnoreCase), Maps.GetHashCode());
         }
     }
 }

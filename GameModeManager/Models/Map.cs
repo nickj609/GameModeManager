@@ -5,21 +5,21 @@ using GameModeManager.Shared.Models;
 namespace GameModeManager.Models
 {
     // Define class
-    public class Map : IMap, IEquatable<IMap>
+    public class Map : IMap
     {
         // Define class properties
         public string Name { get; set; }
         public long WorkshopId { get; set; }
         public string DisplayName { get; set; }
 
-        // Define class instances
+        // Define class constructors
         public Map(string _name)
         {
-            Name = _name; 
+            Name = _name;
             WorkshopId = -1;
             DisplayName = _name;
         }
-        
+
         public Map(string _name, long _workshopId)
         {
             Name = _name;
@@ -33,7 +33,7 @@ namespace GameModeManager.Models
             WorkshopId = -1;
             DisplayName = _displayName;
         }
-    
+
         public Map(string _name, long _workshopId, string _displayName)
         {
             Name = _name;
@@ -51,8 +51,13 @@ namespace GameModeManager.Models
 
         public bool Equals(IMap? other)
         {
-            if (other == null) return false; 
-            return Name == other.Name && WorkshopId == other.WorkshopId && DisplayName == other.DisplayName;
+            if (other == null) return false;
+            return Name.Equals(other.Name, StringComparison.OrdinalIgnoreCase) && WorkshopId.Equals(other.WorkshopId);
+        }
+        
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name.GetHashCode(StringComparison.OrdinalIgnoreCase), WorkshopId.GetHashCode());
         }
     }
 }

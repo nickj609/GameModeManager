@@ -20,7 +20,7 @@ namespace GameModeManager.Features
         private Config _config = new Config();
         private ILogger<WarmupCommand> _logger;
 
-        // Define class instance
+        // Define class constructor
         public WarmupCommand(WarmupManager warmupManager, PluginState pluginState, ILogger<WarmupCommand> logger)
         {
             _logger = logger;
@@ -98,8 +98,7 @@ namespace GameModeManager.Features
                 {
                     if(command.ArgCount > 1)
                     {
-                        IMode? _mode = _pluginState.Game.WarmupModes.FirstOrDefault(m => m.Name.Equals(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase) ||  m.Config.Contains(command.ArgByIndex(1), StringComparison.OrdinalIgnoreCase));
-                        if(_mode != null)
+                        if(_pluginState.Game.WarmupModes.TryGetValue(command.ArgByIndex(1), out IMode? _mode))
                         {
                             _pluginState.Game.WarmupScheduled = true;
                             _warmupManager.StartWarmup(_mode);

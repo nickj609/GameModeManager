@@ -3,12 +3,10 @@ using GameModeManager.Core;
 using GameModeManager.Menus;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
-using WASDMenuAPI.Shared.Models;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
 using GameModeManager.Shared.Models;
-using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 
@@ -19,7 +17,8 @@ namespace GameModeManager.Features
     public class ModeCommands : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private Plugin? _plugin;
+        private MapMenus _mapMenus;
+        private ModeMenus _modeMenus;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
@@ -27,10 +26,12 @@ namespace GameModeManager.Features
         private ILogger<ModeCommands> _logger;
         private CustomVoteManager _customVoteManager;
 
-        // Define class instance
-        public ModeCommands(PluginState pluginState, StringLocalizer localizer, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager)
+        // Define class constructor
+        public ModeCommands(PluginState pluginState, StringLocalizer localizer, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager, ModeMenus modeMenus, MapMenus mapMenus)
         {
             _logger = logger;
+            _mapMenus = mapMenus;
+            _modeMenus = modeMenus;
             _localizer = localizer;
             _pluginState = pluginState;
             _serverManager = serverManager;
@@ -46,8 +47,6 @@ namespace GameModeManager.Features
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
-            _plugin = plugin;
-
             if (_config.Commands.Mode)
             {
                 plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
@@ -65,31 +64,38 @@ namespace GameModeManager.Features
         {
             if (player == null) 
             {
-                IMode? _mode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
-                
-                if(_mode != null && _pluginState.Game.CurrentMode != _mode)
-                {   
-                    if (_config.Votes.Enabled && _config.Votes.Maps)
-                    {                        
-                        // Deregister map votes from old mode
-                        _customVoteManager.DeregisterMapVotes();
+                if (_pluginState.Game.Modes.TryGetValue(command.ArgByIndex(1), out IMode? _mode))
+                {
+                    if (!_pluginState.Game.CurrentMode.Equals(_mode))
+                    {
+                        if (_config.Votes.Enabled && _config.Votes.Maps)
+                        {
+                            // Deregister map votes from old mode
+                            _customVoteManager.DeregisterMapVotes();
 
-                        // Set mode
-                        _pluginState.Game.CurrentMode = _mode;
-        
-                        // Register map votes for new mode
-                        _customVoteManager.RegisterMapVotes();
+                            // Set mode
+                            _pluginState.Game.CurrentMode = _mode;
+
+                            // Register map votes for new mode
+                            _customVoteManager.RegisterMapVotes();
+
+                            // // Update map menus
+                            if (_config.Maps.Mode == 0)
+                            {
+                                _mapMenus.Load();
+                            }
+                        }
+                        else
+                        {
+                            _pluginState.Game.CurrentMode = _mode;
+                        }
                     }
                     else
                     {
-                        _pluginState.Game.CurrentMode = _mode;
+                        _logger.LogWarning($"The mode is already set to {_mode.Name}.");
                     }
                 }
-                else if (_pluginState.Game.CurrentMode == _mode)
-                {
-                    _logger.LogWarning($"The mode is already set to {_mode.Name}.");
-                }
-                else if (_mode == null)
+                else
                 {
                     _logger.LogWarning($"Cannot find game mode {command.ArgByIndex(1)}.");
                 }
@@ -101,9 +107,7 @@ namespace GameModeManager.Features
         [CommandHelper(minArgs: 1, usage: "<mode>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnModeCommand(CCSPlayerController? player, CommandInfo command)
         {
-            IMode? _mode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals($"{command.ArgByIndex(1)}", StringComparison.OrdinalIgnoreCase) || m.Config.Equals($"{command.ArgByIndex(1)}.cfg", StringComparison.OrdinalIgnoreCase));
-
-            if (_mode != null)
+            if (_pluginState.Game.Modes.TryGetValue(command.ArgByIndex(1), out IMode? _mode))
             {
                 if(player != null)
                 {
@@ -122,26 +126,9 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnModesCommand(CCSPlayerController? player, CommandInfo command)
         {
-            MenuFactory menuFactory = new MenuFactory(_plugin);
-            ModeMenus modeMenus = new ModeMenus(_plugin, _pluginState, _localizer, _serverManager, _config);
-
             if (player != null)
             {
-                if (_config.GameModes.Style.Equals("wasd"))
-                {
-                    IWasdMenu? menu = modeMenus.WasdMenus.MainMenu;
-
-                    if (menu != null)
-                    {
-                        menuFactory.WasdMenus.OpenMenu(player, menu);
-                    }
-                }
-                else
-                {
-                    BaseMenu menu = modeMenus.BaseMenus.MainMenu;
-                    menu.Title = _localizer.Localize("modes.menu-title");
-                    menuFactory.BaseMenus.OpenMenu(menu, player);
-                }
+                _modeMenus.MainMenu?.Open(player);    
             }
         }
     }

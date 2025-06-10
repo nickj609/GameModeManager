@@ -21,7 +21,7 @@ namespace GameModeManager.CrossCutting
         private ILogger<ServerManager> _logger;
         private VoteOptionManager _voteOptionManager;
 
-        // Define class instance
+        // Define class constructor
         public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer, VoteOptionManager voteOptionManager)
         {
             _logger = logger;
@@ -107,20 +107,24 @@ namespace GameModeManager.CrossCutting
                 _pluginState.RTV.RoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
                 _pluginState.RTV.SecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
 
-                // Add mode to cooldown
+                // Update to use Queue and HashSet for cooldown management
                 if(_config.RTV.IncludeModes)
                 {
                     if (_pluginState.RTV.InCoolDown == 0)
                     {
                         _pluginState.RTV.OptionsOnCoolDown.Clear();
+                        _pluginState.RTV.OptionsOnCoolDownSet.Clear();
                     }
                     else
                     {
-                        if (_pluginState.RTV.OptionsOnCoolDown.Count > _pluginState.RTV.InCoolDown)
+                        if (_pluginState.RTV.OptionsOnCoolDown.Count >= _pluginState.RTV.InCoolDown) 
                         {
-                            _pluginState.RTV.OptionsOnCoolDown.RemoveAt(0);
+                            var removedOption = _pluginState.RTV.OptionsOnCoolDown.Dequeue();
+                            _pluginState.RTV.OptionsOnCoolDownSet.Remove(removedOption); 
                         }
-                        _pluginState.RTV.OptionsOnCoolDown.Add(mode.Name.Trim());
+                        var newOption = new VoteOption(mode.Name, VoteOptionType.Mode);
+                        _pluginState.RTV.OptionsOnCoolDown.Enqueue(newOption);
+                        _pluginState.RTV.OptionsOnCoolDownSet.Add(newOption);
                     }
                 }
 
@@ -154,8 +158,17 @@ namespace GameModeManager.CrossCutting
                 if (_config.Rotation.ModeRotation && _pluginState.Game.MapRotations != 0 && _pluginState.Game.MapRotations % _config.Rotation.ModeInterval == 0)
                 {
                     Random _rnd = new Random();
-                    int _randomIndex = _rnd.Next(0, _pluginState.Game.Modes.Count);
-                    IMode _randomMode = _pluginState.Game.Modes[_randomIndex];
+                    List<IMode> availableModes = _pluginState.Game.Modes.Values.ToList();
+
+                    if (availableModes.Count == 0)
+                    {
+                        _logger.LogError("No game modes available for rotation.");
+                        return;
+                    }
+
+                    int _randomIndex = _rnd.Next(0, availableModes.Count);
+                    IMode _randomMode = availableModes[_randomIndex];
+
                     _logger.LogDebug("Game has ended. Picking random game mode...");
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", _randomMode.Name));
                     ChangeMode(_randomMode);
@@ -188,39 +201,61 @@ namespace GameModeManager.CrossCutting
                     // If no vote occurred, pick a random option based on RTV settings
                     _pluginState.RTV.IncludeExtend = false;
                     _voteOptionManager.LoadOptions();
-                    List<string> options = _voteOptionManager.GetOptions();
-                    string randomOption = options[new Random().Next(0, options.Count)];
+                    List<VoteOption> options = _voteOptionManager.GetOptions();
 
-                    if (_voteOptionManager.OptionType(_pluginState.RTV.Winner) == "mode")
+                    if (options.Count == 0)
                     {
-                        _pluginState.RTV.NextMode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals(_pluginState.RTV.Winner, StringComparison.OrdinalIgnoreCase));
+                        _logger.LogWarning("No options available for RTV random selection.");
+                        return; 
+                    }
 
-                        if (_pluginState.RTV.NextMode?.DefaultMap != null)
+                    _pluginState.RTV.Winner = options[new Random().Next(0, options.Count)];
+
+                    if (_pluginState.RTV.Winner.Type is VoteOptionType.Mode)
+                    {
+                        if (_pluginState.Game.Modes.TryGetValue(_pluginState.RTV.Winner.Name, out IMode? mode))
                         {
-                            _pluginState.RTV.NextMap = _pluginState.RTV.NextMode.DefaultMap;
+                            _pluginState.RTV.NextMode = mode;
+
+                            if (_pluginState.RTV.NextMode?.DefaultMap != null)
+                            {
+                                _pluginState.RTV.NextMap = _pluginState.RTV.NextMode.DefaultMap;
+                            }
+
+                            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", _pluginState.RTV.Winner.DisplayName));
+
+                            if (_pluginState.RTV.NextMode != null)
+                            {
+                                ChangeMode(_pluginState.RTV.NextMode);
+                                return;
+                            }
                         }
-
-                        if (_pluginState.RTV.NextMode != null)
+                        else
                         {
-                            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", randomOption));
-                            ChangeMode(_pluginState.RTV.NextMode);
-                            return;
+                            _logger.LogError($"RTV: Mode {_pluginState.RTV.Winner.Name} not found");
                         }
                     }
-                    else if (_voteOptionManager.OptionType(_pluginState.RTV.Winner) == "map")
+                    else if (_pluginState.RTV.Winner.Type is VoteOptionType.Map)
                     {
-                        _pluginState.RTV.NextMap = _pluginState.Game.Maps.FirstOrDefault(m => m.DisplayName.Equals(_pluginState.RTV.Winner, StringComparison.OrdinalIgnoreCase) || m.Name.Equals(_pluginState.RTV.Winner, StringComparison.OrdinalIgnoreCase));
+                        if (_pluginState.RTV.Winner.WorkshopId > 0 && _pluginState.Game.MapsByWorkshopId.TryGetValue(_pluginState.RTV.Winner.WorkshopId, out IMap? workshopMap))
+                        {
+                            _pluginState.RTV.NextMap = workshopMap;
+                        }
+                        else if (_pluginState.Game.Maps.TryGetValue(_pluginState.RTV.Winner.Name, out IMap? map))
+                        {
+                            _pluginState.RTV.NextMap = map;
+                        }
 
                         if (_pluginState.RTV.NextMap != null)
                         {
-                            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-map", randomOption));
+                            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-map", _pluginState.RTV.Winner.DisplayName));
                             ChangeMap(_pluginState.RTV.NextMap, _config.Maps.Delay);
+                            return;
                         }
-                        return;
-                    }
-                    else
-                    {
-                        _logger.LogError($"RTV: Map or mode {_pluginState.RTV.Winner} not found");
+                        else
+                        {
+                            _logger.LogError($"RTV: Map {_pluginState.RTV.Winner.Name} not found");
+                        }
                     }
                 }
             }
@@ -228,17 +263,16 @@ namespace GameModeManager.CrossCutting
 
         public void TriggerScheduleChange(ScheduleEntry state)
         {
-            IMode? _mode = _pluginState.Game.Modes.FirstOrDefault(m => m.Name.Equals(state.Mode, StringComparison.OrdinalIgnoreCase));
-
-            if (_mode != null && _pluginState.Game.CurrentMode != _mode)
+            if (_pluginState.Game.Modes.TryGetValue(state.Mode, out IMode? _mode) && !_pluginState.Game.CurrentMode.Equals(_mode))
             {
                 ChangeMode(_mode);
             }
         }
 
         public IMap GetRandomMap(IMode currentMode)
-        {    
+        {
             IMap _randomMap; 
+            Random _rnd = new Random();
 
             if (_config.Rotation.Cycle == 2)
             {
@@ -246,34 +280,37 @@ namespace GameModeManager.CrossCutting
 
                 foreach (string mapGroup in _config.Rotation.MapGroups)
                 {
-                    IMapGroup? _mapGroup = _pluginState.Game.MapGroups.FirstOrDefault(m => m.Name.Equals(mapGroup, StringComparison.OrdinalIgnoreCase));
-
-                    if (_mapGroup != null)
+                    if (_pluginState.Game.MapGroups.TryGetValue(mapGroup, out IMapGroup? _mapGroup))
                     {
-                        foreach (Map _map in _mapGroup.Maps)
-                        {
-                            _mapList.Add(_map);
-                        }
+                        _mapList.AddRange(_mapGroup.Maps);
                     }
                 } 
 
-                Random _rnd = new Random();
+                if (_mapList.Count == 0)
+                {
+                    _logger.LogError("No maps found in configured map groups for rotation cycle 2.");
+                }
                 int _randomIndex = _rnd.Next(0, _mapList.Count); 
                 _randomMap = _mapList[_randomIndex];
-
             }
             else if (_config.Rotation.Cycle == 1)
             {
-                Random _rnd = new Random();
-                int _randomIndex = _rnd.Next(0, _pluginState.Game.Maps.Count); 
-                _randomMap = _pluginState.Game.Maps[_randomIndex];
-            
+                List<IMap> availableMaps = _pluginState.Game.Maps.Values.ToList();
+                if (availableMaps.Count == 0)
+                {
+                    _logger.LogError("No maps available for rotation cycle 1.");
+                }
+                int _randomIndex = _rnd.Next(0, availableMaps.Count); 
+                _randomMap = availableMaps[_randomIndex];
             }
             else
             {
-                Random _rnd = new Random();
+                if (currentMode.Maps.Count == 0)
+                {
+                    _logger.LogError($"Current mode '{currentMode.Name}' has no maps configured for rotation.");
+                }
                 int _randomIndex = _rnd.Next(0, currentMode.Maps.Count); 
-                _randomMap = currentMode.Maps[_randomIndex];
+                _randomMap = currentMode.Maps.ElementAt(_randomIndex);
             }
             return _randomMap;
         }

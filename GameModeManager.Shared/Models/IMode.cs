@@ -7,13 +7,13 @@ namespace GameModeManager.Shared.Models
         // Define interface properties
         public string Name { get; }
         public string Config { get; }
-        public List<IMap> Maps { get; }
+        public HashSet<IMap> Maps { get; }
         public IMap? DefaultMap { get; }
-        public List<IMapGroup> MapGroups { get; }
+        public HashSet<IMapGroup> MapGroups { get; }
 
         // Define interface methods
         public void Clear();
-        public bool Equals(IMode? other);
-        public List<IMap> CreateMapList(List<IMapGroup> mapGroups);
+        public int GetHashCode();
+        public bool Equals(object? obj);
     }
 }
