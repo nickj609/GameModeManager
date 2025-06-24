@@ -1,5 +1,5 @@
 // Included libraries
-using MenuManager;
+using MenuManagerAPI.Shared;
 using GameModeManager.Menus;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core.Capabilities;
@@ -17,7 +17,7 @@ namespace GameModeManager.CrossCutting
         private PlayerMenu _playerMenu;
         private SettingMenus _settingMenus;
         private NominateMenus _nominateMenus;
-        private readonly PluginCapability<IMenuApi> _pluginCapability = new("menu:nfcore");
+        private readonly PluginCapability<IMenuAPI> _pluginCapability = new("menu:api");
 
         // Define class constructor
         public MenuFactory(RTVMenus rtvMenus, MapMenus mapMenus, ModeMenus modeMenus, PlayerMenu playerMenu, SettingMenus settingMenus, NominateMenus nominateMenus)
@@ -31,7 +31,7 @@ namespace GameModeManager.CrossCutting
         }
 
         // Define class properties
-        public static IMenuApi? Api;
+        public static IMenuAPI? Api;
 
         // Define class methods
         public void Load()
