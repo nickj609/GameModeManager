@@ -4,6 +4,7 @@ using GameModeManager.Models;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Menu;
+using MenuManagerAPI.Shared.Models;
 
 // Declare namespace
 namespace GameModeManager.Menus
@@ -34,7 +35,7 @@ namespace GameModeManager.Menus
         {
             // Load options
             _pluginState.RTV.Votes.Clear();
-            List<VoteOption> options = _voteOptionManager.GetOptions();
+            List<VoteOption> options = _voteOptionManager.ScrambleOptions();
 
             // Create main menu
             MainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("rtv.hud.menu-title"));
@@ -42,7 +43,22 @@ namespace GameModeManager.Menus
             foreach (VoteOption voteOption in options)
             {
                 _pluginState.RTV.Votes[voteOption] = 0;
-                MainMenu?.AddMenuOption(voteOption.DisplayName, (player, option) =>
+                string _displayName = voteOption.DisplayName;
+
+                if (voteOption.Type == VoteOptionType.Map)
+                {
+                    _displayName = string.Concat($"<font color='{_localizer.Localize("rtv.map.color")}'>", voteOption.DisplayName, "</font>");
+                }
+                else if (voteOption.Type == VoteOptionType.Mode)
+                {
+                    _displayName = string.Concat($"<font color='{_localizer.Localize("rtv.mode.color")}'>", voteOption.DisplayName, "</font>");
+                }
+                else
+                {
+                    _displayName = string.Concat($"<font color='{_localizer.Localize("rtv.extend.color")}'>", voteOption.DisplayName, "</font>");
+                }
+
+                MainMenu?.AddMenuOption(_displayName, (player, option) =>
                 {
                     _voteManager.AddVote(player, voteOption);
                     MenuFactory.Api?.CloseMenu(player);
