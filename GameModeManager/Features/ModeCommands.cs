@@ -92,7 +92,14 @@ namespace GameModeManager.Features
                     }
                     else
                     {
-                        _logger.LogWarning($"The mode is already set to {_mode.Name}.");
+                        if (_pluginState.Game.CurrentMode.Maps.Contains(_pluginState.Game.CurrentMap))
+                        {
+                            _logger.LogWarning($"The mode is already set to {_mode.Name}.");
+                        }
+                        else
+                        {
+                            _serverManager.ChangeMode(_mode);
+                        }
                     }
                 }
                 else
