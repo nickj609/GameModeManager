@@ -115,6 +115,7 @@ namespace GameModeManager.Features
 
             // Load vote options
             _voteOptionManager.LoadOptions();
+            _rtvMenus.Load();
             _voteManager.StartVote(_pluginState.RTV.Duration);
 
             // Display vote menu

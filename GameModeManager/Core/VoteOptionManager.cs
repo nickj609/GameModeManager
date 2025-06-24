@@ -130,8 +130,8 @@ namespace GameModeManager.Core
             List<VoteOption> modeNominationWinners = _nominateManager.ModeNominationWinners();
             List<IMap> mapsScrambled = PluginExtensions.Shuffle(new Random(), maps).ToList();
             List<IMode> modesScrambled = PluginExtensions.Shuffle(new Random(), modes).ToList();
-
-            if(_pluginState.RTV.IncludeExtend && _pluginState.RTV.MapExtends < _pluginState.RTV.MaxExtends)
+            
+            if (_pluginState.RTV.IncludeExtend && _pluginState.RTV.MapExtends < _pluginState.RTV.MaxExtends)
             {
                 options.Add(new VoteOption("Extend", VoteOptionType.Extend));
                 optionsToShow--;

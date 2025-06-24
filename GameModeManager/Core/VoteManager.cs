@@ -170,7 +170,7 @@ namespace GameModeManager.Core
 
             if (maxVotes > 0)
             {
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.vote-ended", winner.Key, percent, totalVotes));
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.vote-ended", _pluginState.RTV.Winner!.DisplayName, percent, totalVotes));
             }
             else
             {
@@ -313,7 +313,7 @@ namespace GameModeManager.Core
             {
                 foreach (var kv in _pluginState.RTV.Votes.OrderByDescending(x => x.Value).Take(VoteOptionManager.MAX_OPTIONS_HUD_MENU))
                 {
-                    stringBuilder.AppendFormat($"<br>{kv.Key} <font color='green'>({kv.Value})</font>");
+                    stringBuilder.AppendFormat($"<br>{kv.Key.DisplayName} <font color='green'>({kv.Value})</font>");
                 }
 
                 foreach (CCSPlayerController player in PlayerExtensions.ValidPlayers().Where(x => !voted.Contains(x.UserId!.Value)))
@@ -327,7 +327,7 @@ namespace GameModeManager.Core
                 {
                     foreach (CCSPlayerController player in PlayerExtensions.ValidPlayers())
                     {
-                        player.PrintToCenterHtml(_localizer.Localize("rtv.hud.finished", _pluginState.RTV.Winner));
+                        player.PrintToCenterHtml(_localizer.Localize("rtv.hud.finished", _pluginState.RTV.Winner.DisplayName));
                     }
                 }
             }
