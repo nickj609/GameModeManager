@@ -55,14 +55,14 @@ namespace GameModeManager.Menus
         public void Load()
         {
             // Create main menu
-            MainMenu = MenuFactory.Api?.GetMenu("Game Commands");
+            MainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("commands.menu-title"));
 
             foreach (string _command in _pluginState.Game.PlayerCommands)
             {
                 switch (_command)
                 {
                     case "!changemap":
-                        MainMenu?.AddMenuOption("Change Map", (player, option) =>
+                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-changemap"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
 
@@ -73,7 +73,7 @@ namespace GameModeManager.Menus
                         });
                         break;
                     case "!changemode":
-                        MainMenu?.AddMenuOption("Change Mode", (player, option) =>
+                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-changemode"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
 
@@ -84,7 +84,7 @@ namespace GameModeManager.Menus
                         });
                         break;
                     case "!changesetting":
-                        MainMenu?.AddMenuOption("Change Setting", (player, option) =>
+                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-changesetting"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
 
@@ -95,7 +95,7 @@ namespace GameModeManager.Menus
                         });
                         break;
                     case "!currentmode":
-                        MainMenu?.AddMenuOption("Current Mode", (player, option) =>
+                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-currentmode"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
 
@@ -106,14 +106,14 @@ namespace GameModeManager.Menus
                         });
                         break;
                     case "!currentmap":
-                        MainMenu?.AddMenuOption("Current Map", (player, option) =>
+                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-currentmap"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
                             player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.Game.CurrentMap.Name));
                         });
                         break;
                     case "!nextmap":
-                        MainMenu?.AddMenuOption("Next Map", (player, option) =>
+                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-nextmap"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
 
@@ -132,7 +132,7 @@ namespace GameModeManager.Menus
                         });
                         break;
                     case "!nextmode":
-                        MainMenu?.AddMenuOption("Next Mode", (player, option) =>
+                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-nextmode"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
                             if (_pluginState.RTV.NextMode != null)
@@ -150,14 +150,14 @@ namespace GameModeManager.Menus
                         });
                         break;
                     case "!rtv":
-                        MainMenu?.AddMenuOption("RockTheVote", (player, option) =>
+                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-rtv"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
                             _asyncVoteManager.RTVCounter(player);
                         });
                         break;
                     case "!nominate":
-                        MainMenu?.AddMenuOption("Nominate", (player, option) =>
+                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-nominate"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
 
@@ -204,7 +204,7 @@ namespace GameModeManager.Menus
                         });
                         break;
                     case "!timeleft":
-                        MainMenu?.AddMenuOption("Time Left", (player, option) =>
+                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-timeleft"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
 
