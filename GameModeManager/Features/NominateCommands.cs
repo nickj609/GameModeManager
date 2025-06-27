@@ -57,6 +57,7 @@ namespace GameModeManager.Features
                 if (_pluginState.RTV.NominationEnabled)
                 {
                     plugin.AddCommand("css_nominate", "Nominates a map or game mode.", OnNominateCommand);
+                    plugin.AddCommand("css_yd", "Nominates a map or game mode.", OnNominateCommand);
                     plugin.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnected, HookMode.Pre);
                 }
             }

@@ -15,12 +15,14 @@ namespace GameModeManager.Core
         private Config _config = new();
         private PluginState _pluginState;
         private NominateManager _nominateManager;
+        private StringLocalizer _localizer;
 
         // Define class constructor
-        public VoteOptionManager(PluginState pluginState, NominateManager nominateManager)
+        public VoteOptionManager(PluginState pluginState, NominateManager nominateManager, StringLocalizer localizer)
         {
             _pluginState = pluginState;
             _nominateManager = nominateManager;
+            _localizer = localizer;
         }
 
         // Define class properties
@@ -133,7 +135,7 @@ namespace GameModeManager.Core
             
             if (_pluginState.RTV.IncludeExtend && _pluginState.RTV.MapExtends < _pluginState.RTV.MaxExtends)
             {
-                options.Add(new VoteOption("Extend", VoteOptionType.Extend));
+                options.Add(new VoteOption("Extend", _localizer.Localize("rtv.extend"), VoteOptionType.Extend));
                 optionsToShow--;
             }
             

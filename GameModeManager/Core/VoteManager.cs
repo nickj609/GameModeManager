@@ -110,7 +110,11 @@ namespace GameModeManager.Core
         public void AddVote(CCSPlayerController player, VoteOption option)
         {
             _pluginState.RTV.Votes[option] += 1;
-            player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.you-voted", option));
+            // FIX: Pass option.DisplayName instead of the VoteOption object to the localization method.
+            // Previously, passing the entire VoteOption object caused the chat message to display the type name
+            // (e.g., "GameModeManager.Models.VoteOption") instead of the actual vote choice.
+            // Now, the player's chat will correctly show the display name of the selected option.
+            player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.you-voted", option.DisplayName));
 
             if (_config!.RTV.HideHudAfterVote)
             {
