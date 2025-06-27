@@ -4,7 +4,6 @@ using GameModeManager.Models;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Menu;
-using MenuManagerAPI.Shared.Models;
 
 // Declare namespace
 namespace GameModeManager.Menus
