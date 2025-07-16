@@ -4,6 +4,7 @@ using CS2_CustomVotes.Shared;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Core.Capabilities;
+using Microsoft.Extensions.Logging;
 
 // Declare namespace
 namespace GameModeManager.Core
@@ -15,12 +16,13 @@ namespace GameModeManager.Core
         private Config _config = new();
         private PluginState _pluginState;
         private StringLocalizer _localizer;
-
+        private ILogger<CustomVoteManager> _logger;
         // Define class constructor
-        public CustomVoteManager(PluginState pluginState, StringLocalizer localizer)
+        public CustomVoteManager(PluginState pluginState, StringLocalizer localizer,ILogger<CustomVoteManager> logger)
         {
             _localizer = localizer;
             _pluginState = pluginState;
+            _logger = logger;
         }
 
         // Load config
@@ -86,14 +88,16 @@ namespace GameModeManager.Core
                 ); 
                 GameModeVote = true;
 
-                // Register map votes
-                if(_config.Votes.Maps)
-                {
-                    RegisterMapVotes();
-                    MapVote = true;
-                }
+              
             }
-        
+
+            if (_config.Votes.Maps)
+            {
+                // Register map votes
+                RegisterMapVotes();
+                MapVote = true;
+            }
+
             // Register game settings
             if(_config.Votes.GameSettings)
             {

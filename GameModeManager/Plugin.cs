@@ -87,14 +87,14 @@ namespace GameModeManager
                     if (CustomVoteManager.CustomVotesApi.Get() is null){}
                     _isCustomVotesLoaded = true;
                     _customVoteManager.RegisterCustomVotes();
-                    return;
+                   
                 }
                 catch (Exception ex)
                 {
                     _isCustomVotesLoaded = false;
                     Logger.LogWarning("CS2-CustomVotes plugin not found. Custom votes will not be registered.");
                     Logger.LogDebug(ex.Message);
-                    return;
+                    
                 }
             }
 
@@ -104,13 +104,13 @@ namespace GameModeManager
                 _menuFactory.Load();
                 if (MenuFactory.Api is null){}
                 _menuFactory.LoadMenus();
-                return;
+                
             }
             catch (Exception ex)
             {
                 Logger.LogError("MenuManager plugin not found.");
                 Logger.LogError(ex.Message);
-                return;
+               
             }
         }
 
