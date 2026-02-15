@@ -5,10 +5,15 @@
   "menutype.center": "Központ",
   "menutype.button": "Gomb",
   "menutype.selected": "Kiválasztott menü: ",
-  "menu.enabled.color": "fehér",
-  "menu.disabled.color": "#aaaaaa",
-  "menu.selection.left": "<font class='fontSize-s' color='red'>&#9654;</font><font class='fontSize-s' color='red'> [ </font>",
-  "menu.selection.right": "<font class='fontSize-s' color='red'> ] </font><font class='fontSize-s' color='red'>&#9664;</font>",
-  "menu.title.color": "piros",
-  "menu.bottom.text": "<font color='white'>Görgetés </font><font color='gold' class='stratum-bold'>W/S</font><font color='white'> | Kiválasztás </font><font color='gold' class='stratum-bold'>E</font><font color='white'> | Előző <font color='gold' class='stratum-bold'>CTRL</font><font color='white'> | Kilépés </font><font color='gold' class='stratum-bold'>R</font>"
+  "menutype.notfound": "{0} menütípus nem található.",
+  "menu.selection.left": "&#9654; [ ",
+  "menu.selection.right": "] &#9664;",
+  "menu.footer.scroll": "Görgetés",
+  "menu.footer.scroll.button": "W/S",
+  "menu.footer.select": "Kiválasztás",
+  "menu.footer.select.button": "E",
+  "menu.footer.previous": "Előző",
+  "menu.footer.previous.button": "CTRL",
+  "menu.footer.exit": "Kilépés",
+  "menu.footer.exit.button": "R"
 }

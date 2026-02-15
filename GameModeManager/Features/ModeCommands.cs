@@ -4,7 +4,6 @@ using GameModeManager.Menus;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
-using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
 using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Admin;
@@ -23,13 +22,11 @@ namespace GameModeManager.Features
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private Config _config = new Config();
-        private ILogger<ModeCommands> _logger;
         private CustomVoteManager _customVoteManager;
 
         // Define class constructor
-        public ModeCommands(PluginState pluginState, StringLocalizer localizer, CustomVoteManager customVoteManager, ILogger<ModeCommands> logger, ServerManager serverManager, ModeMenus modeMenus, MapMenus mapMenus)
+        public ModeCommands(PluginState pluginState, StringLocalizer localizer, CustomVoteManager customVoteManager, ServerManager serverManager, ModeMenus modeMenus, MapMenus mapMenus)
         {
-            _logger = logger;
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
             _localizer = localizer;
@@ -78,33 +75,25 @@ namespace GameModeManager.Features
 
                             // Register map votes for new mode
                             _customVoteManager.RegisterMapVotes();
-
-                            // // Update map menus
-                            if (_config.Maps.Mode == 0)
-                            {
-                                _mapMenus.Load();
-                            }
                         }
                         else
                         {
                             _pluginState.Game.CurrentMode = _mode;
                         }
+
+                        // Update map menus
+                        if (_config.Maps.Mode == 0)
+                        {
+                            _mapMenus.Load();
+                        }
                     }
                     else
                     {
-                        if (_pluginState.Game.CurrentMode.Maps.Contains(_pluginState.Game.CurrentMap))
+                        if (!_pluginState.Game.CurrentMode.Maps.Contains(_pluginState.Game.CurrentMap))
                         {
-                            _logger.LogWarning($"The mode is already set to {_mode.Name}.");
-                        }
-                        else
-                        {
-                            _serverManager.ChangeMode(_mode);
+                             _serverManager.ChangeMode(_mode);
                         }
                     }
-                }
-                else
-                {
-                    _logger.LogWarning($"Cannot find game mode {command.ArgByIndex(1)}.");
                 }
             }
         }

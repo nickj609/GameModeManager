@@ -6,17 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="[1.0.282, )"/>
+    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.362" />
+    <PackageReference Include="MenuManagerAPI.Shared" Version="1.0.3" />
+    <PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="lib\Gameloop.Vdf\Gameloop.Vdf.dll" Version="0.6.2" />
-    <Reference Include="CS2-CustomVotes.Shared" Version="1.1.3">
+    <Reference Include="CS2-CustomVotes.Shared" Version="1.1.4">
       <Private>false</Private>
       <HintPath>lib\counterstrikesharp\shared\CS2-CustomVotes.Shared\CS2-CustomVotes.Shared.dll</HintPath>
-    </Reference>
-    <Reference Include="MenuManagerAPI.Shared" Version="1.0.1">
-      <Private>false</Private>
-      <HintPath>lib\counterstrikesharp\shared\MenuManagerAPI\MenuManagerAPI.Shared.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -26,9 +23,9 @@
     <PropertyGroup>
       <IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
     </PropertyGroup>
-    <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang"/>
-    <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\CS2-CustomVotes"/>
-    <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\CS2-CustomVotes.Shared"/>
+    <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang" />
+    <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\CS2-CustomVotes" />
+    <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\CS2-CustomVotes.Shared" />
     <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R $(OutDir)*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
     <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(OutDir)* $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/plugins/GameModeManager/" />
     <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /E /R $(ProjectDir)lib\csgo\ $(SolutionDir)bin\Debug\$(TargetFramework)\Public\" />

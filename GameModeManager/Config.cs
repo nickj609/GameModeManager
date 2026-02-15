@@ -70,6 +70,7 @@ namespace GameModeManager
         public bool Maps { get; set; } = false; // Enables vote to change map
         public bool GameModes { get; set; } = false; // Enables vote to change game mode
         public bool GameSettings { get; set; } = false; // Enables vote to change game setting
+        public bool UsePanorama { get; set; } = false; // Enables Panorama Vote Menu for votes
     }
 
     // Define game settings

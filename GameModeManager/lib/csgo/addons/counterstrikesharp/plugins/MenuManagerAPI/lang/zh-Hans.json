@@ -5,10 +5,15 @@
   "menutype.center": "中心",
   "menutype.button": "按钮",
   "menutype.selected": "已选择菜单：",
-  "menu.enabled.color": "白色",
-  "menu.disabled.color": "#aaaaaa",
-  "menu.selection.left": "<font class='fontSize-s' color='red'>&#9654;</font><font class='fontSize-s' color='red'> [ </font>",
-  "menu.selection.right": "<font class='fontSize-s' color='red'> ] </font><font class='fontSize-s' color='red'>&#9664;</font>",
-  "menu.title.color": "红色",
-  "menu.bottom.text": "<font color='white'>滚动 </font><font color='gold' class='stratum-bold'>W/S</font><font color='white'> | 选择 </font><font color='gold' class='stratum-bold'>E</font><font color='white'> | 上一个 <font color='gold' class='stratum-bold'>CTRL</font><font color='white'> | 退出 </font><font color='gold' class='stratum-bold'>R</font>"
+  "menutype.notfound": "{0} 菜单类型未找到。",
+  "menu.selection.left": "&#9654; [ ",
+  "menu.selection.right": "] &#9664;",
+  "menu.footer.scroll": "滚动",
+  "menu.footer.scroll.button": "W/S",
+  "menu.footer.select": "选择",
+  "menu.footer.select.button": "E",
+  "menu.footer.previous": "上一页",
+  "menu.footer.previous.button": "CTRL",
+  "menu.footer.exit": "退出",
+  "menu.footer.exit.button": "R"
 }
