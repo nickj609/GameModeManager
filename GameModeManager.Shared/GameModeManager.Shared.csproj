@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <RepositoryUrl>https://github.com/nickj609/GameModeManager</RepositoryUrl>
         <TargetFramework>net8.0</TargetFramework>
         <RootNamespace>GameModeManager.Shared</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -9,12 +10,14 @@
     <ItemGroup>
       <PackageReference Include="CounterStrikeSharp.API" Version="1.0.362"/>
     </ItemGroup>
-    <Target Name="PublicBuild" AfterTargets="AfterBuild">
+    <Target Name="PublicBuild" AfterTargets="AfterBuild" Condition="'$(IsPacking)' != 'true'">
         <PropertyGroup>
             <IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
         </PropertyGroup>
-        <MakeDir Directories="$(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/shared/GameModeManager.Shared"/>
         <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R $(OutDir)*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared\" />
         <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(OutDir)* $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/shared/GameModeManager.Shared/" />
+        <MakeDir Directories="$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared"/>
+        <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R $(OutDir)*.* $(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared\" />
+        <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(OutDir)* $(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Public/addons/counterstrikesharp/shared/GameModeManager.Shared/" />
     </Target>
 </Project>
