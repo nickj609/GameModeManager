@@ -2,7 +2,9 @@
 using GameModeManager.Models;
 using CS2_CustomVotes.Shared;
 using GameModeManager.Contracts;
+using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
+using CS2_CustomVotes.Shared.Models;
 using CounterStrikeSharp.API.Core.Capabilities;
 
 // Declare namespace
@@ -15,12 +17,14 @@ namespace GameModeManager.Core
         private Config _config = new();
         private PluginState _pluginState;
         private StringLocalizer _localizer;
+        private readonly ILogger<CustomVoteManager> _logger;
 
         // Define class constructor
-        public CustomVoteManager(PluginState pluginState, StringLocalizer localizer)
+        public CustomVoteManager(PluginState pluginState, StringLocalizer localizer, ILogger<CustomVoteManager> logger)
         {
             _localizer = localizer;
             _pluginState = pluginState;
+            _logger = logger;
         }
 
         // Load config
@@ -34,6 +38,20 @@ namespace GameModeManager.Core
         private bool SettingVote = false;
         private bool GameModeVote = false;
         public static PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
+
+        private Action<YesNoVoteAction, int, int, VoteEndReason> NoopPanoramaHandler => (action, _, _, reason) =>
+        {
+            if (action == YesNoVoteAction.VoteAction_End)
+                _logger.LogInformation("[GameModeManager] Panorama vote ended: {Reason}", reason);
+        };
+
+        private static bool DefaultPanoramaResult(YesNoVoteInfo info)
+        {
+            if (info.TotalVotes == 0)
+                return false;
+
+            return info.YesVotes > info.NoVotes;
+        }
 
         // Define method to register custom votes
         public void RegisterCustomVotes()
@@ -58,32 +76,39 @@ namespace GameModeManager.Core
 
                     // Create per mode vote
                     CustomVotesApi.Get()?.AddCustomVote(
-                        _modeCommand, 
-                        new List<string>(), 
-                        _localizer.Localize("mode.vote.menu-title", _mode.Name), 
-                        "No", 
-                        30, 
-                        new Dictionary<string, CS2_CustomVotes.Shared.Models.VoteOption>(StringComparer.OrdinalIgnoreCase) // vote options
+                        _modeCommand,
+                        new List<string>(),
+                        _localizer.Localize("mode.vote.menu-title", _mode.Name),
+                        "No", // defaultOption key
+                        30f, // timeToVote as float
+                        new Dictionary<string, CS2_CustomVotes.Shared.Models.VoteOption>(StringComparer.OrdinalIgnoreCase)
                         {
                             { "Yes", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"css_mode {_mode.Name}" })},
                             { "No", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.no"), new List<string>())},
                         },
-                        "center", 
-                        -1 
-                    ); 
+                        "center",
+                        -1,
+                        -1,
+                        _config.Votes.UsePanorama,
+                        null, // panoramaDisplayToken
+                        null, // panoramaPassedToken
+                        null, // panoramaPassedDetails
+                        DefaultPanoramaResult,
+                        NoopPanoramaHandler
+                    );
                 }
                 
                 // Register game modes vote
                 CustomVotesApi.Get()?.AddCustomVote(
-                    "changemode", 
-                    new List<string> {"cm"}, 
-                    _localizer.Localize("modes.vote.menu-title"), 
-                    "No", 
-                    30, 
-                    _modeOptions, 
-                    "center", 
-                    -1 
-                ); 
+                    "changemode",
+                    new List<string> {"cm"},
+                    _localizer.Localize("modes.vote.menu-title"),
+                    "No",
+                    30f,
+                    _modeOptions,
+                    "center",
+                    -1
+                );
                 GameModeVote = true;
 
                 // Register map votes
@@ -100,20 +125,20 @@ namespace GameModeManager.Core
                 foreach (Setting _setting in _pluginState.Game.Settings.Values)
                 {
                     CustomVotesApi.Get()?.AddCustomVote(
-                        _setting.Name, 
-                        new List<string>(), 
-                        _localizer.Localize("setting.vote.menu-title", _setting.DisplayName), 
-                        "No", 
-                        30, 
-                        new Dictionary<string, CS2_CustomVotes.Shared.Models.VoteOption>(StringComparer.OrdinalIgnoreCase) 
+                        _setting.Name,
+                        new List<string>(),
+                        _localizer.Localize("setting.vote.menu-title", _setting.DisplayName),
+                        "No",
+                        30f,
+                        new Dictionary<string, CS2_CustomVotes.Shared.Models.VoteOption>(StringComparer.OrdinalIgnoreCase)
                         {
                             { "No", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.no"), new List<string>())},
                             { "Enable", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.enable"), new List<string> { $"exec {_config.Settings.Folder}/{_setting.Enable}" })},
                             { "Disable", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.disable"), new List<string>{ $"exec {_config.Settings.Folder}/{_setting.Disable}" })},
                         },
-                        "center", 
-                        -1 
-                    ); 
+                        "center",
+                        -1
+                    );
                 }
                 // Add vote to command list
                 _pluginState.Game.PlayerCommands.Add("!changesetting");
@@ -127,19 +152,26 @@ namespace GameModeManager.Core
             foreach (Map _map in _pluginState.Game.CurrentMode.Maps)
             {
                 CustomVotesApi.Get()?.AddCustomVote(
-                    _map.Name, 
-                    new List<string>(), 
-                    _localizer.Localize("map.vote.menu-title", _map.Name), 
-                    "No", 
-                    30,
+                    _map.Name,
+                    new List<string>(),
+                    _localizer.Localize("map.vote.menu-title", _map.Name),
+                    "No",
+                    30f,
                     new Dictionary<string, CS2_CustomVotes.Shared.Models.VoteOption>(StringComparer.OrdinalIgnoreCase)
                     {
                         { "Yes", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.yes"), new List<string> { $"css_map {_map.Name} {_map.WorkshopId}" })},
                         { "No", new CS2_CustomVotes.Shared.Models.VoteOption(_localizer.Localize("menu.no"), new List<string>())},
                     },
-                    "center", 
-                    -1 
-                ); 
+                    "center",
+                    -1,
+                    -1,
+                    _config.Votes.UsePanorama,
+                    null,
+                    null,
+                    null,
+                    DefaultPanoramaResult,
+                    NoopPanoramaHandler
+                );
             }
             _pluginState.Game.PlayerCommands.Add("!changemap");
             MapVote = true;

@@ -5,10 +5,15 @@
   "menutype.center": "Centro",
   "menutype.button": "Botón",
   "menutype.selected": "Menú seleccionado: ",
-  "menu.enabled.color": "blanco",
-  "menu.disabled.color": "#aaaaaa",
-  "menu.selection.left": "<font class='fontSize-s' color='red'>&#9654;</font><font class='fontSize-s' color='red'> [ </font>",
-  "menu.selection.right": "<font class='fontSize-s' color='red'> ] </font><font class='fontSize-s' color='red'>&#9664;</font>",
-  "menu.title.color": "rojo",
-  "menu.bottom.text": "<font color='white'>Desplazarse </font><font color='gold' class='stratum-bold'>W/S</font><font color='white'> | Sel </font><font color='gold' class='stratum-bold'>E</font><font color='white'> | Ant <font color='gold' class='stratum-bold'>CTRL</font><font color='white'> | Salir </font><font color='gold' class='stratum-bold'>R</font>"
+  "menutype.notfound": "{0} tipo de menú no encontrado.",
+  "menu.selection.left": "&#9654; [ ",
+  "menu.selection.right": "] &#9664;",
+  "menu.footer.scroll": "Desplazar",
+  "menu.footer.scroll.button": "W/S",
+  "menu.footer.select": "Seleccionar",
+  "menu.footer.select.button": "E",
+  "menu.footer.previous": "Anterior",
+  "menu.footer.previous.button": "CTRL",
+  "menu.footer.exit": "Salir",
+  "menu.footer.exit.button": "R"
 }

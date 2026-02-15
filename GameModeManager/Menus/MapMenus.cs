@@ -5,6 +5,7 @@ using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
 using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
+using Microsoft.Extensions.Logging;
 
 // Declare namespace
 namespace GameModeManager.Menus
@@ -33,6 +34,9 @@ namespace GameModeManager.Menus
         // Define load method  
         public void Load()
         {
+            _pluginState.Game.Maps.TryGetValue(_pluginState.Game.CurrentMap.Name, out var currentMap);
+            _pluginState.Game.Modes.TryGetValue(_pluginState.Game.CurrentMode.Name, out var currentMode);
+
             if (_config.Maps.Mode == 1)
             {
                 // Create main menu

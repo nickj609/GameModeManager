@@ -5,10 +5,15 @@
   "menutype.center": "Mitte",
   "menutype.button": "Taste",
   "menutype.selected": "Ausgewähltes Menü: ",
-  "menu.enabled.color": "weiß",
-  "menu.disabled.color": "#aaaaaa",
-  "menu.selection.left": "<font class='fontSize-s' color='red'>&#9654;</font><font class='fontSize-s' color='red'> [ </font>",
-  "menu.selection.right": "<font class='fontSize-s' color='red'> ] </font><font class='fontSize-s' color='red'>&#9664;</font>",
-  "menu.title.color": "rot",
-  "menu.bottom.text": "<font color='white'>Scrollen </font><font color='gold' class='stratum-bold'>W/S</font><font color='white'> | Ausw </font><font color='gold' class='stratum-bold'>E</font><font color='white'> | Zurück <font color='gold' class='stratum-bold'>STRG</font><font color='white'> | Beenden </font><font color='gold' class='stratum-bold'>R</font>"
+  "menutype.notfound": "{0} menütyp nicht gefunden.",
+  "menu.selection.left": "&#9654; [ ",
+  "menu.selection.right": "] &#9664;",
+  "menu.footer.scroll": "Scroll",
+  "menu.footer.scroll.button": "W/S",
+  "menu.footer.select": "Auswählen",
+  "menu.footer.select.button": "E",
+  "menu.footer.previous": "Zurück",
+  "menu.footer.previous.button": "STRG",
+  "menu.footer.exit": "Beenden",
+  "menu.footer.exit.button": "R"
 }

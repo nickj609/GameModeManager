@@ -28,7 +28,7 @@ namespace GameModeManager
     {
         // Define plugin properties
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "1.0.63";
+        public override string ModuleVersion => "1.0.64";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
@@ -87,14 +87,12 @@ namespace GameModeManager
                     if (CustomVoteManager.CustomVotesApi.Get() is null){}
                     _isCustomVotesLoaded = true;
                     _customVoteManager.RegisterCustomVotes();
-                    return;
                 }
                 catch (Exception ex)
                 {
                     _isCustomVotesLoaded = false;
                     Logger.LogWarning("CS2-CustomVotes plugin not found. Custom votes will not be registered.");
                     Logger.LogDebug(ex.Message);
-                    return;
                 }
             }
 
@@ -104,14 +102,13 @@ namespace GameModeManager
                 _menuFactory.Load();
                 if (MenuFactory.Api is null){}
                 _menuFactory.LoadMenus();
-                return;
             }
             catch (Exception ex)
             {
                 Logger.LogError("MenuManager plugin not found.");
                 Logger.LogError(ex.Message);
-                return;
             }
+            return;
         }
 
         public override void Unload(bool hotReload)

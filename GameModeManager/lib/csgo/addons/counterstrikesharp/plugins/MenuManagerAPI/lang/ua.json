@@ -5,10 +5,15 @@
   "menutype.center": "Центр",
   "menutype.button": "Кнопка",
   "menutype.selected": "Вибране меню: ",
-  "menu.enabled.color": "білий",
-  "menu.disabled.color": "#aaaaaa",
-  "menu.selection.left": "<font class='fontSize-s' color='red'>&#9654;</font><font class='fontSize-s' color='red'> [ </font>",
-  "menu.selection.right": "<font class='fontSize-s' color='red'> ] </font><font class='fontSize-s' color='red'>&#9664;</font>",
-  "menu.title.color": "червоний",
-  "menu.bottom.text": "<font color='white'>Прокрутка </font><font color='gold' class='stratum-bold'>W/S</font><font color='white'> | Вибір </font><font color='gold' class='stratum-bold'>E</font><font color='white'> | Попер. <font color='gold' class='stratum-bold'>CTRL</font><font color='white'> | Вихід </font><font color='gold' class='stratum-bold'>R</font>"
+  "menutype.notfound": "{0} тип меню не знайдено.",
+  "menu.selection.left": "&#9654; [ ",
+  "menu.selection.right": "] &#9664;",
+  "menu.footer.scroll": "Прокрутка",
+  "menu.footer.scroll.button": "W/S",
+  "menu.footer.select": "Вибрати",
+  "menu.footer.select.button": "E",
+  "menu.footer.previous": "Назад",
+  "menu.footer.previous.button": "CTRL",
+  "menu.footer.exit": "Вихід",
+  "menu.footer.exit.button": "R"
 }
