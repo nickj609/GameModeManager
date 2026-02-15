@@ -1,4 +1,4 @@
-![Copyright Nickj609l](https://img.shields.io/badge/Copyright-Nickj609-red) ![GitHub License](https://img.shields.io/github/license/nickj609/GameModeManager) ![GitHub Release](https://img.shields.io/github/v/release/nickj609/GameModeManager) ![Issues](https://img.shields.io/github/issues/nickj609/GameModeManager) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/nickj609/GameModeManager/total) ![NuGet Version](https://img.shields.io/nuget/v/GameModeManagerAPI.Shared)
+![Copyright Nickj609l](https://img.shields.io/badge/Copyright-Nickj609-red) ![GitHub License](https://img.shields.io/github/license/nickj609/GameModeManager) ![GitHub Release](https://img.shields.io/github/v/release/nickj609/GameModeManager) ![Issues](https://img.shields.io/github/issues/nickj609/GameModeManager) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/nickj609/GameModeManager/total) ![NuGet Version](https://img.shields.io/nuget/v/GameModeManager.Shared)
 
 # GameModeManager
 A Counter-Strike 2 server plugin to help administrators manage custom game modes, settings, and map rotations. 
