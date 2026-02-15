@@ -14,8 +14,6 @@
         <PropertyGroup>
             <IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
         </PropertyGroup>
-        <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R $(OutDir)*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared\" />
-        <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(OutDir)* $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/shared/GameModeManager.Shared/" />
         <MakeDir Directories="$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared"/>
         <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R $(OutDir)*.* $(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared\" />
         <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(OutDir)* $(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Public/addons/counterstrikesharp/shared/GameModeManager.Shared/" />
