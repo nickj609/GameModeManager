@@ -64,13 +64,9 @@ namespace GameModeManager.Core
                                 if (_pluginState.Game.Settings.TryGetValue(_name, out ISetting? _setting))
                                 {
                                     if (_fileName.StartsWith("enable_"))
-                                    {
                                         _setting.Enable = _fileName;
-                                    }
                                     else
-                                    {
                                         _setting.Disable = _fileName;
-                                    }  
                                 }
                             }
                             else

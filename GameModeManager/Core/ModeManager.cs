@@ -52,13 +52,9 @@ namespace GameModeManager.Core
                 foreach (string _mapGroup in _mode.MapGroups)
                 {
                     if (_pluginState.Game.MapGroups.TryGetValue(_mapGroup, out IMapGroup? mapGroup))
-                    {
                         mapGroups.Add(mapGroup);
-                    }
                     else
-                    {
                         _logger.LogError($"Cannot find {_mapGroup} in map group list.");
-                    }
                 }
 
                 IMode? gameMode;
@@ -95,13 +91,9 @@ namespace GameModeManager.Core
             };
 
             if (_pluginState.Game.Modes.TryGetValue(_config.GameModes.Default.Name, out IMode? currentMode))
-            {
                 _pluginState.Game.CurrentMode = currentMode;
-            }
             else
-            {
                 _logger.LogWarning($"Cannot find mode {_config.GameModes.Default.Name} in mode list.");
-            }
         }
     }
 }

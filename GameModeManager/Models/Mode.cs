@@ -61,9 +61,7 @@ namespace GameModeManager.Models
             foreach (IMapGroup mapGroup in mapGroups)
             {
                 foreach (IMap map in mapGroup.Maps)
-                {
                     _maps.Add(map);
-                }
             }
             return _maps;
         }

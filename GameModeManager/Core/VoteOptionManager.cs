@@ -46,18 +46,14 @@ namespace GameModeManager.Core
         public void OnLoad(Plugin plugin)
         {
             if (_pluginState.RTV.Enabled)
-            {
                 LoadOptions();
-            }
         }
 
         // Define on map start behavior
         public void OnMapStart(string map)
         {
             if(_pluginState.RTV.Enabled)
-            {
                 LoadOptions();
-            }
         }
 
         // Define class methods
@@ -83,18 +79,12 @@ namespace GameModeManager.Core
             optionsToShow = _config!.RTV.OptionsToShow == 0 ? MAX_OPTIONS_HUD_MENU : _config!.RTV.OptionsToShow;
 
             if (_config.Maps.Mode == 1)
-            {
                 maps = _pluginState.Game.Maps.Values.ToList();
-            }
             else
-            {
                 maps = _pluginState.Game.CurrentMode.Maps.ToList();
-            }
 
             if (_config.RTV.IncludeModes)
-            {
                 modes = _pluginState.Game.Modes.Values.ToList();
-            }
 
             foreach (IMap map in maps)
             {
@@ -106,9 +96,7 @@ namespace GameModeManager.Core
                     optionsByName.TryAdd(map.Name, option);
 
                     if (option.WorkshopId > 0)
-                    {
                         optionsById.TryAdd(option.WorkshopId, option);
-                    }
                 }
             }
 
@@ -145,24 +133,21 @@ namespace GameModeManager.Core
                 int mapsToInclude = optionsToShow - modesToInclude - mapNominationWinners.Count;
 
                 foreach (IMode mode in modesScrambled.Take(modesToInclude))
-                {
                     options.Add(new VoteOption(mode.Name, VoteOptionType.Mode));
-                }
+
                 foreach (IMap map in mapsScrambled.Take(mapsToInclude))
-                {
                     options.Add(new VoteOption(map.Name, map.WorkshopId, map.DisplayName, VoteOptionType.Map));
-                }
+
                 optionsEllected = modeNominationWinners.Distinct().ToList(); 
             }
             else
             {
                 foreach (IMap map in mapsScrambled.Take(optionsToShow - mapNominationWinners.Count))
-                {
                     options.Add(new VoteOption(map.Name, map.WorkshopId, map.DisplayName, VoteOptionType.Map));
-                }
+
                 optionsEllected = mapNominationWinners.Distinct().ToList();
             }
-        
+            
             List<VoteOption> optionsScrambled = PluginExtensions.Shuffle(new Random(), options).ToList();
             optionsEllected = optionsEllected.Concat(optionsScrambled).Distinct().ToList();
 

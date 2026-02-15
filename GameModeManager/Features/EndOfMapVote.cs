@@ -97,13 +97,10 @@ namespace GameModeManager.Features
         public bool CheckMaxRounds()
         {
             if (_maxRoundsManager.UnlimitedRounds)
-            {
                 return false;
-            }
             if (_maxRoundsManager.RemainingRounds <= _pluginState.RTV.RoundsBeforeEnd)
-            {
                 return true;
-            }
+    
             return _maxRoundsManager.CanClinch && _maxRoundsManager.RemainingWins <= _pluginState.RTV.RoundsBeforeEnd;
         }
 
@@ -163,13 +160,10 @@ namespace GameModeManager.Features
         public HookResult EventRoundStartHandler(EventRoundStart @event, GameEventInfo info)
         {
             if (!_pluginState.RTV.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds())
-            {
                 StartVote();
-            }
             else if (deathMatch || armsRace)
-            {
                 StartTimer();
-            }
+
             return HookResult.Continue;  
         }
         

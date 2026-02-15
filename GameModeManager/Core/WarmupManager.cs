@@ -53,13 +53,9 @@ namespace GameModeManager.Core
 
                 // Set default warmup mode
                 if(_pluginState.Game.WarmupModes.TryGetValue(_config.Warmup.Default.Name, out IMode? warmupMode))
-                {
                     _pluginState.Game.WarmupMode = warmupMode;
-                }
                 else
-                {
                     _logger.LogError($"Unable to find warmup mode {_config.Warmup.Default.Name} in warmup mode list.");
-                }
             }
         }
         
@@ -98,9 +94,7 @@ namespace GameModeManager.Core
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("warmup.end.message",  _pluginState.Game.CurrentMode.Name)); 
 
                 if (_pluginState.Game.PerMapWarmup)
-                {
                     _pluginState.Game.WarmupScheduled = false;
-                } 
 
                 _pluginState.Game.WarmupRunning = false;
             }
@@ -110,9 +104,8 @@ namespace GameModeManager.Core
         public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
         {
             if (PlayerExtensions.ValidPlayerCount(false) == 1)
-            {
                 StartWarmup(_pluginState.Game.WarmupMode);
-            }
+                
             return HookResult.Continue;
         }
 

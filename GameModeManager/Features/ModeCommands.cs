@@ -45,13 +45,11 @@ namespace GameModeManager.Features
         public void OnLoad(Plugin plugin)
         {
             if (_config.Commands.Mode)
-            {
                 plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
-            }
+
             if (_config.Commands.Modes)
-            {
                 plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
-            }
+
             plugin.AddCommand("css_gamemode", "Sets the current game mode.", OnGameModeCommand);
         }
 
@@ -67,13 +65,8 @@ namespace GameModeManager.Features
                     {
                         if (_config.Votes.Enabled && _config.Votes.Maps)
                         {
-                            // Deregister map votes from old mode
                             _customVoteManager.DeregisterMapVotes();
-
-                            // Set mode
                             _pluginState.Game.CurrentMode = _mode;
-
-                            // Register map votes for new mode
                             _customVoteManager.RegisterMapVotes();
                         }
                         else
@@ -83,16 +76,12 @@ namespace GameModeManager.Features
 
                         // Update map menus
                         if (_config.Maps.Mode == 0)
-                        {
                             _mapMenus.Load();
-                        }
                     }
                     else
                     {
                         if (!_pluginState.Game.CurrentMode.Maps.Contains(_pluginState.Game.CurrentMap))
-                        {
                              _serverManager.ChangeMode(_mode);
-                        }
                     }
                 }
             }
@@ -106,9 +95,8 @@ namespace GameModeManager.Features
             if (_pluginState.Game.Modes.TryGetValue(command.ArgByIndex(1), out IMode? _mode))
             {
                 if(player != null)
-                {
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
-                }
+
                 _serverManager.ChangeMode(_mode);
             }
             else
@@ -123,9 +111,7 @@ namespace GameModeManager.Features
         public void OnModesCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player != null)
-            {
-                _modeMenus.MainMenu?.Open(player);    
-            }
+                _modeMenus.MainMenu?.Open(player);
         }
     }
 }

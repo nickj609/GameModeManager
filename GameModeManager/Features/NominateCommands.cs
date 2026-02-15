@@ -4,7 +4,6 @@ using GameModeManager.Menus;
 using GameModeManager.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
-using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -22,16 +21,14 @@ namespace GameModeManager.Features
         private StringLocalizer _localizer;
         private NominateMenus _nominateMenus;
         private Config _config = new Config();
-        private ILogger<ModeCommands> _logger;
         private NominateManager _nominateManager;
         private MaxRoundsManager _maxRoundsManager;
         private TimeLimitManager _timeLimitManager;
         private VoteOptionManager _voteOptionManager;
 
         // Define class constructor
-        public NominateCommands(PluginState pluginState, IStringLocalizer iLocalizer, ILogger<ModeCommands> logger, NominateManager nominateManager, GameRules gameRules, VoteOptionManager voteOptionManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteManager voteManager, NominateMenus nominateMenus)
+        public NominateCommands(PluginState pluginState, IStringLocalizer iLocalizer, NominateManager nominateManager, GameRules gameRules, VoteOptionManager voteOptionManager, MaxRoundsManager maxRoundsManager, TimeLimitManager timeLimitManager, VoteManager voteManager, NominateMenus nominateMenus)
         {
-            _logger = logger;
             _gameRules = gameRules;
             _voteManager = voteManager;
             _pluginState = pluginState;
@@ -76,16 +73,16 @@ namespace GameModeManager.Features
                     if (!_timeLimitManager.UnlimitedTime())
                     {
                         string timeleft = _voteManager.GetTimeLeft();
-                        player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.schedule-change", timeleft));
+                        command.ReplyToCommand(_localizer.LocalizeWithPrefix("rtv.schedule-change", timeleft));
                     }
                     else if (!_maxRoundsManager.UnlimitedRounds)
                     {
                         string roundsleft = _voteManager.GetRoundsLeft();
-                        player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.schedule-change", roundsleft));
+                        command.ReplyToCommand(_localizer.LocalizeWithPrefix("rtv.schedule-change", roundsleft));
                     }
                     else
                     {
-                        _logger.LogWarning("RTV: No timelimit or max rounds is set for the current map/mode");
+                        command.ReplyToCommand("RTV: No timelimit or max rounds is set for the current map/mode");
                     }
                     return;
                 }
@@ -93,7 +90,7 @@ namespace GameModeManager.Features
                 // Check if disabled
                 if (_pluginState.RTV.DisableCommands || !_pluginState.RTV.NominationEnabled || _pluginState.RTV.EofVoteHappening)
                 {
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
+                    command.ReplyToCommand(_localizer.LocalizeWithPrefix("general.validation.disabled"));
                     return;
                 }
 
@@ -102,20 +99,20 @@ namespace GameModeManager.Features
                 {
                     if (!_config.RTV.EnabledInWarmup)
                     {
-                        player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                        command.ReplyToCommand(_localizer.LocalizeWithPrefix("general.validation.warmup"));
                         return;
                     }
                 }
                 else if (_timeLimitManager.UnlimitedTime() && !_maxRoundsManager.UnlimitedRounds && _config.RTV.MinRounds > 0 && _config.RTV.MinRounds > _gameRules.TotalRoundsPlayed)
                 {
-                    player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-rounds", _config.RTV.MinRounds));
+                    command.ReplyToCommand(_localizer.LocalizeWithPrefix("general.validation.minimum-rounds", _config.RTV.MinRounds));
                     return;
                 }
 
                 // Check if meets minimum players
                 if (PlayerExtensions.ValidPlayerCount() < _config!.RTV.MinPlayers)
                 {
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.RTV.MinPlayers));
+                    command.ReplyToCommand(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.RTV.MinPlayers));
                     return;
                 }
 
@@ -125,13 +122,9 @@ namespace GameModeManager.Features
                 if (string.IsNullOrEmpty(option))
                 {
                     if (_config.RTV.IncludeModes)
-                    {
                         _nominateMenus.MainMenu?.Open(player);
-                    }
                     else
-                    {
                         _nominateMenus.MapMenu?.Open(player);
-                    }
                 }
                 else
                 {
@@ -140,18 +133,14 @@ namespace GameModeManager.Features
                         VoteOption? voteOption = _voteOptionManager.GetOptionById(id);
 
                         if (voteOption != null)
-                        {
                             _nominateManager.Nominate(player, voteOption);
-                        }
                     }
                     else if (_voteOptionManager.GetOptionByName(option) != null)
                     {
                         VoteOption? voteOption = _voteOptionManager.GetOptionByName(option);
 
                         if (voteOption != null)
-                        {
                             _nominateManager.Nominate(player, voteOption);
-                        }
                     }
                     else
                     {
@@ -169,18 +158,11 @@ namespace GameModeManager.Features
             if (player == null)
             {
                 if (command.ArgByIndex(1).Equals("true", StringComparison.OrdinalIgnoreCase) && !_pluginState.RTV.NominationEnabled)
-                {
                     _pluginState.RTV.NominationEnabled = true;
-                }
                 else if (command.ArgByIndex(1).Equals("false", StringComparison.OrdinalIgnoreCase) && _pluginState.RTV.NominationEnabled)
-                {
                     _pluginState.RTV.NominationEnabled = false;
-                }
                 else
-                {
                     command.ReplyToCommand("Valid options are true or false.");
-                }
-
             }
         }
 
@@ -190,13 +172,9 @@ namespace GameModeManager.Features
             if (player == null)
             {
                 if (int.TryParse(command.ArgByIndex(1), out var max))
-                {
                     _pluginState.RTV.MaxNominationWinners = max;
-                }
                 else
-                {
                     command.ReplyToCommand("Please specify a number.");
-                }
             }
         }
 
@@ -208,14 +186,10 @@ namespace GameModeManager.Features
             {
                 int userId = player.UserId!.Value;
                 if (_nominateManager.ModeNominations.ContainsKey(userId))
-                {
                     _nominateManager.ModeNominations.Remove(userId);
-                }
 
                 if (_nominateManager.MapNominations.ContainsKey(userId))
-                {
                     _nominateManager.MapNominations.Remove(userId);
-                }
             }
             return HookResult.Continue;
         }

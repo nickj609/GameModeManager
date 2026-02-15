@@ -135,14 +135,9 @@ namespace GameModeManager.Core
         public void RoundWin(CsTeam team)
         {
             if (team == CsTeam.CounterTerrorist)
-            {
                 CTWins++;
-
-            }
             else if (team == CsTeam.Terrorist)
-            {
                 TWins++;
-            }
         }   
     }
 }

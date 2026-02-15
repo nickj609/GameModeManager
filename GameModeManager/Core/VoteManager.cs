@@ -73,14 +73,10 @@ namespace GameModeManager.Core
             if (_pluginState.RTV.Enabled)
             {
                 if (voted.Count > 0)
-                {
                     voted.Clear();
-                }
 
                 if(_pluginState.RTV.Votes.Count > 0)
-                {
                     _pluginState.RTV.Votes.Clear();
-                }
                 
                 timeLeft = 0;
                 percent = 0;
@@ -110,45 +106,31 @@ namespace GameModeManager.Core
         public void AddVote(CCSPlayerController player, VoteOption option)
         {
             _pluginState.RTV.Votes[option] += 1;
-            // FIX: Pass option.DisplayName instead of the VoteOption object to the localization method.
-            // Previously, passing the entire VoteOption object caused the chat message to display the type name
-            // (e.g., "GameModeManager.Models.VoteOption") instead of the actual vote choice.
-            // Now, the player's chat will correctly show the display name of the selected option.
             player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.you-voted", option.DisplayName));
 
             if (_config!.RTV.HideHudAfterVote)
-            {
                 voted.Add(player.UserId!.Value);
-            }
-            //Check for winner after each vote.
+
             CheckForWinner();
         }
 
         public void StartVote(int delay)
         {
             if (voted.Count > 0)
-            {
                 voted.Clear();
-            }
 
             _pluginState.RTV.EofVoteHappening = true;
 
             if (!_config.RTV.HideHud)
-            {
                 _plugin?.RegisterListener<Listeners.OnTick>(VoteResults);
-            }
 
             timeLeft = delay;
             timer = _plugin!.AddTimer(1.0F, () =>
             {
                 if (timeLeft <= 0)
-                {
                     EndVote();
-                }
                 else
-                {
                     timeLeft--;
-                }
             }, TimerFlags.REPEAT);
         }
 
@@ -183,6 +165,7 @@ namespace GameModeManager.Core
 
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rtv.vote-ended-no-votes", _pluginState.RTV.Winner.DisplayName));
             }
+
             if (!_config.RTV.HideHud)
             {
                 _plugin!.AddTimer(5F, () =>
@@ -196,9 +179,7 @@ namespace GameModeManager.Core
                 _pluginState.RTV.NextMode = _pluginState.Game.Modes.TryGetValue(_pluginState.RTV.Winner.Name, out IMode? mode) ? mode : null;
 
                 if (_pluginState.RTV.NextMode?.DefaultMap != null)
-                {
                     _pluginState.RTV.NextMap = _pluginState.RTV.NextMode.DefaultMap;
-                }
 
                 if (_pluginState.RTV.ChangeImmediately && _pluginState.RTV.NextMode != null)
                 {
@@ -270,13 +251,10 @@ namespace GameModeManager.Core
             string _message;
 
             if (_maxRoundsManager.RemainingRounds > 1)
-            {
                 _message = _localizer.Localize("rtv.remaining-rounds", _maxRoundsManager.RemainingRounds);
-            }
             else
-            {
                 _message = _localizer.Localize("rtv.remaining-last-round");
-            }
+
             return _message;
         }
 
@@ -289,17 +267,11 @@ namespace GameModeManager.Core
                 TimeSpan remaining = TimeSpan.FromSeconds((double)_timeLimitManager.TimeRemaining());
 
                 if (remaining.Hours > 0)
-                {
                     _message = _localizer.Localize("rtv.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
-                }
                 else if (remaining.Minutes > 0)
-                {
                     _message = _localizer.Localize("rtv.remaining-time-minute", remaining.Minutes, remaining.Seconds);
-                }
                 else
-                {
                     _message = _localizer.Localize("rtv.remaining-time-second", remaining.Seconds);
-                }
             }
             else
             {
@@ -316,23 +288,17 @@ namespace GameModeManager.Core
             if (timeLeft >= 0)
             {
                 foreach (var kv in _pluginState.RTV.Votes.OrderByDescending(x => x.Value).Take(VoteOptionManager.MAX_OPTIONS_HUD_MENU))
-                {
                     stringBuilder.AppendFormat($"<br>{kv.Key.DisplayName} <font color='green'>({kv.Value})</font>");
-                }
 
                 foreach (CCSPlayerController player in PlayerExtensions.ValidPlayers().Where(x => !voted.Contains(x.UserId!.Value)))
-                {
                     player.PrintToCenterHtml(stringBuilder.ToString());
-                }
             }
             else
             {
                 if (_pluginState.RTV.EofVoteHappened == true && _pluginState.RTV.Winner != null)
                 {
                     foreach (CCSPlayerController player in PlayerExtensions.ValidPlayers())
-                    {
                         player.PrintToCenterHtml(_localizer.Localize("rtv.hud.finished", _pluginState.RTV.Winner.DisplayName));
-                    }
                 }
             }
         }

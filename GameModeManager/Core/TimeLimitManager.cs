@@ -49,17 +49,11 @@ namespace GameModeManager.Core
                     return 0;
 
                 if (_pluginState.TimeLimit.CustomLimit && _pluginState.TimeLimit.CustomStartTime > 0)
-                {
                     return (decimal)(Server.CurrentTime - _pluginState.TimeLimit.CustomStartTime);
-                }
                 else if (!_pluginState.TimeLimit.CustomLimit)
-                {
                     return (decimal)(Server.CurrentTime - _gameRules.GameStartTime);
-                }
                 else
-                {
                     return 0;
-                }
             }
         }
 
@@ -245,10 +239,10 @@ namespace GameModeManager.Core
             // Only enable if standard time isn't unlimited
             if (!StandardUnlimitedTime)
             {
-                 decimal remaining = TimeRemaining(); 
+                decimal remaining = TimeRemaining(); 
 
-                 if (remaining > 0) 
-                 {
+                if (remaining > 0) 
+                {
                     _pluginState.TimeLimit.CustomLimit = false; 
                     _pluginState.TimeLimit.Enabled = true;
                     _pluginState.TimeLimit.Scheduled = false; 
@@ -259,16 +253,16 @@ namespace GameModeManager.Core
                         _serverManager.TriggerRotation();
                         DisableTimeLimit(); 
                     });
-                     _logger.LogDebug($"Standard timer enabled. Remaining: {remaining}s");
-                 } 
-                 else 
-                 {
-                     _logger.LogDebug("Standard time limit calculated as 0 or less, not starting timer.");
-                 }
+                    _logger.LogDebug($"Standard timer enabled. Remaining: {remaining}s");
+                } 
+                else 
+                {
+                    _logger.LogDebug("Standard time limit calculated as 0 or less, not starting timer.");
+                }
             } 
             else 
             {
-                 _logger.LogDebug("Standard mp_timelimit is 0, timer not enabled.");
+                _logger.LogDebug("Standard mp_timelimit is 0, timer not enabled.");
             }
         }
 
@@ -308,9 +302,7 @@ namespace GameModeManager.Core
             string _message;
 
             if (_gameRules.WarmupRunning)
-            {
                 return _localizer.Localize("timeleft.warmup");
-            }
 
             decimal currentRemaining = timeRemaining;
 
@@ -321,17 +313,11 @@ namespace GameModeManager.Core
                     TimeSpan remaining = TimeSpan.FromSeconds((double)currentRemaining);
 
                     if (remaining.Hours > 0)
-                    {
                         _message = _localizer.Localize("timeleft.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
-                    }
                     else if (remaining.Minutes > 0)
-                    {
                         _message = _localizer.Localize("timeleft.remaining-time-minute", remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
-                    }
                     else
-                    {
                         _message = _localizer.Localize("timeleft.remaining-time-second", remaining.Seconds);
-                    }
                 }
                 else
                 {
@@ -341,13 +327,9 @@ namespace GameModeManager.Core
             else if (!_maxRoundsManager.UnlimitedRounds) 
             {
                 if (_maxRoundsManager.RemainingRounds > 1)
-                {
                     _message = _localizer.Localize("timeleft.remaining-rounds", _maxRoundsManager.RemainingRounds);
-                }
                 else
-                {
                     _message = _localizer.Localize("timeleft.last-round");
-                }
             }
             else
             {
@@ -361,22 +343,22 @@ namespace GameModeManager.Core
         // Define event handlers
         public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
         {
-             _logger.LogDebug("EventRoundAnnounceMatchStart triggered."); 
+            _logger.LogDebug("EventRoundAnnounceMatchStart triggered."); 
             if (_pluginState.TimeLimit.Scheduled)
             {
-                 _logger.LogDebug($"TimeLimitScheduled is true. Custom: {_pluginState.TimeLimit.CustomLimit}");
+                _logger.LogDebug($"TimeLimitScheduled is true. Custom: {_pluginState.TimeLimit.CustomLimit}");
 
                 if (_pluginState.TimeLimit.CustomLimit)
                 {
-                     _logger.LogDebug($"Enabling scheduled custom time limit: {_pluginState.TimeLimit.Duration}s");
+                    _logger.LogDebug($"Enabling scheduled custom time limit: {_pluginState.TimeLimit.Duration}s");
                     EnableTimeLimit(_pluginState.TimeLimit.Duration); 
                 }
                 else
                 {
-                     _logger.LogDebug("Enabling scheduled standard time limit.");
+                    _logger.LogDebug("Enabling scheduled standard time limit.");
                     EnableTimeLimit();
                 }
-                 _pluginState.TimeLimit.Scheduled = false;
+                _pluginState.TimeLimit.Scheduled = false;
             }
             else
             {
@@ -387,7 +369,7 @@ namespace GameModeManager.Core
 
         public HookResult EventGameEndHandler(EventGameEnd @event, GameEventInfo info)
         {
-             _logger.LogDebug("EventGameEnd triggered. Disabling timer."); 
+            _logger.LogDebug("EventGameEnd triggered. Disabling timer."); 
             DisableTimeLimit();
             return HookResult.Continue;
         }
@@ -396,7 +378,7 @@ namespace GameModeManager.Core
         {
             if (ServerExtensions.IsServerEmpty())
             {
-                 _logger.LogDebug("Server is empty. Disabling timer.");
+                _logger.LogDebug("Server is empty. Disabling timer.");
                 DisableTimeLimit();
             }
             return HookResult.Continue;

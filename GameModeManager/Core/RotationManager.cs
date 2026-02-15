@@ -48,16 +48,14 @@ namespace GameModeManager.Core
                 {
                     DateTime targetTime = DateTime.Parse(entry.Time);
                     TimeSpan delay = targetTime - DateTime.Now;
+
                     if (delay.TotalMilliseconds <= 0)
-                    {
                         delay = delay.Add(TimeSpan.FromDays(1));
-                    }
 
                     new Timer((float)delay.TotalSeconds, () =>
                     {
                         _serverManager.TriggerScheduleChange(entry);
                         delay = targetTime.AddDays(1) - DateTime.Now;  
-                        
                     },TimerFlags.REPEAT);
                 }
             }
@@ -73,9 +71,8 @@ namespace GameModeManager.Core
         public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
         {
             if (PlayerExtensions.ValidPlayerCount(false) > 0)
-            {
                 _rotationTimer?.Kill();
-            }
+
             return HookResult.Continue;
         }
 
@@ -87,9 +84,7 @@ namespace GameModeManager.Core
                 {
                     // Disable server hibernation
                     if(!ServerExtensions.IsHibernationEnabled())
-                    {
                         Server.ExecuteCommand("sv_hibernate_when_empty false");
-                    }
 
                     // Create timer
                     if(!_rotationEnabled)

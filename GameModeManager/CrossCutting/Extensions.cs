@@ -16,25 +16,19 @@ namespace GameModeManager.CrossCutting
         public static void FreezePlayers()
 		{
             foreach (var player in ValidPlayers(true))
-            {
 			    player.Pawn.Value!.Freeze();
-            }
 		}
 
         public static void UnfreezePlayers()
 		{
             foreach (var player in ValidPlayers(true))
-            {
                 player.Pawn.Value!.Unfreeze();
-            }
 		}
 
         public static void PrintCenterTextAll(string text)
         {
             foreach (var player in ValidPlayers(false))
-            {
                 player.PrintToCenter(text);
-            }
         }
 
         public static int ValidPlayerCount(bool considerBots = false)
@@ -110,13 +104,9 @@ namespace GameModeManager.CrossCutting
             var conVar = ConVar.Find("sv_hibernate_when_empty");
 
             if (conVar != null)
-            {
                 return conVar.GetPrimitiveValue<bool>();
-            }
             else
-            {
                 return false;
-            }
         }
     }
     
@@ -126,13 +116,9 @@ namespace GameModeManager.CrossCutting
         public static string RemoveCfgExtension(string str)
         {
             if (str.EndsWith(".cfg"))
-            {
                 return str.Substring(0, str.Length - 4);
-            }
             else
-            {
                 return str;
-            }
         }
 
         public static IList<T> Shuffle<T>(Random rng, IList<T> array)

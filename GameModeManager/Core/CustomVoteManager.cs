@@ -186,9 +186,7 @@ namespace GameModeManager.Core
             if (MapVote)
             {
                 foreach (Map _map in _pluginState.Game.CurrentMode.Maps)
-                {
                     CustomVotesApi.Get()?.RemoveCustomVote(_map.Name);
-                }
 
                 // Remove vote from command list
                 _pluginState.Game.PlayerCommands.Remove("!changemap");
@@ -215,9 +213,7 @@ namespace GameModeManager.Core
             if (SettingVote)
             {
                 foreach (Setting _setting in _pluginState.Game.Settings.Values)
-                {
                     CustomVotesApi.Get()?.RemoveCustomVote(_setting.Name);
-                }
             }
             DeregisterMapVotes();
         }

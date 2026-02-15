@@ -83,9 +83,7 @@ namespace GameModeManager.Features
         public void OnSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player != null)
-            {
                 _settingMenus.MainMenu?.Open(player);
-            }
         }
     }
 }

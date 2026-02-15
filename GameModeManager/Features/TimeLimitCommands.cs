@@ -61,7 +61,6 @@ namespace GameModeManager.Features
             if (!bool.TryParse(command.ArgByIndex(1), out bool enableRequested))
             {
                 command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.invalid-bool-error", command.ArgByIndex(1))); // Suggest adding this localization key
-                _logger.LogWarning("Invalid boolean value provided for timelimit command: {Arg}", command.ArgByIndex(1));
                 return;
             }
 
@@ -71,6 +70,7 @@ namespace GameModeManager.Features
                 command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.enabled-error")); // Already enabled
                 return;
             }
+            
             if (!enableRequested && !_pluginState.TimeLimit.Enabled)
             {
                 command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.disabled-error")); // Already disabled
@@ -93,7 +93,6 @@ namespace GameModeManager.Features
                     else
                     {
                         command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.value-error"));
-                        _logger.LogWarning("Invalid seconds value provided for timelimit command by {Executor}: {Arg}", executor, command.ArgByIndex(2));
                         return; 
                     }
                 }
@@ -126,7 +125,7 @@ namespace GameModeManager.Features
             if (player == null)
                 return;
 
-            player.PrintToChat(_timeLeftLocalizer.LocalizeWithPrefix(_timeLimitManager.GetTimeLeftMessage()));
+            command.ReplyToCommand(_timeLeftLocalizer.LocalizeWithPrefix(_timeLimitManager.GetTimeLeftMessage()));
         }
     }
 }

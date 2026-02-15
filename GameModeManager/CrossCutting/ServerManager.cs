@@ -41,10 +41,9 @@ namespace GameModeManager.CrossCutting
         {
             // Disable warmup
             _pluginState.Game.WarmupRunning = false;
+
             if(_config.Warmup.PerMap)
-            {
                 _pluginState.Game.WarmupScheduled = false;
-            }
 
             // Kick bots and freeze all players
             new Timer(0.5f, () =>
@@ -64,9 +63,7 @@ namespace GameModeManager.CrossCutting
                 _pluginState.RTV.SecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
 
                 if(_pluginState.RTV.NominationEnabled)
-                {
                     _pluginState.RTV.MaxNominationWinners = _config.RTV.MaxNominationWinners;
-                }
             }
 
             // Display Countdown
@@ -75,17 +72,12 @@ namespace GameModeManager.CrossCutting
             {
                 // Change map
                 if (Server.IsMapValid(nextMap.Name))
-                {
                     Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
-                }
                 else if (nextMap.WorkshopId != -1)
-                {
                     Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
-                }
                 else
-                {
                     Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
-                }
+
                 // Disable countdown flag
                 _pluginState.Game.CountdownRunning = false;
 
@@ -129,9 +121,7 @@ namespace GameModeManager.CrossCutting
                 }
 
                 if(_pluginState.RTV.NominationEnabled)
-                {
                     _pluginState.RTV.MaxNominationWinners = _config.RTV.MaxNominationWinners;
-                }
             }
 
             // Execute mode config
@@ -140,13 +130,9 @@ namespace GameModeManager.CrossCutting
             // If no default map, set next map to random map
             IMap nextMap;
             if (mode.DefaultMap == null) 
-            {
                 nextMap = GetRandomMap(mode);
-            }
             else
-            {
                 nextMap = mode.DefaultMap;
-            }
             
             ChangeMap(nextMap, _config.Maps.Delay);
         }
@@ -218,9 +204,7 @@ namespace GameModeManager.CrossCutting
                             _pluginState.RTV.NextMode = mode;
 
                             if (_pluginState.RTV.NextMode?.DefaultMap != null)
-                            {
                                 _pluginState.RTV.NextMap = _pluginState.RTV.NextMode.DefaultMap;
-                            }
 
                             Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", _pluginState.RTV.Winner.DisplayName));
 
@@ -238,13 +222,9 @@ namespace GameModeManager.CrossCutting
                     else if (_pluginState.RTV.Winner.Type is VoteOptionType.Map)
                     {
                         if (_pluginState.RTV.Winner.WorkshopId > 0 && _pluginState.Game.MapsByWorkshopId.TryGetValue(_pluginState.RTV.Winner.WorkshopId, out IMap? workshopMap))
-                        {
                             _pluginState.RTV.NextMap = workshopMap;
-                        }
                         else if (_pluginState.Game.Maps.TryGetValue(_pluginState.RTV.Winner.Name, out IMap? map))
-                        {
                             _pluginState.RTV.NextMap = map;
-                        }
 
                         if (_pluginState.RTV.NextMap != null)
                         {
@@ -264,9 +244,7 @@ namespace GameModeManager.CrossCutting
         public void TriggerScheduleChange(ScheduleEntry state)
         {
             if (_pluginState.Game.Modes.TryGetValue(state.Mode, out IMode? _mode) && !_pluginState.Game.CurrentMode.Equals(_mode))
-            {
                 ChangeMode(_mode);
-            }
         }
 
         public IMap GetRandomMap(IMode currentMode)
@@ -281,15 +259,12 @@ namespace GameModeManager.CrossCutting
                 foreach (string mapGroup in _config.Rotation.MapGroups)
                 {
                     if (_pluginState.Game.MapGroups.TryGetValue(mapGroup, out IMapGroup? _mapGroup))
-                    {
                         _mapList.AddRange(_mapGroup.Maps);
-                    }
                 } 
 
                 if (_mapList.Count == 0)
-                {
                     _logger.LogError("No maps found in configured map groups for rotation cycle 2.");
-                }
+
                 int _randomIndex = _rnd.Next(0, _mapList.Count); 
                 _randomMap = _mapList[_randomIndex];
             }
@@ -297,18 +272,16 @@ namespace GameModeManager.CrossCutting
             {
                 List<IMap> availableMaps = _pluginState.Game.Maps.Values.ToList();
                 if (availableMaps.Count == 0)
-                {
                     _logger.LogError("No maps available for rotation cycle 1.");
-                }
+
                 int _randomIndex = _rnd.Next(0, availableMaps.Count); 
                 _randomMap = availableMaps[_randomIndex];
             }
             else
             {
                 if (currentMode.Maps.Count == 0)
-                {
                     _logger.LogError($"Current mode '{currentMode.Name}' has no maps configured for rotation.");
-                }
+
                 int _randomIndex = _rnd.Next(0, currentMode.Maps.Count); 
                 _randomMap = currentMode.Maps.ElementAt(_randomIndex);
             }

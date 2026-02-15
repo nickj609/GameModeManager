@@ -12,7 +12,6 @@ namespace GameModeManager.Menus
     public class NominateMenus : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private Config _config = new();
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private NominateManager _nominateManager;
@@ -31,12 +30,6 @@ namespace GameModeManager.Menus
         public IMenu? MainMenu;
         public IMenu? MapMenu;
         public IMenu? ModeMenu;
-
-        // Define on config parsed
-        public void OnConfigParsed(Config config)
-        {
-            _config = config;
-        }
         
         // Define load method
         public void Load()

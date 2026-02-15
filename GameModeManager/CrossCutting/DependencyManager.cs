@@ -18,25 +18,19 @@ namespace GameModeManager.CrossCutting
         public void OnConfigParsed(TConfig config)
         {
             foreach (var service in Dependencies)
-            {
                 service.OnConfigParsed(config);
-            }
         }
 
         public void OnPluginLoad(TPlugin plugin)
         {
             foreach (var service in Dependencies)
-            {
                 service.OnLoad(plugin);
-            }
         }
         
         public void OnMapStart(string mapName)
         {
             foreach (var service in Dependencies)
-            {
                 service.OnMapStart(mapName);
-            }
         }
 
         public void LoadDependencies(Assembly assembly)
@@ -51,9 +45,7 @@ namespace GameModeManager.CrossCutting
         public void AddIt(IServiceCollection collection)
         {
             foreach (var type in TypesToAdd)
-            {
                 collection.AddSingleton(type);
-            }
 
             collection.AddSingleton(p =>
             {

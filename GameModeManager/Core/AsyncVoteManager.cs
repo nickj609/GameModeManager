@@ -72,10 +72,8 @@ namespace GameModeManager.Features
         public VoteResult AddVote(int userId)
         {
             if (VotesAlreadyReached)
-            {
                 return new VoteResult(VoteResultEnum.VotesAlreadyReached, VoteCount, RequiredVotes);
-            }
-
+                
             VoteResultEnum? result;
 
             if (Votes.IndexOf(userId) != -1)
@@ -120,9 +118,7 @@ namespace GameModeManager.Features
 
             // Display vote menu
             foreach (var validPlayer in PlayerExtensions.ValidPlayers())
-            {
                 _rtvMenus.MainMenu?.Open(validPlayer);
-            }
         }
 
         public void RTVCounter(CCSPlayerController player)
@@ -130,15 +126,10 @@ namespace GameModeManager.Features
             if (_pluginState.RTV.EofVoteHappened)
             {
                 if (!_timeLimitManager.UnlimitedTime())
-                {
-                    string timeleft = _voteManager.GetTimeLeft();
-                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.schedule-change", timeleft));
-                }
+                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.schedule-change", _voteManager.GetTimeLeft()));
                 else if (!_maxRoundsManager.UnlimitedRounds)
-                {
-                    string roundsleft = _voteManager.GetRoundsLeft();
-                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.schedule-change", roundsleft));
-                }
+                    player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.schedule-change", _voteManager.GetRoundsLeft()));
+                    
                 return;
             }
 

@@ -102,17 +102,12 @@ namespace GameModeManager.Core
                 }
 
                 if (!ModeNominations.ContainsKey(userId))
-                {
                     ModeNominations[userId] = new();
-                }
 
-                // Use Contains instead of IndexOf
                 bool alreadyVoted = ModeNominations[userId].Contains(option);
-
                 if (!alreadyVoted)
                 {
                     ModeNominations[userId].Add(option);
-                    // Update direct vote count for O(1) totalVotes
                     _modeVoteCounts[option] = _modeVoteCounts.GetValueOrDefault(option, 0) + 1;
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("nominate.nominated", player.PlayerName, option.Name, _modeVoteCounts[option]));
                 }
@@ -130,9 +125,7 @@ namespace GameModeManager.Core
                 }
 
                 if (!MapNominations.ContainsKey(userId))
-                {
                     MapNominations[userId] = new();
-                }
 
                 // Use Contains instead of IndexOf
                 bool alreadyVoted = MapNominations[userId].Contains(option);
@@ -152,7 +145,6 @@ namespace GameModeManager.Core
         }
 
         // Define method to check if option is in cooldown
-        // Now uses the HashSet for O(1) lookup
         public bool IsOptionInCooldown(VoteOption option)
         {
             return _pluginState.RTV.OptionsOnCoolDownSet.Contains(option);
@@ -178,9 +170,7 @@ namespace GameModeManager.Core
 
             // Take only the top nomination(s)
             if (winners.Count > _pluginState.RTV.MaxNominationWinners)
-            {
                 winners = winners.Take(_pluginState.RTV.MaxNominationWinners).ToList();
-            }
 
             return winners;
         }
@@ -205,9 +195,8 @@ namespace GameModeManager.Core
 
             // Take only the top nomination(s)
             if (winners.Count > _pluginState.RTV.MaxNominationWinners)
-            {
                 winners = winners.Take(_pluginState.RTV.MaxNominationWinners).ToList();
-            }
+
             return winners;
         }
     }

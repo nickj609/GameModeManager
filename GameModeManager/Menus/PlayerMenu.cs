@@ -70,9 +70,7 @@ namespace GameModeManager.Menus
                             MenuFactory.Api?.CloseMenu(player);
 
                             if (_config.Votes.Enabled && _config.Votes.Maps)
-                            {
                                 _mapMenus.VoteMenu?.Open(player);
-                            }
                         });
                         break;
                     case "!changemode":
@@ -81,9 +79,7 @@ namespace GameModeManager.Menus
                             MenuFactory.Api?.CloseMenu(player);
 
                             if (_config.Votes.Enabled && _config.Votes.GameModes)
-                            {
                                 _modeMenus.VoteMenu?.Open(player);
-                            }
                         });
                         break;
                     case "!changesetting":
@@ -92,9 +88,7 @@ namespace GameModeManager.Menus
                             MenuFactory.Api?.CloseMenu(player);
 
                             if (_config.Votes.Enabled && _config.Votes.GameSettings)
-                            {
                                 _settingMenus.MainMenu?.Open(player);
-                            }
                         });
                         break;
                     case "!currentmode":
@@ -103,9 +97,7 @@ namespace GameModeManager.Menus
                             MenuFactory.Api?.CloseMenu(player);
 
                             if (player != null)
-                            {
                                 player.PrintToChat(_localizer.Localize("currentmode.message", _pluginState.Game.CurrentMode.Name));
-                            }
                         });
                         break;
                     case "!currentmap":
@@ -121,17 +113,11 @@ namespace GameModeManager.Menus
                             MenuFactory.Api?.CloseMenu(player);
 
                             if (_pluginState.RTV.NextMap != null && _pluginState.RTV.NextMode == null)
-                            {
                                 player.PrintToChat(_localizer.Localize("rtv.nextmap.message", _pluginState.RTV.NextMap.DisplayName));
-                            }
                             else if (_pluginState.RTV.NextMap == null && _pluginState.RTV.NextMode != null)
-                            {
                                 player.PrintToChat(_localizer.Localize("rtv.nextmap.message", "Random"));
-                            }
                             else
-                            {
                                 player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.no-vote"));
-                            }
                         });
                         break;
                     case "!nextmode":
@@ -139,17 +125,11 @@ namespace GameModeManager.Menus
                         {
                             MenuFactory.Api?.CloseMenu(player);
                             if (_pluginState.RTV.NextMode != null)
-                            {
                                 player.PrintToChat(_localizer.Localize("rtv.nextmode.message", _pluginState.RTV.NextMode.Name));
-                            }
                             else if (_pluginState.RTV.NextMap != null && _pluginState.RTV.NextMode == null)
-                            {
                                 player.PrintToChat(_localizer.Localize("rtv.nextmode.message", _pluginState.Game.CurrentMode.Name));
-                            }
                             else
-                            {
                                 player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "general.validation.no-vote"));
-                            }
                         });
                         break;
                     case "!rtv":
@@ -167,13 +147,10 @@ namespace GameModeManager.Menus
                             if (_pluginState.RTV.EofVoteHappened)
                             {
                                 if (!_timeLimitManager.UnlimitedTime())
-                                {
                                     player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.schedule-change", _voteManager.GetTimeLeft()));
-                                }
                                 else if (!_maxRoundsManager.UnlimitedRounds)
-                                {
                                     player.PrintToChat(_localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.schedule-change", _voteManager.GetRoundsLeft()));
-                                }
+
                                 return;
                             }
 
@@ -212,9 +189,7 @@ namespace GameModeManager.Menus
                             MenuFactory.Api?.CloseMenu(player);
 
                             if (player != null)
-                            {
                                 player.PrintToChat(_localizer.LocalizeWithPrefixInternal("timeleft.prefix", _timeLimitManager.GetTimeLeftMessage()));
-                            }
                         });
                         break;
                 }

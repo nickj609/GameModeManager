@@ -68,13 +68,9 @@ namespace GameModeManager.Features
                     if (!armsRace)
                     {
                         if(_warmupManager.ScheduleWarmup(command.ArgByIndex(1)))
-                        {
                             _logger.LogInformation($"Warmup Mode: Warmup scheduled.");   
-                        } 
                         else
-                        {
                             _logger.LogError($"Warmup Mode: {command.ArgByIndex(1)} cannot be found."); 
-                        }  
                     }
                     else
                     {
@@ -128,13 +124,9 @@ namespace GameModeManager.Features
             if(player != null)
             {
                 if (_pluginState.Game.WarmupRunning)
-                {
                     _warmupManager.EndWarmup();
-                }
                 else
-                {
                     _pluginState.Game.WarmupScheduled = false;
-                }
             }
         }
     }

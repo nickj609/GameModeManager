@@ -41,13 +41,10 @@ namespace GameModeManager.Features
         public void OnLoad(Plugin plugin)
         {
             if (_config.Commands.Map)
-            {
                 plugin.AddCommand("css_map", "Changes the map to the map specified in the command argument.", OnMapCommand);
-            }
+                
             if (_config.Commands.Maps)
-            {
                 plugin.AddCommand("css_maps", "Displays a list of maps from the current mode.", OnMapsCommand);
-            }
         }
 
         // Define admin map menu command handler
@@ -56,9 +53,7 @@ namespace GameModeManager.Features
         public void OnMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player != null)
-            {
                 _mapMenus.MainMenu?.Open(player);
-            }
         }
 
         // Define admin change map command handler
@@ -70,17 +65,11 @@ namespace GameModeManager.Features
             string mapName = command.ArgByIndex(1);
             
             if (long.TryParse(command.ArgByIndex(2), out long workshopId) && _pluginState.Game.MapsByWorkshopId.TryGetValue(workshopId, out IMap? workshopMap))
-            {
                 newMap = workshopMap;
-            }
             else if (_pluginState.Game.Maps.TryGetValue(mapName, out IMap? map))
-            {
                 newMap = map;
-            }
             else
-            {
                 newMap = new Map(mapName, workshopId);
-            }
 
             if (newMap == null)
             {
@@ -89,9 +78,7 @@ namespace GameModeManager.Features
             }
 
             if (player != null)
-            {
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, newMap.DisplayName));
-            }
 
             _serverManager.ChangeMap(newMap, _config.Maps.Delay);
         }
