@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
 using CS2_CustomVotes.Shared.Models;
 using CounterStrikeSharp.API.Core.Capabilities;
-using Microsoft.Extensions.Logging;
 
 // Declare namespace
 namespace GameModeManager.Core
