@@ -4,6 +4,7 @@ using GameModeManager.Features;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Menu;
+using Microsoft.Extensions.Logging;
 
 // Declare namespace
 namespace GameModeManager.Menus
@@ -24,10 +25,11 @@ namespace GameModeManager.Menus
         private TimeLimitManager _timeLimitManager;
         private MaxRoundsManager _maxRoundsManager;
         private AsyncVoteManager _asyncVoteManager;
+        private ILogger<PlayerMenu> _logger;
 
         // Define class constructor
         public PlayerMenu(PluginState pluginState, StringLocalizer localizer, TimeLimitManager timeLimitManager, GameRules gameRules, VoteManager voteManager, MaxRoundsManager maxRoundsManager,
-        AsyncVoteManager asyncVoteManager, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, NominateMenus nominateMenus)
+        AsyncVoteManager asyncVoteManager, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, NominateMenus nominateMenus, ILogger<PlayerMenu> logger)
         {
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
@@ -40,6 +42,7 @@ namespace GameModeManager.Menus
             _asyncVoteManager = asyncVoteManager;
             _timeLimitManager = timeLimitManager;
             _maxRoundsManager = maxRoundsManager;
+            _logger = logger;
         }
 
         // Define class properties

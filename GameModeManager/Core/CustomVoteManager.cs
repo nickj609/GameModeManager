@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using GameModeManager.CrossCutting;
 using CS2_CustomVotes.Shared.Models;
 using CounterStrikeSharp.API.Core.Capabilities;
+using Microsoft.Extensions.Logging;
 
 // Declare namespace
 namespace GameModeManager.Core
@@ -111,14 +112,16 @@ namespace GameModeManager.Core
                 );
                 GameModeVote = true;
 
-                // Register map votes
-                if(_config.Votes.Maps)
-                {
-                    RegisterMapVotes();
-                    MapVote = true;
-                }
+              
             }
-        
+
+            if (_config.Votes.Maps)
+            {
+                // Register map votes
+                RegisterMapVotes();
+                MapVote = true;
+            }
+
             // Register game settings
             if(_config.Votes.GameSettings)
             {
