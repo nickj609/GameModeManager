@@ -3,8 +3,8 @@ using GameModeManager.Core;
 using GameModeManager.Features;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
-using CounterStrikeSharp.API.Modules.Menu;
 using Microsoft.Extensions.Logging;
+using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
 namespace GameModeManager.Menus
