@@ -18,7 +18,6 @@ namespace GameModeManager.Features
         private PluginState _pluginState;
         private Config _config = new Config();
         private ILogger<TimeLimitCommands> _logger;
-        private StringLocalizer _timeLeftLocalizer;
         private TimeLimitManager _timeLimitManager;
         private StringLocalizer _timeLimitLocalizer;
 
@@ -28,7 +27,6 @@ namespace GameModeManager.Features
             _logger = logger;
             _pluginState = pluginState;
             _timeLimitManager = timeLimitManager;
-            _timeLeftLocalizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
             _timeLimitLocalizer = new StringLocalizer(iLocalizer, "timelimit.prefix");
         }
 
@@ -44,11 +42,6 @@ namespace GameModeManager.Features
             if (_config.Commands.TimeLimit)
             {
                 plugin.AddCommand("css_timelimit", "Forces rotation on time limit end. Usage: timelimit <true|false> [seconds]", OnTimeLimitCommand);
-            }
-            if (_config.Commands.TimeLeft)
-            {
-                _pluginState.Game.PlayerCommands.Add("!timeleft");
-                plugin.AddCommand("timeleft", "Prints in the chat the timeleft in the current map", OnTimeLeftCommand);
             }
         }
 
@@ -116,16 +109,6 @@ namespace GameModeManager.Features
                 command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.disabled"));
                 _logger.LogInformation("Time limit disabled by {Executor}.", executor);
             }
-        }
-
-        // Define time limit command handler
-        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        public void OnTimeLeftCommand(CCSPlayerController? player, CommandInfo command)
-        {
-            if (player == null)
-                return;
-
-            command.ReplyToCommand(_timeLeftLocalizer.LocalizeWithPrefix(_timeLimitManager.GetTimeLeftMessage()));
         }
     }
 }

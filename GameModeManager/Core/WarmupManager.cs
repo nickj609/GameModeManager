@@ -58,11 +58,19 @@ namespace GameModeManager.Core
                     _logger.LogError($"Unable to find warmup mode {_config.Warmup.Default.Name} in warmup mode list.");
             }
         }
+
+        // Define on map start behavior
+        // A map change by another plugin (GG1MapChooser, CS2-SimpleAdmin) skips ServerManager.ChangeMap, so the new
+        // map must not inherit a running warmup. WarmupScheduled stays: a mode cfg may have scheduled it for this map.
+        public void OnMapStart(string map)
+        {
+            _pluginState.Game.WarmupRunning = false;
+        }
         
         // Define class methods
         public bool ScheduleWarmup(string modeName)
         {
-            if(_pluginState.Game.Modes.TryGetValue(modeName, out IMode? warmupMode))
+            if(_pluginState.Game.WarmupModes.TryGetValue(modeName, out IMode? warmupMode) || _pluginState.Game.Modes.TryGetValue(modeName, out warmupMode))
             {   
                 _pluginState.Game.WarmupMode = warmupMode;
                 _pluginState.Game.WarmupScheduled = true;

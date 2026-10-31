@@ -14,13 +14,15 @@ namespace GameModeManager.Menus
     {
         // Define class dependencies
         private Config _config = new();
+        private VoteService _voteService;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
 
         // Define class constructor
-        public SettingMenus(PluginState pluginState, StringLocalizer localizer)
+        public SettingMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService)
         {
             _localizer = localizer;
+            _voteService = voteService;
             _pluginState = pluginState;
         }
 
@@ -85,11 +87,33 @@ namespace GameModeManager.Menus
                 {
                     VoteMenu?.AddMenuOption(_setting.DisplayName, (player, option) =>
                     {
-                        MenuFactory.Api?.CloseMenu(player);
-                        CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, _setting.Name);
+                        OpenSettingVoteMenu(player, _setting);
                     });
                 }
             }
+        }
+
+        // Define vote methods
+        // Enable or disable, then a yes/no vote on it
+        private void OpenSettingVoteMenu(CounterStrikeSharp.API.Core.CCSPlayerController player, Setting setting)
+        {
+            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("setting.vote.menu-title", setting.DisplayName), p => VoteMenu?.Open(p));
+            if (menu == null)
+                return;
+
+            menu.AddMenuOption(_localizer.Localize("menu.enable"), (p, option) =>
+            {
+                MenuFactory.Api?.CloseMenu(p);
+                _voteService.StartYesNo(p, _localizer.Localize("vote.enable-setting", setting.DisplayName),
+                    () => Server.ExecuteCommand($"exec {_config.Settings.Folder}/{setting.Enable}"));
+            });
+            menu.AddMenuOption(_localizer.Localize("menu.disable"), (p, option) =>
+            {
+                MenuFactory.Api?.CloseMenu(p);
+                _voteService.StartYesNo(p, _localizer.Localize("vote.disable-setting", setting.DisplayName),
+                    () => Server.ExecuteCommand($"exec {_config.Settings.Folder}/{setting.Disable}"));
+            });
+            menu.Open(player);
         }
     }
 }

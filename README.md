@@ -10,12 +10,11 @@ Tired of manually managing game modes, settings, and maps?
 
 GameModeManager simplifies server administration for Counter-Strike 2 by providing:
 
-- **Admin menus** for modes, maps, and settings.
-- **Customizable rotation** of maps and game modes.
-- **Player voting** for maps, settings, and game modes.
+- **Admin menus** for modes, maps, settings and warmup. If [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin) is installed, they also appear in its admin menu (optional).
+- **Customizable rotation** of maps and game modes, with mode schedules.
+- **Player voting** for settings and game modes.
+- **Per-mode map pools** for [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser): RTV, nominate and map votes only offer the current mode's maps.
 - **Shared API** for cross-plugin development and integration.
-- **Built-in RTV** that can be customized to include modes and maps.
-- **Dynamic map lists and menus** based on the current game mode or all game modes.
 - **Customization options** for rotation schedules, commands, voting styles, and languages.
 
 This plugin is perfect for servers with a variety of custom content or those that want to give players more control over their experience.
@@ -28,21 +27,36 @@ Please drop a ⭐ star in the repository
 ## Credits
 This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gameloop.Vdf/) (licensed under the [MIT License](https://github.com/shravan2x/Gameloop.Vdf/blob/master/LICENSE)) for parsing the `gamemodes_server.txt` file, which is in [Valve Data Format](https://developer.valvesoftware.com/wiki/VDF).
 
-For creating custom votes, this plugin utilizes the [CS2-CustomVotes](https://github.com/imi-tat0r/CS2-CustomVotes) shared plugin API (licensed under the [MIT License](https://github.com/imi-tat0r/CS2-CustomVotes?tab=MIT-1-ov-file)).
+Player votes (`!changemode`, `!changesetting`) are built in since 2.0.0: a PanoramaMenu Yes/No menu, or the game's own F1/F2 vote panel (`Votes.Style: "native"`, adapted from [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser)'s PanoramaVote, MIT). Earlier versions used the [CS2-CustomVotes](https://github.com/imi-tat0r/CS2-CustomVotes) plugin, which is no longer needed.
 
-For creating menus, this plugin utilizes the [MenuManagerAPI](https://github.com/Nickj609/MenuManagerAPI) shared plugin API.
+Vote settings (`Votes` in `GameModeManager.json`): `Enabled`, `GameModes`, `GameSettings`, `Style` (`menu` | `native`), `Percentage` (yes votes needed, % of eligible players, default 51), `Duration` (seconds, 30), `MinPlayers` (1), `Cooldown` (seconds before the same player can start another vote, 60), `AllowSpectators` (false), `AllowInWarmup` (false), `NativeDisplayToken`. One vote runs at a time, and none starts while a GG1MapChooser map vote is running.
+
+For creating menus, this plugin utilizes the [PanoramaMenuManager](https://github.com/RRimmer/PanoramaMenuManagerCS2) shared plugin API (`MenuManagerApi`, capability `menu:nfcore`). Versions before 2.0.0 used [MenuManagerAPI](https://github.com/Nickj609/MenuManagerAPI).
 
 Lastly, a special thanks to the [CS2 Rock The Vote plugin by Abnerfs](https://github.com/abnerfs/cs2-rockthevote). The plugin's use of the dependency injection framework served as the core architecture for the development of this plugin.
 
+## GG1MapChooser
+
+Since 2.0.0, [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser) is **required**: it picks the maps, GameModeManager picks the mode and decides when the map changes. GameModeManager 1.0.x had its own RTV and map menus; stay on 1.0.x if you need those.
+
+- GameModeManager keeps **one GG1 map pool per mode** (the mode's map groups) in `cfg/GGMCmaps.tuning.json`. Whenever the mode changes, it writes that mode's pool to GG1's `cfg/GGMCmaps.json` and runs `reloadmaps`, so RTV, nominate and votes only offer that mode's maps. Tune `weight` / `minplayers` / `maxplayers` in the tuning file; they are kept (`MapChooser.GeneratePools`). GG1's own pool vote can't be used with this.
+- **Maps of the current mode:** players see them with GG1's `!nominate`, admins with this plugin's `!maps` (GG1's own `css_maps` is removed at start-up).
+- GG1 provides `!rtv`, `!nominate`, `!nextmap`, `!timeleft`, the end-of-map vote and map extends. The `!game` menu has entries for them.
+- GG1 starts the end-of-map vote on round-limited matches. GameModeManager starts it on time-limited matches (`MapChooser.TriggerSecondsBeforeEnd`, default 60) and arms race (`TriggerKillsBeforeEnd`, 13), and again after a map extend.
+- At match end, time-limit end or on an empty server, GameModeManager changes the map after its countdown with GG1's `ggmc_change_nextmap` (the voted map, else a random one from the pool), or rotates the mode when it's due. With `Rotation.Enabled: false` it leaves the map alone.
+
+GG1 is not changed: it's used through its map file, commands and public API. A few things reach further (reading whether a next map was picked, the per-mode vote options, removing its `css_maps`); each logs a warning or does nothing if a GG1 update changes it. In GG1's config set `WinDrawSettings.ChangeMapAfterWinDraw` and `TimeLimitSettings.ChangeMapAfterTimeLimit` to `false`, so only GameModeManager changes the map. To change the map by name, use an admin plugin (for example [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin)'s `!map`) or GG1's `ggmap`.
+
+## CS2-SimpleAdmin (optional)
+
+When [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin) is installed, its admin menu gets a **Game Modes** section that opens the `!modes`, `!maps`, `!settings` and `!warmup` menus (`AdminPanel.Enabled` to turn it off). Nothing else changes without it.
+
 ## Requirements
 - [Counter-Strike 2](https://www.counter-strike.net/cs2)
-- [Metamod:Source](https://github.com/alliedmodders/metamod-source/) (v1282+)
-- [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) (v.197+)
-
-## Built-in RTV Plugin
-This plugin comes with a built-in RTV plugin that can be customized to include maps and modes. The built-in RTV plugin is enabled by default.
-
-![Untitled2](https://github.com/user-attachments/assets/e02c37b6-eadf-4a14-ba4f-6958f1d44a7e)
+- [Metamod:Source](https://github.com/alliedmodders/metamod-source/) (2.0, a build supported by your CounterStrikeSharp)
+- [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) **v1.0.369+** (the with-runtime build: GameModeManager 2.0.0+ targets .NET 10, which CounterStrikeSharp uses since v1.0.369; use GameModeManager 1.0.x on older servers)
+- [PanoramaMenuManager](https://github.com/RRimmer/PanoramaMenuManagerCS2) (MenuManagerCore + `shared/MenuManagerApi`, and its client addon via MultiAddonManager)
+- [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser) (plus `shared/ggmcAPI`). Optional: [PMM_GG1MapChooser](https://github.com/RRimmer/PMM_GG1MapChooser) draws its votes on PanoramaMenu.
 
 ## Commands
 <details>
@@ -57,14 +71,10 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 | css_endwarmup                                 | Ends the custom warmup mode, transitioning to the scheduled or default game mode.                        |
 | css_startwarmup <mode>                        | Immediately starts a custom warmup mode with the specified mode.                                         |
 | css_timelimit <true\|false> <seconds>         | Enables or disables a time limit for the map. Optionally, you can specify the time limit in seconds.     |
-| css_rtv_extend <true\|false>                  | Enables or disables extending the current map.                                                           |
-| css_rtv_enabled <true\|false>                 | Enables or disables the Rock the Vote (RTV) system.                                                      |
-| css_rtv_duration <seconds>                    | Sets the duration of an RTV vote in seconds.                                                             |
-| css_rtv_max_extends <extends>                 | Sets the maximum number of times a map can be extended via RTV.                                          |
-| css_rtv_end_of_map_vote <true\|false>         | Enables or disables a vote to change the map at the end of the current map.                              |
-| css_rtv_rounds_before_end <rounds>            | Sets the number of rounds remaining before an end-of-map vote can be initiated.                          |
-| css_rtv_seconds_before_end <seconds>          | Sets the number of seconds remaining before an end-of-map vote can be initiated.                         |
-| css_rtv_start_vote <duration> <true\|false>   | Starts an RTV vote with a specified duration. You can immediately change the map or game mode.           |
+| css_mapvote_auto <true\|false>                | Turns the automatic end-of-map vote on or off for the current mode (for mode cfgs).                      |
+| css_mapvote_extend <true\|false>              | Offers "extend map" in map votes or not for the current mode (for mode cfgs).                            || css_mapvote_auto <true|false>               | Turns the automatic end-of-map vote on or off for the current mode (for mode cfgs).                     |
+| css_mapvote_extend <true|false>             | Offers "extend map" in map votes or not for the current mode (for mode cfgs).                            |
+|false> <seconds>         | Enables or disables a time limit for the map. Optionally, you can specify the time limit in seconds.     |
 
 </details>
 	
@@ -75,11 +85,11 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 
 | Command                                   | Description                                                                                                            |
 | :---------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
-| !maps                                     | Displays an admin menu for changing the map.                                                                           |
+| !maps                                     | Displays an admin menu of the current mode's maps.                                                                     |
 | !modes                                    | Displays an admin menu for changing the game mode.                                                                     |
 | !settings                                 | Displays an admin menu for enabling or disabling custom game settings.                                                 |   
 | !mode <mode name>                         | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**.                 |    
-| !map <map name> <workshop id>             | Changes the map to the map specified. The workshop ID is optional.                                                     |                                                                                                                                         
+| !warmup                                   | Displays an admin menu to start, schedule or end warmup.                                                               |
 | !timelimit <true\|false> <seconds>        | Sets the time limit for the current map.                                                                               |
 | !setting <enable\|disable> <setting name> | Enables or disables a custom game setting. For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**. |
 
@@ -92,17 +102,13 @@ This plugin comes with a built-in RTV plugin that can be customized to include m
 
 | Command        | Description                                                              |
 | :------------- | :----------------------------------------------------------------------- |
-| !rtv           | Rocks the vote!                                                          |
-| !game          | Displays a **dynamic** menu of all player commands.                      |
-| !nominate      | Nominates a map or game mode for the RTV vote.                           |
-| !nextmap       | Displays the next map.                                                   |
-| !nextmode      | Displays the next mode.                                                  |
-| !timeleft      | Displays the time left in the current map.                               |
+| !game          | Menu of player commands, including GG1MapChooser's RTV, Nominate, Next map, Time left. |
 | !currentmap    | Displays the current map.                                                |
-| !changemap     | Displays a **dynamic** menu of all per-map votes that can be created.    |
 | !currentmode   | Displays the current game mode.                                          |
-| !changemode    | Displays a menu of all per-mode votes that can be created.               |
-| !changesetting | Displays a menu of all per-setting votes that can be created.            |
+| !changemode    | Menu of modes; picking one starts a yes/no vote to change to it.         |
+| !changesetting | Menu of settings; pick one, then Enable or Disable, to start a vote.     |
+
+RTV, nominate (the current mode's maps), next map and time left come from GG1MapChooser: `!rtv`, `!nominate`, `!nextmap`, `!timeleft`.
 
 </details>
 

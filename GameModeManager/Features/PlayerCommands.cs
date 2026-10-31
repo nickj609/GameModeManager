@@ -13,7 +13,6 @@ namespace GameModeManager.Features
     public class PlayerCommands : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private MapMenus _mapMenus;
         private ModeMenus _modeMenus;
         private Config _config = new();
         private PlayerMenu _playerMenu;
@@ -22,9 +21,8 @@ namespace GameModeManager.Features
         private SettingMenus _settingMenus;
 
         // Define class constructor
-        public PlayerCommands(PluginState pluginState, IStringLocalizer iLocalizer, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, PlayerMenu playerMenu)
+        public PlayerCommands(PluginState pluginState, IStringLocalizer iLocalizer, ModeMenus modeMenus, SettingMenus settingMenus, PlayerMenu playerMenu)
         {
-            _mapMenus = mapMenus;
             _modeMenus = modeMenus;
             _playerMenu = playerMenu;
             _pluginState = pluginState;
@@ -45,27 +43,25 @@ namespace GameModeManager.Features
             plugin.AddCommand("css_currentmap", "Displays current map.", OnCurrentMapCommand);
             plugin.AddCommand("css_currentmode", "Displays current map.", OnCurrentModeCommand);
 
+            // Player votes (VoteService); the entries also appear in the !game menu
             if(_config.Votes.Enabled)
             {
-                if (_config.Votes.Maps)
-                    plugin.AddCommand("css_changemap", "Displays the vote map menu.", OnChangeMapCommand);
 
                 if (_config.Votes.GameModes)
+                {
                     plugin.AddCommand("css_changemode", "Displays the vote mode menu", OnChangeModeCommand);
+                    _pluginState.Game.PlayerCommands.Add("!changemode");
+                }
 
                 if (_config.Votes.GameSettings)
+                {
                     plugin.AddCommand("css_changesetting", "Displays the vote setting menu", OnChangeSettingCommand);
+                    _pluginState.Game.PlayerCommands.Add("!changesetting");
+                }
             }
         }
 
         // Define command handlers
-        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-        public void OnChangeMapCommand(CCSPlayerController? player, CommandInfo command)
-        {
-            if (player != null)
-                _mapMenus.VoteMenu?.Open(player);             
-        }
-
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnChangeModeCommand(CCSPlayerController? player, CommandInfo command)
         {

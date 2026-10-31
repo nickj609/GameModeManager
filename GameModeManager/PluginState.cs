@@ -11,44 +11,14 @@ namespace GameModeManager
     public class PluginState : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        public RTVController RTV;
         public GameController Game;
         public TimeLimitController TimeLimit;
 
         // Define class constructor
         public PluginState()
         {
-            RTV = new RTVController();
             Game = new GameController();
             TimeLimit = new TimeLimitController();
-        }
-
-        // Define RTV class
-        public class RTVController()
-        {
-            // Define class properties
-            public IMap? NextMap;
-            public IMode? NextMode;
-            public int Duration = 60;
-            public int InCoolDown = 0;
-            public int MapExtends = 0;
-            public int MaxExtends = 0;
-            public VoteOption? Winner;
-            public bool Enabled = false;
-            public int KillsBeforeEnd = 13;
-            public int RoundsBeforeEnd = 2;
-            public bool DisableCommands = false;
-            public bool EndOfMapVote = false;
-            public int SecondsBeforeEnd = 120;
-            public bool IncludeExtend = false;
-            public int MaxNominationWinners = 1;
-            public bool EofVoteHappened = false;
-            public bool EofVoteHappening = false;
-            public bool NominationEnabled = true;
-            public bool ChangeImmediately = false;
-            public Dictionary<VoteOption, int> Votes = new();
-            public Queue<VoteOption> OptionsOnCoolDown { get; set; } = new Queue<VoteOption>();
-            public HashSet<VoteOption> OptionsOnCoolDownSet { get; set; } = new HashSet<VoteOption>();
         }
 
         // Define GameMode class

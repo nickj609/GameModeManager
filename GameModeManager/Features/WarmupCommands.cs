@@ -1,5 +1,6 @@
 // Included libraries
 using GameModeManager.Core;
+using GameModeManager.Menus;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
@@ -16,15 +17,17 @@ namespace GameModeManager.Features
     {
         // Define class dependencies
         private PluginState _pluginState;
+        private WarmupMenus _warmupMenus;
         private WarmupManager _warmupManager;
         private Config _config = new Config();
         private ILogger<WarmupCommand> _logger;
 
         // Define class constructor
-        public WarmupCommand(WarmupManager warmupManager, PluginState pluginState, ILogger<WarmupCommand> logger)
+        public WarmupCommand(WarmupMenus warmupMenus, WarmupManager warmupManager, PluginState pluginState, ILogger<WarmupCommand> logger)
         {
             _logger = logger;
             _pluginState = pluginState;
+            _warmupMenus = warmupMenus;
             _warmupManager = warmupManager;
         }
 
@@ -39,6 +42,7 @@ namespace GameModeManager.Features
         {
             if(_config.Warmup.Enabled)
             {
+                plugin.AddCommand("css_warmup", "Displays the warmup menu.", OnWarmupCommand);
                 plugin.AddCommand("css_endwarmup", "Ends warmup.", OnEndWarmupCommand);
                 plugin.AddCommand("css_startwarmup", "Starts warmup.", OnStartWarmupCommand);
                 plugin.AddCommand("css_warmupmode", "Sets current warmup mode.", OnWarmupModeCommand);
@@ -58,6 +62,14 @@ namespace GameModeManager.Features
         }
 
         // Define command handlers
+        [RequiresPermissions("@css/cvar")]
+        [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        public void OnWarmupCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player != null)
+                _warmupMenus.MainMenu?.Open(player);
+        }
+
         [CommandHelper(minArgs: 1, usage: "<mode>",whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnWarmupModeCommand(CCSPlayerController? player, CommandInfo command)
         {

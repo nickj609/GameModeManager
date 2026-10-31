@@ -13,14 +13,16 @@ namespace GameModeManager.Menus
     public class ModeMenus : IPluginDependency<Plugin, Config>
     {
        // Define class dependencies
+        private VoteService _voteService;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
 
         // Define class constructor
-        public ModeMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
+        public ModeMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, VoteService voteService)
         {
             _localizer = localizer;
+            _voteService = voteService;
             _pluginState = pluginState;
             _serverManager = serverManager;
         }
@@ -53,7 +55,13 @@ namespace GameModeManager.Menus
                 VoteMenu?.AddMenuOption(_mode.Name, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
-                    CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, PluginExtensions.RemoveCfgExtension(_mode.Config));
+
+                    if (_pluginState.Game.CurrentMode.Equals(_mode))
+                    {
+                        player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
+                        return;
+                    }
+                    _voteService.StartYesNo(player, _localizer.Localize("mode.vote.menu-title", _mode.Name), () => _serverManager.ChangeMode(_mode));
                 });
             }
         }

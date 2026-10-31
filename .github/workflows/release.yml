@@ -1,0 +1,109 @@
+name: Build & Release
+
+# Merging to main publishes a release when ModuleVersion in GameModeManager/Plugin.cs is a version without a release.
+# Merges that don't change the version only build. Pull requests build too, with the zip and the notes to look at.
+
+permissions: {}
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Publish again by hand, e.g. after a failed run
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      version: ${{ steps.package.outputs.version }}
+      publish: ${{ steps.package.outputs.publish }}
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: GameModeManager
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: GameModeManager
+          fetch-depth: 0
+          fetch-tags: true
+
+      # GameModeManager.csproj references MenuManagerApi from this sibling folder. Same version as the server repo.
+      - name: Checkout PanoramaMenuManager
+        uses: actions/checkout@v4
+        with:
+          repository: RRimmer/PanoramaMenuManagerCS2
+          ref: MenuManagerCS2-1.3.00
+          path: PanoramaMenuManagerCS2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build and package
+        id: package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $zip = (.github/scripts/package-release.ps1 -OutDir "$env:RUNNER_TEMP/release" | Select-Object -Last 1)
+          $version = [regex]::Match((Split-Path $zip -Leaf), 'GameModeManager_v(.+)\.zip').Groups[1].Value
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+          $publish = "false"
+          if ("${{ github.event_name }}" -ne "pull_request") {
+            gh release view "v$version" --repo "${{ github.repository }}" *> $null
+            if ($LASTEXITCODE -ne 0) { $publish = "true" } else { "v$version already has a release: nothing to publish." }
+            $global:LASTEXITCODE = 0
+          }
+          "publish=$publish" >> $env:GITHUB_OUTPUT
+
+      - name: Write release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The commit on a pull request is GitHub's test merge, which has no pull request of its own
+          $sha = "${{ github.event.pull_request.head.sha || github.sha }}"
+          .github/scripts/release-notes.ps1 -Repo "${{ github.repository }}" -Sha $sha -OutFile "$env:RUNNER_TEMP/release/notes.md"
+          Get-Content "$env:RUNNER_TEMP/release/notes.md" -Raw >> $env:GITHUB_STEP_SUMMARY
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: ${{ runner.temp }}/release/
+          retention-days: 7
+
+  publish:
+    needs: build
+    if: needs.build.outputs.publish == 'true'
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Download package
+        uses: actions/download-artifact@v4
+        with:
+          name: release
+          path: release
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          gh release create "v$env:VERSION" "release/GameModeManager_v$env:VERSION.zip" `
+            --repo "${{ github.repository }}" `
+            --target "${{ github.sha }}" `
+            --title "GameModeManager v$env:VERSION" `
+            --notes-file release/notes.md
+          if ($LASTEXITCODE -ne 0) { exit 1 }

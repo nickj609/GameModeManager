@@ -1,5 +1,5 @@
 // Included libraries
-using MenuManagerAPI.Shared;
+using MenuManager;
 using GameModeManager.Menus;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core.Capabilities;
@@ -11,27 +11,26 @@ namespace GameModeManager.CrossCutting
     public class MenuFactory : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        private RTVMenus _rtvMenus;
         private MapMenus _mapMenus;
         private ModeMenus _modeMenus;
+        private WarmupMenus _warmupMenus;
         private PlayerMenu _playerMenu;
         private SettingMenus _settingMenus;
-        private NominateMenus _nominateMenus;
-        private readonly PluginCapability<IMenuAPI> _pluginCapability = new("menu:api");
+        // PanoramaMenuManager (MenuManagerCore)
+        private readonly PluginCapability<IMenuApi?> _pluginCapability = new("menu:nfcore");
 
         // Define class constructor
-        public MenuFactory(RTVMenus rtvMenus, MapMenus mapMenus, ModeMenus modeMenus, PlayerMenu playerMenu, SettingMenus settingMenus, NominateMenus nominateMenus)
+        public MenuFactory(MapMenus mapMenus, WarmupMenus warmupMenus, ModeMenus modeMenus, PlayerMenu playerMenu, SettingMenus settingMenus)
         {
-            _rtvMenus = rtvMenus;
             _mapMenus = mapMenus;
+            _warmupMenus = warmupMenus;
             _modeMenus = modeMenus;
             _playerMenu = playerMenu;
             _settingMenus = settingMenus;
-            _nominateMenus = nominateMenus;
         }
 
         // Define class properties
-        public static IMenuAPI? Api;
+        public static IMenuApi? Api;
 
         // Define class methods
         public void Load()
@@ -41,12 +40,11 @@ namespace GameModeManager.CrossCutting
 
         public void LoadMenus()
         {
-            _rtvMenus.Load();
             _mapMenus.Load();
             _modeMenus.Load();
+            _warmupMenus.Load();
             _playerMenu.Load();
             _settingMenus.Load();
-            _nominateMenus.Load();
         }
     }
 }
