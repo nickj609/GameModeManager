@@ -10,7 +10,7 @@ Tired of manually managing game modes, settings, and maps?
 
 GameModeManager simplifies server administration for Counter-Strike 2 by providing:
 
-- **Admin menus** for modes, maps, settings and warmup. If [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin) is installed, they also appear in its admin menu (optional).
+- **Admin menus** for modes, maps, settings and warmup. If [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin) is installed, its admin menu gets them too (optional).
 - **Customizable rotation** of maps and game modes, with mode schedules.
 - **Player voting** for settings and game modes.
 - **Per-mode map pools** for [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser): RTV, nominate and map votes only offer the current mode's maps.
@@ -50,7 +50,7 @@ GG1 is not changed: it's used through its map file, commands and public API. A f
 
 ## CS2-SimpleAdmin (optional)
 
-When [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin) is installed, its admin menu gets a **Game Modes** section that opens the `!modes`, `!maps`, `!settings` and `!warmup` menus (`AdminPanel.Enabled` to turn it off). Nothing else changes without it.
+When [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin) is installed, its admin menu gets a **Game Modes** section with the same options as `!modes`, `!maps`, `!settings` and `!warmup`, using its menus and Back button (`AdminPanel.Enabled` to turn it off). Nothing else changes without it.
 
 ## Requirements
 You need these on your server already, on Windows or Linux:
@@ -98,9 +98,9 @@ Their licenses are in their folders, and the links above have their source. Thei
 
 | Command                                   | Description                                                                                                            |
 | :---------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
-| !maps                                     | Displays an admin menu of the current mode's maps.                                                                     |
-| !modes                                    | Displays an admin menu for changing the game mode.                                                                     |
-| !settings                                 | Displays an admin menu for enabling or disabling custom game settings.                                                 |   
+| !maps                                     | Displays an admin menu to change to one of the current mode's maps or start a map vote.                                |
+| !modes                                    | Displays an admin menu to change the game mode or start a vote on one.                                                 |
+| !settings                                 | Displays an admin menu to enable or disable custom game settings, or start a vote on one.                              |   
 | !mode <mode name>                         | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**.                 |    
 | !warmup                                   | Displays an admin menu to start, schedule or end warmup.                                                               |
 | !timelimit <true\|false> <seconds>        | Sets the time limit for the current map.                                                                               |

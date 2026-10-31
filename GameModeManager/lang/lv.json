@@ -64,5 +64,15 @@
   "admin.warmup-end": "End warmup",
   "changemap.message": "Administrators {LIGHTRED}{0}{DEFAULT} ir nomainījis karti uz {LIGHTRED}{1}{DEFAULT}.",
   "maps.menu-title": "Karšu saraksts",
-  "admin.warmup-scheduled": "Warmup {GREEN}{0}{DEFAULT} scheduled."
+  "admin.warmup-scheduled": "Warmup {GREEN}{0}{DEFAULT} scheduled.",
+  "admin.current": "current",
+  "admin.maps": "Maps",
+  "admin.settings": "Game Settings",
+  "admin.change-map": "Change map",
+  "admin.change-mode": "Change mode",
+  "admin.change-setting": "Change setting",
+  "admin.start-vote": "Start vote",
+  "admin.vote-unavailable": "A vote is running, or the next map is already picked.",
+  "timeleft.last-round": "Šis ir pēdējais raunds",
+  "timelimit.invalid-bool-error": "Invalid value: {0}. Use true or false."
 }

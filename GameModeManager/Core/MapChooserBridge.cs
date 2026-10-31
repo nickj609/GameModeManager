@@ -270,13 +270,14 @@ namespace GameModeManager.Core
         }
 
         // Starts GG1's vote for the next map (changes at the end of the map), unless one ran or is running
-        public void StartMapVote()
+        public bool StartMapVote()
         {
             if (VoteInProgress() || NextMapChosen())
-                return;
+                return false;
 
             _logger.LogInformation("Starting GG1MapChooser end-of-map vote");
             Server.ExecuteCommand("ggmc_mapvote_start");
+            return true;
         }
 
         // Changes to the map GG1's vote picked, or a random map from the current pool when there was no vote
