@@ -22,13 +22,15 @@ namespace GameModeManager.Features
         private GameRules _gameRules;
         private Config _config = new();
         private MapChooserBridge _mapChooser;
+        private ServerManager _serverManager;
         private TimeLimitManager _timeLimitManager;
 
         // Define class constructor
-        public MapChooserVote(GameRules gameRules, MapChooserBridge mapChooser, TimeLimitManager timeLimitManager)
+        public MapChooserVote(GameRules gameRules, MapChooserBridge mapChooser, TimeLimitManager timeLimitManager, ServerManager serverManager)
         {
             _gameRules = gameRules;
             _mapChooser = mapChooser;
+            _serverManager = serverManager;
             _timeLimitManager = timeLimitManager;
         }
 
@@ -52,6 +54,7 @@ namespace GameModeManager.Features
             _plugin = plugin;
             plugin.AddCommand("css_mapvote_auto", "Automatic end-of-map vote for this mode. Usage: css_mapvote_auto <true|false>", OnAutoVoteCommand);
             plugin.AddCommand("css_mapvote_extend", "Extend option in map votes for this mode. Usage: css_mapvote_extend <true|false>", OnExtendCommand);
+            plugin.AddCommandListener("host_workshop_map", OnWorkshopMapCommand, HookMode.Pre);
             plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
             plugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
         }
@@ -95,6 +98,18 @@ namespace GameModeManager.Features
         }
 
         // Define event handlers
+        // GG1 runs host_workshop_map when a vote's winner is a workshop map. A mode entry isn't one: change the mode
+        // instead. GG1 has already counted down, so no second delay.
+        private HookResult OnWorkshopMapCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            var mode = _mapChooser.FindModeEntry(command.ArgByIndex(1));
+            if (mode == null)
+                return HookResult.Continue;
+
+            Server.NextFrame(() => _serverManager.ChangeMode(mode, 0));
+            return HookResult.Handled;
+        }
+
         private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
         {
             // One check per second while the map has a time limit

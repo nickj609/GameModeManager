@@ -64,6 +64,12 @@ jobs:
           }
           "publish=$publish" >> $env:GITHUB_OUTPUT
 
+          # The default config needs the published Workshop addon, or players get no menus
+          if ($publish -eq "true" -and (Select-String -Quiet -SimpleMatch 'WorkshopAddon { get; set; } = "";' GameModeManager/Config.cs)) {
+            "Publish the Workshop addon and put its ID as the WorkshopAddon default in GameModeManager/Config.cs before releasing."
+            exit 1
+          }
+
       - name: Write release notes
         env:
           GH_TOKEN: ${{ github.token }}

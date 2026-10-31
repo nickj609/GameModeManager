@@ -1,0 +1,52 @@
+{
+  "DatabaseHost": "",
+  "DatabasePort": 3306,
+  "DatabaseUser": "",
+  "DatabasePassword": "",
+  "DatabaseName": "",
+  "DefaultMenu": "PanoramaMenu",
+  "MenuFlashFix": false,
+  "TrimMenuOptions": true,
+  "TrimSelectedOption": 24,
+  "TrimNonSelectedOption": 28,
+  "MenuSettingsCommand": [
+    "menu",
+    "menus"
+  ],
+  "MenuAddon": 0,
+  "MenuAddonUrl": "pisex.online/module/buttons",
+  "MenuTime": 120,
+  "Pagination": false,
+  "SoundVolume": 0.25,
+  "Notifications": true,
+  "SoundScroll": "UI.StickerSelect",
+  "SoundClick": "PMM.Menu.Select",
+  "SoundDisabled": "Instructor.ImportantLessonStart",
+  "SoundBack": "PMM.Menu.Back",
+  "SoundNext": "PMM.Menu.Next",
+  "SoundExit": "PMM.Menu.Exit",
+  "StopingUser": true,
+  "PanoramaPosition": "",
+  "PanoramaLayoutPath": "",
+  "PisexMenusBridge": true,
+  "ButtonsConfig": {
+    "UpButton": 8,
+    "DownButton": 16,
+    "LeftButton": 512,
+    "RightButton": 1024,
+    "SelectButton": 32,
+    "ExitButton": 8192,
+    "BackButton": 4
+  },
+  "IgnoreErrors": true,
+  "MenuLinesCount": 5,
+  "UseMetamodMenu": false,
+  "UseMetamodMenuReplace": false,
+  "ConfigVersion": 1,
+  "HudOpenDelay": 0.2,
+  "CS2MenuManagerCompat": true,
+  "NumberKeysTestTimeout": 40,
+  "PrecacheResources": [
+    "soundevents/soundevents_addon.vsndevts"
+  ]
+}

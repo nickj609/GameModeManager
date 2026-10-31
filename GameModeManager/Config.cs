@@ -33,6 +33,8 @@ namespace GameModeManager
         public bool GeneratePools { get; set; } = true; // Writes cfg/GGMCmaps.json: one GG1 pool per mode from its map groups
         public int TriggerSecondsBeforeEnd { get; set; } = 60; // Time-limited modes: start GG1's vote this many seconds before the end
         public int TriggerKillsBeforeEnd { get; set; } = 13; // Arms race: start GG1's vote when the leader has this many kills
+        public int ModesInPool { get; set; } = 3; // Random other modes offered in votes and !nominate, reshuffled every map (0 = none)
+        public int ModeWeight { get; set; } = 1; // GG1 weight of those modes: higher = picked more often for a vote
     }
 
     // Define admin panel settings
@@ -154,6 +156,7 @@ namespace GameModeManager
     public class Config : IBasePluginConfig
     {
         public int Version { get; set; } = 13;
+        public string WorkshopAddon { get; set; } = ""; // Workshop IDs (comma separated) of the addons with the menus' panorama files, added to MultiAddonManager's list. Empty = you load them yourself
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
         public MapChooserSettings MapChooser { get; set; } = new();
@@ -236,10 +239,10 @@ namespace GameModeManager
             }
 
             // Map chooser settings
-            if (_config.MapChooser.TriggerSecondsBeforeEnd < 0 || _config.MapChooser.TriggerKillsBeforeEnd < 0)
+            if (_config.MapChooser.TriggerSecondsBeforeEnd < 0 || _config.MapChooser.TriggerKillsBeforeEnd < 0 || _config.MapChooser.ModesInPool < 0 || _config.MapChooser.ModeWeight < 0)
             {
-                Logger.LogError("Invalid: MapChooser triggers cannot be negative.");
-                throw new Exception("Invalid: MapChooser triggers cannot be negative.");
+                Logger.LogError("Invalid: MapChooser values cannot be negative.");
+                throw new Exception("Invalid: MapChooser values cannot be negative.");
             }
 
             // Vote settings

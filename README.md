@@ -40,23 +40,36 @@ Lastly, a special thanks to the [CS2 Rock The Vote plugin by Abnerfs](https://gi
 Since 2.0.0, [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser) is **required**: it picks the maps, GameModeManager picks the mode and decides when the map changes. GameModeManager 1.0.x had its own RTV and map menus; stay on 1.0.x if you need those.
 
 - GameModeManager keeps **one GG1 map pool per mode** (the mode's map groups) in `cfg/GGMCmaps.tuning.json`. Whenever the mode changes, it writes that mode's pool to GG1's `cfg/GGMCmaps.json` and runs `reloadmaps`, so RTV, nominate and votes only offer that mode's maps. Tune `weight` / `minplayers` / `maxplayers` in the tuning file; they are kept (`MapChooser.GeneratePools`). GG1's own pool vote can't be used with this.
+- **Modes in votes:** a few random other modes are added to the pool, reshuffled every map (`MapChooser.ModesInPool`, default 3; `ModeWeight` for how often they're picked; 0 turns it off). They appear in votes and `!nominate` as `Mode:<name>`. When one wins, GameModeManager changes to that mode. If nobody votes, GG1's random pick can also land on one.
 - **Maps of the current mode:** players see them with GG1's `!nominate`, admins with this plugin's `!maps` (GG1's own `css_maps` is removed at start-up).
 - GG1 provides `!rtv`, `!nominate`, `!nextmap`, `!timeleft`, the end-of-map vote and map extends. The `!game` menu has entries for them.
 - GG1 starts the end-of-map vote on round-limited matches. GameModeManager starts it on time-limited matches (`MapChooser.TriggerSecondsBeforeEnd`, default 60) and arms race (`TriggerKillsBeforeEnd`, 13), and again after a map extend.
 - At match end, time-limit end or on an empty server, GameModeManager changes the map after its countdown with GG1's `ggmc_change_nextmap` (the voted map, else a random one from the pool), or rotates the mode when it's due. With `Rotation.Enabled: false` it leaves the map alone.
 
-GG1 is not changed: it's used through its map file, commands and public API. A few things reach further (reading whether a next map was picked, the per-mode vote options, removing its `css_maps`); each logs a warning or does nothing if a GG1 update changes it. In GG1's config set `WinDrawSettings.ChangeMapAfterWinDraw` and `TimeLimitSettings.ChangeMapAfterTimeLimit` to `false`, so only GameModeManager changes the map. To change the map by name, use an admin plugin (for example [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin)'s `!map`) or GG1's `ggmap`.
+GG1 is not changed: it's used through its map file, commands and public API. A few things reach further (reading whether a next map was picked, the per-mode vote options, removing its `css_maps`); each logs a warning or does nothing if a GG1 update changes it. The zip's GG1 config already has the settings that let only GameModeManager change the map (`ChangeMapAfterWinDraw`, `ChangeMapAfterTimeLimit`, `RandomMapOnStart` and `LastDisconnectedChangeMap` off) and the `wasd` menus the bridge needs. Keep those if you edit it. To change the map by name, use an admin plugin (for example [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin)'s `!map`) or GG1's `ggmap`.
 
 ## CS2-SimpleAdmin (optional)
 
 When [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin) is installed, its admin menu gets a **Game Modes** section that opens the `!modes`, `!maps`, `!settings` and `!warmup` menus (`AdminPanel.Enabled` to turn it off). Nothing else changes without it.
 
 ## Requirements
-- [Counter-Strike 2](https://www.counter-strike.net/cs2)
-- [Metamod:Source](https://github.com/alliedmodders/metamod-source/) (2.0, a build supported by your CounterStrikeSharp)
-- [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) **v1.0.369+** (the with-runtime build: GameModeManager 2.0.0+ targets .NET 10, which CounterStrikeSharp uses since v1.0.369; use GameModeManager 1.0.x on older servers)
-- [PanoramaMenuManager](https://github.com/RRimmer/PanoramaMenuManagerCS2) (MenuManagerCore + `shared/MenuManagerApi`, and its client addon via MultiAddonManager)
-- [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser) (plus `shared/ggmcAPI`). Optional: [PMM_GG1MapChooser](https://github.com/RRimmer/PMM_GG1MapChooser) draws its votes on PanoramaMenu.
+You need these on your server already, on Windows or Linux:
+- [Metamod:Source](https://github.com/alliedmodders/metamod-source/) 2.0
+- [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) **v1.0.369+** (the with-runtime build; GameModeManager 2.0.0+ targets .NET 10, so use 1.0.x on older servers)
+- [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager), installed and turned on. It sends players the Workshop addon that menus need. GameModeManager adds that addon to its list by itself, and your other addons and its config stay as they are (`WorkshopAddon` in `GameModeManager.json`: comma-separated IDs, or empty if you load the addon yourself).
+
+Everything else is **in the release zip**, so copying it to `/csgo/` and restarting the server fully is enough:
+
+| Included | Version | License | Purpose |
+| --- | --- | --- | --- |
+| [PanoramaMenuManager](https://github.com/RRimmer/PanoramaMenuManagerCS2) | 1.3.00 | GPL v3 | Menus |
+| [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser) | 1.8.1 | MIT | Map votes, RTV, nominate |
+| [PMM_GG1MapChooser](https://github.com/RRimmer/PMM-GG1MapChooser) | 0.1.0 | GPL v3 | Draws votes and nominate on PanoramaMenu |
+
+Their licenses are in their folders, and the links above have their source. Their config files are set up to work together.
+
+> [!WARNING]
+> Installing replaces these plugins and their config files: `MenuManagerCore.json`, `MenuManager_Modules_Translation.json`, `GG1MapChooser.json` and `PMM_GG1MapChooser.json`. **Back them up first if you've customized them.**
 
 ## Commands
 <details>

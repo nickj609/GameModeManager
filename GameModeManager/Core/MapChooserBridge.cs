@@ -32,6 +32,7 @@ namespace GameModeManager.Core
 
         // Define class properties
         private JsonObject _pools = new();
+        private readonly Dictionary<string, IMode> _modeEntries = new();
         private bool? _extendInVote;
         private bool? _roundVote;
         private bool? _roundVoteConfigured;
@@ -67,6 +68,11 @@ namespace GameModeManager.Core
         // player limits in it are kept, so they can be tuned by hand. GG1 only ever sees the current mode's pool.
         private void LoadPools()
         {
+            // Each mode's id, for the entries that put modes in GG1's votes
+            int index = 0;
+            foreach (IMode mode in _pluginState.Game.Modes.Values.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
+                _modeEntries[$"gmm_mode_{index++}"] = mode;
+
             JsonObject? existing = ReadJson(PoolsFile) ?? ReadJson(MapsFile);
             if (!_config.MapChooser.GeneratePools && existing != null)
             {
@@ -163,11 +169,48 @@ namespace GameModeManager.Core
                 return;
             }
 
-            if (WriteIfChanged(MapsFile, new JsonObject { [mode.Name] = pool.DeepClone() }))
+            var active = (JsonObject)pool.DeepClone();
+            AddModeEntries(active, mode);
+
+            if (WriteIfChanged(MapsFile, new JsonObject { [mode.Name] = active }))
             {
                 Server.ExecuteCommand("reloadmaps");
                 _logger.LogInformation("GG1MapChooser pool set to {Mode}", mode.Name);
             }
+        }
+
+        // Puts random other modes in the pool. GG1 treats them like workshop maps: when one wins, it runs
+        // host_workshop_map with the entry's mapid, and MapChooserVote catches that and changes the mode.
+        private void AddModeEntries(JsonObject pool, IMode current)
+        {
+            var modes = _modeEntries.Where(m => !m.Value.Equals(current) && _pools.ContainsKey(m.Value.Name))
+                .OrderBy(_ => Random.Shared.Next()).Take(_config.MapChooser.ModesInPool);
+
+            foreach (var (id, mode) in modes)
+            {
+                pool[$"Mode:{mode.Name}"] = new JsonObject
+                {
+                    ["ws"] = true,
+                    ["display"] = mode.Name,
+                    ["mapid"] = id,
+                    ["minplayers"] = 0,
+                    ["maxplayers"] = 0,
+                    ["weight"] = _config.MapChooser.ModeWeight,
+                };
+            }
+        }
+
+        // The mode behind a mode entry's mapid, null for a real workshop map
+        public IMode? FindModeEntry(string mapId)
+        {
+            return _modeEntries.GetValueOrDefault(mapId);
+        }
+
+        // New random modes for the new map
+        public void OnMapStart(string map)
+        {
+            if (_config.MapChooser.ModesInPool > 0)
+                Server.NextFrame(() => SetPool(_pluginState.Game.CurrentMode));
         }
 
         // GG1 has these only in its config, but reads them while running. Set from mode cfgs (css_mapvote_extend,

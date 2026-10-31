@@ -88,6 +88,11 @@ namespace GameModeManager.CrossCutting
 
         public void ChangeMode(IMode mode)
         {
+            ChangeMode(mode, _config.Maps.Delay);
+        }
+
+        public void ChangeMode(IMode mode, int delay)
+        {
             _logger.LogInformation($"Current mode: {_pluginState.Game.CurrentMode.Name}");
             _logger.LogInformation($"New mode: {mode.Name}");
 
@@ -101,7 +106,7 @@ namespace GameModeManager.CrossCutting
             else
                 nextMap = mode.DefaultMap;
 
-            ChangeMap(nextMap, _config.Maps.Delay);
+            ChangeMap(nextMap, delay);
         }
 
         // GG1MapChooser picks the next map (its vote, else random from the mode's pool); GameModeManager only

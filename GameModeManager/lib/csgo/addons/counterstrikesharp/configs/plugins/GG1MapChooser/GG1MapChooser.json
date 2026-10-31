@@ -1,0 +1,85 @@
+{
+  "VoteSettings": {
+    "RememberPlayedMaps": 3,
+    "RememberNominatedMaps": 0,
+    "MapsInVote": 5,
+    "VotesToWin": 0.6,
+    "AllowNominate": true,
+    "NominationsMenuMode": "wasd",
+    "EndMapVoteMenuMode": "wasd",
+    "YesNoVotePanorama": true,
+    "PanoramaSFUIString": "#SFUI_Vote_None",
+    "VotingTime": 25,
+    "ExtendMapInVote": false,
+    "ExtendMapTimeMinutes": 15,
+    "MaxExtendMapCount": 5,
+    "ChangeMapAfterVote": false,
+    "SpectatorsCanVote": true,
+    "IncludeNoVote": false
+  },
+  "RTVSettings": {
+    "AllowRTV": true,
+    "RTVDelayFromStart": 90,
+    "IntervalBetweenRTV": 120,
+    "NoRTVafterRoundsPlayed": 0
+  },
+  "WinDrawSettings": {
+    "VoteDependsOnRoundWins": true,
+    "TriggerRoundsBeforeEnd": 1,
+    "TriggerRoundsBeforeEndVoteAtRoundStart": true,
+    "TriggerVoteAtRoundStartSecondsFromStart": 0,
+    "ChangeMapAfterWinDraw": false
+  },
+  "TimeLimitSettings": {
+    "VoteDependsOnTimeLimit": false,
+    "TriggerSecondsBeforeEnd": 35,
+    "ChangeMapAfterTimeLimit": false,
+    "VoteNextRoundStartAfterTrigger": false,
+    "VoteRoundEndAfterTrigger": false,
+    "MinutesExtendTimeLimitToRoundEnd": 3
+  },
+  "PoolVoteSettings": {
+    "Enable": false,
+    "DefaultPool": "",
+    "DelayFromStart": 90,
+    "IntervalBetweenVotes": 120,
+    "VotesToWin": 0.0,
+    "VotingTime": 20,
+    "BlockBeforeMapVoteSeconds": 30,
+    "BlockBeforeMapVoteRounds": 1,
+    "MenuMode": "wasd"
+  },
+  "DiscordSettings": {
+    "DiscordWebhook": "",
+    "DiscordMessageMapStart": true,
+    "DiscordMessageAfterVote": false,
+    "PictureExtension": "jpg"
+  },
+  "MenuSettings": {
+    "DisplayVotesCount": true,
+    "SoundInMenu": true,
+    "FreezePlayerInMenu": false,
+    "FreezeAdminInMenu": true,
+    "FreezeMode": 1,
+    "ScrollUp": "W",
+    "ScrollDown": "S",
+    "Choose": "E",
+    "Back": "A",
+    "Exit": "R"
+  },
+  "OtherSettings": {
+    "PrintPlayersChoiceInChat": true,
+    "PrintNextMapForAll": false,
+    "DelayBeforeChangeSeconds": 20,
+    "VoteStartSound": "sounds/vo/announcer/cs2_classic/felix_broken_fang_pick_1_map_tk01.wav",
+    "RandomMapOnStart": false,
+    "RandomMapOnStartDelay": 40,
+    "LastDisconnectedChangeMap": false,
+    "WorkshopMapProblemCheck": true,
+    "TvStopRecord": false,
+    "DefaultMapWeight": 1,
+    "LowPlayerMaxPlayers": 8,
+    "LowPlayerMaps": {}
+  },
+  "ConfigVersion": 1
+}

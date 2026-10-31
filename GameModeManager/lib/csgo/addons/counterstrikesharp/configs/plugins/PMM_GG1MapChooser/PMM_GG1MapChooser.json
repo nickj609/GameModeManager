@@ -1,0 +1,226 @@
+{
+  "Enabled": true,
+  "DisableFreeze": true,
+  "ShowVoteCount": true,
+  "ForceMenuType": "",
+  "CloseCheckInterval": 0.25,
+  "OpenGraceSeconds": 1.0,
+  "Debug": false,
+  "Vote": {
+    "Enabled": true,
+    "DefaultMode": "mouse",
+    "AllowPlayerChoice": true,
+    "SettingsCommands": [
+      "css_vm",
+      "css_votemode"
+    ],
+    "Position": "Right",
+    "FreezeTimeVote": true,
+    "FreezeTimeExtra": 3,
+    "ExtendFreezeDirect": true,
+    "FreezeTimeFallback": 15,
+    "ShowVoteCounts": true,
+    "ChatNumbers": true,
+    "ResultStyle": "NextMapCard",
+    "ResultSeconds": 5,
+    "CheckSeconds": 3,
+    "OpenDelay": 0.2,
+    "InputDelay": 0.2,
+    "LayoutPath": "panorama/layout/custom_game/pmm_mapvote.xml"
+  },
+  "Nominate": {
+    "Enabled": true
+  },
+  "Badges": {
+    "Mode": "#e0a030",
+    "Classic": "#4caf50",
+    "Community": "#c86bfa",
+    "New": "#ff9800"
+  },
+  "Maps": {
+    "Mode:Casual": {
+      "Title": "Casual",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Gun Game": {
+      "Title": "Gun Game",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Deathmatch": {
+      "Title": "Deathmatch",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Competitive": {
+      "Title": "Competitive",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Wingman": {
+      "Title": "Wingman",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Practice Mode": {
+      "Title": "Practice Mode",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Prefire": {
+      "Title": "Prefire",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Retakes": {
+      "Title": "Retakes",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Executes": {
+      "Title": "Executes",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Awp Only": {
+      "Title": "Awp Only",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:1v1 Arenas": {
+      "Title": "1v1 Arenas",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Aim": {
+      "Title": "Aim",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Bhop": {
+      "Title": "Bhop",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Surf": {
+      "Title": "Surf",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Kreedz Climbing": {
+      "Title": "Kreedz Climbing",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Capture The Flag": {
+      "Title": "Capture The Flag",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Hide N Seek": {
+      "Title": "Hide N Seek",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Soccer": {
+      "Title": "Soccer",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Course": {
+      "Title": "Course",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Deathrun": {
+      "Title": "Deathrun",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Minigames": {
+      "Title": "Minigames",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:ScoutzKnivez": {
+      "Title": "ScoutzKnivez",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:One In The Chamber": {
+      "Title": "One In The Chamber",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Battle Ball": {
+      "Title": "Battle Ball",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Battle Royale": {
+      "Title": "Battle Royale",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Casual (1.6)": {
+      "Title": "Casual (1.6)",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Competitive (Valve)": {
+      "Title": "Competitive (Valve)",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Deathmatch FFA (Valve)": {
+      "Title": "Deathmatch FFA (Valve)",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Arms Race (Valve)": {
+      "Title": "Arms Race (Valve)",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Wingman (Valve)": {
+      "Title": "Wingman (Valve)",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Retakes (Valve)": {
+      "Title": "Retakes (Valve)",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "Mode:Competitive 45°": {
+      "Title": "Competitive 45°",
+      "Image": "",
+      "Badge": "Mode"
+    },
+    "de_mirage": {
+      "Title": "Mirage",
+      "Image": "builtin",
+      "Badge": "Classic"
+    },
+    "de_inferno": {
+      "Title": "Inferno",
+      "Image": "builtin",
+      "Badge": "Classic"
+    },
+    "de_cache": {
+      "Title": "Cache",
+      "Image": "builtin",
+      "Badge": "Community"
+    }
+  },
+  "Specials": {
+    "extend": {
+      "Icon": "clock"
+    },
+    "novote": {
+      "Icon": "cancel"
+    }
+  },
+  "ConfigVersion": 3
+}
