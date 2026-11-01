@@ -9,6 +9,8 @@
   "commands.menu-changemap": "Votar para mudar o mapa",
   "commands.menu-changemode": "Mudar Modo",
   "vote.no-match": "Nenhum mapa ou modo chamado {GOLD}{0}{DEFAULT}.",
+  "rtv.disabled": "O Rock the Vote está desativado neste servidor.",
+  "admin.rtv": "Rock the Vote",
   "commands.menu-changesetting": "Mudar Configuração",
   "commands.menu-currentmode": "Modo Atual",
   "commands.menu-currentmap": "Mapa Atual",

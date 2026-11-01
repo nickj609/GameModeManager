@@ -9,6 +9,8 @@
   "commands.menu-changemap": "Balsot par kartes maiņu",
   "commands.menu-changemode": "Mainīt Režīmu",
   "vote.no-match": "Nav kartes vai režīma ar nosaukumu {GOLD}{0}{DEFAULT}.",
+  "rtv.disabled": "Rock the Vote šajā serverī ir izslēgts.",
+  "admin.rtv": "Rock the Vote",
   "commands.menu-changesetting": "Mainīt Iestatījumus",
   "commands.menu-currentmode": "Pašreizējais Režīms",
   "commands.menu-currentmap": "Pašreizējā Karte",

@@ -9,6 +9,8 @@
   "commands.menu-changemap": "Stemmen om de kaart te wijzigen",
   "commands.menu-changemode": "Modus Wijzigen",
   "vote.no-match": "Geen kaart of modus met de naam {GOLD}{0}{DEFAULT}.",
+  "rtv.disabled": "Rock the Vote staat uit op deze server.",
+  "admin.rtv": "Rock the Vote",
   "commands.menu-changesetting": "Instelling Wijzigen",
   "commands.menu-currentmode": "Huidige Modus",
   "commands.menu-currentmap": "Huidige Kaart",

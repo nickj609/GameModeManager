@@ -51,8 +51,11 @@ namespace GameModeManager.Menus
             // Create main menu
             MainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("commands.menu-title"));
 
-            foreach (var (_, (label, consoleCommand)) in MapChooserCommands)
+            foreach (var (command, (label, consoleCommand)) in MapChooserCommands)
             {
+                if (command == "!rtv" && !_config.MapChooser.Rtv)
+                    continue;
+
                 MainMenu?.AddMenuOption(_localizer.Localize(label), (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);

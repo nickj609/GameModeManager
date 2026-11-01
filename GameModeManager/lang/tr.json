@@ -9,6 +9,8 @@
   "commands.menu-changemap": "Harita değişikliği için oy ver",
   "commands.menu-changemode": "Mod Değiştir",
   "vote.no-match": "{GOLD}{0}{DEFAULT} adında harita veya mod yok.",
+  "rtv.disabled": "Rock the Vote bu sunucuda kapalı.",
+  "admin.rtv": "Rock the Vote",
   "commands.menu-changesetting": "Ayarları Değiştir",
   "commands.menu-currentmode": "Mevcut Mod",
   "commands.menu-currentmap": "Mevcut Harita",

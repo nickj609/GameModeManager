@@ -9,6 +9,8 @@
   "commands.menu-changemap": "Голосувати за зміну карти",
   "commands.menu-changemode": "Змінити Режим",
   "vote.no-match": "Немає карти чи режиму з назвою {GOLD}{0}{DEFAULT}.",
+  "rtv.disabled": "Rock the Vote вимкнено на цьому сервері.",
+  "admin.rtv": "Rock the Vote",
   "commands.menu-changesetting": "Змінити Налаштування",
   "commands.menu-currentmode": "Поточний Режим",
   "commands.menu-currentmap": "Поточна Карта",

@@ -75,7 +75,7 @@ Admins can start a random vote or a yes/no vote from **Start vote** in `!maps`, 
 GG1MapChooser is **required** since 2.0.0: it picks the maps, and GameModeManager picks the mode and decides when the map changes. GameModeManager 1.0.x had its own RTV and map menus, so stay on 1.0.x if you need those.
 
 - **Map lists:** GameModeManager builds one map list per mode from your map groups in `cfg/GGMCmaps.tuning.json`. Change `weight`, `minplayers` and `maxplayers` there and your changes are kept. GG1's own pool vote can't be used with this.
-- **Settings:** `MapChooser.ModesInVotes` turns modes in votes off. `MapChooser.TriggerSecondsBeforeEnd` (default 60) and `TriggerKillsBeforeEnd` (default 13) set when the end-of-map vote starts on time-limited matches and arms race.
+- **Settings:** `MapChooser.Rtv` turns `!rtv` off, and end-of-map votes and rotations keep working. `MapChooser.ModesInVotes` turns modes in votes off. `MapChooser.TriggerSecondsBeforeEnd` (default 60) and `TriggerKillsBeforeEnd` (default 13) set when the end-of-map vote starts on time-limited matches and arms race.
 - **Map changes:** at the end of a match, GameModeManager changes to the winning map, or a random one if nobody voted, after a short countdown. With `Rotation.Enabled: false` it leaves the map alone. If nobody votes, the random pick can also land on the mode in the vote.
 - **Keep these GG1 settings:** the included config turns off `ChangeMapAfterWinDraw`, `ChangeMapAfterTimeLimit`, `RandomMapOnStart` and `LastDisconnectedChangeMap` so only GameModeManager changes the map, and uses the `wasd` menus the bridge needs.
 - **GG1 updates:** GG1 isn't modified. A few features read its internals and log a warning or do nothing if an update changes them.
@@ -90,7 +90,7 @@ If you use [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin), its a
 | Manage game | Rotation |
 | :-: | :-: |
 | ![Manage game section of the admin menu](docs/images/admin.png) | ![Rotation page of the admin menu](docs/images/admin-rotation.png) |
-| Change or vote on maps and modes, turn settings on and off, and control warmup. | Turn map and mode rotation on or off and choose how often they change. These changes last until the server restarts. |
+| Change or vote on maps and modes, turn settings on and off, and control warmup. | Turn map rotation, mode rotation and Rock the Vote on or off, and choose how often modes change. These changes last until the server restarts. |
 
 - **Polls:** with SimpleAdmin, `!vote` asks players a question. One or two words make a yes/no vote, and with more, the first is the question and the rest are its answers: `!vote "Best map?" Mirage Inferno Nuke`.
 - **To get the red panel shown here:** install the optional [PMM_SimpleAdmin](https://github.com/RRimmer/PMM_SimpleAdmin) plugin, which isn't in the zip, then restart the server fully. Its menu files are already in GameModeManager's Workshop addon, so players don't need anything extra. Without it, the same items appear in SimpleAdmin's normal menus.

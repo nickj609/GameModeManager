@@ -9,6 +9,8 @@
   "commands.menu-changemap": "投票更换地图",
   "commands.menu-changemode": "更换模式",
   "vote.no-match": "没有名为 {GOLD}{0}{DEFAULT} 的地图或模式。",
+  "rtv.disabled": "此服务器已关闭 Rock the Vote。",
+  "admin.rtv": "Rock the Vote",
   "commands.menu-changesetting": "更换设置",
   "commands.menu-currentmode": "当前模式",
   "commands.menu-currentmap": "当前地图",
