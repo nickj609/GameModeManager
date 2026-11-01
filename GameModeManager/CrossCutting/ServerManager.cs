@@ -1,11 +1,13 @@
 // Included libraries
 using GameModeManager.Core;
-using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
+using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using GameModeManager.Shared.Models;
+using CounterStrikeSharp.API.Modules.Commands;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
+using TimerFlags = CounterStrikeSharp.API.Modules.Timers.TimerFlags;
 using CountdownTimer = GameModeManager.Timers.CountdownTimer;
 
 // Declare namespace
@@ -19,16 +21,23 @@ namespace GameModeManager.CrossCutting
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<ServerManager> _logger;
-        private VoteOptionManager _voteOptionManager;
+        private MapChooserBridge _mapChooser;
 
         // Define class constructor
-        public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer, VoteOptionManager voteOptionManager)
+        public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer, MapChooserBridge mapChooser)
         {
             _logger = logger;
+            _mapChooser = mapChooser;
             _localizer = localizer;
             _pluginState = pluginState;
-            _voteOptionManager = voteOptionManager;
         }
+
+        // Define class properties
+        private Timer? _holdTimer;
+        private float _holdStarted;
+        private bool _holdTimedOut;
+        private const float HoldLimit = 180f; // Longest a map change holds players: host_workshop_map keeps the old map running while it downloads
+        private bool MapChanging => _holdTimer != null || _pluginState.Game.CountdownRunning;
 
         // Load config
         public void OnConfigParsed(Config config)
@@ -36,47 +45,129 @@ namespace GameModeManager.CrossCutting
             _config = config;
         }
 
-        // Define class methods
-        public void ChangeMap(IMap nextMap, int delay)
+        // Define on load behavior
+        // Every map change ends in one of these commands, whoever started it, so they start the hold too
+        public void OnLoad(Plugin plugin)
         {
-            // Disable warmup
-            _pluginState.Game.WarmupRunning = false;
+            foreach (string command in new[] { "map", "changelevel", "host_workshop_map", "ds_workshop_changelevel" })
+                plugin.AddCommandListener(command, OnMapChangeCommand, HookMode.Pre);
+        }
 
-            if(_config.Warmup.PerMap)
-                _pluginState.Game.WarmupScheduled = false;
+        // Define on map start behavior
+        public void OnMapStart(string map)
+        {
+            _holdTimer = null;
+            _holdTimedOut = false;
+            _pluginState.Game.CountdownRunning = false;
 
-            // Kick bots and freeze all players
+            // GG1MapChooser counts down 5 seconds before its command: hold players from when it decides
             new Timer(0.5f, () =>
             {
-                Server.ExecuteCommand("bot_kick");
-                PlayerExtensions.FreezePlayers();
-            });
+                if (!_holdTimedOut && _mapChooser.MapChanging() == true)
+                    HoldPlayers();
+            }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+        }
 
-            // Revert RTV settings
-            if (_pluginState.RTV.Enabled && _config.RTV.PerMap)
+        // Define command handlers
+        private HookResult OnMapChangeCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null)
+                HoldPlayers();
+
+            return HookResult.Continue;
+        }
+
+        // Define class methods
+        // The one place players get frozen for a map change. They stay frozen until the map ends: a new round, a respawn
+        // or a closing menu would otherwise free them while a workshop map downloads.
+        public void HoldPlayers()
+        {
+            if (_holdTimer != null)
+                return;
+
+            // Warmup ends with the map. Its cfg unloaded the mode's plugins, so put the mode back for the next map.
+            if (_pluginState.Game.WarmupRunning)
             {
-                _pluginState.RTV.EndOfMapVote = _config.RTV.EndOfMapVote;
-                _pluginState.RTV.Duration = _config.RTV.VoteDuration;
-                _pluginState.RTV.ChangeImmediately = _config.RTV.ChangeImmediately;
-                _pluginState.RTV.KillsBeforeEnd = _config.RTV.TriggerKillsBeforeEnd;
-                _pluginState.RTV.RoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
-                _pluginState.RTV.SecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
-
-                if(_pluginState.RTV.NominationEnabled)
-                    _pluginState.RTV.MaxNominationWinners = _config.RTV.MaxNominationWinners;
+                _pluginState.Game.WarmupRunning = false;
+                Server.ExecuteCommand($"exec {_pluginState.Game.CurrentMode.Config}");
             }
+
+            if (_config.Warmup.PerMap)
+                _pluginState.Game.WarmupScheduled = false;
+
+            Server.ExecuteCommand("bot_kick");
+            PlayerExtensions.FreezePlayers();
+
+            _holdStarted = Server.CurrentTime;
+            _holdTimer = new Timer(0.5f, () =>
+            {
+                if (Server.CurrentTime - _holdStarted < HoldLimit)
+                {
+                    PlayerExtensions.FreezePlayers();
+                    return;
+                }
+
+                _logger.LogError("The map did not change within {Limit} seconds: unfreezing players.", HoldLimit);
+                _holdTimedOut = true;
+                _holdTimer?.Kill();
+                _holdTimer = null;
+                PlayerExtensions.UnfreezePlayers();
+            }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+        }
+
+        public void ChangeMap(IMap nextMap, int delay)
+        {
+            ChangeMap(delay, () => RunMapCommand(nextMap));
+        }
+
+        private void RunMapCommand(IMap nextMap)
+        {
+            if (Server.IsMapValid(nextMap.Name))
+                Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
+            else if (nextMap.WorkshopId != -1)
+                Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
+            else
+                Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
+        }
+
+        // A map of the current mode, changed by GG1MapChooser so its recently played list knows about it
+        public void ChangeMapInPool(IMap map)
+        {
+            if (_mapChooser.Available)
+                ChangeMap(_config.Maps.Delay, () =>
+                {
+                    _mapChooser.ChangeToMap(map);
+
+                    // GG1 does nothing if the name doesn't match one map in its list, which would leave players frozen
+                    new Timer(2.0f, () =>
+                    {
+                        if (_mapChooser.MapChanging() == false)
+                        {
+                            _logger.LogWarning("GG1MapChooser didn't change to {Map}: changing to it directly.", map.Name);
+                            RunMapCommand(map);
+                        }
+                    }, TimerFlags.STOP_ON_MAPCHANGE);
+                });
+            else
+                ChangeMap(map, _config.Maps.Delay);
+        }
+
+        private void ChangeMap(int delay, Action change)
+        {
+            if (_pluginState.Game.CountdownRunning)
+            {
+                _logger.LogInformation("A map change is already counting down: this request is ignored.");
+                return;
+            }
+
+            HoldPlayers();
 
             // Display Countdown
             _pluginState.Game.CountdownRunning = true;
-            CountdownTimer timer = new CountdownTimer(delay, () => 
+            CountdownTimer timer = new CountdownTimer(delay, () =>
             {
                 // Change map
-                if (Server.IsMapValid(nextMap.Name))
-                    Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
-                else if (nextMap.WorkshopId != -1)
-                    Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
-                else
-                    Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
+                change();
 
                 // Disable countdown flag
                 _pluginState.Game.CountdownRunning = false;
@@ -86,159 +177,81 @@ namespace GameModeManager.CrossCutting
 
         public void ChangeMode(IMode mode)
         {
+            ChangeMode(mode, _config.Maps.Delay);
+        }
+
+        public void ChangeMode(IMode mode, int delay)
+        {
             _logger.LogInformation($"Current mode: {_pluginState.Game.CurrentMode.Name}");
             _logger.LogInformation($"New mode: {mode.Name}");
 
-            if (_pluginState.RTV.Enabled)
+            ChangeMap(delay, () =>
             {
-                // Revert RTV settings
-                _pluginState.RTV.EndOfMapVote = _config.RTV.EndOfMapVote;
-                _pluginState.RTV.Duration = _config.RTV.VoteDuration;
-                _pluginState.RTV.ChangeImmediately = _config.RTV.ChangeImmediately;
-                _pluginState.RTV.KillsBeforeEnd = _config.RTV.TriggerKillsBeforeEnd;
-                _pluginState.RTV.RoundsBeforeEnd = _config.RTV.TriggerRoundsBeforeEnd;
-                _pluginState.RTV.SecondsBeforeEnd = _config.RTV.TriggerSecondsBeforeEnd;
+                // Execute mode config. Not before the countdown: its settings and restarts would hit the map being left.
+                Server.ExecuteCommand($"exec {mode.Config}");
 
-                // Update to use Queue and HashSet for cooldown management
-                if(_config.RTV.IncludeModes)
-                {
-                    if (_pluginState.RTV.InCoolDown == 0)
-                    {
-                        _pluginState.RTV.OptionsOnCoolDown.Clear();
-                        _pluginState.RTV.OptionsOnCoolDownSet.Clear();
-                    }
-                    else
-                    {
-                        if (_pluginState.RTV.OptionsOnCoolDown.Count >= _pluginState.RTV.InCoolDown) 
-                        {
-                            var removedOption = _pluginState.RTV.OptionsOnCoolDown.Dequeue();
-                            _pluginState.RTV.OptionsOnCoolDownSet.Remove(removedOption); 
-                        }
-                        var newOption = new VoteOption(mode.Name, VoteOptionType.Mode);
-                        _pluginState.RTV.OptionsOnCoolDown.Enqueue(newOption);
-                        _pluginState.RTV.OptionsOnCoolDownSet.Add(newOption);
-                    }
-                }
+                // If no default map, set next map to random map
+                IMap nextMap;
+                if (mode.DefaultMap == null)
+                    nextMap = GetRandomMap(mode);
+                else
+                    nextMap = mode.DefaultMap;
 
-                if(_pluginState.RTV.NominationEnabled)
-                    _pluginState.RTV.MaxNominationWinners = _config.RTV.MaxNominationWinners;
-            }
-
-            // Execute mode config
-            Server.ExecuteCommand($"exec {mode.Config}");
-
-            // If no default map, set next map to random map
-            IMap nextMap;
-            if (mode.DefaultMap == null) 
-                nextMap = GetRandomMap(mode);
-            else
-                nextMap = mode.DefaultMap;
-            
-            ChangeMap(nextMap, _config.Maps.Delay);
+                // The cfg runs first: its game_type and game_mode apply when the next map loads
+                new Timer(0.25f, () => RunMapCommand(nextMap), TimerFlags.STOP_ON_MAPCHANGE);
+            });
         }
 
+        // GG1MapChooser picks the next map (its vote, else random from the mode's pool); GameModeManager only
+        // decides when, and rotates the mode when it's due
         public void TriggerRotation()
         {
-            if (_pluginState.Game.RotationsEnabled)
+            // Rotation off: GameModeManager leaves the map alone (GG1's own WinDrawSettings can change it instead)
+            if (!_pluginState.Game.RotationsEnabled)
+                return;
+
+            // The win panel, the time limit and the empty server timer can all ask for the same change
+            if (MapChanging)
+                return;
+
+            bool modeDue = _config.Rotation.ModeRotation &&
+                _pluginState.Game.MapRotations != 0 && _pluginState.Game.MapRotations % _config.Rotation.ModeInterval == 0;
+            _pluginState.Game.MapRotations++;
+
+            // A rotation has to end up somewhere else: not the current mode, and not a mode with no maps
+            List<IMode> modes = _pluginState.Game.Modes.Values.Where(mode => !mode.Equals(_pluginState.Game.CurrentMode) && mode.Maps.Count > 0).ToList();
+            if (!modeDue || modes.Count == 0)
             {
-                if (_config.Rotation.ModeRotation && _pluginState.Game.MapRotations != 0 && _pluginState.Game.MapRotations % _config.Rotation.ModeInterval == 0)
-                {
-                    Random _rnd = new Random();
-                    List<IMode> availableModes = _pluginState.Game.Modes.Values.ToList();
-
-                    if (availableModes.Count == 0)
-                    {
-                        _logger.LogError("No game modes available for rotation.");
-                        return;
-                    }
-
-                    int _randomIndex = _rnd.Next(0, availableModes.Count);
-                    IMode _randomMode = availableModes[_randomIndex];
-
-                    _logger.LogDebug("Game has ended. Picking random game mode...");
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", _randomMode.Name));
-                    ChangeMode(_randomMode);
-                }
-                else
-                {
-                    IMap _randomMap = GetRandomMap(_pluginState.Game.CurrentMode);
-                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-map", _randomMap.DisplayName));
-                    ChangeMap(_randomMap, _config.Maps.Delay);
-                }
-                _pluginState.Game.MapRotations++;
+                ChangeMap(_config.Maps.Delay, ChangeToNextMap);
+                return;
             }
-            else if (_pluginState.RTV.Enabled)
+
+            IMode nextMode = modes[new Random().Next(0, modes.Count)];
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", nextMode.Name));
+            ChangeMode(nextMode);
+        }
+
+        private void ChangeToNextMap()
+        {
+            // GG1 skips the change while its vote runs, which would leave the server sitting on the win panel
+            if (_mapChooser.VoteInProgress())
             {
-                if (_pluginState.RTV.EofVoteHappened && !_pluginState.RTV.ChangeImmediately)
-                {
-                    if (_pluginState.RTV.NextMode != null)
-                    {
-                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", _pluginState.RTV.NextMode.Name));
-                        ChangeMode(_pluginState.RTV.NextMode);
-                    }
-                    else if (_pluginState.RTV.NextMap != null)
-                    {
-                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-map", _pluginState.RTV.NextMap.DisplayName));
-                        ChangeMap(_pluginState.RTV.NextMap, _config.Maps.Delay);
-                    }
-                }
-                else
-                {
-                    // If no vote occurred, pick a random option based on RTV settings
-                    _pluginState.RTV.IncludeExtend = false;
-                    _voteOptionManager.LoadOptions();
-                    List<VoteOption> options = _voteOptionManager.GetOptions();
-
-                    if (options.Count == 0)
-                    {
-                        _logger.LogWarning("No options available for RTV random selection.");
-                        return; 
-                    }
-
-                    _pluginState.RTV.Winner = options[new Random().Next(0, options.Count)];
-
-                    if (_pluginState.RTV.Winner.Type is VoteOptionType.Mode)
-                    {
-                        if (_pluginState.Game.Modes.TryGetValue(_pluginState.RTV.Winner.Name, out IMode? mode))
-                        {
-                            _pluginState.RTV.NextMode = mode;
-
-                            if (_pluginState.RTV.NextMode?.DefaultMap != null)
-                                _pluginState.RTV.NextMap = _pluginState.RTV.NextMode.DefaultMap;
-
-                            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", _pluginState.RTV.Winner.DisplayName));
-
-                            if (_pluginState.RTV.NextMode != null)
-                            {
-                                ChangeMode(_pluginState.RTV.NextMode);
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            _logger.LogError($"RTV: Mode {_pluginState.RTV.Winner.Name} not found");
-                        }
-                    }
-                    else if (_pluginState.RTV.Winner.Type is VoteOptionType.Map)
-                    {
-                        if (_pluginState.RTV.Winner.WorkshopId > 0 && _pluginState.Game.MapsByWorkshopId.TryGetValue(_pluginState.RTV.Winner.WorkshopId, out IMap? workshopMap))
-                            _pluginState.RTV.NextMap = workshopMap;
-                        else if (_pluginState.Game.Maps.TryGetValue(_pluginState.RTV.Winner.Name, out IMap? map))
-                            _pluginState.RTV.NextMap = map;
-
-                        if (_pluginState.RTV.NextMap != null)
-                        {
-                            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-map", _pluginState.RTV.Winner.DisplayName));
-                            ChangeMap(_pluginState.RTV.NextMap, _config.Maps.Delay);
-                            return;
-                        }
-                        else
-                        {
-                            _logger.LogError($"RTV: Map {_pluginState.RTV.Winner.Name} not found");
-                        }
-                    }
-                }
+                new Timer(1.0f, ChangeToNextMap, TimerFlags.STOP_ON_MAPCHANGE);
+                return;
             }
+
+            _mapChooser.ChangeToNextMap();
+
+            // GG1 does nothing when it has no map to give (all played recently, invalid mapcycle), or isn't installed
+            new Timer(2.0f, () =>
+            {
+                if (_mapChooser.Available && _mapChooser.MapChanging() != false)
+                    return;
+
+                IMap nextMap = GetRandomMap(_pluginState.Game.CurrentMode);
+                _logger.LogWarning("GG1MapChooser has no next map: changing to {Map}.", nextMap.Name);
+                RunMapCommand(nextMap);
+            }, TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         public void TriggerScheduleChange(ScheduleEntry state)
@@ -247,45 +260,14 @@ namespace GameModeManager.CrossCutting
                 ChangeMode(_mode);
         }
 
-        public IMap GetRandomMap(IMode currentMode)
+        public IMap GetRandomMap(IMode mode)
         {
-            IMap _randomMap; 
-            Random _rnd = new Random();
-
-            if (_config.Rotation.Cycle == 2)
+            if (mode.Maps.Count == 0)
             {
-                List<IMap> _mapList = new List<IMap>();
-
-                foreach (string mapGroup in _config.Rotation.MapGroups)
-                {
-                    if (_pluginState.Game.MapGroups.TryGetValue(mapGroup, out IMapGroup? _mapGroup))
-                        _mapList.AddRange(_mapGroup.Maps);
-                } 
-
-                if (_mapList.Count == 0)
-                    _logger.LogError("No maps found in configured map groups for rotation cycle 2.");
-
-                int _randomIndex = _rnd.Next(0, _mapList.Count); 
-                _randomMap = _mapList[_randomIndex];
+                _logger.LogError($"Mode '{mode.Name}' has no maps; staying on the current map.");
+                return _pluginState.Game.CurrentMap;
             }
-            else if (_config.Rotation.Cycle == 1)
-            {
-                List<IMap> availableMaps = _pluginState.Game.Maps.Values.ToList();
-                if (availableMaps.Count == 0)
-                    _logger.LogError("No maps available for rotation cycle 1.");
-
-                int _randomIndex = _rnd.Next(0, availableMaps.Count); 
-                _randomMap = availableMaps[_randomIndex];
-            }
-            else
-            {
-                if (currentMode.Maps.Count == 0)
-                    _logger.LogError($"Current mode '{currentMode.Name}' has no maps configured for rotation.");
-
-                int _randomIndex = _rnd.Next(0, currentMode.Maps.Count); 
-                _randomMap = currentMode.Maps.ElementAt(_randomIndex);
-            }
-            return _randomMap;
+            return mode.Maps.ElementAt(new Random().Next(0, mode.Maps.Count));
         }
     }
 }

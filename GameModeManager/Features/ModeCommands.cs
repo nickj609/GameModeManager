@@ -22,17 +22,17 @@ namespace GameModeManager.Features
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private Config _config = new Config();
-        private CustomVoteManager _customVoteManager;
+        private MapChooserBridge _mapChooser;
 
         // Define class constructor
-        public ModeCommands(PluginState pluginState, StringLocalizer localizer, CustomVoteManager customVoteManager, ServerManager serverManager, ModeMenus modeMenus, MapMenus mapMenus)
+        public ModeCommands(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, ModeMenus modeMenus, MapMenus mapMenus, MapChooserBridge mapChooser)
         {
+            _mapChooser = mapChooser;
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
             _localizer = localizer;
             _pluginState = pluginState;
             _serverManager = serverManager;
-            _customVoteManager = customVoteManager;
         }
 
         // Load config
@@ -54,6 +54,7 @@ namespace GameModeManager.Features
         }
 
         // Define server game mode command handler
+        // Only records the mode: every mode cfg runs this, so changing the map from here would run the cfg again
         [CommandHelper(minArgs: 1, usage: "<mode>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnGameModeCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -63,25 +64,13 @@ namespace GameModeManager.Features
                 {
                     if (!_pluginState.Game.CurrentMode.Equals(_mode))
                     {
-                        if (_config.Votes.Enabled && _config.Votes.Maps)
-                        {
-                            _customVoteManager.DeregisterMapVotes();
-                            _pluginState.Game.CurrentMode = _mode;
-                            _customVoteManager.RegisterMapVotes();
-                        }
-                        else
-                        {
-                            _pluginState.Game.CurrentMode = _mode;
-                        }
+                        _pluginState.Game.CurrentMode = _mode;
 
-                        // Update map menus
-                        if (_config.Maps.Mode == 0)
-                            _mapMenus.Load();
-                    }
-                    else
-                    {
-                        if (!_pluginState.Game.CurrentMode.Maps.Contains(_pluginState.Game.CurrentMap))
-                             _serverManager.ChangeMode(_mode);
+                        // GG1MapChooser votes / RTV / nominate from this mode's maps
+                        _mapChooser.SetPool(_mode);
+
+                        // !maps lists this mode's maps
+                        _mapMenus.Load();
                     }
                 }
             }

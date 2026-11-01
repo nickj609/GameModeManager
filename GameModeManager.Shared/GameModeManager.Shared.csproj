@@ -1,21 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <RepositoryUrl>https://github.com/nickj609/GameModeManager</RepositoryUrl>
-        <TargetFramework>net8.0</TargetFramework>
+        <!-- net10.0 since 2.0.0 (CounterStrikeSharp >= 1.0.369 runs on .NET 10) -->
+        <TargetFramework>net10.0</TargetFramework>
         <RootNamespace>GameModeManager.Shared</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>1.0.64</Version>
+        <Version>2.0.0</Version>
+        <!-- Same release folder as the plugin when built from the solution, else this project's own bin -->
+        <PublicDir Condition="'$(SolutionDir)' != '' And '$(SolutionDir)' != '*Undefined*'">$(SolutionDir)bin\$(Configuration)\$(TargetFramework)\Public\</PublicDir>
+        <PublicDir Condition="'$(PublicDir)' == ''">$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Public\</PublicDir>
     </PropertyGroup>
     <ItemGroup>
-      <PackageReference Include="CounterStrikeSharp.API" Version="1.0.362"/>
+      <PackageReference Include="CounterStrikeSharp.API" Version="1.0.378">
+        <ExcludeAssets>runtime</ExcludeAssets>
+      </PackageReference>
     </ItemGroup>
     <Target Name="PublicBuild" AfterTargets="AfterBuild" Condition="'$(IsPacking)' != 'true'">
         <PropertyGroup>
             <IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
         </PropertyGroup>
-        <MakeDir Directories="$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared"/>
-        <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R $(OutDir)*.* $(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Public\addons\counterstrikesharp\shared\GameModeManager.Shared\" />
-        <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(OutDir)* $(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Public/addons/counterstrikesharp/shared/GameModeManager.Shared/" />
+        <MakeDir Directories="$(PublicDir)addons\counterstrikesharp\shared\GameModeManager.Shared"/>
+        <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R &quot;$(OutDir)*.*&quot; &quot;$(PublicDir)addons\counterstrikesharp\shared\GameModeManager.Shared\&quot;" />
+        <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(OutDir)* $(PublicDir)addons/counterstrikesharp/shared/GameModeManager.Shared/" />
     </Target>
 </Project>

@@ -26,7 +26,7 @@ namespace GameModeManager.Timers
         // Define class methods
         private void StartTimer(string message)
         {
-            timer = new Timer(1.0f, () => DisplayCountdown(message), TimerFlags.REPEAT);
+            timer = new Timer(1.0f, () => DisplayCountdown(message), TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         private void DisplayCountdown(string message)

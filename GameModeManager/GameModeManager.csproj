@@ -1,38 +1,46 @@
-<Project Sdk="Microsoft.NET.Sdk"> 
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <!-- CounterStrikeSharp moved to .NET 10 in v1.0.369; this build needs a server with CSS >= 1.0.369 (with-runtime). -->
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>GameModeManager</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PublicDir>$(SolutionDir)bin\$(Configuration)\$(TargetFramework)\Public\</PublicDir>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.362" />
-    <PackageReference Include="MenuManagerAPI.Shared" Version="1.0.3" />
-    <PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
+    <!-- Provided by the server: never shipped next to the plugin -->
+    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.378">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Gameloop.Vdf" Version="0.6.2" GeneratePathProperty="true" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="CS2-CustomVotes.Shared" Version="1.1.4">
+    <!-- The one NuGet dependency loaded at runtime. Copied explicitly: copying all package assemblies would also ship
+         CounterStrikeSharp's own dependencies (Microsoft.Extensions.*, Serilog ...), which must come from the host. -->
+    <None Include="$(PkgGameloop_Vdf)\lib\netstandard1.0\Gameloop.Vdf.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- PanoramaMenuManager API (capability menu:nfcore). Referenced from the sibling fork, not copied: it is GPL v3.
+         At runtime it comes from shared/MenuManagerApi/ (installed with PanoramaMenuManager). -->
+    <ProjectReference Include="..\..\PanoramaMenuManagerCS2\MenuManagerApi\MenuManagerApi.csproj">
       <Private>false</Private>
-      <HintPath>lib\counterstrikesharp\shared\CS2-CustomVotes.Shared\CS2-CustomVotes.Shared.dll</HintPath>
-    </Reference>
+    </ProjectReference>
+    <!-- Our own contract: shipped in shared/GameModeManager.Shared/ by its project, not next to the plugin -->
+    <ProjectReference Include="..\GameModeManager.Shared\GameModeManager.Shared.csproj">
+      <Private>false</Private>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GameModeManager.Shared\GameModeManager.Shared.csproj" />
-  </ItemGroup>
+  <!-- Release layout: bin\<Configuration>\net10.0\Public\ mirrors game/csgo -->
   <Target Name="PublicBuild" AfterTargets="AfterBuild">
     <PropertyGroup>
       <IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
     </PropertyGroup>
-    <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang" />
-    <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\CS2-CustomVotes" />
-    <MakeDir Directories="$(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\shared\CS2-CustomVotes.Shared" />
-    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R $(OutDir)*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
-    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(OutDir)* $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/plugins/GameModeManager/" />
-    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /E /R $(ProjectDir)lib\csgo\ $(SolutionDir)bin\Debug\$(TargetFramework)\Public\" />
-    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(ProjectDir)lib/csgo/* $(SolutionDir)bin/Debug/$(TargetFramework)/Public/" />
-    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R $(ProjectDir)lang\*.* $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\lang\" />
-    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(ProjectDir)lang/* $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/plugins/GameModeManager/lang/" />
-    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /E $(ProjectDir)lib\csgo\addons\counterstrikesharp\shared\MenuManagerAPI.Shared\MenuManagerAPI.Shared.dll $(SolutionDir)bin\Debug\$(TargetFramework)\Public\addons\counterstrikesharp\plugins\GameModeManager\" />
-    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp $(ProjectDir)lib/csgo/addons/counterstrikesharp/shared/MenuManagerAPI.Shared/MenuManagerAPI.Shared.dll $(SolutionDir)bin/Debug/$(TargetFramework)/Public/addons/counterstrikesharp/plugins/GameModeManager/" />
+    <MakeDir Directories="$(PublicDir)addons\counterstrikesharp\plugins\GameModeManager\lang" />
+    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R &quot;$(OutDir)*.*&quot; &quot;$(PublicDir)addons\counterstrikesharp\plugins\GameModeManager\&quot;" />
+    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(OutDir)* $(PublicDir)addons/counterstrikesharp/plugins/GameModeManager/" />
+    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /E /R &quot;$(ProjectDir)lib\csgo\&quot; &quot;$(PublicDir)&quot;" />
+    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(ProjectDir)lib/csgo/* $(PublicDir)" />
+    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R &quot;$(ProjectDir)lang\*.*&quot; &quot;$(PublicDir)addons\counterstrikesharp\plugins\GameModeManager\lang\&quot;" />
+    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(ProjectDir)lang/* $(PublicDir)addons/counterstrikesharp/plugins/GameModeManager/lang/" />
   </Target>
 </Project>

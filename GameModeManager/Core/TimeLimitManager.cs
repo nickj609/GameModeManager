@@ -93,8 +93,6 @@ namespace GameModeManager.Core
         public void OnConfigParsed(Config config)
         {
             _config = config;
-            _pluginState.RTV.MaxExtends = _config.RTV.MaxExtends;
-            _pluginState.RTV.IncludeExtend = _config.RTV.IncludeExtend;
         }
 
         // Define on load behavior
@@ -113,13 +111,9 @@ namespace GameModeManager.Core
         public void OnMapStart(string map)
         {
             LoadCvar();
-            _pluginState.TimeLimit.CustomLimit = false;
-            _pluginState.TimeLimit.Duration = 0f;
-            _pluginState.TimeLimit.CustomStartTime = 0f;
-            _pluginState.TimeLimit.Enabled = false;
-            _pluginState.TimeLimit.Scheduled = false;
-            _pluginState.RTV.MapExtends = 0;
-            _pluginState.RTV.MaxExtends = _config.RTV.MaxExtends; 
+
+            // Also stops the last map's timer, which would rotate this map when it fires
+            DisableTimeLimit();
         }
 
         // Define class methods
@@ -143,79 +137,6 @@ namespace GameModeManager.Core
             timeLimit = ConVar.Find("mp_timelimit");
         }
 
-        public void ExtendMap()
-        {
-            if (_pluginState.TimeLimit.CustomLimit)
-            {
-                 float extensionSeconds = _config.RTV.ExtendTime * 60f;
-                 _pluginState.TimeLimit.Duration += extensionSeconds;
-
-                 // If the timer is already running, kill and restart it with the new total remaining time
-                 if (timer != null)
-                 {
-                     timer.Kill();
-                     decimal elapsed = (decimal)(Server.CurrentTime - _pluginState.TimeLimit.CustomStartTime);
-                     decimal newTotalDuration = (decimal)_pluginState.TimeLimit.Duration;
-                     decimal newRemaining = newTotalDuration - elapsed;
-
-                     if (newRemaining > 0)
-                     {
-                         timer = new Timer((float)newRemaining, () =>
-                         {
-                             _serverManager.TriggerRotation();
-                             DisableTimeLimit();
-                        });
-                         _logger.LogInformation($"Extended custom timer. New total duration: {_pluginState.TimeLimit}s. New remaining: {newRemaining}s");
-                     }
-                     else {
-                          _logger.LogWarning($"Could not extend custom timer, calculated remaining time is not positive ({newRemaining}s).");
-                          DisableTimeLimit();
-                     }
-
-                 } else {
-                      _logger.LogInformation($"Custom time limit duration extended to {_pluginState.TimeLimit}s. Timer will start at match start.");
-                 }
-
-                 string _message = _localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.map-time-extended", _config.RTV.ExtendTime);
-                 Server.PrintToChatAll(_message);
-
-            }
-            else if (!StandardUnlimitedTime)
-            {
-                // Extend the standard mp_timelimit
-                var timeLimitConVar = ConVar.Find("mp_timelimit");
-                if (timeLimitConVar != null) 
-                {
-                    float currentTimeLimit = timeLimitConVar.GetPrimitiveValue<float>();
-                    float newTimeLimit = currentTimeLimit + _config.RTV.ExtendTime;
-                    _logger.LogInformation($"Setting mp_timelimit to {newTimeLimit}");
-                    timeLimitConVar.SetValue(newTimeLimit);
-                    string _message = _localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.map-time-extended", _config.RTV.ExtendTime);
-                    Server.PrintToChatAll(_message);
-                }
-
-            }
-            else if (!_maxRoundsManager.UnlimitedRounds)
-            {
-                // Extend rounds if time is unlimited
-                var maxRoundsConVar = ConVar.Find("mp_maxrounds");
-                if (maxRoundsConVar != null) 
-                {
-                    int currentMaxRounds = maxRoundsConVar.GetPrimitiveValue<int>();
-                    int newMaxRounds = currentMaxRounds + _config.RTV.ExtendRounds;
-                    _logger.LogInformation($"Setting mp_maxrounds to {newMaxRounds}");
-                    maxRoundsConVar.SetValue(newMaxRounds);
-                    string _message = _localizer.LocalizeWithPrefixInternal("rtv.prefix", "rtv.map-rounds-extended", _config.RTV.ExtendRounds);
-                    Server.PrintToChatAll(_message);
-                }
-            }
-            else
-            {
-                _logger.LogWarning("Can't extend map because mp_timelimit and mp_maxrounds are not set.");
-            }
-            _pluginState.RTV.MapExtends++;
-        }
-
         public void DisableTimeLimit()
         {
             if (timer != null)
@@ -230,6 +151,25 @@ namespace GameModeManager.Core
             _pluginState.TimeLimit.Duration = 0f;
             _pluginState.TimeLimit.CustomStartTime = 0f;
             _logger.LogDebug("Time limit timer disabled and state reset.");
+        }
+
+        // GG1MapChooser's "extend map" vote raises mp_timelimit: keep playing until the new limit, then rotate
+        private void OnTimeLimitReached()
+        {
+            if (_pluginState.TimeLimit.CustomLimit && StandardTimeLimitValue > (decimal)_pluginState.TimeLimit.Duration + 1)
+                _pluginState.TimeLimit.Duration = (float)StandardTimeLimitValue;
+
+            decimal remaining = timeRemaining;
+            if (remaining > 1)
+            {
+                _logger.LogInformation($"Time limit extended: {remaining:0}s left.");
+                timer = new Timer((float)remaining, OnTimeLimitReached);
+                return;
+            }
+
+            _logger.LogDebug("Time limit reached, triggering rotation.");
+            _serverManager.TriggerRotation();
+            DisableTimeLimit();
         }
 
         public void EnableTimeLimit()
@@ -247,12 +187,7 @@ namespace GameModeManager.Core
                     _pluginState.TimeLimit.Enabled = true;
                     _pluginState.TimeLimit.Scheduled = false; 
                     
-                     timer = new Timer((float)remaining, () =>
-                    {
-                        _logger.LogDebug("Standard time limit reached, triggering rotation."); 
-                        _serverManager.TriggerRotation();
-                        DisableTimeLimit(); 
-                    });
+                    timer = new Timer((float)remaining, OnTimeLimitReached);
                     _logger.LogDebug($"Standard timer enabled. Remaining: {remaining}s");
                 } 
                 else 
@@ -289,12 +224,7 @@ namespace GameModeManager.Core
 
             _logger.LogDebug($"Starting custom timer for {customDurationSeconds} seconds.");
 
-            timer = new Timer(customDurationSeconds, () =>
-            {
-                _logger.LogDebug($"Custom time limit of {_pluginState.TimeLimit}s reached, triggering rotation.");
-                _serverManager.TriggerRotation();
-                DisableTimeLimit();
-            });
+            timer = new Timer(customDurationSeconds, OnTimeLimitReached);
         }
 
         public string GetTimeLeftMessage()

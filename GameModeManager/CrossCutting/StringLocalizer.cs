@@ -35,6 +35,12 @@ namespace GameModeManager.CrossCutting
             return LocalizeWithPrefixInternal(_prefix, key, args);
         }
 
+        // A submenu's title: where it sits, the way the SimpleAdmin panel shows it
+        public string Path(params string[] keys)
+        {
+            return string.Join(" › ", keys.Select(key => Localize(key)));
+        }
+
         public string Localize(string key, params object[] args)
         {
             return _localizer[key, args];

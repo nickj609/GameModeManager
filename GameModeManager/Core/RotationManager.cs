@@ -13,7 +13,6 @@ namespace GameModeManager.Core
     public class RotationManager : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
-        bool _rotationEnabled = false;
         private Timer? _rotationTimer;
         private PluginState _pluginState;
         private ServerManager _serverManager;
@@ -45,21 +44,24 @@ namespace GameModeManager.Core
             if (_config.Rotation.ModeSchedules)
             {
                 foreach (ScheduleEntry entry in _config.Rotation.Schedule)
-                {
-                    DateTime targetTime = DateTime.Parse(entry.Time);
-                    TimeSpan delay = targetTime - DateTime.Now;
-
-                    if (delay.TotalMilliseconds <= 0)
-                        delay = delay.Add(TimeSpan.FromDays(1));
-
-                    new Timer((float)delay.TotalSeconds, () =>
-                    {
-                        _serverManager.TriggerScheduleChange(entry);
-                        delay = targetTime.AddDays(1) - DateTime.Now;  
-                    },TimerFlags.REPEAT);
-                }
+                    StartSchedule(entry);
             }
-        }   
+        }
+
+        // Define class methods
+        private void StartSchedule(ScheduleEntry entry)
+        {
+            TimeSpan delay = DateTime.Parse(entry.Time) - DateTime.Now;
+
+            if (delay.TotalMilliseconds <= 0)
+                delay = delay.Add(TimeSpan.FromDays(1));
+
+            new Timer((float)delay.TotalSeconds, () =>
+            {
+                _serverManager.TriggerScheduleChange(entry);
+                StartSchedule(entry);
+            });
+        }
 
         // Define event handlers
         public HookResult EventCsWinPanelMatchHandler(EventCsWinPanelMatch @event, GameEventInfo info)
@@ -71,7 +73,10 @@ namespace GameModeManager.Core
         public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
         {
             if (PlayerExtensions.ValidPlayerCount(false) > 0)
+            {
                 _rotationTimer?.Kill();
+                _rotationTimer = null;
+            }
 
             return HookResult.Continue;
         }
@@ -83,19 +88,11 @@ namespace GameModeManager.Core
                 if(ServerExtensions.IsServerEmpty())
                 {
                     // Disable server hibernation
-                    if(!ServerExtensions.IsHibernationEnabled())
+                    if(ServerExtensions.IsHibernationEnabled())
                         Server.ExecuteCommand("sv_hibernate_when_empty false");
 
                     // Create timer
-                    if(!_rotationEnabled)
-                    {
-                        _rotationEnabled = true;
-                        _rotationTimer = new Timer(_config.Rotation.CustomTimeLimit, () =>
-                        {
-                            _serverManager.TriggerRotation();
-                            _rotationEnabled = false;
-                        },TimerFlags.REPEAT);
-                    }
+                    _rotationTimer ??= new Timer(_config.Rotation.CustomTimeLimit, _serverManager.TriggerRotation, TimerFlags.REPEAT);
                 }
             }
             return HookResult.Continue;

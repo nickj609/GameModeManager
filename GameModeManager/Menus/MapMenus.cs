@@ -2,6 +2,7 @@
 using GameModeManager.Core;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
+using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
@@ -16,80 +17,133 @@ namespace GameModeManager.Menus
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
-        private Config _config = new Config();
+        private MapChooserBridge _mapChooser;
+        private VoteService _voteService;
 
         // Define class constructor
-        public MapMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager)
+        public MapMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, MapChooserBridge mapChooser, VoteService voteService)
         {
             _localizer = localizer;
+            _mapChooser = mapChooser;
+            _voteService = voteService;
             _pluginState = pluginState;
             _serverManager = serverManager;
         }
-        
-        // Define class properties
-        public IMenu? MainMenu;
-        public IMenu? VoteMenu;
 
-        // Define load method  
+        // Define class properties
+        public IMenu? MainMenu; // Admin menu (!maps)
+        public IMenu? VoteMenu; // Player menu (!game, !changemap): no Back or random vote, which are for admins
+
+        // Define load method
+        // Built once per mode: ModeCommands calls this again when the mode changes
         public void Load()
         {
-            _pluginState.Game.Maps.TryGetValue(_pluginState.Game.CurrentMap.Name, out var currentMap);
-            _pluginState.Game.Modes.TryGetValue(_pluginState.Game.CurrentMode.Name, out var currentMode);
+            IMenu? listMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.maps", "admin.change-map"), player => MainMenu?.Open(player));
 
-            if (_config.Maps.Mode == 1)
+            foreach (IMap _map in _pluginState.Game.CurrentMode.Maps)
             {
-                // Create main menu
-                MainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("maps.menu-title"));
-
-                foreach (IMap? _map in _pluginState.Game.Maps.Values)
+                listMenu?.AddMenuOption(_map.DisplayName, (player, option) =>
                 {
-                    MainMenu?.AddMenuOption(_map.DisplayName, (player, option) =>
-                    {
-                        MenuFactory.Api?.CloseMenu(player);
-                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
-                        _serverManager.ChangeMap(_map, _config.Maps.Delay);
-                    });
-                }
-
-                // Create vote menu
-                VoteMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("maps.menu-title"));
-
-                foreach (IMap? _map in _pluginState.Game.Maps.Values)
-                {
-                    VoteMenu?.AddMenuOption(_map.DisplayName, (player, option) =>
-                    {
-                        MenuFactory.Api?.CloseMenu(player);
-                        CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, _map.Name);
-                    });
-                }
+                    MenuFactory.Api?.CloseMenu(player);
+                    ChangeMap(player, _map);
+                });
             }
-            else if (_config.Maps.Mode == 0)
+
+            // GG1's next map: it changes at the end of the match
+            IMenu? nextMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.maps", "admin.next-map"), player => MainMenu?.Open(player));
+            foreach (IMap _map in _pluginState.Game.CurrentMode.Maps)
             {
-                // Create main menu
-                MainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("maps.menu-title"));
-
-                foreach (IMap _map in _pluginState.Game.CurrentMode.Maps)
+                nextMenu?.AddMenuOption(_map.DisplayName, (player, option) =>
                 {
-                    MainMenu?.AddMenuOption(_map.DisplayName, (player, option) =>
-                    {
-                        MenuFactory.Api?.CloseMenu(player);
-                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, _map.Name));
-                        _serverManager.ChangeMap(_map, _config.Maps.Delay);
-                    });
-                }
-
-                // Create vote menu
-                VoteMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("maps.menu-title"));
-
-                foreach (IMap _map in _pluginState.Game.CurrentMode.Maps.ToList())
-                {
-                    VoteMenu?.AddMenuOption(_map.DisplayName, (player, option) =>
-                    {
-                        MenuFactory.Api?.CloseMenu(player);
-                        CustomVoteManager.CustomVotesApi.Get()?.StartCustomVote(player, _map.Name);
-                    });
-                }
+                    MenuFactory.Api?.CloseMenu(player);
+                    SetNextMap(player, _map);
+                });
             }
+
+            VoteMenu = CreateVoteMenu(null, null);
+            IMenu? voteMenu = CreateVoteMenu(player => MainMenu?.Open(player), StartVote);
+
+            MainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.maps"));
+            MainMenu?.AddMenuOption(_localizer.Localize("admin.change-map"), (player, option) => listMenu?.Open(player));
+            MainMenu?.AddMenuOption(_localizer.Localize("admin.next-map"), (player, option) => nextMenu?.Open(player));
+            MainMenu?.AddMenuOption(_localizer.Localize("admin.start-vote"), (player, option) => voteMenu?.Open(player));
+        }
+
+        // A yes/no vote on one map, with a random vote on top for admins
+        private IMenu? CreateVoteMenu(Action<CCSPlayerController>? back, Action<CCSPlayerController>? randomVote)
+        {
+            IMenu? menu = MenuFactory.Api?.GetMenu(back != null ? _localizer.Path("admin.maps", "admin.start-vote") : _localizer.Localize("admin.start-vote"), back);
+            if (randomVote != null)
+            {
+                menu?.AddMenuOption(_localizer.Localize("admin.random-vote"), (player, option) =>
+                {
+                    MenuFactory.Api?.CloseMenu(player);
+                    randomVote(player);
+                });
+            }
+            foreach (IMap _map in _pluginState.Game.CurrentMode.Maps)
+            {
+                menu?.AddMenuOption(_map.DisplayName, (player, option) =>
+                {
+                    MenuFactory.Api?.CloseMenu(player);
+                    StartVote(player, _map);
+                });
+            }
+            return menu;
+        }
+
+        // Define class methods
+        public void ChangeMap(CCSPlayerController player, IMap map)
+        {
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, map.DisplayName));
+            _serverManager.ChangeMapInPool(map);
+        }
+
+        public void StartVote(CCSPlayerController player, IMap map)
+        {
+            if (_pluginState.Game.CurrentMap.Equals(map))
+            {
+                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
+                return;
+            }
+            _voteService.StartYesNo(player, _localizer.Localize("map.vote.menu-title", map.DisplayName), () => _serverManager.ChangeMapInPool(map), map.DisplayName);
+        }
+
+        public void SetNextMap(CCSPlayerController player, IMap map)
+        {
+            if (_pluginState.Game.CurrentMap.Equals(map))
+                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
+            else if (!_mapChooser.SetNextMap(map))
+                player.PrintToChat(_localizer.LocalizeWithPrefix("admin.vote-unavailable"));
+        }
+
+        private bool OnlyOneMap(CCSPlayerController player)
+        {
+            if (_pluginState.Game.CurrentMode.Maps.Count >= 2)
+                return false;
+
+            player.PrintToChat(_localizer.LocalizeWithPrefix("admin.one-map"));
+            return true;
+        }
+
+        // A random vote started by a player follows the vote rules (cooldown, minimum players, warmup)
+        public void StartPlayerVote(CCSPlayerController player)
+        {
+            if (OnlyOneMap(player))
+                return;
+
+            if (_voteService.TryStartExternal(player))
+                StartVote(player);
+        }
+
+        // GG1MapChooser's vote across several maps
+        public void StartVote(CCSPlayerController player)
+        {
+            if (OnlyOneMap(player))
+                return;
+
+            if (!_mapChooser.StartMapVote())
+                player.PrintToChat(_localizer.LocalizeWithPrefix("admin.vote-unavailable"));
         }
     }
 }

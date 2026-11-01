@@ -1,4 +1,5 @@
 // Included libraries
+using GameModeManager.Core;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 
@@ -26,39 +27,24 @@ namespace GameModeManager
         public string Config { get; set; } = "warmup/dm.cfg";
     }
 
-    // Define RTV settings
-    public class RTVSettings
+    // Define map chooser settings
+    public class MapChooserSettings
     {
-        public bool Enabled { get; set; } = true; // Enables RTv
-        public bool PerMap { get; set; } = false; // Enables per map RTV configuration
-        public bool HideHud { get; set; } = false; // Hides vote results hud
-        public int MinRounds { get; set; } = 1; // Minimum number of rounds for RTV
-        public int MinPlayers { get; set; } = 3; // Minimum number of players for RTV
-        public int VoteDuration { get; set; } = 60; // Vote duration in seconds
-        public int OptionsToShow { get; set; } = 6; // Number of options to show in RTV list
-        public int VotePercentage { get; set; } = 51; // Vote percentage
-        public ushort OptionsInCoolDown { get; set; } = 3; // Options in cool down
-        public bool EndOfMapVote { get; set; } = true; // Enables end map vote
-        public bool IncludeModes { get; set; } = true; // Includes modes in RTV list
-        public bool IncludeExtend { get; set; } = false; // Includes extend in RTV list
-        public int MaxExtends { get; set; } = 5; // Sets the max number of map extends
-        public int ExtendTime { get; set; } = 15; // Sets the time interval to extend in minutes
-        public int ExtendRounds { get; set; } = 5; // Sets the number of rounds to extend
-        public int ModePercentage { get; set; } = 40; // Sets percent of modes in RTV list
-        public bool EnabledInWarmup { get; set; } = false; // Enables RTV in warmup
-        public bool HideHudAfterVote { get; set; } = false; // Hides vote results hud after voting
-        public bool NominationEnabled { get; set; } = true; // Enables nomination
-        public int MaxNominationWinners { get; set; } = 1; // Sets max nomination winners per option type
-        public bool ChangeImmediately { get; set; } = false; // Enables change map/mode immediately after winner is selected
-        public int TriggerKillsBeforeEnd { get; set; } = 13; // Kills needed to trigger end of map vote (armsrace/gungame)
-        public int TriggerRoundsBeforeEnd { get; set; } = 2; // Rounds remaining to trigger end of map vote
-        public int TriggerSecondsBeforeEnd { get; set; } = 120; // Seconds remaining to trigger end of map vote
+        public bool GeneratePools { get; set; } = true; // Writes cfg/GGMCmaps.json: one GG1 pool per mode from its map groups
+        public int TriggerSecondsBeforeEnd { get; set; } = 60; // Time-limited modes: start GG1's vote this many seconds before the end
+        public int TriggerKillsBeforeEnd { get; set; } = 13; // Arms race: start GG1's vote when the leader has this many kills
+        public bool ModesInVotes { get; set; } = true; // One random other mode offered in votes and !nominate, reshuffled every map
+    }
+
+    // Define admin panel settings
+    public class AdminPanelSettings
+    {
+        public bool Enabled { get; set; } = true; // Adds a Game Modes section to CS2-SimpleAdmin's menu when it's installed, opening the !modes, !maps, !settings and !warmup menus
     }
 
     // Define map settings
     public class MapSettings
     {
-        public int Mode { get; set; } = 0; // 0 for current mode maps, 1 for all maps
         public int Delay { get; set; } = 5; // Map change delay in seconds
         public string Default { get; set; } = "de_dust2"; // Default map on server start
     }
@@ -66,11 +52,18 @@ namespace GameModeManager
     // Define vote settings
     public class VoteSettings
     {
-        public bool Enabled { get; set; } = false; // Enables CS2-CustomVotes compatibility
-        public bool Maps { get; set; } = false; // Enables vote to change map
+        public bool Enabled { get; set; } = false; // Enables player votes (!changemode, !changesetting)
         public bool GameModes { get; set; } = false; // Enables vote to change game mode
         public bool GameSettings { get; set; } = false; // Enables vote to change game setting
-        public bool UsePanorama { get; set; } = false; // Enables Panorama Vote Menu for votes
+        public string Style { get; set; } = "menu"; // "menu" = PanoramaMenu Yes/No menu, "native" = the game's F1/F2 vote panel
+        public int Percentage { get; set; } = 51; // Percent of eligible players that must vote yes
+        public int Duration { get; set; } = 30; // Vote duration in seconds
+        public int MinPlayers { get; set; } = 1; // Minimum eligible players to start a vote
+        public int Cooldown { get; set; } = 60; // Seconds before the same player can start another vote
+        public bool AllowSpectators { get; set; } = false; // Spectators can vote (and count towards the percentage)
+        public bool AllowInWarmup { get; set; } = false; // Allows votes during warmup
+        public string NativeTitleToken { get; set; } = ""; // Native panel title from platform_english.txt on the server and every player's PC. Empty = the game's "Change current level to X?"
+        public bool UsePanorama { get; set; } = false; // Deprecated (CS2-CustomVotes): true = Style "native"
     }
 
     // Define game settings
@@ -83,18 +76,16 @@ namespace GameModeManager
     // Define command settings
     public class CommandSettings
     {
-        public bool Map { get; set; } = true; // Enables or disables !map admin command
-        public bool Maps { get; set; } = true; // Enables or disables !maps admin command 
+        public bool Maps { get; set; } = true; // Enables or disables !maps admin command
         public bool Mode { get; set; } = true; // Enables or disables !mode admin command
         public bool Modes { get; set; } = true; // Enables or disables !modes admin command 
-        public bool TimeLeft { get; set; } = true; // Enables or disables !timeleft admin command
         public bool TimeLimit { get; set; } = true; // Enables or disables !timelimit admin command
     }
 
     public class WarmupSettings
     {
         public bool Enabled { get; set; } = true; // Enables or disables warmup
-        public float Time { get; set; } = 60; // Default warmup time
+        public float Time { get; set; } = 60; // Warmup length in seconds. 0 = whatever mp_warmuptime is
         public bool PerMap { get; set; } = false; // Enables or disables per map warmup
         public WarmupModeEntry Default { get; set; } = new WarmupModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg" }; // Default warmup mode
         public List<WarmupModeEntry> List { get; set; } = new List<WarmupModeEntry>()
@@ -107,8 +98,6 @@ namespace GameModeManager
     public class RotationSettings
     {
         public bool Enabled { get; set; } = true; // Enables game rotations
-        public int Cycle { get; set; } = 0; // 0 for current mode maps, 1 for all maps, 2 for specific map groups
-        public List<string> MapGroups { get; set; } = new List<string>() { "mg_active", "mg_comp" }; // Map group list for cycle 2
         public bool WhenServerEmpty { get; set; } = false; // Enables rotation on server empty. 
         public int CustomTimeLimit { get; set; } = 600; // Sets custom time limit in seconds for rotation when server empty
         public bool ModeRotation { get; set; } = false; // Enables game mode rotations
@@ -165,10 +154,12 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-        public int Version { get; set; } = 12;
-        public RTVSettings RTV { get; set; } = new();
+        public int Version { get; set; } = 13;
+        public string WorkshopAddon { get; set; } = "3831211166"; // Workshop IDs (comma separated) of the addons with the menus' panorama files, added to MultiAddonManager's list. Empty = you load them yourself
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
+        public MapChooserSettings MapChooser { get; set; } = new();
+        public AdminPanelSettings AdminPanel { get; set; } = new();
         public GameSettings Settings { get; set; } = new();
         public WarmupSettings Warmup { get; set; } = new();
         public CommandSettings Commands { get; set; } = new();
@@ -189,11 +180,6 @@ namespace GameModeManager
             {
                 Logger.LogError("Invalid: Default map must not be empty.");
                 throw new Exception("Invalid: Default map must not be empty.");
-            }
-            if (_config.Maps.Mode != 0 && _config.Maps.Mode != 1)
-            {
-                Logger.LogError("Invalid: Maps Mode must be 0 or 1.");
-                throw new Exception("Invalid: Maps Mode must be 0 or 1.");
             }
             if (_config.Maps.Delay < 0)
             {
@@ -232,12 +218,6 @@ namespace GameModeManager
             }
 
             // Rotation settings
-            if (_config.Rotation.Cycle != 0 && _config.Rotation.Cycle != 1 && _config.Rotation.Cycle != 2)
-            {
-                Logger.LogError("Invalid: Rotation cycle must be 0, 1, or 2.");
-                throw new Exception("Invalid: Rotation cycle must be 0, 1, or 2.");
-            }
-
             if (_config.Rotation.ModeSchedules == true)
             {
                 if (_config.Rotation.Schedule.Count <= 0)
@@ -257,70 +237,38 @@ namespace GameModeManager
                 throw new Exception("Invalid: Rotation ModeInterval must be greater than 0.");
             }
 
-            // RTV Settings
-            if (_config.RTV.MinRounds < 0) {
-                Logger.LogError("Invalid: MinRounds cannot be negative.");
-                throw new Exception("Invalid: MinRounds cannot be negative.");
+            // Map chooser settings
+            if (_config.MapChooser.TriggerSecondsBeforeEnd < 0 || _config.MapChooser.TriggerKillsBeforeEnd < 0)
+            {
+                Logger.LogError("Invalid: MapChooser values cannot be negative.");
+                throw new Exception("Invalid: MapChooser values cannot be negative.");
             }
 
-            if (_config.RTV.MinPlayers < 0) {
-                Logger.LogError("Invalid: MinPlayers cannot be negative.");
-                throw new Exception("Invalid: MinPlayers cannot be negative.");
+            // Vote settings
+            if (_config.Votes.UsePanorama && _config.Votes.Style.Equals("menu", StringComparison.OrdinalIgnoreCase))
+            {
+                _config.Votes.Style = "native";
             }
-
-            if (_config.RTV.VoteDuration <= 0) {
-                Logger.LogError("Invalid: VoteDuration must be greater than 0.");
-                throw new Exception("Invalid: VoteDuration must be greater than 0.");
+            if (!_config.Votes.Style.Equals("menu", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("native", StringComparison.OrdinalIgnoreCase))
+            {
+                // 1.0.x configs say "center" or "chat" here, and shouldn't stop the plugin loading
+                Logger.LogWarning("Votes Style \"{Style}\" isn't available: using \"menu\". Use \"menu\" or \"native\".", _config.Votes.Style);
+                _config.Votes.Style = "menu";
             }
-
-            if (_config.RTV.OptionsToShow <= 0) {
-                Logger.LogError("Invalid: OptionsToShow must be greater than 0.");
-                throw new Exception("Invalid: OptionsToShow must be greater than 0.");
+            if (_config.Votes.Percentage <= 0 || _config.Votes.Percentage > 100)
+            {
+                Logger.LogError("Invalid: Votes Percentage must be between 1 and 100.");
+                throw new Exception("Invalid: Votes Percentage must be between 1 and 100.");
             }
-
-            if (_config.RTV.VotePercentage <= 0 || _config.RTV.VotePercentage > 100) {
-                Logger.LogError("Invalid: VotePercentage must be between 1 and 100.");
-                throw new Exception("Invalid: VotePercentage must be between 1 and 100.");
+            if (_config.Votes.Duration <= 0)
+            {
+                Logger.LogError("Invalid: Votes Duration must be greater than 0.");
+                throw new Exception("Invalid: Votes Duration must be greater than 0.");
             }
-
-            if (_config.RTV.OptionsInCoolDown < 0) {
-                Logger.LogError("Invalid: OptionsInCoolDown cannot be negative.");
-                throw new Exception("Invalid: OptionsInCoolDown cannot be negative.");
-            }
-
-            if (_config.RTV.MaxExtends < 0) {
-                Logger.LogError("Invalid: MaxExtends cannot be negative.");
-                throw new Exception("Invalid: MaxExtends cannot be negative.");
-            }
-
-            if (_config.RTV.ExtendTime <= 0) {
-                Logger.LogError("Invalid: ExtendTime must be greater than 0.");
-                throw new Exception("Invalid: ExtendTime must be greater than 0.");
-            }
-
-            if (_config.RTV.ExtendRounds < 0) {
-                Logger.LogError("Invalid: ExtendRounds cannot be negative.");
-                throw new Exception("Invalid: ExtendRounds cannot be negative.");
-            }
-
-            if (_config.RTV.ModePercentage <= 0 || _config.RTV.ModePercentage > 100) {
-                Logger.LogError("Invalid: ModePercentage must be between 1 and 100.");
-                throw new Exception("Invalid: ModePercentage must be between 1 and 100.");
-            }
-
-            if (_config.RTV.MaxNominationWinners < 0) {
-                Logger.LogError("Invalid: MaxNominationWinners cannot be negative.");
-                throw new Exception("Invalid: MaxNominationWinners cannot be negative.");
-            }
-
-            if (_config.RTV.TriggerRoundsBeforeEnd < 0) {
-                Logger.LogError("Invalid: TriggerRoundsBeforeEnd cannot be negative.");
-                throw new Exception("Invalid: TriggerRoundsBeforeEnd cannot be negative.");
-            }
-
-            if (_config.RTV.TriggerSecondsBeforeEnd < 0) {
-                Logger.LogError("Invalid: TriggerSecondsBeforeEnd cannot be negative.");
-                throw new Exception("Invalid: TriggerSecondsBeforeEnd cannot be negative.");
+            if (_config.Votes.MinPlayers < 0 || _config.Votes.Cooldown < 0)
+            {
+                Logger.LogError("Invalid: Votes MinPlayers and Cooldown cannot be negative.");
+                throw new Exception("Invalid: Votes MinPlayers and Cooldown cannot be negative.");
             }
 
             // Warmup settings

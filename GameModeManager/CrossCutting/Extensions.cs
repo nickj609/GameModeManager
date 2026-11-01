@@ -13,17 +13,32 @@ namespace GameModeManager.CrossCutting
     // Define player extensions
     public static class PlayerExtensions
     {
+        // A player without a living pawn (dead, spectating, still joining) is skipped, not an error that stops the loop
         public static void FreezePlayers()
 		{
-            foreach (var player in ValidPlayers(true))
-			    player.Pawn.Value!.Freeze();
+            foreach (var pawn in LivingPawns())
+            {
+                if (pawn.MoveType != MoveType_t.MOVETYPE_OBSOLETE)
+                    pawn.Freeze();
+            }
 		}
 
         public static void UnfreezePlayers()
 		{
-            foreach (var player in ValidPlayers(true))
-                player.Pawn.Value!.Unfreeze();
+            foreach (var pawn in LivingPawns())
+            {
+                if (pawn.MoveType == MoveType_t.MOVETYPE_OBSOLETE)
+                    pawn.Unfreeze();
+            }
 		}
+
+        private static IEnumerable<CBasePlayerPawn> LivingPawns()
+        {
+            return ValidPlayers(true)
+                .Select(player => player.Pawn.Value)
+                .Where(pawn => pawn != null && pawn.IsValid && pawn.LifeState == (byte)LifeState_t.LIFE_ALIVE)
+                .Select(pawn => pawn!);
+        }
 
         public static void PrintCenterTextAll(string text)
         {
@@ -71,7 +86,7 @@ namespace GameModeManager.CrossCutting
 
         public static bool ReallyValid(this CCSPlayerController? player, bool considerBots = false)
         {
-            return player is not null && player.IsValid && player.Connected == PlayerConnectedState.PlayerConnected &&
+            return player is not null && player.IsValid && player.Connected == PlayerConnectedState.Connected &&
                 (considerBots || (!player.IsBot && !player.IsHLTV));
         }
 
