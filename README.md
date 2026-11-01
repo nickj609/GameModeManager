@@ -75,7 +75,7 @@ Admins can start a random vote or a yes/no vote from **Start vote** in `!maps`, 
 GG1MapChooser is **required** since 2.0.0: it picks the maps, and GameModeManager picks the mode and decides when the map changes. GameModeManager 1.0.x had its own RTV and map menus, so stay on 1.0.x if you need those.
 
 - **Map lists:** GameModeManager builds one map list per mode from your map groups in `cfg/GGMCmaps.tuning.json`. Change `weight`, `minplayers` and `maxplayers` there and your changes are kept. GG1's own pool vote can't be used with this.
-- **Settings:** `MapChooser.Rtv` turns `!rtv` off, and end-of-map votes and rotations keep working. For one mode, add `css_mapvote_rtv false` to its `<mode>_settings.cfg`. In `GameModes.List`, a mode's `InVotes: false` keeps it out of votes, `!nominate`, `!changemode` and random picks, and `InRotation: false` keeps it out of mode rotation. Admins and schedules can still choose it. `MapChooser.ModesInVotes` turns modes in votes off. `MapChooser.TriggerSecondsBeforeEnd` (default 60) and `TriggerKillsBeforeEnd` (default 13) set when the end-of-map vote starts on time-limited matches and arms race.
+- **Settings:** `MapChooser.Rtv` turns `!rtv` and `!nominate` off, and end-of-map votes and rotations keep working. For one mode, add `css_mapvote_rtv false` to its `<mode>_settings.cfg`. In `GameModes.List`, a mode's `InVotes: false` keeps it out of votes, `!nominate`, `!changemode` and random picks, and `InRotation: false` keeps it out of mode rotation. Admins and schedules can still choose it. `MapChooser.ModesInVotes` turns modes in votes off. `MapChooser.TriggerSecondsBeforeEnd` (default 60) and `TriggerKillsBeforeEnd` (default 13) set when the end-of-map vote starts on time-limited matches and arms race.
 - **Map changes:** at the end of a match, GameModeManager changes to the winning map, or a random one if nobody voted, after a short countdown. With `Rotation.Enabled: false` it leaves the map alone. If nobody votes, the random pick can also land on the mode in the vote.
 - **Keep these GG1 settings:** the included config turns off `ChangeMapAfterWinDraw`, `ChangeMapAfterTimeLimit`, `RandomMapOnStart` and `LastDisconnectedChangeMap` so only GameModeManager changes the map, and uses the `wasd` menus the bridge needs.
 - **GG1 updates:** GG1 isn't modified. A few features read its internals and log a warning or do nothing if an update changes them.
@@ -90,7 +90,7 @@ If you use [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin), its a
 | Manage game | Rotation |
 | :-: | :-: |
 | ![Manage game section of the admin menu](docs/images/admin.png) | ![Rotation page of the admin menu](docs/images/admin-rotation.png) |
-| Change or vote on maps and modes, turn settings on and off, and control warmup. | Turn map rotation, mode rotation and Rock the Vote on or off, and choose how often modes change. These changes last until the server restarts. |
+| Change or vote on maps and modes, turn settings on and off, and control warmup. | Turn map rotation, mode rotation, and RTV and nominate on or off, and choose how often modes change. These changes last until the server restarts. |
 
 - **Polls:** with SimpleAdmin, `!vote` asks players a question. One or two words make a yes/no vote, and with more, the first is the question and the rest are its answers: `!vote "Best map?" Mirage Inferno Nuke`.
 - **To get the red panel shown here:** install the optional [PMM_SimpleAdmin](https://github.com/RRimmer/PMM_SimpleAdmin) plugin, which isn't in the zip, then restart the server fully. Its menu files are already in GameModeManager's Workshop addon, so players don't need anything extra. Without it, the same items appear in SimpleAdmin's normal menus.
@@ -130,7 +130,7 @@ Their licenses are in their folders, and the links above have their source. Thei
 | `css_timelimit <true\|false> <seconds>` | Enables or disables a time limit for the map. Optionally, you can specify the time limit in seconds.     |
 | `css_mapvote_auto <true\|false>` | Turns the automatic end-of-map vote on or off for the current mode (for mode cfgs).                      |
 | `css_mapvote_extend <true\|false>` | Offers "extend map" in map votes or not for the current mode (for mode cfgs).                            |
-| `css_mapvote_rtv <true\|false>` | Turns `!rtv` on or off for the current mode. Put it in the mode's `<mode>_settings.cfg`. A new mode starts with it on. |
+| `css_mapvote_rtv <true\|false>` | Turns `!rtv` and `!nominate` on or off for the current mode. Put it in the mode's `<mode>_settings.cfg`. A new mode starts with it on. |
 | `css_gmm_status` | Shows what GameModeManager found on the server: plugins, map list, Workshop addon and settings. Include it in bug reports. |
 
 </details>

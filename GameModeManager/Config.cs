@@ -35,7 +35,7 @@ namespace GameModeManager
         public bool GeneratePools { get; set; } = true; // Writes cfg/GGMCmaps.json: one GG1 pool per mode from its map groups
         public int TriggerSecondsBeforeEnd { get; set; } = 60; // Time-limited modes: start GG1's vote this many seconds before the end
         public int TriggerKillsBeforeEnd { get; set; } = 13; // Arms race: start GG1's vote when the leader has this many kills
-        public bool Rtv { get; set; } = true; // Lets players use !rtv. Off doesn't affect end-of-map votes or rotations
+        public bool Rtv { get; set; } = true; // Lets players use !rtv and !nominate. Off doesn't affect end-of-map votes or rotations
         public bool ModesInVotes { get; set; } = true; // One random other mode offered in votes and !nominate, reshuffled every map
     }
 

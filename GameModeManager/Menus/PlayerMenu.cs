@@ -53,7 +53,7 @@ namespace GameModeManager.Menus
 
             foreach (var (command, (label, consoleCommand)) in MapChooserCommands)
             {
-                if (command == "!rtv" && !(_config.MapChooser.Rtv && _pluginState.Game.RtvInMode))
+                if (command is "!rtv" or "!nominate" && !_pluginState.Game.RtvEnabled(_config))
                     continue;
 
                 MainMenu?.AddMenuOption(_localizer.Localize(label), (player, option) =>

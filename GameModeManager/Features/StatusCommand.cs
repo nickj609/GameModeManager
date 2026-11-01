@@ -70,7 +70,7 @@ namespace GameModeManager.Features
                 $"PMM_GG1MapChooser: {PluginStatus(FindAssembly("PMM_GG1MapChooser"), ReflectedMembers.PMM_GG1MapChooser, "MISSING, votes won't use panorama")}",
                 $"Workshop addon: {AddonStatus()}",
                 $"CS2-SimpleAdmin section: {(!_config.AdminPanel.Enabled ? "turned off" : _adminPanel.Active ? "added" : "not added, CS2-SimpleAdmin isn't installed")}",
-                $"RTV: {OnOff(_config.MapChooser.Rtv)}, in this mode: {OnOff(_pluginState.Game.RtvInMode)}, modes in votes: {OnOff(_config.MapChooser.ModesInVotes)}, player votes: {OnOff(_config.Votes.Enabled)} ({_config.Votes.Style})",
+                $"RTV and nominate: {OnOff(_config.MapChooser.Rtv)}, in this mode: {OnOff(_pluginState.Game.RtvInMode)}, modes in votes: {OnOff(_config.MapChooser.ModesInVotes)}, player votes: {OnOff(_config.Votes.Enabled)} ({_config.Votes.Style})",
                 $"Rotation: maps {OnOff(_pluginState.Game.RotationsEnabled)}, modes {OnOff(rotation.ModeRotation)}, schedules {OnOff(rotation.ModeSchedules)}, when empty {OnOff(rotation.WhenServerEmpty)}"
             };
         }

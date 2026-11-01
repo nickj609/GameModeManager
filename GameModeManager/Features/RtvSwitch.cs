@@ -9,8 +9,8 @@ using CounterStrikeSharp.API.Modules.Commands;
 namespace GameModeManager.Features
 {
     // Define class
-    // !rtv answers that it's off when MapChooser.Rtv is off, or the mode's cfg runs css_mapvote_rtv false. GG1 has no setting for
-    // this, and it turns RTV back on after its own ggmc_nortv, so the command is stopped here. Votes at the end of the map and
+    // !rtv and !nominate answer that they're off when MapChooser.Rtv is off, or the mode's cfg runs css_mapvote_rtv false. GG1 has no
+    // setting for this, and it turns RTV back on after its own ggmc_nortv, so the commands are stopped here. Votes at the end of the map and
     // rotations aren't affected. Both can change while the server runs, so they're read on each command.
     public class RtvSwitch : IPluginDependency<Plugin, Config>
     {
@@ -42,6 +42,9 @@ namespace GameModeManager.Features
             plugin.AddCommandListener("say_team", OnChat, HookMode.Pre);
             plugin.AddCommandListener("rtv", OnCommand, HookMode.Pre);
             plugin.AddCommandListener("css_rtv", OnCommand, HookMode.Pre);
+            plugin.AddCommandListener("nominate", OnNominate, HookMode.Pre);
+            plugin.AddCommandListener("css_nominate", OnNominate, HookMode.Pre);
+            plugin.AddCommandListener("yd", OnNominate, HookMode.Pre);
         }
 
         // Define class methods
@@ -71,15 +74,32 @@ namespace GameModeManager.Features
         private HookResult OnChat(CCSPlayerController? player, CommandInfo command)
         {
             string text = command.GetArg(1).Trim().TrimStart('!', '/');
-            return text.Equals("rtv", StringComparison.OrdinalIgnoreCase) ? OnCommand(player, command) : HookResult.Continue;
+            if (text.Equals("rtv", StringComparison.OrdinalIgnoreCase))
+                return OnCommand(player, command);
+
+            // GG1 opens nominate for any chat line starting with these
+            if (text.StartsWith("nominate", StringComparison.OrdinalIgnoreCase) || text.StartsWith("yd", StringComparison.OrdinalIgnoreCase))
+                return OnNominate(player, command);
+
+            return HookResult.Continue;
         }
 
         private HookResult OnCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if ((_config.MapChooser.Rtv && _pluginState.Game.RtvInMode) || player == null || !player.IsValid)
+            return Refuse(player, "rtv.disabled");
+        }
+
+        private HookResult OnNominate(CCSPlayerController? player, CommandInfo command)
+        {
+            return Refuse(player, "nominate.disabled");
+        }
+
+        private HookResult Refuse(CCSPlayerController? player, string message)
+        {
+            if (_pluginState.Game.RtvEnabled(_config) || player == null || !player.IsValid)
                 return HookResult.Continue;
 
-            player.PrintToChat(_localizer.LocalizeWithPrefix("rtv.disabled"));
+            player.PrintToChat(_localizer.LocalizeWithPrefix(message));
             return HookResult.Handled;
         }
     }

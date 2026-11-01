@@ -52,6 +52,7 @@ namespace GameModeManager
             public IMap CurrentMap = DefaultMap;
             public bool RotationsEnabled = true;
             public bool RtvInMode = true;
+            public bool RtvEnabled(Config config) => config.MapChooser.Rtv && RtvInMode;
             public bool WarmupScheduled = false;
             public bool CountdownRunning = false;
             public IMode CurrentMode = DefaultMode;

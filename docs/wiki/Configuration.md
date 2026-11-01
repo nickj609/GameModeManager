@@ -422,7 +422,7 @@ These settings control how GameModeManager works with [GG1MapChooser](https://gi
 | GeneratePools       | Writes `cfg/GGMCmaps.json`: one GG1MapChooser map pool per mode from its map groups.                                                      |
 | TriggerSecondsBeforeEnd | Time-limited modes: starts the end-of-map vote this many seconds before the end.                                                      |
 | TriggerKillsBeforeEnd | Arms race: starts the end-of-map vote when the leader has this many kills.                                                              |
-| Rtv                 | Lets players use `!rtv`. Added in 2.1.0. Off doesn't affect end-of-map votes or rotations.                                                |
+| Rtv                 | Lets players use `!rtv` and `!nominate`. Added in 2.1.0. Off doesn't affect end-of-map votes or rotations.                               |
 | ModesInVotes        | Offers one random other mode in votes and `!nominate`, reshuffled every map.                                                              |
 
 # Vote Settings
