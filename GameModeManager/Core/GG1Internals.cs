@@ -264,6 +264,38 @@ namespace GameModeManager.Core
             mapChooser.RemoveCommand("css_maps", command.CreateDelegate<CommandInfo.CommandCallback>(mapChooser));
         }
 
+        // A player's game keeps showing a panel through a reconnect, but the bridge forgets them when they leave and never hides
+        // it. Skipped when the bridge isn't installed.
+        public void HideVotePanels(CCSPlayerController player)
+        {
+            var plugin = AppDomain.CurrentDomain.GetAssemblies().LastOrDefault(a => a.GetName().Name == "PMM_GG1MapChooser")?
+                .GetType("PMM_GG1MapChooser.Plugin")?.GetField("Instance", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(null);
+            if (plugin == null)
+                return;
+
+            var type = plugin.GetType();
+            var forget = type.GetMethod("HudForgetSlot", AnyInstance);
+            var hideVote = type.GetMethod("HideVoteFor", AnyInstance);
+            var setClass = type.GetMethod("PClass", AnyInstance);
+            if (forget == null || hideVote == null || setClass == null)
+            {
+                _logger.LogWarning("PMM_GG1MapChooser has no HudForgetSlot, HideVoteFor or PClass (version change?): a vote panel can stay on screen after a reconnect");
+                return;
+            }
+
+            // The bridge forgot this player when they left, so a player in its vote list has been added since: that panel is real
+            var vote = type.GetField("_vote", AnyInstance)?.GetValue(plugin);
+            var viewers = vote?.GetType().GetField("Viewers", AnyInstance)?.GetValue(vote) ?? vote?.GetType().GetProperty("Viewers", AnyInstance)?.GetValue(vote);
+            if (viewers is IEnumerable<int> slots && slots.Contains(player.Slot))
+                return;
+
+            // Without this, the bridge skips what it believes it has already sent
+            forget.Invoke(plugin, new object[] { player.Slot });
+            hideVote.Invoke(plugin, new object[] { player });
+            foreach (string panel in new[] { "nm-root", "st-root" })
+                setClass.Invoke(plugin, new object[] { player, panel, "mv-hidden", true });
+        }
+
         // Gives these modes the MODE badge on the vote panel, in the running PMM_GG1MapChooser. Entries set by hand in its config
         // (a picture, another title) are kept. Skipped when the bridge isn't installed.
         public void AddModeBadges(IEnumerable<IMode> modes)

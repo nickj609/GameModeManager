@@ -62,6 +62,7 @@ namespace GameModeManager.Features
 
             plugin.AddCommandListener("host_workshop_map", OnWorkshopMapCommand, HookMode.Pre);
             plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
+            plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
             plugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
         }
 
@@ -120,6 +121,22 @@ namespace GameModeManager.Features
 
             Server.NextFrame(() => _serverManager.ChangeMode(mode, 0));
             return HookResult.Handled;
+        }
+
+        // Clears a vote panel left on screen by a reconnect: straight away, and again in case the player's game wasn't ready yet
+        private HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
+        {
+            var player = @event.Userid;
+            if (player == null || !player.IsValid || player.IsBot)
+                return HookResult.Continue;
+
+            _mapChooser.HideVotePanels(player);
+            _plugin?.AddTimer(2.0f, () =>
+            {
+                if (player.IsValid)
+                    _mapChooser.HideVotePanels(player);
+            }, TimerFlags.STOP_ON_MAPCHANGE);
+            return HookResult.Continue;
         }
 
         private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)

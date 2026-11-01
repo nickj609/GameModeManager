@@ -7,7 +7,7 @@
   "vote.hint_digits": "Keys 1 – {0} — vote, 0 — mode",
   "vote.hint_chat": "Type !1 – !{0} in chat",
   "vote.voted": "{0} / {1} votes",
-  "vote.your_vote": "YOUR VOTE",
+  "vote.your_vote": "YOU",
   "vote.time": "{0}s",
   "vote.next_map": "NEXT",
   "vote.extended": "MAP EXTENDED",

@@ -352,6 +352,11 @@ namespace GameModeManager.Core
             Server.ExecuteCommand("ggmc_change_nextmap");
         }
 
+        public void HideVotePanels(CCSPlayerController player)
+        {
+            _gg1.HideVotePanels(player);
+        }
+
         public bool? MapChanging()
         {
             return _gg1.MapChanging();

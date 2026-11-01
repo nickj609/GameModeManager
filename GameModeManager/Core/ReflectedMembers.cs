@@ -22,7 +22,7 @@ namespace GameModeManager.Core
 
         public static readonly string[] PMM_GG1MapChooser =
         {
-            "Instance", "Maps", "Title", "Badge"
+            "Instance", "Maps", "Title", "Badge", "HideVoteFor", "PClass", "HudForgetSlot", "_vote", "Viewers"
         };
 
         // Define class methods

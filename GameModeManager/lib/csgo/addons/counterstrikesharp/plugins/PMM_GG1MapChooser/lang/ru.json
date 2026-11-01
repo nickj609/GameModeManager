@@ -7,7 +7,7 @@
   "vote.hint_digits": "Цифры 1 – {0} — голос, 0 — режим",
   "vote.hint_chat": "Пиши !1 – !{0} в чат",
   "vote.voted": "{0} / {1} голосов",
-  "vote.your_vote": "ТВОЙ ГОЛОС",
+  "vote.your_vote": "ТЫ",
   "vote.time": "{0}с",
   "vote.next_map": "ДАЛЕЕ",
   "vote.extended": "КАРТА ПРОДЛЕНА",
