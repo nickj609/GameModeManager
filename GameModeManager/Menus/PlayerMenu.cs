@@ -1,5 +1,7 @@
 // Included libraries
 using GameModeManager.Contracts;
+using GameModeManager.Features;
+using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Menu;
 
@@ -11,6 +13,7 @@ namespace GameModeManager.Menus
     {
         // Define class dependencies
         private MapMenus _mapMenus;
+        private NominateChooser _nominateChooser;
         private ModeMenus _modeMenus;
         private Config _config = new();
         private PluginState _pluginState;
@@ -18,8 +21,9 @@ namespace GameModeManager.Menus
         private StringLocalizer _localizer;
 
         // Define class constructor
-        public PlayerMenu(PluginState pluginState, StringLocalizer localizer, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus)
+        public PlayerMenu(NominateChooser nominateChooser, PluginState pluginState, StringLocalizer localizer, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus)
         {
+            _nominateChooser = nominateChooser;
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
             _localizer = localizer;
@@ -59,6 +63,11 @@ namespace GameModeManager.Menus
                 MainMenu?.AddMenuOption(_localizer.Localize(label), (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
+
+                    // Run from here, GG1's command opens its own window next to the chooser
+                    if (command == "!nominate" && _nominateChooser.Open(player) == HookResult.Handled)
+                        return;
+
                     player.ExecuteClientCommandFromServer(consoleCommand);
                 });
             }

@@ -99,7 +99,7 @@ namespace GameModeManager.Features
             return player != null && player.IsValid && _config.MapChooser.ModesInVotes && _mapChooser.Available && _pluginState.Game.RtvEnabled(_config);
         }
 
-        private HookResult Open(CCSPlayerController? player)
+        public HookResult Open(CCSPlayerController? player)
         {
             if (!Usable(player))
                 return HookResult.Continue;
