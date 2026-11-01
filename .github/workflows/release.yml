@@ -98,7 +98,7 @@ jobs:
 
   publish:
     needs: build
-    if: needs.build.outputs.publish == 'true'
+    if: needs.build.outputs.publish == 'true' && github.ref == 'refs/heads/main'
     runs-on: windows-latest
     permissions:
       contents: write
@@ -161,7 +161,7 @@ jobs:
       # The temporary key lasts an hour, so it's requested right before the push
       - name: NuGet login
         id: login
-        uses: NuGet/login@v1
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
         with:
           user: nickj609
 

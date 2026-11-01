@@ -30,6 +30,7 @@ namespace GameModeManager.Core
         }
 
         // Define class properties
+        private Plugin? _plugin;
         private Timer? timer;
         private ConVar? timeLimit; 
         private decimal StandardTimeLimitValue => (decimal)(timeLimit?.GetPrimitiveValue<float>() ?? 0F) * 60M;
@@ -93,6 +94,8 @@ namespace GameModeManager.Core
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
+            _plugin = plugin;
+
             if (_config.Commands.TimeLimit)
             {
                 LoadCvar();
@@ -137,7 +140,6 @@ namespace GameModeManager.Core
             
             _pluginState.TimeLimit.CustomLimit = false;
             _pluginState.TimeLimit.Enabled = false;
-            _pluginState.TimeLimit.Scheduled = false;
             _pluginState.TimeLimit.Duration = 0f;
             _pluginState.TimeLimit.CustomStartTime = 0f;
             _logger.LogDebug("Time limit timer disabled and state reset.");
@@ -153,7 +155,7 @@ namespace GameModeManager.Core
             if (remaining > 1)
             {
                 _logger.LogInformation($"Time limit extended: {remaining:0}s left.");
-                timer = new Timer((float)remaining, OnTimeLimitReached);
+                timer = _plugin?.AddTimer((float)remaining, OnTimeLimitReached);
                 return;
             }
 
@@ -175,9 +177,8 @@ namespace GameModeManager.Core
                 {
                     _pluginState.TimeLimit.CustomLimit = false; 
                     _pluginState.TimeLimit.Enabled = true;
-                    _pluginState.TimeLimit.Scheduled = false; 
                     
-                    timer = new Timer((float)remaining, OnTimeLimitReached);
+                    timer = _plugin?.AddTimer((float)remaining, OnTimeLimitReached);
                     _logger.LogDebug($"Standard timer enabled. Remaining: {remaining}s");
                 } 
                 else 
@@ -203,7 +204,6 @@ namespace GameModeManager.Core
 
             _pluginState.TimeLimit.CustomLimit = true; 
             _pluginState.TimeLimit.Enabled = true; 
-            _pluginState.TimeLimit.Scheduled = false; 
             _pluginState.TimeLimit.Duration = customDurationSeconds; 
             _pluginState.TimeLimit.CustomStartTime = Server.CurrentTime; 
 
@@ -214,33 +214,14 @@ namespace GameModeManager.Core
 
             _logger.LogDebug($"Starting custom timer for {customDurationSeconds} seconds.");
 
-            timer = new Timer(customDurationSeconds, OnTimeLimitReached);
+            timer = _plugin?.AddTimer(customDurationSeconds, OnTimeLimitReached);
         }
 
         // Define event handlers
         public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
         {
-            _logger.LogDebug("EventRoundAnnounceMatchStart triggered."); 
-            if (_pluginState.TimeLimit.Scheduled)
-            {
-                _logger.LogDebug($"TimeLimitScheduled is true. Custom: {_pluginState.TimeLimit.CustomLimit}");
-
-                if (_pluginState.TimeLimit.CustomLimit)
-                {
-                    _logger.LogDebug($"Enabling scheduled custom time limit: {_pluginState.TimeLimit.Duration}s");
-                    EnableTimeLimit(_pluginState.TimeLimit.Duration); 
-                }
-                else
-                {
-                    _logger.LogDebug("Enabling scheduled standard time limit.");
-                    EnableTimeLimit();
-                }
-                _pluginState.TimeLimit.Scheduled = false;
-            }
-            else
-            {
-                DisableTimeLimit();
-            }
+            _logger.LogDebug("EventRoundAnnounceMatchStart triggered.");
+            DisableTimeLimit();
             return HookResult.Continue;
         }
 

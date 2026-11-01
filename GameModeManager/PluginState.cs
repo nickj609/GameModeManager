@@ -75,7 +75,6 @@ namespace GameModeManager
             // Define class properties
             public bool Enabled = false;
             public float Duration = 120;
-            public bool Scheduled = false;
             public bool CustomLimit = false;
             public float CustomStartTime = 0f;
         }   

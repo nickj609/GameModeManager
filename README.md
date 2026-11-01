@@ -99,7 +99,7 @@ If you use [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin), its a
 ## Requirements
 You need these on your server already, on Windows or Linux:
 - [Metamod:Source](https://github.com/alliedmodders/metamod-source/) 2.0
-- [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) **v1.0.369+** (the with-runtime build; GameModeManager 2.0.0+ targets .NET 10, so use 1.0.x on older servers)
+- [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) **v1.0.378+** (the with-runtime build; GameModeManager 2.0.0+ targets .NET 10, so use 1.0.x on older servers)
 - [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager), installed and turned on. It sends players the Workshop addon that menus need. GameModeManager adds that addon to its list by itself, and your other addons and its config stay as they are. To use your own addon instead, put its Workshop ID in `WorkshopAddon` in `GameModeManager.json` (comma-separated for several), or leave it empty to stop GameModeManager adding any. Only load one addon with these menu files: two would both replace the same files, so you can't be sure which styling players get.
 
 Everything else is **in the release zip**, so copying it to `/csgo/` and restarting the server fully is enough:

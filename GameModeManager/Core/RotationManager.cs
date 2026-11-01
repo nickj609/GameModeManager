@@ -13,6 +13,7 @@ namespace GameModeManager.Core
     public class RotationManager : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
+        private Plugin? _plugin;
         private Timer? _rotationTimer;
         private PluginState _pluginState;
         private ServerManager _serverManager;
@@ -35,6 +36,8 @@ namespace GameModeManager.Core
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         { 
+            _plugin = plugin;
+
             // Register event handlers
             plugin.RegisterEventHandler<EventCsWinPanelMatch>(EventCsWinPanelMatchHandler);
             plugin.RegisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnectHandler);
@@ -56,7 +59,7 @@ namespace GameModeManager.Core
             if (delay.TotalMilliseconds <= 0)
                 delay = delay.Add(TimeSpan.FromDays(1));
 
-            new Timer((float)delay.TotalSeconds, () =>
+            _plugin?.AddTimer((float)delay.TotalSeconds, () =>
             {
                 _serverManager.TriggerScheduleChange(entry);
                 StartSchedule(entry);
@@ -92,7 +95,7 @@ namespace GameModeManager.Core
                         Server.ExecuteCommand("sv_hibernate_when_empty false");
 
                     // Create timer
-                    _rotationTimer ??= new Timer(_config.Rotation.CustomTimeLimit, _serverManager.TriggerRotation, TimerFlags.REPEAT);
+                    _rotationTimer ??= _plugin?.AddTimer(_config.Rotation.CustomTimeLimit, _serverManager.TriggerRotation, TimerFlags.REPEAT);
                 }
             }
             return HookResult.Continue;
