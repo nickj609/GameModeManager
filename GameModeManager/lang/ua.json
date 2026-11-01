@@ -35,13 +35,6 @@
   "setting.vote.menu-title": "Змінити налаштування {GOLD}{0}{DEFAULT}?",
   "settings.menu-title": "Список налаштувань",
   "timeleft.prefix": "{RED}[Залишок часу]{DEFAULT}",
-  "timeleft.remaining-rounds": "Залишилося {0} раунд(и/ів)",
-  "timeleft.remaining-time-hour": "Залишок часу {0}:{1}:{2}",
-  "timeleft.remaining-time-minute": "Залишок часу {0} хвилин(и/ів) та {1} секунд(и/ів)",
-  "timeleft.remaining-time-second": "Залишилося {0} секунд(и/ів)",
-  "timeleft.no-time-limit": "Немає обмеження часу",
-  "timeleft.remaining-time-over": "Час вийшов, це останній раунд",
-  "timeleft.warmup": "Команда вимкнена під час розминки.",
   "timelimit.enabled": "Обмеження часу {GREEN}увімкнено{DEFAULT}.",
   "timelimit.disabled": "Обмеження часу {RED}вимкнено{DEFAULT}.",
   "timelimit.enabled-error": "Обмеження часу вже {GREEN}увімкнено{DEFAULT}.",
@@ -104,6 +97,5 @@
   "admin.random-vote": "Випадкове голосування",
   "admin.vote-unavailable": "Триває голосування, або наступну карту вже вибрано.",
   "admin.one-map": "У цьому режимі лише одна мапа.",
-  "timeleft.last-round": "Це останній раунд",
   "timelimit.invalid-bool-error": "Неприпустиме значення: {0}. Використовуйте true або false."
 }

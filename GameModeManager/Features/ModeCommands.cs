@@ -23,10 +23,12 @@ namespace GameModeManager.Features
         private ServerManager _serverManager;
         private Config _config = new Config();
         private MapChooserBridge _mapChooser;
+        private RtvSwitch _rtvSwitch;
 
         // Define class constructor
-        public ModeCommands(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, ModeMenus modeMenus, MapMenus mapMenus, MapChooserBridge mapChooser)
+        public ModeCommands(RtvSwitch rtvSwitch, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, ModeMenus modeMenus, MapMenus mapMenus, MapChooserBridge mapChooser)
         {
+            _rtvSwitch = rtvSwitch;
             _mapChooser = mapChooser;
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
@@ -68,6 +70,9 @@ namespace GameModeManager.Features
 
                         // GG1MapChooser votes / RTV / nominate from this mode's maps
                         _mapChooser.SetPool(_mode);
+
+                        // RTV is on unless this mode's cfg says otherwise
+                        _rtvSwitch.ResetForMode();
 
                         // !maps lists this mode's maps
                         _mapMenus.Load();

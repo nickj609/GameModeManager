@@ -35,13 +35,6 @@
   "setting.vote.menu-title": "Changer le paramètre {GOLD}{0}{DEFAULT} ?",
   "settings.menu-title": "Liste des paramètres",
   "timeleft.prefix": "{RED}[Temps restant]{DEFAULT}",
-  "timeleft.remaining-rounds": "{0} manche(s) restante(s)",
-  "timeleft.remaining-time-hour": "Temps restant {0}:{1}:{2}",
-  "timeleft.remaining-time-minute": "Temps restant {0} minute(s) et {1} seconde(s)",
-  "timeleft.remaining-time-second": "Temps restant {0} seconde(s)",
-  "timeleft.no-time-limit": "Il n'y a pas de limite de temps",
-  "timeleft.remaining-time-over": "Le temps est écoulé, c'est la dernière manche",
-  "timeleft.warmup": "Commande désactivée pendant l'échauffement.",
   "timelimit.enabled": "Limite de temps {GREEN}Activée{DEFAULT}.",
   "timelimit.disabled": "Limite de temps {RED}Désactivée{DEFAULT}.",
   "timelimit.enabled-error": "La limite de temps est déjà {GREEN}Activée{DEFAULT}.",
@@ -104,6 +97,5 @@
   "admin.random-vote": "Vote aléatoire",
   "admin.vote-unavailable": "Un vote est en cours ou la prochaine carte est déjà choisie.",
   "admin.one-map": "Ce mode n'a qu'une seule carte.",
-  "timeleft.last-round": "C'est la dernière manche",
   "timelimit.invalid-bool-error": "Valeur non valide : {0}. Utilisez true ou false."
 }

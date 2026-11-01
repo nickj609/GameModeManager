@@ -100,6 +100,10 @@ namespace GameModeManager.Menus
 
             foreach (IMode? _mode in _pluginState.Game.Modes.Values)
             {
+                // The admins' list has every mode
+                if (back == null && !_mapChooser.InVotes(_mode))
+                    continue;
+
                 menu?.AddMenuOption(_mode.Name, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
@@ -118,7 +122,7 @@ namespace GameModeManager.Menus
 
         public void ChangeToRandomMode(CCSPlayerController player)
         {
-            var modes = _pluginState.Game.Modes.Values.Where(_mapChooser.CanBeNextMode).ToList();
+            var modes = _pluginState.Game.Modes.Values.Where(m => _mapChooser.CanBeNextMode(m) && _mapChooser.InVotes(m)).ToList();
             if (modes.Count > 0)
                 ChangeMode(player, modes[Random.Shared.Next(modes.Count)]);
         }

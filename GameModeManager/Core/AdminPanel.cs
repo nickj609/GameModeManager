@@ -48,6 +48,7 @@ namespace GameModeManager.Core
 
         // Define class properties
         private object? _api;
+        public bool Active => _api != null;
         private Type? _apiType;
         private Action? _readyHandler;
         private const string Category = "gamemodemanager";

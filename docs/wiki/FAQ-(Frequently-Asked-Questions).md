@@ -237,6 +237,14 @@ To add game modes, update the JSON key pairs in the configuration file (`csgo/ad
 </details>
 
 <details>
+<summary>Something isn't working. What should I check first?</summary>
+<br>
+
+Run `css_gmm_status` in the server console (2.1.0 and later). It shows the plugins GameModeManager found, the current map list, the Workshop addon and the main settings. Anything in capitals, or a line saying a plugin no longer has something, is the place to start. Please include the output in bug reports.
+
+</details>
+
+<details>
 <summary>Why are game mode and map rotations not working?</summary>
 <br>
 

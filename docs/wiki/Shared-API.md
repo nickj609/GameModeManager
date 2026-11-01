@@ -6,6 +6,8 @@ GameModeManager provides a Shared API for other plugins to manage game modes. Ad
 
 > [!IMPORTANT]
 > Version 2.0.0 targets .NET 10 and removes `IRTVApi` (`rtv:api`), because [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser) now handles RTV. Use its `ggmc:api` capability instead. `State.Maps`, `Modes`, `Settings` and `MapGroups` are now dictionaries. For .NET 8 plugins, stay on package version 1.0.63.
+>
+> Version 2.1.0 removes `ITimeLimitApi` (`time_limit:api`). If you need it, stay on package version 2.0.0, or [open an issue](https://github.com/nickj609/GameModeManager/issues/new/choose).
 
 # Interfaces
 <details>
@@ -45,45 +47,6 @@ public interface IGameModeApi
 ```
 </details>
 
-<details>
-<summary>TimeLimitApi (capability <code>time_limit:api</code>)</summary>
-
-```csharp
-public interface ITimeLimitState
-{
-    int MaxWins { get; }
-    float TimeLimit { get; }
-    bool Custom { get; }
-    bool Enabled { get; }
-    bool Scheduled { get; }
-    decimal TimePlayed { get; }
-    int RemainingWins { get; }
-    bool UnlimitedTime { get; }
-    bool UnlimitedRounds { get; }
-    decimal TimeRemaining { get; }
-}
-
-public interface ITimeLimitControl
-{
-    void Enforce();
-    void Disable();
-    void CustomLimit(int time);
-}
-
-public interface ITimeLimitMessaging
-{
-    string TimeLeftMessage();
-}
-
-public interface ITimeLimitApi
-{
-    ITimeLimitState State { get; }
-    ITimeLimitControl Control { get; }
-    ITimeLimitMessaging Messaging { get; }
-}
-```
-</details>
-
 # Example Usage
 
 ```csharp
@@ -102,14 +65,12 @@ public class MyPlugin : BasePlugin
     public override string ModuleVersion => "1.0.0";
 
     private readonly PluginCapability<IGameModeApi> GameModeApi = new("game_mode:api");
-    private readonly PluginCapability<ITimeLimitApi> TimeLimitApi = new("time_limit:api");
 
     // Capabilities are ready once all plugins have loaded
     public override void OnAllPluginsLoaded(bool hotReload)
     {
         IGameModeApi? gameModes = GameModeApi.Get();
-        ITimeLimitApi? timeLimit = TimeLimitApi.Get();
-        if (gameModes == null || timeLimit == null)
+        if (gameModes == null)
             return;
 
         if (gameModes.State.Maps.TryGetValue("de_dust2", out IMap? map))
@@ -117,9 +78,6 @@ public class MyPlugin : BasePlugin
 
         if (gameModes.State.Modes.TryGetValue("Casual", out IMode? mode))
             gameModes.Control.ChangeMode(mode);
-
-        timeLimit.Control.CustomLimit(120);
-        Logger.LogInformation(timeLimit.Messaging.TimeLeftMessage());
     }
 }
 ```

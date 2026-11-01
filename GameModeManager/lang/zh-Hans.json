@@ -35,13 +35,6 @@
   "setting.vote.menu-title": "更改设置{GOLD}{0}{DEFAULT}吗？",
   "settings.menu-title": "设置列表",
   "timeleft.prefix": "{RED}[剩余时间]{DEFAULT}",
-  "timeleft.remaining-rounds": "剩余{LIME}{0}{DEFAULT}回合",
-  "timeleft.remaining-time-hour": "剩余时间：{LIME}{0}{DEFAULT}:{LIME}{1}{DEFAULT}:{LIME}{2}",
-  "timeleft.remaining-time-minute": "剩余时间：{LIME}{0}{DEFAULT}分{LIME}{1}{DEFAULT}秒",
-  "timeleft.remaining-time-second": "剩余时间：{LIME}{0}{DEFAULT}秒",
-  "timeleft.no-time-limit": "没有时间限制",
-  "timeleft.remaining-time-over": "时间耗尽，这是最后一回合",
-  "timeleft.warmup": "{RED}热身期间禁用该命令！",
   "timelimit.enabled": "时间限制{GREEN}已启用{DEFAULT}",
   "timelimit.disabled": "时间限制{RED}已禁用{DEFAULT}",
   "timelimit.enabled-error": "时间限制已{GREEN}启用{DEFAULT}",
@@ -104,6 +97,5 @@
   "admin.random-vote": "随机投票",
   "admin.vote-unavailable": "正在投票，或已选定下一张地图。",
   "admin.one-map": "此模式只有一张地图。",
-  "timeleft.last-round": "这是最后一回合",
   "timelimit.invalid-bool-error": "无效的值：{0}。请使用 true 或 false。"
 }

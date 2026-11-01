@@ -5,7 +5,7 @@
 	
 ```json
 {
-  "Version": 13,
+  "Version": 14,
   "WorkshopAddon": "3831211166",
   "Maps": {
     "Delay": 5,
@@ -22,8 +22,7 @@
     "Cooldown": 60,
     "AllowSpectators": false,
     "AllowInWarmup": false,
-    "NativeTitleToken": "",
-    "UsePanorama": false
+    "NativeTitleToken": ""
   },
   "MapChooser": {
     "GeneratePools": true,
@@ -98,7 +97,9 @@
       "MapGroups": [
         "mg_active",
         "mg_comp"
-      ]
+      ],
+      "InVotes": true,
+      "InRotation": true
     },
     "MapGroupFile": "gamemodes_server.txt",
     "List": [
@@ -108,7 +109,9 @@
         "DefaultMap": "3276886893",
         "MapGroups": [
           "mg_45"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "1v1",
@@ -116,7 +119,9 @@
         "DefaultMap": "3070253400",
         "MapGroups": [
           "mg_1v1"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Armsrace",
@@ -124,7 +129,9 @@
         "DefaultMap": "ar_pool_day",
         "MapGroups": [
           "mg_gg"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Awp",
@@ -132,7 +139,9 @@
         "DefaultMap": "3142070597",
         "MapGroups": [
           "mg_awp"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Aim",
@@ -140,7 +149,9 @@
         "DefaultMap": "3084291314",
         "MapGroups": [
           "mg_aim"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Battle",
@@ -148,7 +159,9 @@
         "DefaultMap": "3070253400",
         "MapGroups": [
           "mg_battle"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Battle Royale",
@@ -156,7 +169,9 @@
         "DefaultMap": "3070253400",
         "MapGroups": [
           "mg_battleroyale"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Bhop",
@@ -164,7 +179,9 @@
         "DefaultMap": "3088973190",
         "MapGroups": [
           "mg_bhop"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Casual",
@@ -173,7 +190,9 @@
         "MapGroups": [
           "mg_active",
           "mg_comp"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Casual 1.6",
@@ -181,7 +200,9 @@
         "DefaultMap": "3212419403",
         "MapGroups": [
           "mg_Casual-1.6"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Competitive",
@@ -190,7 +211,9 @@
         "MapGroups": [
           "mg_active",
           "mg_comp"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Course",
@@ -198,7 +221,9 @@
         "DefaultMap": "3070455802",
         "MapGroups": [
           "mg_course"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Deathmatch",
@@ -206,7 +231,9 @@
         "DefaultMap": "de_mirage",
         "MapGroups": [
           "mg_dm"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Deathmatch (Valve)",
@@ -214,7 +241,9 @@
         "DefaultMap": "de_mirage",
         "MapGroups": [
           "mg_dm"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Deathrun",
@@ -222,7 +251,9 @@
         "DefaultMap": "3164611860",
         "MapGroups": [
           "mg_deathrun"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Executes",
@@ -230,7 +261,9 @@
         "DefaultMap": "de_mirage",
         "MapGroups": [
           "mg_comp"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "GG",
@@ -238,7 +271,9 @@
         "DefaultMap": "ar_pool_day",
         "MapGroups": [
           "mg_gg"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "HE Only",
@@ -246,7 +281,9 @@
         "DefaultMap": "3089842427",
         "MapGroups": [
           "mg_he"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Hide N Seek",
@@ -254,7 +291,9 @@
         "DefaultMap": "3097563690",
         "MapGroups": [
           "mg_hns"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "KreedZ",
@@ -262,7 +301,9 @@
         "DefaultMap": "3086304337",
         "MapGroups": [
           "mg_kz"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Minigames",
@@ -270,7 +311,9 @@
         "DefaultMap": "3082120895",
         "MapGroups": [
           "mg_minigames"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Practice",
@@ -278,7 +321,9 @@
         "DefaultMap": "de_dust2",
         "MapGroups": [
           "mg_comp"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Prefire",
@@ -286,7 +331,9 @@
         "DefaultMap": "de_inferno",
         "MapGroups": [
           "mg_comp"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Retakes",
@@ -294,7 +341,9 @@
         "DefaultMap": "de_dust2",
         "MapGroups": [
           "mg_comp"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "ScoutzKnivez",
@@ -302,7 +351,9 @@
         "DefaultMap": "3073929825",
         "MapGroups": [
           "mg_scoutzknivez"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Surf",
@@ -310,7 +361,9 @@
         "DefaultMap": "3082548297",
         "MapGroups": [
           "mg_surf"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Soccer",
@@ -318,7 +371,9 @@
         "DefaultMap": "3070198374",
         "MapGroups": [
           "mg_soccer"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Tournament",
@@ -326,7 +381,9 @@
         "DefaultMap": "de_dust2",
         "MapGroups": [
           "mg_active"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       },
       {
         "Name": "Wingman",
@@ -335,7 +392,9 @@
         "MapGroups": [
           "mg_active",
           "mg_comp"
-        ]
+        ],
+        "InVotes": true,
+        "InRotation": true
       }
     ]
   }
@@ -363,7 +422,7 @@ These settings control how GameModeManager works with [GG1MapChooser](https://gi
 | GeneratePools       | Writes `cfg/GGMCmaps.json`: one GG1MapChooser map pool per mode from its map groups.                                                      |
 | TriggerSecondsBeforeEnd | Time-limited modes: starts the end-of-map vote this many seconds before the end.                                                      |
 | TriggerKillsBeforeEnd | Arms race: starts the end-of-map vote when the leader has this many kills.                                                              |
-| Rtv                 | Lets players use `!rtv`. Added in 2.0.1. Off doesn't affect end-of-map votes or rotations.                                                |
+| Rtv                 | Lets players use `!rtv`. Added in 2.1.0. Off doesn't affect end-of-map votes or rotations.                                                |
 | ModesInVotes        | Offers one random other mode in votes and `!nominate`, reshuffled every map.                                                              |
 
 # Vote Settings
@@ -382,7 +441,6 @@ These settings are for player votes (`!changemap`, `!changemode`, `!changesettin
 | AllowSpectators     | Lets spectators vote, and counts them towards the percentage.                                                                             |
 | AllowInWarmup       | Allows votes during warmup.                                                                                                               |
 | NativeTitleToken    | Native panel title from `platform_english.txt` on the server and every player's PC. Empty = the game's "Change current level to X?".      |
-| UsePanorama         | Deprecated. `true` = Style `native`.                                                                                                      |
 
 # Admin Panel Settings
 | Setting             | Description                                                                                                                               |
@@ -418,9 +476,9 @@ These settings are for player votes (`!changemap`, `!changemode`, `!changesettin
 | Enabled             | Enables rotations. When off, GameModeManager leaves the map alone at the end of a match.                                                  |
 | WhenServerEmpty     | Enables rotation on server empty.                                                                                                         |
 | CustomTimeLimit     | Custom time limit in seconds for rotations on server empty.                                                                               |
-| ModeRotation        | Enables game mode rotation.                                                             |
+| ModeRotation        | Enables game mode rotation. Turned off at load if ModeSchedules is on, because the schedule wins.                                         |
 | ModeInterval        | Changes game mode every x map rotations. (If ModeRotation is enabled)                                                                     |
-| ModeSchedules       | Enables mode schedules.                                                                  |
+| ModeSchedules       | Enables mode schedules. Wins over ModeRotation.                                                                                           |
 | Schedule            | Schedule for mode rotations (24-hr format in the server's local time)                                                                                    |
 
 # Game Mode Settings
@@ -428,6 +486,9 @@ These settings are for player votes (`!changemap`, `!changemode`, `!changesettin
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | 
 | Default             | Default mode on server start (i.e. deathmatch).                                                                                           | 
 | MapGroupFile        | Map groups file name in `/csgo/`. The file must be in [VDF Format](https://developer.valvesoftware.com/wiki/VDF).                         | 
+| List                | The modes on your server. Each has a Name, Config, DefaultMap and MapGroups, plus the two settings below.                                 |
+| InVotes             | A mode's setting. `false` keeps it out of votes, `!nominate`, `!changemode` and random picks. Admins can still choose it. Added in 2.1.0. |
+| InRotation          | A mode's setting. `false` keeps it out of mode rotation. Schedules can still use it. Added in 2.1.0.                                      |
 | List                | A customizable list of game modes for your server with friendly names for menus.                                                          |  
 
 > [!CAUTION]

@@ -35,13 +35,6 @@
   "setting.vote.menu-title": "{GOLD}{0}{DEFAULT} ayarı değiştirilsin mi?",
   "settings.menu-title": "Ayar Listesi",
   "timeleft.prefix": "{RED}[Kalan Süre]{DEFAULT}",
-  "timeleft.remaining-rounds": "{0} tur kaldı",
-  "timeleft.remaining-time-hour": "Kalan süre {0}:{1}:{2}",
-  "timeleft.remaining-time-minute": "Kalan süre {0} dakika ve {1} saniye",
-  "timeleft.remaining-time-second": "Kalan süre {0} saniye",
-  "timeleft.no-time-limit": "Zaman sınırı yok",
-  "timeleft.remaining-time-over": "Süre doldu, bu son tur",
-  "timeleft.warmup": "Komut ısınma sırasında devre dışı bırakıldı.",
   "timelimit.enabled": "Zaman sınırı {GREEN}Etkinleştirildi{DEFAULT}.",
   "timelimit.disabled": "Zaman sınırı {RED}Devre Dışı Bırakıldı{DEFAULT}.",
   "timelimit.enabled-error": "Zaman sınırı zaten {GREEN}Etkinleştirildi{DEFAULT}.",
@@ -104,6 +97,5 @@
   "admin.random-vote": "Rastgele oylama",
   "admin.vote-unavailable": "Bir oylama sürüyor veya sonraki harita zaten seçildi.",
   "admin.one-map": "Bu modda yalnızca bir harita var.",
-  "timeleft.last-round": "Bu son tur",
   "timelimit.invalid-bool-error": "Geçersiz değer: {0}. true veya false kullanın."
 }

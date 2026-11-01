@@ -28,35 +28,32 @@ namespace GameModeManager
     {
         // Define plugin properties
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "2.0.1";
+        public override string ModuleVersion => "2.1.0";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
         // Define class dependencies
         private readonly MenuFactory _menuFactory;
         private readonly GameModeApi _gameModeApi;
-        private readonly TimeLimitApi _timeLimitApi;
         private readonly VoteService _voteService;
         private readonly MapChooserBridge _mapChooser;
         private readonly AdminPanel _adminPanel;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Define class constructor
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager, VoteService voteService, GameModeApi gameModeApi, TimeLimitApi timeLimitApi, MenuFactory menuFactory, MapChooserBridge mapChooser, AdminPanel adminPanel)
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager, VoteService voteService, GameModeApi gameModeApi, MenuFactory menuFactory, MapChooserBridge mapChooser, AdminPanel adminPanel)
         {
             _mapChooser = mapChooser;
             _adminPanel = adminPanel;
             _menuFactory = menuFactory;
             _gameModeApi = gameModeApi;
             _voteService = voteService;
-            _timeLimitApi = timeLimitApi;
             _dependencyManager = dependencyManager;
         }
 
         // Define class properties
         public static Plugin? Instance;
         private readonly PluginCapability<IGameModeApi?> _gameCapability = new("game_mode:api");
-        private readonly PluginCapability<ITimeLimitApi?> _timeCapability = new("time_limit:api");
 
         // Define on load behavior
         public override void Load(bool hotReload)
@@ -70,7 +67,6 @@ namespace GameModeManager
 
             // Load services
             Capabilities.RegisterPluginCapability(_gameCapability, () => _gameModeApi);
-            Capabilities.RegisterPluginCapability(_timeCapability, () => _timeLimitApi);
         }
 
         // Define class methods

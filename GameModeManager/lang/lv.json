@@ -35,13 +35,6 @@
   "setting.vote.menu-title": "Mainīt iestatījumu {GOLD}{0}{DEFAULT}?",
   "settings.menu-title": "Iestatījumu saraksts",
   "timeleft.prefix": "{RED}[Atlikušais laiks]{DEFAULT}",
-  "timeleft.remaining-rounds": "Atlikušas {0} raundi(s)",
-  "timeleft.remaining-time-hour": "Atlikušais laiks {0}:{1}:{2}",
-  "timeleft.remaining-time-minute": "Atlikušais laiks {0} minūte(s) un {1} sekunde(s)",
-  "timeleft.remaining-time-second": "Atlikušas {0} sekundes",
-  "timeleft.no-time-limit": "Nav laika limita",
-  "timeleft.remaining-time-over": "Laiks ir beidzies, šis ir pēdējais raunds",
-  "timeleft.warmup": "Komanda ir atspējota iesildīšanās laikā.",
   "timelimit.enabled": "Laika limits {GREEN}Ieslēgts{DEFAULT}.",
   "timelimit.disabled": "Laika limits {RED}Izslēgts{DEFAULT}.",
   "timelimit.enabled-error": "Laika limits jau ir {GREEN}Ieslēgts{DEFAULT}.",
@@ -104,6 +97,5 @@
   "admin.random-vote": "Nejauša balsošana",
   "admin.vote-unavailable": "Notiek balsošana, vai arī nākamā karte jau ir izvēlēta.",
   "admin.one-map": "Šim režīmam ir tikai viena karte.",
-  "timeleft.last-round": "Šis ir pēdējais raunds",
   "timelimit.invalid-bool-error": "Nederīga vērtība: {0}. Izmanto true vai false."
 }

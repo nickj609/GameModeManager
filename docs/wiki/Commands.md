@@ -17,9 +17,11 @@ The commands below can be run by the server, such as within your mode configurat
 | css_timelimit <true\|false> <seconds>         | Enables or disables a time limit for the map. Optionally, you can specify the time limit in seconds.     |
 | css_mapvote_auto <true\|false>                | Turns the automatic end-of-map vote on or off for the current mode.                                      |
 | css_mapvote_extend <true\|false>              | Offers "extend map" in map votes or not for the current mode.                                            |
+| css_mapvote_rtv <true\|false>                 | Turns `!rtv` on or off for the current mode. Put it in the mode's `<mode>_settings.cfg`. A new mode starts with it on. Added in 2.1.0. |
 | css_rtv_end_of_map_vote <true\|false>         | Same as css_mapvote_auto, for mode configs written for 1.0.x.                                            |
 | css_rtv_extend <true\|false>                  | Same as css_mapvote_extend, for mode configs written for 1.0.x.                                          |
 | css_rtv_start_vote                            | Starts the end-of-map vote.                                                                              |
+| css_gmm_status                                | Shows what GameModeManager found on the server: plugins, map list, Workshop addon and settings. Include it in bug reports. Added in 2.1.0. |
 	
 # Admin Commands
 `!maps`, `!mode` and `!modes` need _@css/changemap_ permissions. The others need _@css/cvar_.

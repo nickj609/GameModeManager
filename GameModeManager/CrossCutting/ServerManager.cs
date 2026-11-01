@@ -219,7 +219,7 @@ namespace GameModeManager.CrossCutting
             _pluginState.Game.MapRotations++;
 
             // A rotation has to end up somewhere else: not the current mode, and not a mode with no maps
-            List<IMode> modes = _pluginState.Game.Modes.Values.Where(mode => !mode.Equals(_pluginState.Game.CurrentMode) && mode.Maps.Count > 0).ToList();
+            List<IMode> modes = _pluginState.Game.Modes.Values.Where(mode => !mode.Equals(_pluginState.Game.CurrentMode) && mode.Maps.Count > 0 && _config.GameModes.InRotation(mode.Name)).ToList();
             if (!modeDue || modes.Count == 0)
             {
                 ChangeMap(_config.Maps.Delay, ChangeToNextMap);

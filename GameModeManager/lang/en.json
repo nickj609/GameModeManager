@@ -35,13 +35,6 @@
   "setting.vote.menu-title": "Change setting {GOLD}{0}{DEFAULT}?",
   "settings.menu-title": "Setting List",
   "timeleft.prefix": "{RED}[Timeleft]{DEFAULT}",
-  "timeleft.remaining-rounds": "{0} round(s) remaining",
-  "timeleft.remaining-time-hour": "Remaining time {0}:{1}:{2}",
-  "timeleft.remaining-time-minute": "Remaining time {0} minute(s) and {1} second(s)",
-  "timeleft.remaining-time-second": "Remaining time {0} second(s)",
-  "timeleft.no-time-limit": "There is no time limit",
-  "timeleft.remaining-time-over": "Time is over, this is the last round",
-  "timeleft.warmup": "Command disabled during warmup.",
   "timelimit.enabled": "Time limit {GREEN}Enabled{DEFAULT}.",
   "timelimit.disabled": "Time limit {RED}Disabled{DEFAULT}.",
   "timelimit.enabled-error": "Time limit is already {GREEN}Enabled{DEFAULT}.",
@@ -104,6 +97,5 @@
   "admin.random-vote": "Random vote",
   "admin.vote-unavailable": "A vote is running, or the next map is already picked.",
   "admin.one-map": "This mode only has one map.",
-  "timeleft.last-round": "This is the last round",
   "timelimit.invalid-bool-error": "Invalid value: {0}. Use true or false."
 }

@@ -51,6 +51,7 @@ namespace GameModeManager
             public bool WarmupRunning = false;
             public IMap CurrentMap = DefaultMap;
             public bool RotationsEnabled = true;
+            public bool RtvInMode = true;
             public bool WarmupScheduled = false;
             public bool CountdownRunning = false;
             public IMode CurrentMode = DefaultMode;

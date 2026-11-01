@@ -19,6 +19,8 @@ namespace GameModeManager
         public string Config { get; set; } = "casual.cfg";
         public string? DefaultMap { get; set; } = null;
         public List<string> MapGroups { get; set; } = new List<string>() { "mg_active", "mg_comp" };
+        public bool InVotes { get; set; } = true; // false = left out of votes, !nominate, !changemode and random picks. Admins can still choose it
+        public bool InRotation { get; set; } = true; // false = mode rotation never picks it. Schedules can still use it
     }
 
     public class WarmupModeEntry
@@ -64,7 +66,6 @@ namespace GameModeManager
         public bool AllowSpectators { get; set; } = false; // Spectators can vote (and count towards the percentage)
         public bool AllowInWarmup { get; set; } = false; // Allows votes during warmup
         public string NativeTitleToken { get; set; } = ""; // Native panel title from platform_english.txt on the server and every player's PC. Empty = the game's "Change current level to X?"
-        public bool UsePanorama { get; set; } = false; // Deprecated (CS2-CustomVotes): true = Style "native"
     }
 
     // Define game settings
@@ -118,6 +119,9 @@ namespace GameModeManager
         public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Casual", Config = "casual.cfg", MapGroups = new List<string>() { "mg_active", "mg_comp" } }; // Default mode on server start
         public string MapGroupFile { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
 
+        public bool InVotes(string mode) => List.FirstOrDefault(entry => entry.Name.Equals(mode, StringComparison.OrdinalIgnoreCase))?.InVotes != false;
+        public bool InRotation(string mode) => List.FirstOrDefault(entry => entry.Name.Equals(mode, StringComparison.OrdinalIgnoreCase))?.InRotation != false;
+
         public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
         {
             new ModeEntry() { Name = "45", Config = "45.cfg", DefaultMap = "3276886893", MapGroups = new List<string>(){"mg_45"} },
@@ -155,7 +159,7 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-        public int Version { get; set; } = 13;
+        public int Version { get; set; } = 14;
         public string WorkshopAddon { get; set; } = "3831211166"; // Workshop IDs (comma separated) of the addons with the menus' panorama files, added to MultiAddonManager's list. Empty = you load them yourself
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
@@ -195,6 +199,19 @@ namespace GameModeManager
                 throw new Exception("Invalid: Default game mode must not be empty.");
             }
 
+            // A duplicate name stops the plugin loading when the modes are added
+            HashSet<string> modeNames = new(StringComparer.OrdinalIgnoreCase);
+            foreach (ModeEntry mode in GameModes.List)
+            {
+                if (!modeNames.Add(mode.Name))
+                {
+                    logger.LogError("Invalid: Game mode \"{Name}\" is listed twice.", mode.Name);
+                    throw new Exception($"Invalid: Game mode \"{mode.Name}\" is listed twice.");
+                }
+            }
+            if (!modeNames.Contains(GameModes.Default.Name))
+                logger.LogWarning("Default game mode \"{Name}\" isn't in the game modes list.", GameModes.Default.Name);
+
             // Rotation settings
             if (Rotation.ModeSchedules == true)
             {
@@ -202,6 +219,23 @@ namespace GameModeManager
                 {
                     logger.LogError("Invalid: Schedule cannot be empty");
                     throw new Exception("Invalid: Schedule cannot be empty");
+                }
+                foreach (ScheduleEntry entry in Rotation.Schedule)
+                {
+                    if (!DateTime.TryParse(entry.Time, out _))
+                    {
+                        logger.LogError("Invalid: Schedule time \"{Time}\" isn't a time, like \"15:00\".", entry.Time);
+                        throw new Exception($"Invalid: Schedule time \"{entry.Time}\" isn't a time, like \"15:00\".");
+                    }
+                    if (!modeNames.Contains(entry.Mode))
+                        logger.LogWarning("Schedule mode \"{Mode}\" isn't in the game modes list, so {Time} won't change anything.", entry.Mode, entry.Time);
+                }
+
+                // Rotating the mode every few maps would move the server off its schedule. Admins can still turn it on from the admin menu.
+                if (Rotation.ModeRotation)
+                {
+                    logger.LogWarning("Rotation ModeRotation and ModeSchedules are both on: using the schedule, and turning ModeRotation off.");
+                    Rotation.ModeRotation = false;
                 }
             }
             if (Rotation.CustomTimeLimit < 0)
@@ -223,10 +257,6 @@ namespace GameModeManager
             }
 
             // Vote settings
-            if (Votes.UsePanorama && Votes.Style.Equals("menu", StringComparison.OrdinalIgnoreCase))
-            {
-                Votes.Style = "native";
-            }
             if (!Votes.Style.Equals("menu", StringComparison.OrdinalIgnoreCase) && !Votes.Style.Equals("native", StringComparison.OrdinalIgnoreCase))
             {
                 // 1.0.x configs say "center" or "chat" here, and shouldn't stop the plugin loading

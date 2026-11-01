@@ -4,7 +4,6 @@ using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Cvars;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
@@ -19,19 +18,15 @@ namespace GameModeManager.Core
         private readonly GameRules _gameRules;
         private ILogger<TimeLimitManager> _logger;
         private readonly PluginState _pluginState;
-        private readonly StringLocalizer _localizer;
         private readonly ServerManager _serverManager;
-        private readonly MaxRoundsManager _maxRoundsManager;
 
         // Define class constructor
-        public TimeLimitManager(GameRules gameRules, ServerManager serverManager, PluginState pluginState, MaxRoundsManager maxRoundsManager, IStringLocalizer iLocalizer, ILogger<TimeLimitManager> logger)
+        public TimeLimitManager(GameRules gameRules, ServerManager serverManager, PluginState pluginState, ILogger<TimeLimitManager> logger)
         {
             _logger = logger;
             _gameRules = gameRules;
             _pluginState = pluginState;
             _serverManager = serverManager;
-            _maxRoundsManager = maxRoundsManager;
-            _localizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
         }
 
         // Define class properties
@@ -120,11 +115,6 @@ namespace GameModeManager.Core
         public bool UnlimitedTime()
         {
             return StandardUnlimitedTime;
-        }
-
-        public decimal TimePlayed()
-        {
-            return timePlayed; 
         }
 
         public decimal TimeRemaining()
@@ -226,49 +216,6 @@ namespace GameModeManager.Core
 
             timer = new Timer(customDurationSeconds, OnTimeLimitReached);
         }
-
-        public string GetTimeLeftMessage()
-        {
-            string _message;
-
-            if (_gameRules.WarmupRunning)
-                return _localizer.Localize("timeleft.warmup");
-
-            decimal currentRemaining = timeRemaining;
-
-            if (!UnlimitedTime())
-            {
-                if (currentRemaining > 1) 
-                {
-                    TimeSpan remaining = TimeSpan.FromSeconds((double)currentRemaining);
-
-                    if (remaining.Hours > 0)
-                        _message = _localizer.Localize("timeleft.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
-                    else if (remaining.Minutes > 0)
-                        _message = _localizer.Localize("timeleft.remaining-time-minute", remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
-                    else
-                        _message = _localizer.Localize("timeleft.remaining-time-second", remaining.Seconds);
-                }
-                else
-                {
-                    _message = _localizer.Localize("timeleft.remaining-time-over");
-                }
-            }
-            else if (!_maxRoundsManager.UnlimitedRounds) 
-            {
-                if (_maxRoundsManager.RemainingRounds > 1)
-                    _message = _localizer.Localize("timeleft.remaining-rounds", _maxRoundsManager.RemainingRounds);
-                else
-                    _message = _localizer.Localize("timeleft.last-round");
-            }
-            else
-            {
-                _message = _localizer.Localize("timeleft.no-time-limit");
-            }
-
-            return _message;
-        }
-
 
         // Define event handlers
         public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)

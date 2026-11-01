@@ -35,13 +35,6 @@
   "setting.vote.menu-title": "Beállítás váltása {GOLD}{0}{DEFAULT} beállításra?",
   "settings.menu-title": "Beállítások listája",
   "timeleft.prefix": "{RED}[Hátralévő idő]{DEFAULT}",
-  "timeleft.remaining-rounds": "{0} kör maradt hátra",
-  "timeleft.remaining-time-hour": "Hátralévő idő {0}:{1}:{2}",
-  "timeleft.remaining-time-minute": "Hátralévő idő {0} perc és {1} másodperc",
-  "timeleft.remaining-time-second": "Hátralévő idő {0} másodperc",
-  "timeleft.no-time-limit": "Nincs időkorlát",
-  "timeleft.remaining-time-over": "Az idő lejárt, ez az utolsó kör",
-  "timeleft.warmup": "A parancs a bemelegítés alatt le van tiltva.",
   "timelimit.enabled": "Időkorlát {GREEN}engedélyezve{DEFAULT}.",
   "timelimit.disabled": "Időkorlát {RED}letiltva{DEFAULT}.",
   "timelimit.enabled-error": "Az időkorlát már {GREEN}engedélyezve{DEFAULT}.",
@@ -104,6 +97,5 @@
   "admin.random-vote": "Véletlen szavazás",
   "admin.vote-unavailable": "Szavazás van folyamatban, vagy a következő pálya már ki van választva.",
   "admin.one-map": "Ennek a módnak csak egy pályája van.",
-  "timeleft.last-round": "Ez az utolsó kör",
   "timelimit.invalid-bool-error": "Érvénytelen érték: {0}. Használj true vagy false értéket."
 }
