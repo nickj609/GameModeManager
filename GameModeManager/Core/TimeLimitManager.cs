@@ -111,11 +111,9 @@ namespace GameModeManager.Core
         public void OnMapStart(string map)
         {
             LoadCvar();
-            _pluginState.TimeLimit.CustomLimit = false;
-            _pluginState.TimeLimit.Duration = 0f;
-            _pluginState.TimeLimit.CustomStartTime = 0f;
-            _pluginState.TimeLimit.Enabled = false;
-            _pluginState.TimeLimit.Scheduled = false;
+
+            // Also stops the last map's timer, which would rotate this map when it fires
+            DisableTimeLimit();
         }
 
         // Define class methods

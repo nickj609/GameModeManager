@@ -54,6 +54,12 @@ namespace GameModeManager.Features
             _plugin = plugin;
             plugin.AddCommand("css_mapvote_auto", "Automatic end-of-map vote for this mode. Usage: css_mapvote_auto <true|false>", OnAutoVoteCommand);
             plugin.AddCommand("css_mapvote_extend", "Extend option in map votes for this mode. Usage: css_mapvote_extend <true|false>", OnExtendCommand);
+
+            // The names 1.0.x used, which mode cfgs still run
+            plugin.AddCommand("css_rtv_end_of_map_vote", "Same as css_mapvote_auto.", OnAutoVoteCommand);
+            plugin.AddCommand("css_rtv_extend", "Same as css_mapvote_extend.", OnExtendCommand);
+            plugin.AddCommand("css_rtv_start_vote", "Starts the end-of-map vote.", OnStartVoteCommand);
+
             plugin.AddCommandListener("host_workshop_map", OnWorkshopMapCommand, HookMode.Pre);
             plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
             plugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
@@ -95,6 +101,12 @@ namespace GameModeManager.Features
         {
             if (bool.TryParse(command.ArgByIndex(1), out bool enabled))
                 _mapChooser.SetExtendInVote(enabled);
+        }
+
+        [CommandHelper(whoCanExecute: CommandUsage.SERVER_ONLY)]
+        public void OnStartVoteCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            _mapChooser.StartMapVote();
         }
 
         // Define event handlers

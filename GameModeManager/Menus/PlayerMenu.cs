@@ -10,6 +10,7 @@ namespace GameModeManager.Menus
     public class PlayerMenu : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
+        private MapMenus _mapMenus;
         private ModeMenus _modeMenus;
         private Config _config = new();
         private PluginState _pluginState;
@@ -17,8 +18,9 @@ namespace GameModeManager.Menus
         private StringLocalizer _localizer;
 
         // Define class constructor
-        public PlayerMenu(PluginState pluginState, StringLocalizer localizer, ModeMenus modeMenus, SettingMenus settingMenus)
+        public PlayerMenu(PluginState pluginState, StringLocalizer localizer, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus)
         {
+            _mapMenus = mapMenus;
             _modeMenus = modeMenus;
             _localizer = localizer;
             _pluginState = pluginState;
@@ -62,6 +64,13 @@ namespace GameModeManager.Menus
             {
                 switch (_command)
                 {
+                    case "!changemap":
+                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-changemap"), (player, option) =>
+                        {
+                            MenuFactory.Api?.CloseMenu(player);
+                            _mapMenus.VoteMenu?.Open(player);
+                        });
+                        break;
                     case "!changemode":
                         MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-changemode"), (player, option) =>
                         {

@@ -33,8 +33,7 @@ namespace GameModeManager
         public bool GeneratePools { get; set; } = true; // Writes cfg/GGMCmaps.json: one GG1 pool per mode from its map groups
         public int TriggerSecondsBeforeEnd { get; set; } = 60; // Time-limited modes: start GG1's vote this many seconds before the end
         public int TriggerKillsBeforeEnd { get; set; } = 13; // Arms race: start GG1's vote when the leader has this many kills
-        public int ModesInPool { get; set; } = 3; // Random other modes offered in votes and !nominate, reshuffled every map (0 = none)
-        public int ModeWeight { get; set; } = 1; // GG1 weight of those modes: higher = picked more often for a vote
+        public bool ModesInVotes { get; set; } = true; // One random other mode offered in votes and !nominate, reshuffled every map
     }
 
     // Define admin panel settings
@@ -63,7 +62,7 @@ namespace GameModeManager
         public int Cooldown { get; set; } = 60; // Seconds before the same player can start another vote
         public bool AllowSpectators { get; set; } = false; // Spectators can vote (and count towards the percentage)
         public bool AllowInWarmup { get; set; } = false; // Allows votes during warmup
-        public string NativeDisplayToken { get; set; } = "#SFUI_vote_panorama_vote"; // Title token of the native vote panel ("native" style)
+        public string NativeTitleToken { get; set; } = ""; // Native panel title from platform_english.txt on the server and every player's PC. Empty = the game's "Change current level to X?"
         public bool UsePanorama { get; set; } = false; // Deprecated (CS2-CustomVotes): true = Style "native"
     }
 
@@ -86,7 +85,7 @@ namespace GameModeManager
     public class WarmupSettings
     {
         public bool Enabled { get; set; } = true; // Enables or disables warmup
-        public float Time { get; set; } = 60; // Default warmup time
+        public float Time { get; set; } = 60; // Warmup length in seconds. 0 = whatever mp_warmuptime is
         public bool PerMap { get; set; } = false; // Enables or disables per map warmup
         public WarmupModeEntry Default { get; set; } = new WarmupModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg" }; // Default warmup mode
         public List<WarmupModeEntry> List { get; set; } = new List<WarmupModeEntry>()
@@ -156,7 +155,7 @@ namespace GameModeManager
     public class Config : IBasePluginConfig
     {
         public int Version { get; set; } = 13;
-        public string WorkshopAddon { get; set; } = ""; // Workshop IDs (comma separated) of the addons with the menus' panorama files, added to MultiAddonManager's list. Empty = you load them yourself
+        public string WorkshopAddon { get; set; } = "3831211166"; // Workshop IDs (comma separated) of the addons with the menus' panorama files, added to MultiAddonManager's list. Empty = you load them yourself
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
         public MapChooserSettings MapChooser { get; set; } = new();
@@ -239,7 +238,7 @@ namespace GameModeManager
             }
 
             // Map chooser settings
-            if (_config.MapChooser.TriggerSecondsBeforeEnd < 0 || _config.MapChooser.TriggerKillsBeforeEnd < 0 || _config.MapChooser.ModesInPool < 0 || _config.MapChooser.ModeWeight < 0)
+            if (_config.MapChooser.TriggerSecondsBeforeEnd < 0 || _config.MapChooser.TriggerKillsBeforeEnd < 0)
             {
                 Logger.LogError("Invalid: MapChooser values cannot be negative.");
                 throw new Exception("Invalid: MapChooser values cannot be negative.");
@@ -252,8 +251,9 @@ namespace GameModeManager
             }
             if (!_config.Votes.Style.Equals("menu", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("native", StringComparison.OrdinalIgnoreCase))
             {
-                Logger.LogError("Invalid: Votes Style must be \"menu\" or \"native\".");
-                throw new Exception("Invalid: Votes Style must be \"menu\" or \"native\".");
+                // 1.0.x configs say "center" or "chat" here, and shouldn't stop the plugin loading
+                Logger.LogWarning("Votes Style \"{Style}\" isn't available: using \"menu\". Use \"menu\" or \"native\".", _config.Votes.Style);
+                _config.Votes.Style = "menu";
             }
             if (_config.Votes.Percentage <= 0 || _config.Votes.Percentage > 100)
             {

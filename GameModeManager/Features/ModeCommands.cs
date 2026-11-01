@@ -54,6 +54,7 @@ namespace GameModeManager.Features
         }
 
         // Define server game mode command handler
+        // Only records the mode: every mode cfg runs this, so changing the map from here would run the cfg again
         [CommandHelper(minArgs: 1, usage: "<mode>", whoCanExecute: CommandUsage.SERVER_ONLY)]
         public void OnGameModeCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -70,11 +71,6 @@ namespace GameModeManager.Features
 
                         // !maps lists this mode's maps
                         _mapMenus.Load();
-                    }
-                    else
-                    {
-                        if (!_pluginState.Game.CurrentMode.Maps.Contains(_pluginState.Game.CurrentMap))
-                             _serverManager.ChangeMode(_mode);
                     }
                 }
             }

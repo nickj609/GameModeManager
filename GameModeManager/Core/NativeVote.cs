@@ -18,7 +18,6 @@ namespace GameModeManager.Core
         // Define class dependencies
         private Plugin? _plugin;
         private ILogger<NativeVote> _logger;
-        private Config _config = new Config();
 
         // Define class constructor
         public NativeVote(ILogger<NativeVote> logger)
@@ -32,17 +31,12 @@ namespace GameModeManager.Core
         private const int VoteCastRemoved = 5;
         private const int UserMessageVoteStart = 346;
         private const int UserMessageVoteFailed = 348;
+        private const string ChangeLevelToken = "#SFUI_vote_changelevel"; // Built into every client: "Change current level to {s:s1}?"
         private CVoteController? _controller;
         private HashSet<int> _voterSlots = new();
         private Action<CCSPlayerController, bool>? _onBallot;
         private bool _allowVotesOriginal;
         public bool Active { get; private set; }
-
-        // Load config
-        public void OnConfigParsed(Config config)
-        {
-            _config = config;
-        }
 
         // Define on load behavior
         public void OnLoad(Plugin plugin)
@@ -53,7 +47,7 @@ namespace GameModeManager.Core
 
         // Define class methods
         // Shows the panel to the given players. Ballots are reported through onBallot (true = yes).
-        public bool Start(List<CCSPlayerController> voters, string details, Action<CCSPlayerController, bool> onBallot)
+        public bool Start(List<CCSPlayerController> voters, string? token, string details, Action<CCSPlayerController, bool> onBallot)
         {
             if (Active)
                 return false;
@@ -93,7 +87,7 @@ namespace GameModeManager.Core
                 message.SetInt("team", -1);
                 message.SetInt("player_slot", 99);
                 message.SetInt("vote_type", -1);
-                message.SetString("disp_str", _config.Votes.NativeDisplayToken);
+                message.SetString("disp_str", token ?? ChangeLevelToken);
                 message.SetString("details_str", details);
                 message.SetBool("is_yes_no_vote", true);
                 message.Send(filter);

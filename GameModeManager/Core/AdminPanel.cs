@@ -13,9 +13,9 @@ using Microsoft.Extensions.Localization;
 namespace GameModeManager.Core
 {
     // Define class
-    // Optional: when CS2-SimpleAdmin is installed, its admin menu gets a "Game Modes" section. Uses SimpleAdmin's public
-    // API (capability simpleadmin:api), found at run time, and its own menus, so Back works and they match its panel.
-    // Without SimpleAdmin nothing here runs, and !modes, !maps, !settings and !warmup work the same.
+    // Optional: when CS2-SimpleAdmin is installed, its main menu gets a "Manage game" section with Maps, Modes, Settings,
+    // Warmup and Rotation. Uses SimpleAdmin's public API (capability simpleadmin:api), found at run time, and its own menus, so
+    // Back works and they match its panel. Without SimpleAdmin nothing here runs, and the chat commands work the same.
     // The actions are the same methods those menus call, so only the display is separate.
     public class AdminPanel : IPluginDependency<Plugin, Config>
     {
@@ -23,6 +23,7 @@ namespace GameModeManager.Core
         private Plugin? _plugin;
         private MapMenus _mapMenus;
         private ModeMenus _modeMenus;
+        private MapChooserBridge _mapChooser;
         private PluginState _pluginState;
         private SettingMenus _settingMenus;
         private StringLocalizer _localizer;
@@ -31,11 +32,12 @@ namespace GameModeManager.Core
         private IStringLocalizer _iLocalizer;
 
         // Define class constructor
-        public AdminPanel(PluginState pluginState, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, StringLocalizer localizer, IStringLocalizer iLocalizer, ILogger<AdminPanel> logger)
+        public AdminPanel(PluginState pluginState, MapMenus mapMenus, ModeMenus modeMenus, MapChooserBridge mapChooser, SettingMenus settingMenus, StringLocalizer localizer, IStringLocalizer iLocalizer, ILogger<AdminPanel> logger)
         {
             _logger = logger;
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
+            _mapChooser = mapChooser;
             _localizer = localizer;
             _iLocalizer = iLocalizer;
             _pluginState = pluginState;
@@ -47,6 +49,7 @@ namespace GameModeManager.Core
         private Type? _apiType;
         private Action? _readyHandler;
         private const string Category = "gamemodemanager";
+        private const string SectionPermission = "@css/generic"; // Each row has its own, so an admin with only one still gets in
         private const string ModePermission = "@css/changemap"; // Same flags as the commands behind these menus
         private const string CvarPermission = "@css/cvar";
         private readonly List<string> _entries = new();
@@ -113,16 +116,22 @@ namespace GameModeManager.Core
                 return;
 
             Unregister();
-            Call("RegisterMenuCategory", p => p.Length == 4, Category, "admin.category", ModePermission, _iLocalizer);
-            if (_config.Commands.Mode)
-                AddEntry("modes", "modes.menu-title", ModePermission, ModesMenu);
+
+            // Registering the section again starts it empty, so the rows always keep this order
+            Call("RegisterMenuCategory", p => p.Length == 4, Category, "admin.manage-game", SectionPermission, _iLocalizer);
             if (_config.Commands.Maps)
+            {
                 AddEntry("maps", "admin.maps", ModePermission, MapsMenu);
+                Call("UnregisterMenu", p => p.Length == 2, "server", "changemap"); // SimpleAdmin's own list ignores the current mode
+            }
+            if (_config.Commands.Mode)
+                AddEntry("modes", "admin.modes", ModePermission, ModesMenu);
             if (_config.Settings.Enabled)
-                AddEntry("settings", "settings.menu-title", CvarPermission, SettingsMenu);
+                AddEntry("settings", "admin.game-settings", CvarPermission, SettingsMenu);
             if (_config.Warmup.Enabled)
                 AddEntry("warmup", "admin.warmup", CvarPermission, WarmupMenu);
-            _logger.LogInformation("Added the Game Modes section to CS2-SimpleAdmin's menu");
+            AddEntry("rotation", "admin.rotation", CvarPermission, RotationMenu);
+            _logger.LogInformation("Added Manage game to CS2-SimpleAdmin's menu");
         }
 
         private void Unregister()
@@ -180,49 +189,102 @@ namespace GameModeManager.Core
         }
 
         // Define menus
-        private object ModesMenu(CCSPlayerController player)
+        private object MapsMenu(CCSPlayerController player)
         {
-            if (!_modeMenus.VotesEnabled)
-                return ModeListMenu(player, false);
-
-            object menu = NewMenu(_localizer.Localize("admin.category"), player);
-            AddSubMenu(menu, _localizer.Localize("admin.change-mode"), p => ModeListMenu(p, false));
-            AddSubMenu(menu, _localizer.Localize("admin.start-vote"), p => ModeListMenu(p, true));
+            object menu = NewMenu(_localizer.Localize("admin.maps"), player);
+            AddSubMenu(menu, _localizer.Localize("admin.change-map"), p => MapListMenu(p, false));
+            AddSubMenu(menu, _localizer.Localize("admin.next-map"), p => MapListMenu(p, true));
+            AddSubMenu(menu, _localizer.Localize("admin.start-vote"), MapVoteMenu);
             return menu;
         }
 
-        private object ModeListMenu(CCSPlayerController player, bool vote)
+        // The current mode's maps, so no modes
+        private object MapListMenu(CCSPlayerController player, bool next)
         {
-            object menu = NewMenu(_localizer.Localize("modes.menu-title"), player);
-            foreach (IMode mode in _pluginState.Game.Modes.Values.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
+            object menu = NewMenu(_localizer.Localize(next ? "admin.next-map" : "admin.change-map"), player);
+            var maps = _pluginState.Game.CurrentMode.Maps.Where(m => !_pluginState.Game.CurrentMap.Equals(m)).ToList();
+
+            if (!next && maps.Count > 0)
             {
-                bool current = _pluginState.Game.CurrentMode.Equals(mode);
-                AddOption(menu, MarkCurrent(mode.Name, current), p => Act(p, $"{(vote ? "vote" : "css_mode")} \"{mode.Name}\"", () =>
+                AddOption(menu, _localizer.Localize("admin.random-map"), p =>
                 {
-                    if (vote)
-                        _modeMenus.StartVote(p, mode);
-                    else
-                        _modeMenus.ChangeMode(p, mode);
+                    IMap map = maps[Random.Shared.Next(maps.Count)];
+                    Act(p, $"ggmap {map.Name}", () => _mapMenus.ChangeMap(p, map));
+                });
+            }
+
+            foreach (IMap map in _pluginState.Game.CurrentMode.Maps.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase))
+            {
+                bool current = _pluginState.Game.CurrentMap.Equals(map);
+                AddOption(menu, MarkCurrent(map.DisplayName, current), p => Act(p, $"{(next ? "setnextmap" : "ggmap")} {map.Name}", () =>
+                {
+                    if (!next)
+                        _mapMenus.ChangeMap(p, map);
+                    else if (!_mapChooser.SetNextMap(map))
+                        p.PrintToChat(_localizer.LocalizeWithPrefix("admin.vote-unavailable"));
                 }), current);
             }
             return menu;
         }
 
-        private object MapsMenu(CCSPlayerController player)
+        // Random vote, then a yes/no vote on one map
+        private object MapVoteMenu(CCSPlayerController player)
         {
-            object menu = NewMenu(_localizer.Localize("admin.maps"), player);
-            AddSubMenu(menu, _localizer.Localize("admin.change-map"), MapListMenu);
-            AddOption(menu, _localizer.Localize("admin.start-vote"), p => Act(p, "ggmc_mapvote_start", () => _mapMenus.StartVote(p)));
-            return menu;
-        }
-
-        private object MapListMenu(CCSPlayerController player)
-        {
-            object menu = NewMenu(_localizer.Localize("maps.menu-title"), player);
+            object menu = NewMenu(_localizer.Localize("admin.start-vote"), player);
+            AddOption(menu, _localizer.Localize("admin.random-vote"), p => Act(p, "ggmc_mapvote_start", () => _mapMenus.StartVote(p)));
             foreach (IMap map in _pluginState.Game.CurrentMode.Maps.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
                 bool current = _pluginState.Game.CurrentMap.Equals(map);
-                AddOption(menu, MarkCurrent(map.DisplayName, current), p => Act(p, $"ggmap {map.Name}", () => _mapMenus.ChangeMap(p, map)), current);
+                AddOption(menu, MarkCurrent(map.DisplayName, current), p => Act(p, $"vote \"{map.Name}\"", () => _mapMenus.StartVote(p, map)), current);
+            }
+            return menu;
+        }
+
+        private object ModesMenu(CCSPlayerController player)
+        {
+            object menu = NewMenu(_localizer.Localize("admin.modes"), player);
+            AddSubMenu(menu, _localizer.Localize("admin.change-mode"), ModeListMenu);
+            AddSubMenu(menu, _localizer.Localize("admin.next-mode"), NextModeListMenu);
+            if (_modeMenus.VotesEnabled)
+                AddSubMenu(menu, _localizer.Localize("admin.start-vote"), ModeVoteMenu);
+            return menu;
+        }
+
+        // Random vote, then a yes/no vote on one mode
+        private object ModeVoteMenu(CCSPlayerController player)
+        {
+            object menu = NewMenu(_localizer.Localize("admin.start-vote"), player);
+            AddOption(menu, _localizer.Localize("admin.random-vote"), p => Act(p, "mode vote", () => _modeMenus.StartVote(p)));
+            foreach (IMode mode in _pluginState.Game.Modes.Values.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                bool current = _pluginState.Game.CurrentMode.Equals(mode);
+                AddOption(menu, MarkCurrent(mode.Name, current), p => Act(p, $"vote \"{mode.Name}\"", () => _modeMenus.StartVote(p, mode)), current);
+            }
+            return menu;
+        }
+
+        private object ModeListMenu(CCSPlayerController player)
+        {
+            object menu = NewMenu(_localizer.Localize("admin.change-mode"), player);
+            AddOption(menu, _localizer.Localize("admin.random-mode"), p => Act(p, "css_mode random", () => _modeMenus.ChangeToRandomMode(p)));
+            foreach (IMode mode in _pluginState.Game.Modes.Values.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                bool current = _pluginState.Game.CurrentMode.Equals(mode);
+                AddOption(menu, MarkCurrent(mode.Name, current), p => Act(p, $"css_mode \"{mode.Name}\"", () => _modeMenus.ChangeMode(p, mode)), current);
+            }
+            return menu;
+        }
+
+        private object NextModeListMenu(CCSPlayerController player)
+        {
+            object menu = NewMenu(_localizer.Localize("admin.next-mode"), player);
+            foreach (IMode mode in _pluginState.Game.Modes.Values.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                AddOption(menu, MarkCurrent(mode.Name, _pluginState.Game.CurrentMode.Equals(mode)), p => Act(p, $"setnextmap {mode.Name}", () =>
+                {
+                    if (!_mapChooser.SetNextMode(mode))
+                        p.PrintToChat(_localizer.LocalizeWithPrefix("admin.vote-unavailable"));
+                }), !_mapChooser.CanBeNextMode(mode));
             }
             return menu;
         }
@@ -232,7 +294,7 @@ namespace GameModeManager.Core
             if (!_settingMenus.VotesEnabled)
                 return SettingListMenu(player, false);
 
-            object menu = NewMenu(_localizer.Localize("admin.settings"), player);
+            object menu = NewMenu(_localizer.Localize("admin.game-settings"), player);
             AddSubMenu(menu, _localizer.Localize("admin.change-setting"), p => SettingListMenu(p, false));
             AddSubMenu(menu, _localizer.Localize("admin.start-vote"), p => SettingListMenu(p, true));
             return menu;
@@ -240,7 +302,7 @@ namespace GameModeManager.Core
 
         private object SettingListMenu(CCSPlayerController player, bool vote)
         {
-            object menu = NewMenu(_localizer.Localize("settings.menu-title"), player);
+            object menu = NewMenu(_localizer.Localize(vote ? "admin.start-vote" : "admin.change-setting"), player);
             foreach (ISetting setting in _pluginState.Game.Settings.Values.OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase))
                 AddSubMenu(menu, setting.DisplayName, p => SettingMenu(p, setting, vote));
             return menu;
@@ -292,6 +354,58 @@ namespace GameModeManager.Core
                 }));
             }
             return menu;
+        }
+
+        // Applies until the server restarts. The defaults stay in GameModeManager.json's Rotation section.
+        private object RotationMenu(CCSPlayerController player)
+        {
+            RotationSettings rotation = _config.Rotation;
+            object menu = NewMenu(_localizer.Localize("admin.rotation"), player);
+
+            AddToggle(menu, "admin.rotation-maps", _pluginState.Game.RotationsEnabled, () => _pluginState.Game.RotationsEnabled = !_pluginState.Game.RotationsEnabled);
+            AddToggle(menu, "admin.rotation-modes", rotation.ModeRotation, () => rotation.ModeRotation = !rotation.ModeRotation);
+            AddValue(menu, "admin.rotation-interval", _localizer.Localize("admin.rotation-map-count", rotation.ModeInterval),
+                new[] { 1, 2, 3, 4, 5, 6, 8, 10 }, maps => _localizer.Localize("admin.rotation-map-count", maps), () => rotation.ModeInterval, maps => rotation.ModeInterval = maps);
+            AddToggle(menu, "admin.rotation-empty", rotation.WhenServerEmpty, () => rotation.WhenServerEmpty = !rotation.WhenServerEmpty);
+            AddValue(menu, "admin.rotation-empty-time", _localizer.Localize("admin.rotation-minutes", rotation.CustomTimeLimit / 60),
+                new[] { 5, 10, 15, 20, 30, 60 }, minutes => _localizer.Localize("admin.rotation-minutes", minutes), () => rotation.CustomTimeLimit / 60, minutes => rotation.CustomTimeLimit = minutes * 60);
+            return menu;
+        }
+
+        // "(ON) [name]" is the form PMM_SimpleAdmin draws as an ON/OFF pill. Shows the new state straight away, so several can be
+        // changed in one go.
+        private void AddToggle(object menu, string key, bool on, Action toggle)
+        {
+            AddOption(menu, $"({(on ? "ON" : "OFF")}) [{_localizer.Localize(key)}]", p =>
+            {
+                toggle();
+                ReopenRotation(p, $"{key} {!on}");
+            });
+        }
+
+        // The row shows the current value and its page lists only the choices
+        private void AddValue(object menu, string key, string current, int[] choices, Func<int, string> text, Func<int> read, Action<int> write)
+        {
+            string name = _localizer.Localize(key);
+            AddSubMenu(menu, $"{name}: {current}", player =>
+            {
+                object page = NewMenu(name, player);
+                foreach (int choice in choices)
+                {
+                    AddOption(page, MarkCurrent(text(choice), choice == read()), p =>
+                    {
+                        write(choice);
+                        ReopenRotation(p, $"{key} {choice}");
+                    });
+                }
+                return page;
+            });
+        }
+
+        private void ReopenRotation(CCSPlayerController player, string change)
+        {
+            Call("LogCommand", p => p.Length == 2 && p[1].ParameterType == typeof(string), player, $"rotation {change}");
+            Call("OpenMenu", p => p.Length == 2, RotationMenu(player), player);
         }
 
         // Define child class

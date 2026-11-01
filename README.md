@@ -29,40 +29,84 @@ This plugin utilizes the [GameLoop.Vdf library](https://github.com/shravan2x/Gam
 
 Player votes (`!changemode`, `!changesetting`) are built in since 2.0.0: a PanoramaMenu Yes/No menu, or the game's own F1/F2 vote panel (`Votes.Style: "native"`, adapted from [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser)'s PanoramaVote, MIT). Earlier versions used the [CS2-CustomVotes](https://github.com/imi-tat0r/CS2-CustomVotes) plugin, which is no longer needed.
 
-Vote settings (`Votes` in `GameModeManager.json`): `Enabled`, `GameModes`, `GameSettings`, `Style` (`menu` | `native`), `Percentage` (yes votes needed, % of eligible players, default 51), `Duration` (seconds, 30), `MinPlayers` (1), `Cooldown` (seconds before the same player can start another vote, 60), `AllowSpectators` (false), `AllowInWarmup` (false), `NativeDisplayToken`. One vote runs at a time, and none starts while a GG1MapChooser map vote is running.
+Vote settings (`Votes` in `GameModeManager.json`): `Enabled`, `GameModes`, `GameSettings`, `Style` (`menu` | `native`), `Percentage` (yes votes needed, % of eligible players, default 51), `Duration` (seconds, 30), `MinPlayers` (1), `Cooldown` (seconds before the same player can start another vote, 60), `AllowSpectators` (false), `AllowInWarmup` (false). One vote runs at a time, and none starts while a GG1MapChooser map vote is running.
 
 For creating menus, this plugin utilizes the [PanoramaMenuManager](https://github.com/RRimmer/PanoramaMenuManagerCS2) shared plugin API (`MenuManagerApi`, capability `menu:nfcore`). Versions before 2.0.0 used [MenuManagerAPI](https://github.com/Nickj609/MenuManagerAPI).
 
 Lastly, a special thanks to the [CS2 Rock The Vote plugin by Abnerfs](https://github.com/abnerfs/cs2-rockthevote). The plugin's use of the dependency injection framework served as the core architecture for the development of this plugin.
 
-## GG1MapChooser
+## Menus
+GameModeManager's menus use [PanoramaMenuManager](https://github.com/RRimmer/PanoramaMenuManagerCS2), so they look like part of the game. Each player picks the style they like by typing `!menu`, and the server remembers it. Players don't need to install anything: the game downloads the menu files when they join.
 
-Since 2.0.0, [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser) is **required**: it picks the maps, GameModeManager picks the mode and decides when the map changes. GameModeManager 1.0.x had its own RTV and map menus; stay on 1.0.x if you need those.
+| Panorama WASD | Panorama mouse |
+| :-: | :-: |
+| ![Panorama WASD menu](docs/images/menu-wasd.png) | ![Panorama mouse menu](docs/images/menu-mouse.png) |
+| Move with `W` and `S`, select with `D` or `E`, go back with `A` and close with `R`. | Click a row to select it. Long lists have page buttons at the bottom. |
 
-- GameModeManager keeps **one GG1 map pool per mode** (the mode's map groups) in `cfg/GGMCmaps.tuning.json`. Whenever the mode changes, it writes that mode's pool to GG1's `cfg/GGMCmaps.json` and runs `reloadmaps`, so RTV, nominate and votes only offer that mode's maps. Tune `weight` / `minplayers` / `maxplayers` in the tuning file; they are kept (`MapChooser.GeneratePools`). GG1's own pool vote can't be used with this.
-- **Modes in votes:** a few random other modes are added to the pool, reshuffled every map (`MapChooser.ModesInPool`, default 3; `ModeWeight` for how often they're picked; 0 turns it off). They appear in votes and `!nominate` as `Mode:<name>`. When one wins, GameModeManager changes to that mode. If nobody votes, GG1's random pick can also land on one.
-- **Maps of the current mode:** players see them with GG1's `!nominate`, admins with this plugin's `!maps` (GG1's own `css_maps` is removed at start-up).
-- GG1 provides `!rtv`, `!nominate`, `!nextmap`, `!timeleft`, the end-of-map vote and map extends. The `!game` menu has entries for them.
-- GG1 starts the end-of-map vote on round-limited matches. GameModeManager starts it on time-limited matches (`MapChooser.TriggerSecondsBeforeEnd`, default 60) and arms race (`TriggerKillsBeforeEnd`, 13), and again after a map extend.
-- At match end, time-limit end or on an empty server, GameModeManager changes the map after its countdown with GG1's `ggmc_change_nextmap` (the voted map, else a random one from the pool), or rotates the mode when it's due. With `Rotation.Enabled: false` it leaves the map alone.
+| Panorama number keys | CS:GO style |
+| :-: | :-: |
+| ![Panorama number keys menu](docs/images/menu-digits.png) | ![CS:GO style menu](docs/images/menu-csgo.png) |
+| Press `1` to `6` to select, `8` for back, `9` for next and `0` to close. | The classic number key menu. Press `1` to `7` to select, `8` for back, `9` for next and `0` to exit. |
 
-GG1 is not changed: it's used through its map file, commands and public API. A few things reach further (reading whether a next map was picked, the per-mode vote options, removing its `css_maps`); each logs a warning or does nothing if a GG1 update changes it. The zip's GG1 config already has the settings that let only GameModeManager change the map (`ChangeMapAfterWinDraw`, `ChangeMapAfterTimeLimit`, `RandomMapOnStart` and `LastDisconnectedChangeMap` off) and the `wasd` menus the bridge needs. Keep those if you edit it. To change the map by name, use an admin plugin (for example [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin)'s `!map`) or GG1's `ggmap`.
+Number key styles need the number keys bound once. When a player picks one, a short check walks them through it. `!menu` also has center-screen and chat styles.
+
+The pictures in this README are illustrations, so details may differ slightly in-game.
+
+## Map and Mode Votes
+Players choose what to play next with [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser), which comes with GameModeManager.
+
+![Map and mode vote](docs/images/vote.png)
+
+- **Rock the vote:** type `!rtv` to ask for a new map. When enough players agree, a vote starts.
+- **Nominate:** type `!nominate` and choose **Map** or **Mode** to suggest something for the next vote. One mode can be nominated at a time, and maps that aren't available are greyed out.
+- **End-of-map vote:** a vote starts by itself near the end of a match, and it can offer more time on the current map.
+- **Only the right maps:** votes and nominations only list maps from the current game mode, so a surf server won't offer a competitive map.
+- **Change the mode by vote:** one other game mode can appear in the vote beside the maps, and if it wins, the server changes to it. Votes can also choose a map at random from the current mode.
+- **Quick yes/no votes:** type `!changemap` or `!changemode` to pick from a list, or add a name to vote on it straight away, like `!changemode Gun Game`.
+- **Handy commands:** `!nextmap` shows what's next, `!timeleft` shows the time remaining, and `!game` puts these all in one menu.
+
+Admins can start a random vote or a yes/no vote from **Start vote** in `!maps`, `!modes` and the admin menu.
+
+<details>
+<summary>Setup notes for server owners</summary>
+
+<br>
+
+GG1MapChooser is **required** since 2.0.0: it picks the maps, and GameModeManager picks the mode and decides when the map changes. GameModeManager 1.0.x had its own RTV and map menus, so stay on 1.0.x if you need those.
+
+- **Map lists:** GameModeManager builds one map list per mode from your map groups in `cfg/GGMCmaps.tuning.json`. Change `weight`, `minplayers` and `maxplayers` there and your changes are kept. GG1's own pool vote can't be used with this.
+- **Settings:** `MapChooser.ModesInVotes` turns modes in votes off. `MapChooser.TriggerSecondsBeforeEnd` (default 60) and `TriggerKillsBeforeEnd` (default 13) set when the end-of-map vote starts on time-limited matches and arms race.
+- **Map changes:** at the end of a match, GameModeManager changes to the winning map, or a random one if nobody voted, after a short countdown. With `Rotation.Enabled: false` it leaves the map alone. If nobody votes, the random pick can also land on the mode in the vote.
+- **Keep these GG1 settings:** the included config turns off `ChangeMapAfterWinDraw`, `ChangeMapAfterTimeLimit`, `RandomMapOnStart` and `LastDisconnectedChangeMap` so only GameModeManager changes the map, and uses the `wasd` menus the bridge needs.
+- **GG1 updates:** GG1 isn't modified. A few features read its internals and log a warning or do nothing if an update changes them.
+- **Vote panel text:** `Votes.NativeTitleToken` shows each vote's own title on the game's F1/F2 vote panel, but needs `platform_english.txt` on the server and every player's PC.
+- **Changing to any map by name:** use an admin plugin like [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin)'s `!map`, or GG1's `ggmap`.
+
+</details>
 
 ## CS2-SimpleAdmin (optional)
+If you use [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin), its admin menu gets a **Manage game** section with everything in one place. Nothing else changes if you don't use it.
 
-When [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin) is installed, its admin menu gets a **Game Modes** section with the same options as `!modes`, `!maps`, `!settings` and `!warmup`, using its menus and Back button (`AdminPanel.Enabled` to turn it off). Nothing else changes without it.
+| Manage game | Rotation |
+| :-: | :-: |
+| ![Manage game section of the admin menu](docs/images/admin.png) | ![Rotation page of the admin menu](docs/images/admin-rotation.png) |
+| Change or vote on maps and modes, turn settings on and off, and control warmup. | Turn map and mode rotation on or off and choose how often they change. These changes last until the server restarts. |
+
+- **Polls:** with SimpleAdmin, `!vote` asks players a question. One or two words make a yes/no vote, and with more, the first is the question and the rest are its answers: `!vote "Best map?" Mirage Inferno Nuke`.
+- **To get the red panel shown here:** install the optional [PMM_SimpleAdmin](https://github.com/RRimmer/PMM_SimpleAdmin) plugin, which isn't in the zip, then restart the server fully. Its menu files are already in GameModeManager's Workshop addon, so players don't need anything extra. Without it, the same items appear in SimpleAdmin's normal menus.
+- **Turning it off:** set `AdminPanel.Enabled` to `false` in `GameModeManager.json`.
 
 ## Requirements
 You need these on your server already, on Windows or Linux:
 - [Metamod:Source](https://github.com/alliedmodders/metamod-source/) 2.0
 - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) **v1.0.369+** (the with-runtime build; GameModeManager 2.0.0+ targets .NET 10, so use 1.0.x on older servers)
-- [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager), installed and turned on. It sends players the Workshop addon that menus need. GameModeManager adds that addon to its list by itself, and your other addons and its config stay as they are (`WorkshopAddon` in `GameModeManager.json`: comma-separated IDs, or empty if you load the addon yourself).
+- [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager), installed and turned on. It sends players the Workshop addon that menus need. GameModeManager adds that addon to its list by itself, and your other addons and its config stay as they are. To use your own addon instead, put its Workshop ID in `WorkshopAddon` in `GameModeManager.json` (comma-separated for several), or leave it empty to stop GameModeManager adding any. Only load one addon with these menu files: two would both replace the same files, so you can't be sure which styling players get.
 
 Everything else is **in the release zip**, so copying it to `/csgo/` and restarting the server fully is enough:
 
 | Included | Version | License | Purpose |
 | --- | --- | --- | --- |
-| [PanoramaMenuManager](https://github.com/RRimmer/PanoramaMenuManagerCS2) | 1.3.00 | GPL v3 | Menus |
+| [PanoramaMenuManager](https://github.com/RRimmer/PanoramaMenuManagerCS2) | 1.3.01 | GPL v3 | Menus |
 | [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser) | 1.8.1 | MIT | Map votes, RTV, nominate |
 | [PMM_GG1MapChooser](https://github.com/RRimmer/PMM-GG1MapChooser) | 0.1.0 | GPL v3 | Draws votes and nominate on PanoramaMenu |
 
@@ -79,15 +123,13 @@ Their licenses are in their folders, and the links above have their source. Thei
 
 | Command                                       | Description                                                                                              |
 | :-------------------------------------------- | :------------------------------------------------------------------------------------------------------- |
-| css_gamemode <mode>                           | Sets the current mode.                                                                                   |
-| css_warmupmode <mode>                         | Schedules and sets the game mode to be used during the warmup period.                                    |
-| css_endwarmup                                 | Ends the custom warmup mode, transitioning to the scheduled or default game mode.                        |
-| css_startwarmup <mode>                        | Immediately starts a custom warmup mode with the specified mode.                                         |
-| css_timelimit <true\|false> <seconds>         | Enables or disables a time limit for the map. Optionally, you can specify the time limit in seconds.     |
-| css_mapvote_auto <true\|false>                | Turns the automatic end-of-map vote on or off for the current mode (for mode cfgs).                      |
-| css_mapvote_extend <true\|false>              | Offers "extend map" in map votes or not for the current mode (for mode cfgs).                            || css_mapvote_auto <true|false>               | Turns the automatic end-of-map vote on or off for the current mode (for mode cfgs).                     |
-| css_mapvote_extend <true|false>             | Offers "extend map" in map votes or not for the current mode (for mode cfgs).                            |
-|false> <seconds>         | Enables or disables a time limit for the map. Optionally, you can specify the time limit in seconds.     |
+| `css_gamemode <mode>` | Sets the current mode.                                                                                   |
+| `css_warmupmode <mode>` | Schedules and sets the game mode to be used during the warmup period.                                    |
+| `css_endwarmup` | Ends the custom warmup mode, transitioning to the scheduled or default game mode.                        |
+| `css_startwarmup <mode>` | Immediately starts a custom warmup mode with the specified mode.                                         |
+| `css_timelimit <true\|false> <seconds>` | Enables or disables a time limit for the map. Optionally, you can specify the time limit in seconds.     |
+| `css_mapvote_auto <true\|false>` | Turns the automatic end-of-map vote on or off for the current mode (for mode cfgs).                      |
+| `css_mapvote_extend <true\|false>` | Offers "extend map" in map votes or not for the current mode (for mode cfgs).                            |
 
 </details>
 	
@@ -98,13 +140,13 @@ Their licenses are in their folders, and the links above have their source. Thei
 
 | Command                                   | Description                                                                                                            |
 | :---------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
-| !maps                                     | Displays an admin menu to change to one of the current mode's maps or start a map vote.                                |
-| !modes                                    | Displays an admin menu to change the game mode or start a vote on one.                                                 |
-| !settings                                 | Displays an admin menu to enable or disable custom game settings, or start a vote on one.                              |   
-| !mode <mode name>                         | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**.                 |    
-| !warmup                                   | Displays an admin menu to start, schedule or end warmup.                                                               |
-| !timelimit <true\|false> <seconds>        | Sets the time limit for the current map.                                                                               |
-| !setting <enable\|disable> <setting name> | Enables or disables a custom game setting. For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**. |
+| `!maps` | Displays an admin menu to change to one of the current mode's maps or start a map vote.                                |
+| `!modes` | Displays an admin menu to change the game mode or start a vote on one.                                                 |
+| `!settings` | Displays an admin menu to enable or disable custom game settings, or start a vote on one.                              |   
+| `!mode <mode name>` | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**.                 |    
+| `!warmup` | Displays an admin menu to start, schedule or end warmup.                                                               |
+| `!timelimit <true\|false> <seconds>` | Sets the time limit for the current map.                                                                               |
+| `!setting <enable\|disable> <setting name>` | Enables or disables a custom game setting. For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**. |
 
 </details>
 
@@ -115,11 +157,13 @@ Their licenses are in their folders, and the links above have their source. Thei
 
 | Command        | Description                                                              |
 | :------------- | :----------------------------------------------------------------------- |
-| !game          | Menu of player commands, including GG1MapChooser's RTV, Nominate, Next map, Time left. |
-| !currentmap    | Displays the current map.                                                |
-| !currentmode   | Displays the current game mode.                                          |
-| !changemode    | Menu of modes; picking one starts a yes/no vote to change to it.         |
-| !changesetting | Menu of settings; pick one, then Enable or Disable, to start a vote.     |
+| `!game` | Menu of player commands, including GG1MapChooser's RTV, Nominate, Next map, Time left. |
+| `!currentmap` | Displays the current map.                                                |
+| `!currentmode` | Displays the current game mode.                                          |
+| `!menu` | Choose your menu style. |
+| `!changemap` | Menu of the current mode's maps; picking one starts a yes/no vote to change to it. |
+| `!changemode` | Menu of modes; picking one starts a yes/no vote to change to it.         |
+| `!changesetting` | Menu of settings; pick one, then Enable or Disable, to start a vote.     |
 
 RTV, nominate (the current mode's maps), next map and time left come from GG1MapChooser: `!rtv`, `!nominate`, `!nextmap`, `!timeleft`.
 

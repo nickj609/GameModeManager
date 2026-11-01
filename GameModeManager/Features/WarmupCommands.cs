@@ -1,6 +1,7 @@
 // Included libraries
 using GameModeManager.Core;
 using GameModeManager.Menus;
+using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
@@ -75,24 +76,17 @@ namespace GameModeManager.Features
         {
             if(player == null)
             {
-                if (!_pluginState.Game.WarmupScheduled)
+                if (!armsRace)
                 {
-                    if (!armsRace)
-                    {
-                        if(_warmupManager.ScheduleWarmup(command.ArgByIndex(1)))
-                            _logger.LogInformation($"Warmup Mode: Warmup scheduled.");   
-                        else
-                            _logger.LogError($"Warmup Mode: {command.ArgByIndex(1)} cannot be found."); 
-                    }
+                    if(_warmupManager.ScheduleWarmup(command.ArgByIndex(1)))
+                        _logger.LogInformation($"Warmup Mode: Warmup scheduled.");
                     else
-                    {
-                        _logger.LogWarning("Warmup Mode: Warmup cannot be scheduled in ArmsRace mode.");
-                    }
+                        _logger.LogError($"Warmup Mode: {command.ArgByIndex(1)} cannot be found.");
                 }
                 else
                 {
-                    _logger.LogWarning("Warmup Mode: Warmup already scheduled.");
-                }       
+                    _logger.LogWarning("Warmup Mode: Warmup cannot be scheduled in ArmsRace mode.");
+                }
             }
         }
 
@@ -108,8 +102,7 @@ namespace GameModeManager.Features
                     {
                         if(_pluginState.Game.WarmupModes.TryGetValue(command.ArgByIndex(1), out IMode? _mode))
                         {
-                            _pluginState.Game.WarmupScheduled = true;
-                            _warmupManager.StartWarmup(_mode);
+                            _warmupManager.RunWarmup(_mode);
                         }
                         else
                         {
@@ -118,8 +111,7 @@ namespace GameModeManager.Features
                     }
                     else
                     {
-                        _pluginState.Game.WarmupScheduled = true;
-                        _warmupManager.StartWarmup(_pluginState.Game.WarmupMode);
+                        _warmupManager.RunWarmup(_pluginState.Game.WarmupMode);
                     }
                 }
                 else
@@ -138,7 +130,10 @@ namespace GameModeManager.Features
                 if (_pluginState.Game.WarmupRunning)
                     _warmupManager.EndWarmup();
                 else
+                {
                     _pluginState.Game.WarmupScheduled = false;
+                    Server.ExecuteCommand("mp_warmup_end");
+                }
             }
         }
     }
