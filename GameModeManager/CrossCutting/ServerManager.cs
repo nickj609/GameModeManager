@@ -134,7 +134,20 @@ namespace GameModeManager.CrossCutting
         public void ChangeMapInPool(IMap map)
         {
             if (_mapChooser.Available)
-                ChangeMap(_config.Maps.Delay, () => _mapChooser.ChangeToMap(map));
+                ChangeMap(_config.Maps.Delay, () =>
+                {
+                    _mapChooser.ChangeToMap(map);
+
+                    // GG1 does nothing if the name doesn't match one map in its list, which would leave players frozen
+                    new Timer(2.0f, () =>
+                    {
+                        if (_mapChooser.MapChanging() == false)
+                        {
+                            _logger.LogWarning("GG1MapChooser didn't change to {Map}: changing to it directly.", map.Name);
+                            RunMapCommand(map);
+                        }
+                    }, TimerFlags.STOP_ON_MAPCHANGE);
+                });
             else
                 ChangeMap(map, _config.Maps.Delay);
         }
