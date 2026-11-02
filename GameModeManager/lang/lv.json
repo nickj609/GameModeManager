@@ -1,5 +1,5 @@
 {
-  "plugin.prefix": "[{GREEN}Serveris{DEFAULT}]",
+  "plugin.prefix": "{GREEN}[Serveris]{DEFAULT}",
   "currentmap.message": "{RED}[Pašreizējā karte]{DEFAULT} {0}",
   "currentmode.message": "{GREEN}[Pašreizējais režīms]{DEFAULT} {0}",
   "changemode.message": "Administrators {LIGHTRED}{0}{DEFAULT} ir nomainījis spēles režīmu uz {LIGHTRED}{1}{DEFAULT}.",

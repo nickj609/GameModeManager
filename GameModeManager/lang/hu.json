@@ -1,5 +1,5 @@
 {
-  "plugin.prefix": "[{GREEN}Szerver{DEFAULT}]",
+  "plugin.prefix": "{GREEN}[Szerver]{DEFAULT}",
   "currentmap.message": "{RED}[Jelenlegi pálya]{DEFAULT} {0}",
   "currentmode.message": "{GREEN}[Jelenlegi mód]{DEFAULT} {0}",
   "changemode.message": "A(z) {LIGHTRED}{0}{DEFAULT} adminisztrátor átállította a játékmódot {LIGHTRED}{1}{DEFAULT} módra.",

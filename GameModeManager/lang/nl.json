@@ -1,5 +1,5 @@
 {
-  "plugin.prefix": "[{GREEN}Server{DEFAULT}]",
+  "plugin.prefix": "{GREEN}[Server]{DEFAULT}",
   "currentmap.message": "{RED}[Huidige kaart]{DEFAULT} {0}",
   "currentmode.message": "{GREEN}[Huidige modus]{DEFAULT} {0}",
   "changemode.message": "Beheerder {LIGHTRED}{0}{DEFAULT} heeft de spelmodus gewijzigd naar {LIGHTRED}{1}{DEFAULT}.",

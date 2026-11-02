@@ -1,5 +1,5 @@
 {
-  "plugin.prefix": "[{GREEN}Сервер{DEFAULT}]",
+  "plugin.prefix": "{GREEN}[Сервер]{DEFAULT}",
   "currentmap.message": "{RED}[Текущая карта]{DEFAULT} {0}",
   "currentmode.message": "{GREEN}[Текущий режим]{DEFAULT} {0}",
   "changemode.message": "Администратор {LIGHTRED}{0}{DEFAULT} изменил режим игры на {LIGHTRED}{1}{DEFAULT}.",

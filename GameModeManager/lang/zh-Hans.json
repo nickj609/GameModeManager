@@ -1,5 +1,5 @@
 {
-  "plugin.prefix": "[{GREEN}服务器{DEFAULT}]",
+  "plugin.prefix": "{GREEN}[服务器]{DEFAULT}",
   "currentmap.message": "{RED}当前地图{DEFAULT}：{0}",
   "currentmode.message": "{LIME}当前模式{DEFAULT}：{0}",
   "changemode.message": "管理员{LIGHTRED}{0}{DEFAULT}已将游戏模式更改为{LIGHTRED}{1}{DEFAULT}",

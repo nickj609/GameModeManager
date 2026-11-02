@@ -1,5 +1,5 @@
 {
-  "plugin.prefix": "[{GREEN}Sunucu{DEFAULT}]",
+  "plugin.prefix": "{GREEN}[Sunucu]{DEFAULT}",
   "currentmap.message": "{RED}[Mevcut Harita]{DEFAULT} {0}",
   "currentmode.message": "{GREEN}[Mevcut Mod]{DEFAULT} {0}",
   "changemode.message": "Yönetici {LIGHTRED}{0}{DEFAULT} oyun modunu {LIGHTRED}{1}{DEFAULT} olarak değiştirdi.",
