@@ -83,20 +83,58 @@ namespace GameModeManager.Features
 
         // Define admin change mode command handler
         [RequiresPermissions("@css/changemap")]
-        [CommandHelper(minArgs: 1, usage: "<mode>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+        [CommandHelper(minArgs: 1, usage: "<mode> [map]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         public void OnModeCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (_pluginState.Game.Modes.TryGetValue(command.ArgByIndex(1), out IMode? _mode))
+            List<string> _args = new();
+            for (int i = 1; i < command.ArgCount; i++)
+                _args.Add(command.ArgByIndex(i));
+
+            // The whole text is a mode, or the last word is a map of the mode before it. Mode names can have spaces.
+            string? _mapName = null;
+            if (!_pluginState.Game.Modes.TryGetValue(string.Join(" ", _args), out IMode? _mode) && _args.Count > 1)
             {
-                if(player != null)
+                if (_pluginState.Game.Modes.TryGetValue(string.Join(" ", _args.Take(_args.Count - 1)), out _mode))
+                    _mapName = _args[^1];
+            }
+
+            if (_mode == null)
+            {
+                command.ReplyToCommand(_localizer.LocalizeWithPrefix("changemode.mode-not-found", string.Join(" ", _args)));
+                return;
+            }
+
+            if (_mapName == null)
+            {
+                if (player != null)
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
 
                 _serverManager.ChangeMode(_mode);
+                return;
             }
-            else
+
+            IMap? _map = FindMap(_mode, _mapName);
+            if (_map == null)
             {
-                command.ReplyToCommand($"Can't find mode: {command.ArgByIndex(1)}");
+                command.ReplyToCommand(_localizer.LocalizeWithPrefix("changemode.map-not-found", _mapName, _mode.Name));
+                return;
             }
+
+            if (player != null)
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.map-message", player.PlayerName, _mode.Name, _map.DisplayName));
+
+            _serverManager.ChangeMode(_mode, _map);
+        }
+
+        // A map of the mode by name, display name or workshop ID. No partial matches, so a typo can't pick another map.
+        private static IMap? FindMap(IMode mode, string name)
+        {
+            // Maps that aren't from the workshop have the ID -1
+            bool _isId = long.TryParse(name, out long _workshopId) && _workshopId > 0;
+            return mode.Maps.FirstOrDefault(map =>
+                map.Name.Equals(name, StringComparison.OrdinalIgnoreCase) ||
+                map.DisplayName.Equals(name, StringComparison.OrdinalIgnoreCase) ||
+                (_isId && map.WorkshopId == _workshopId));
         }
 
         // Define admin mode menu command handler

@@ -31,7 +31,7 @@ The commands below can be run by the server, such as within your mode configurat
 | !maps                                     | Displays an admin menu to change to one of the current mode's maps or start a map vote.                                |
 | !modes                                    | Displays an admin menu to change the game mode or start a vote on one.                                                 |
 | !settings                                 | Displays an admin menu to enable or disable custom game settings, or start a vote on one.                              |
-| !mode <mode name>                         | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**.                 |
+| !mode <mode name> [map]                   | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**. Add a map from that mode's list to start on it, like **!mode surf surf_beginner**. |
 | !warmup                                   | Displays an admin menu to start, schedule or end warmup.                                                               |
 | !timelimit <true\|false> <seconds>        | Sets the time limit for the current map.                                                                               |
 | !setting <enable\|disable> <setting name> | Enables or disables a custom game setting. For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**. |

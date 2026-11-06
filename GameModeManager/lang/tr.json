@@ -1,8 +1,11 @@
 {
-  "plugin.prefix": "{GREEN}[Sunucu]{DEFAULT}",
+  "plugin.prefix": "{RED}[GMM]{DEFAULT}",
   "currentmap.message": "{RED}[Mevcut Harita]{DEFAULT} {0}",
   "currentmode.message": "{GREEN}[Mevcut Mod]{DEFAULT} {0}",
   "changemode.message": "Yönetici {LIGHTRED}{0}{DEFAULT} oyun modunu {LIGHTRED}{1}{DEFAULT} olarak değiştirdi.",
+  "changemode.map-message": "Yönetici {LIGHTRED}{0}{DEFAULT} oyun modunu {LIGHTRED}{2}{DEFAULT} haritasında {LIGHTRED}{1}{DEFAULT} olarak değiştirdi.",
+  "changemode.map-not-found": "{LIGHTRED}{0}{DEFAULT}, {LIGHTRED}{1}{DEFAULT} harita listesinde yok.",
+  "changemode.mode-not-found": "{LIGHTRED}{0}{DEFAULT} adında bir mod yok.",
   "enable.changesetting.message": "Yönetici {LIGHTRED}{0}{DEFAULT}, {LIGHTRED}{1}{DEFAULT} ayarını {LIGHTRED}Etkinleştirdi{DEFAULT}.",
   "disable.changesetting.message": "Yönetici {LIGHTRED}{0}{DEFAULT}, {LIGHTRED}{1}{DEFAULT} ayarını {LIGHTRED}Devre Dışı Bıraktı{DEFAULT}.",
   "commands.menu-title": "Oyun Komutları",

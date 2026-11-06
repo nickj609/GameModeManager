@@ -1,8 +1,11 @@
 {
-  "plugin.prefix": "{GREEN}[Сервер]{DEFAULT}",
+  "plugin.prefix": "{RED}[GMM]{DEFAULT}",
   "currentmap.message": "{RED}[Поточна карта]{DEFAULT} {0}",
   "currentmode.message": "{GREEN}[Поточний режим]{DEFAULT} {0}",
   "changemode.message": "Адміністратор {LIGHTRED}{0}{DEFAULT} змінив режим гри на {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.map-message": "Адміністратор {LIGHTRED}{0}{DEFAULT} змінив режим гри на {LIGHTRED}{1}{DEFAULT} на карті {LIGHTRED}{2}{DEFAULT}.",
+  "changemode.map-not-found": "Карти {LIGHTRED}{0}{DEFAULT} немає у списку карт режиму {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.mode-not-found": "Режиму з назвою {LIGHTRED}{0}{DEFAULT} немає.",
   "enable.changesetting.message": "Адміністратор {LIGHTRED}{0}{DEFAULT} {LIGHTRED}увімкнув{DEFAULT} налаштування {LIGHTRED}{1}{DEFAULT}.",
   "disable.changesetting.message": "Адміністратор {LIGHTRED}{0}{DEFAULT} {LIGHTRED}вимкнув{DEFAULT} налаштування {LIGHTRED}{1}{DEFAULT}.",
   "commands.menu-title": "Ігрові Команди",

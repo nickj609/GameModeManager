@@ -1,8 +1,11 @@
 {
-  "plugin.prefix": "{GREEN}[Server]{DEFAULT}",
+  "plugin.prefix": "{RED}[GMM]{DEFAULT}",
   "currentmap.message": "{RED}[Huidige kaart]{DEFAULT} {0}",
   "currentmode.message": "{GREEN}[Huidige modus]{DEFAULT} {0}",
   "changemode.message": "Beheerder {LIGHTRED}{0}{DEFAULT} heeft de spelmodus gewijzigd naar {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.map-message": "Beheerder {LIGHTRED}{0}{DEFAULT} heeft de spelmodus gewijzigd naar {LIGHTRED}{1}{DEFAULT} op {LIGHTRED}{2}{DEFAULT}.",
+  "changemode.map-not-found": "{LIGHTRED}{0}{DEFAULT} staat niet in de mappenlijst van {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.mode-not-found": "Er is geen modus met de naam {LIGHTRED}{0}{DEFAULT}.",
   "enable.changesetting.message": "Beheerder {LIGHTRED}{0}{DEFAULT} heeft de instelling {LIGHTRED}{1}{DEFAULT} {LIGHTRED}ingeschakeld{DEFAULT}.",
   "disable.changesetting.message": "Beheerder {LIGHTRED}{0}{DEFAULT} heeft de instelling {LIGHTRED}{1}{DEFAULT} {LIGHTRED}uitgeschakeld{DEFAULT}.",
   "commands.menu-title": "Spelcommando's",

@@ -1,8 +1,11 @@
 {
-  "plugin.prefix": "{GREEN}[Szerver]{DEFAULT}",
+  "plugin.prefix": "{RED}[GMM]{DEFAULT}",
   "currentmap.message": "{RED}[Jelenlegi pálya]{DEFAULT} {0}",
   "currentmode.message": "{GREEN}[Jelenlegi mód]{DEFAULT} {0}",
   "changemode.message": "A(z) {LIGHTRED}{0}{DEFAULT} adminisztrátor átállította a játékmódot {LIGHTRED}{1}{DEFAULT} módra.",
+  "changemode.map-message": "A(z) {LIGHTRED}{0}{DEFAULT} adminisztrátor átállította a játékmódot erre: {LIGHTRED}{1}{DEFAULT}, a(z) {LIGHTRED}{2}{DEFAULT} pályán.",
+  "changemode.map-not-found": "{LIGHTRED}{0}{DEFAULT} nincs a(z) {LIGHTRED}{1}{DEFAULT} pályalistájában.",
+  "changemode.mode-not-found": "Nincs {LIGHTRED}{0}{DEFAULT} nevű mód.",
   "enable.changesetting.message": "A(z) {LIGHTRED}{0}{DEFAULT} adminisztrátor {LIGHTRED}engedélyezte{DEFAULT} a(z) {LIGHTRED}{1}{DEFAULT} beállítást.",
   "disable.changesetting.message": "A(z) {LIGHTRED}{0}{DEFAULT} adminisztrátor {LIGHTRED}letiltotta{DEFAULT} a(z) {LIGHTRED}{1}{DEFAULT} beállítást.",
   "commands.menu-title": "Játék Parancsok",

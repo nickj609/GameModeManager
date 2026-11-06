@@ -1,8 +1,11 @@
 {
-  "plugin.prefix": "{GREEN}[Serveris]{DEFAULT}",
+  "plugin.prefix": "{RED}[GMM]{DEFAULT}",
   "currentmap.message": "{RED}[Pašreizējā karte]{DEFAULT} {0}",
   "currentmode.message": "{GREEN}[Pašreizējais režīms]{DEFAULT} {0}",
   "changemode.message": "Administrators {LIGHTRED}{0}{DEFAULT} ir nomainījis spēles režīmu uz {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.map-message": "Administrators {LIGHTRED}{0}{DEFAULT} ir nomainījis spēles režīmu uz {LIGHTRED}{1}{DEFAULT} kartē {LIGHTRED}{2}{DEFAULT}.",
+  "changemode.map-not-found": "{LIGHTRED}{0}{DEFAULT} nav režīma {LIGHTRED}{1}{DEFAULT} karšu sarakstā.",
+  "changemode.mode-not-found": "Nav režīma ar nosaukumu {LIGHTRED}{0}{DEFAULT}.",
   "enable.changesetting.message": "Administrators {LIGHTRED}{0}{DEFAULT} ir {LIGHTRED}Ieslēdzis{DEFAULT} iestatījumu {LIGHTRED}{1}{DEFAULT}.",
   "disable.changesetting.message": "Administrators {LIGHTRED}{0}{DEFAULT} ir {LIGHTRED}Izslēdzis{DEFAULT} iestatījumu {LIGHTRED}{1}{DEFAULT}.",
   "commands.menu-title": "Spēles Komandas",

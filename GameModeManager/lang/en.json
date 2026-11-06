@@ -1,8 +1,11 @@
 {
-  "plugin.prefix": "{GREEN}[Server]{DEFAULT}",
+  "plugin.prefix": "{RED}[GMM]{DEFAULT}",
   "currentmap.message": "{RED}[Current Map]{DEFAULT} {0}",
   "currentmode.message": "{GREEN}[Current Mode]{DEFAULT} {0}",
   "changemode.message": "Admin {LIGHTRED}{0}{DEFAULT} has changed the game mode to {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.map-message": "Admin {LIGHTRED}{0}{DEFAULT} has changed the game mode to {LIGHTRED}{1}{DEFAULT} on {LIGHTRED}{2}{DEFAULT}.",
+  "changemode.map-not-found": "{LIGHTRED}{0}{DEFAULT} isn't in the {LIGHTRED}{1}{DEFAULT} map pool.",
+  "changemode.mode-not-found": "There's no mode called {LIGHTRED}{0}{DEFAULT}.",
   "enable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} has {LIGHTRED}Enabled{DEFAULT} setting {LIGHTRED}{1}{DEFAULT}.",
   "disable.changesetting.message": "Admin {LIGHTRED}{0}{DEFAULT} has {LIGHTRED}Disabled{DEFAULT} setting {LIGHTRED}{1}{DEFAULT}.",
   "commands.menu-title": "Game Commands",

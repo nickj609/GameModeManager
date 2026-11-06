@@ -1,8 +1,11 @@
 {
-  "plugin.prefix": "{GREEN}[服务器]{DEFAULT}",
+  "plugin.prefix": "{RED}[GMM]{DEFAULT}",
   "currentmap.message": "{RED}当前地图{DEFAULT}：{0}",
   "currentmode.message": "{LIME}当前模式{DEFAULT}：{0}",
   "changemode.message": "管理员{LIGHTRED}{0}{DEFAULT}已将游戏模式更改为{LIGHTRED}{1}{DEFAULT}",
+  "changemode.map-message": "管理员{LIGHTRED}{0}{DEFAULT}已将游戏模式更改为{LIGHTRED}{1}{DEFAULT}，地图为{LIGHTRED}{2}{DEFAULT}。",
+  "changemode.map-not-found": "{LIGHTRED}{0}{DEFAULT}不在{LIGHTRED}{1}{DEFAULT}的地图列表中。",
+  "changemode.mode-not-found": "没有名为{LIGHTRED}{0}{DEFAULT}的模式。",
   "enable.changesetting.message": "管理员{LIGHTRED}{0}{DEFAULT}已{LIGHTRED}启用{DEFAULT}设置{LIGHTRED}{1}{DEFAULT}",
   "disable.changesetting.message": "管理员{LIGHTRED}{0}{DEFAULT}已{LIGHTRED}禁用{DEFAULT}设置{LIGHTRED}{1}{DEFAULT}",
   "commands.menu-title": "地图快捷指令",

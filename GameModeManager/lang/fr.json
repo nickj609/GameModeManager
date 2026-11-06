@@ -1,8 +1,11 @@
 {
-  "plugin.prefix": "{GREEN}[Serveur]{DEFAULT}",
+  "plugin.prefix": "{RED}[GMM]{DEFAULT}",
   "currentmap.message": "{RED}[Carte actuelle]{DEFAULT} {0}",
   "currentmode.message": "{GREEN}[Mode actuel]{DEFAULT} {0}",
   "changemode.message": "L'administrateur {LIGHTRED}{0}{DEFAULT} a changé le mode de jeu en {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.map-message": "L'administrateur {LIGHTRED}{0}{DEFAULT} a changé le mode de jeu en {LIGHTRED}{1}{DEFAULT} sur {LIGHTRED}{2}{DEFAULT}.",
+  "changemode.map-not-found": "{LIGHTRED}{0}{DEFAULT} n'est pas dans la liste des cartes de {LIGHTRED}{1}{DEFAULT}.",
+  "changemode.mode-not-found": "Aucun mode ne s'appelle {LIGHTRED}{0}{DEFAULT}.",
   "enable.changesetting.message": "L'administrateur {LIGHTRED}{0}{DEFAULT} a {LIGHTRED}Activé{DEFAULT} le paramètre {LIGHTRED}{1}{DEFAULT}.",
   "disable.changesetting.message": "L'administrateur {LIGHTRED}{0}{DEFAULT} a {LIGHTRED}Désactivé{DEFAULT} le paramètre {LIGHTRED}{1}{DEFAULT}.",
   "commands.menu-title": "Commandes de Jeu",
