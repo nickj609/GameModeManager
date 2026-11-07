@@ -39,10 +39,36 @@
 	visibility: collapse;
 }
 
-/* An empty row slot flashes PMM's row colour as it fills: keep it clear */
+/* PMM always has six row slots and marks unused ones k-empty. Hide those and let the menu shrink to the rows it has.
+   The row spacing moves from the slot to the item, so a slot with a hidden item takes no space. Clear, so it doesn't flash. */
 .utils-item.k-empty
 {
+	visibility: collapse;
 	background-color: #00000000;
+	border: 0px solid transparent;
+}
+
+.utils-buttons
+{
+	height: fit-children;
+}
+
+.utils-slot
+{
+	height: fit-children;
+	margin: 0px;
+}
+
+.utils-item
+{
+	margin: 4px 0px;
+}
+
+/* A dropdown that's open: PMM's own size, with the spacing above */
+.utils-slot.is-open
+{
+	height: 178px;
+	margin-bottom: -130px;
 }
 
 /* The WASD and number key footers: keycaps instead of PMM's text hint */

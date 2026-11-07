@@ -10,6 +10,8 @@ html,body{width:1280px;height:720px;overflow:hidden;background:#12100e;font-fami
 .host{position:absolute;left:70px;top:50%;transform:translateY(-50%)}
 .host>*{zoom:1.32}
 .side{position:absolute;left:800px;top:220px;width:420px}
+.ntf{position:absolute;display:flex;align-items:center;width:400px;min-height:74px;background:linear-gradient(180deg,rgba(18,18,20,.92),rgba(8,8,10,.95));border-radius:7px;box-shadow:0 6px 24px rgba(0,0,0,.55);overflow:hidden;z-index:5}.ntf::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#57e08a}.ntf.warn::before{background:#ffcf5c}.ntf .ni{width:54px;flex:none;text-align:center;font-size:24px;font-weight:700;color:#57e08a}.ntf.warn .ni{color:#ffcf5c}.ntf .nb{padding:12px 18px 12px 0}.ntf .nt{font-size:19px;font-weight:700;color:#fff}.ntf .nx{font-size:16px;color:#b0b0b4;margin-top:3px}
+.stage>.ntf{top:52px;right:48px}
 .side h1{font-size:44px;font-weight:600;color:#f5a623;line-height:1.1}
 .side p{margin-top:16px;font-size:22px;line-height:1.4;color:#efe6d8}
 .note{position:absolute;right:28px;bottom:20px;font-size:15px;color:#b8a78f}
@@ -110,6 +112,9 @@ admin:{h:'Admin panel',p:'CS2-SimpleAdmin on its own panel, in red so admin tool
   '<div class="rw"><span>Empty server wait</span><div class="val">10 min</div><div class="ar">&rsaquo;</div></div>'+
   '</div><div class="bot"><span>Back</span><span>Close</span></div></div>'}
 };
+// A notification for each scene, the way PMM shows one beside the menu
+var notes={wasd:['ok','Mode','Next mode set to Gun Game.'],mouse:['ok','Map','Changing the map to de_inferno.'],digits:['warn','Mode','de_dust2 isn\'t in the Surf map pool.'],vote:['ok','Vote','You voted aim_map.'],admin:['ok','Setting','Alltalk enabled.']};
+function note(n){return n?'<div class="ntf'+(n[0]=='warn'?' warn':'')+'"><div class="ni">'+(n[0]=='warn'?'!':'&#10003;')+'</div><div class="nb"><div class="nt">'+n[1]+'</div><div class="nx">'+n[2]+'</div></div></div>':''}
 var s=scenes[location.hash.slice(1)]||scenes.wasd;
-document.getElementById('host').innerHTML=s.m;document.getElementById('h').textContent=s.h;document.getElementById('p').textContent=s.p;
+document.getElementById('host').innerHTML=s.m;document.querySelector('.stage').insertAdjacentHTML('beforeend',note(notes[location.hash.slice(1)||'wasd']));document.getElementById('h').textContent=s.h;document.getElementById('p').textContent=s.p;
 </script></body></html>
