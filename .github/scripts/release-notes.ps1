@@ -87,11 +87,16 @@ if (-not $sections) {
     if (-not $commits) { $commits = & git -C $repoRoot log "$PreviousTag..$Sha" --no-merges --reverse --format="`t%s" }
 
     $groups = [ordered]@{ "Features" = @(); "Bug Fixes" = @(); "Misc" = @() }
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
     foreach ($commit in @($commits)) {
         $parts = "$commit" -split "`t", 2
         if ($parts.Count -lt 2) { continue }
         $line = Format-Subject $parts[1] $parts[0]
         if (-not $line) { continue }
+
+        # The same subject twice (two "refactoring" commits) is listed once, whatever its case, prefix or PR number
+        $key = (($parts[1] -replace '^\s*[A-Za-z]+(\([^)]*\))?!?:\s*', '') -replace '\s*\(#\d+\)\s*$', '').Trim()
+        if (-not $seen.Add($key)) { continue }
         $group = if ($parts[1] -match '^\s*feat') { "Features" } elseif ($parts[1] -match '^\s*fix') { "Bug Fixes" } else { "Misc" }
         $groups[$group] += $line
     }
