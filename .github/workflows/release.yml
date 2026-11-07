@@ -169,17 +169,23 @@ jobs:
         env:
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
         run: |
-          # --skip-duplicate leaves a version that's already on NuGet alone
-          dotnet nuget push "nupkg/*.nupkg" --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
-          if ($LASTEXITCODE -ne 0) { exit 1 }
+          # Full paths: on Windows, dotnet nuget push doesn't expand "nupkg/*.nupkg". --skip-duplicate leaves a version that's already on NuGet alone
+          $packages = @(Get-ChildItem nupkg -Filter *.nupkg)
+          if ($packages.Count -eq 0) { "No package in nupkg"; exit 1 }
+          foreach ($package in $packages) {
+            dotnet nuget push $package.FullName --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+          }
 
       - name: Publish to GitHub Packages
         if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          dotnet nuget push "nupkg/*.nupkg" --api-key $env:GH_TOKEN --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --skip-duplicate
-          if ($LASTEXITCODE -ne 0) { exit 1 }
+          foreach ($package in @(Get-ChildItem nupkg -Filter *.nupkg)) {
+            dotnet nuget push $package.FullName --api-key $env:GH_TOKEN --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --skip-duplicate
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+          }
 
   # docs/wiki is the source of the GitHub wiki: edit the pages there, because this replaces what's on the wiki
   wiki:
