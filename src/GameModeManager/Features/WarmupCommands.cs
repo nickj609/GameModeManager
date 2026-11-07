@@ -107,6 +107,7 @@ namespace GameModeManager.Features
                         if(_pluginState.Game.WarmupModes.TryGetValue(command.ArgByIndex(1), out IMode? _mode))
                         {
                             _warmupManager.RunWarmup(_mode);
+                            PlayerFeedback.Notify(player, _localizer, "notify.warmup", MenuNotice.Success, "admin.done.warmup-started", _mode.Name);
                         }
                         else
                         {
@@ -116,6 +117,7 @@ namespace GameModeManager.Features
                     else
                     {
                         _warmupManager.RunWarmup(_pluginState.Game.WarmupMode);
+                        PlayerFeedback.Notify(player, _localizer, "notify.warmup", MenuNotice.Success, "admin.done.warmup-started", _pluginState.Game.WarmupMode.Name);
                     }
                 }
                 else
@@ -131,12 +133,17 @@ namespace GameModeManager.Features
         {
             if(player != null)
             {
+                // GameModeManager's own warmup announces its end to everyone; the game's warmup ends without a message
                 if (_pluginState.Game.WarmupRunning)
+                {
                     _warmupManager.EndWarmup();
+                    PlayerFeedback.Notify(player, _localizer, "notify.warmup", MenuNotice.Success, "admin.done.warmup-ended");
+                }
                 else
                 {
                     _pluginState.Game.WarmupScheduled = false;
                     Server.ExecuteCommand("mp_warmup_end");
+                    PlayerFeedback.Send(player, _localizer, "notify.warmup", MenuNotice.Success, "admin.done.warmup-ended");
                 }
             }
         }

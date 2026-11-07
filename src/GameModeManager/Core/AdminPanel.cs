@@ -401,9 +401,11 @@ namespace GameModeManager.Core
         // changed in one go.
         private void AddToggle(object menu, string key, bool on, Action toggle)
         {
-            AddOption(menu, $"({(on ? "ON" : "OFF")}) [{_localizer.Localize(key)}]", p =>
+            string name = _localizer.Localize(key);
+            AddOption(menu, $"({(on ? "ON" : "OFF")}) [{name}]", p =>
             {
                 toggle();
+                PlayerFeedback.Send(p, _localizer, "notify.rotation", MenuNotice.Success, on ? "admin.done.turned-off" : "admin.done.turned-on", name);
                 ReopenRotation(p, $"{key} {!on}");
             });
         }
@@ -417,9 +419,11 @@ namespace GameModeManager.Core
                 object page = NewMenu(name, player);
                 foreach (int choice in choices)
                 {
-                    AddOption(page, MarkCurrent(text(choice), choice == read()), p =>
+                    string label = text(choice);
+                    AddOption(page, MarkCurrent(label, choice == read()), p =>
                     {
                         write(choice);
+                        PlayerFeedback.Send(p, _localizer, "notify.rotation", MenuNotice.Success, "admin.done.value-set", name, label);
                         ReopenRotation(p, $"{key} {choice}");
                     });
                 }
