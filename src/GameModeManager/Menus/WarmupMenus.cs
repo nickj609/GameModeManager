@@ -14,34 +14,42 @@ namespace GameModeManager.Menus
         // Define class dependencies
         private PluginState _pluginState;
         private StringLocalizer _localizer;
+        private MenuLanguages _languages;
 
         // Define class constructor
-        public WarmupMenus(PluginState pluginState, StringLocalizer localizer)
+        public WarmupMenus(PluginState pluginState, StringLocalizer localizer, MenuLanguages languages)
         {
+            _languages = languages;
             _localizer = localizer;
             _pluginState = pluginState;
         }
 
         // Define class properties
-        public IMenu? MainMenu;
-        public IMenu? StartMenu;
-        public IMenu? ScheduleMenu;
+        public LocalizedMenu MainMenu = new();
 
         // Define load method
-        // The options run the warmup commands, which have the permission and arms race checks
+        // Built once in each language
         public void Load()
         {
-            StartMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.warmup", "admin.warmup-start"), player => MainMenu?.Open(player));
-            ScheduleMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.warmup", "admin.warmup-schedule"), player => MainMenu?.Open(player));
+            LocalizedMenu _main = new();
+            _languages.ForEach(culture => _main.Set(culture, CreateMainMenu()));
+            MainMenu = _main;
+        }
+
+        // The options run the warmup commands, which have the permission and arms race checks
+        private IMenu? CreateMainMenu()
+        {
+            IMenu? startMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.warmup", "admin.warmup-start"), player => MainMenu.Open(player));
+            IMenu? scheduleMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.warmup", "admin.warmup-schedule"), player => MainMenu.Open(player));
 
             foreach (IMode _mode in _pluginState.Game.WarmupModes.Values)
             {
-                StartMenu?.AddMenuOption(_mode.Name, (player, option) =>
+                startMenu?.AddMenuOption(_mode.Name, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     player.ExecuteClientCommandFromServer($"css_startwarmup \"{_mode.Name}\"");
                 });
-                ScheduleMenu?.AddMenuOption(_mode.Name, (player, option) =>
+                scheduleMenu?.AddMenuOption(_mode.Name, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     Server.ExecuteCommand($"css_warmupmode \"{_mode.Name}\"");
@@ -49,14 +57,15 @@ namespace GameModeManager.Menus
                 });
             }
 
-            MainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.warmup"));
-            MainMenu?.AddMenuOption(_localizer.Localize("admin.warmup-start"), (player, option) => StartMenu?.Open(player));
-            MainMenu?.AddMenuOption(_localizer.Localize("admin.warmup-schedule"), (player, option) => ScheduleMenu?.Open(player));
-            MainMenu?.AddMenuOption(_localizer.Localize("admin.warmup-end"), (player, option) =>
+            IMenu? mainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.warmup"));
+            mainMenu?.AddMenuOption(_localizer.Localize("admin.warmup-start"), (player, option) => startMenu?.Open(player));
+            mainMenu?.AddMenuOption(_localizer.Localize("admin.warmup-schedule"), (player, option) => scheduleMenu?.Open(player));
+            mainMenu?.AddMenuOption(_localizer.Localize("admin.warmup-end"), (player, option) =>
             {
                 MenuFactory.Api?.CloseMenu(player);
                 player.ExecuteClientCommandFromServer("css_endwarmup");
             });
+            return mainMenu;
         }
     }
 }
