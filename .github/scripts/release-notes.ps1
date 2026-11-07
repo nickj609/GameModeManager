@@ -2,6 +2,7 @@
 #   [> [!IMPORTANT] when the config version changed]  ## Features / ## Bug Fixes / ## Misc  ## Installation  Wiki  Full Changelog
 # The sections come from the merged pull request's description when it has "## " headings, else from the commit
 # subjects since the previous release (feat: -> Features, fix: -> Bug Fixes, everything else -> Misc).
+# Notes from the description get a ## Contributors section thanking anyone else whose commits it doesn't mention.
 # Preview locally: .github\scripts\release-notes.ps1 -PreviousTag v1.0.63
 
 param(
@@ -74,17 +75,33 @@ if ($prBody -match '(?m)^## \S') {
     $sections = [regex]::Replace("$prBody`n", '(?m)^## [^\n]*\n\s*(?=^## |\z)', '').Trim()
 }
 
+# The commits since the previous release, as "login<tab>subject". Without gh the login is empty.
+$commits = $null
+if (Get-Command gh -ErrorAction SilentlyContinue) {
+    $compare = Get-GitHubJson "repos/$Repo/compare/$PreviousTag...$(& git -C $repoRoot rev-parse $Sha)"
+    if ($compare) {
+        $commits = @($compare.commits | Where-Object { @($_.parents).Count -eq 1 } |
+            ForEach-Object { "$($_.author.login)`t$(($_.commit.message -split "`n")[0])" })
+    }
+}
+if (-not $commits) { $commits = & git -C $repoRoot log "$PreviousTag..$Sha" --no-merges --reverse --format="`t%s" }
+
+# Notes from the description still thank everyone else whose commits are in the release, unless the description already does
+if ($sections) {
+    $thanks = @()
+    foreach ($commit in @($commits)) {
+        $parts = "$commit" -split "`t", 2
+        if ($parts.Count -lt 2 -or -not $parts[0] -or $parts[0] -eq $Owner -or $parts[0] -match '\[bot\]$') { continue }
+        if ($sections -match "@$([regex]::Escape($parts[0]))\b") { continue }
+        $line = Format-Subject $parts[1] $parts[0]
+        if ($line -and $thanks -notcontains $line) { $thanks += $line }
+    }
+    if ($thanks.Count -gt 0) { $sections = "$sections`n`n## Contributors`n$($thanks -join "`n")" }
+    if (-not $compare) { Write-Warning "Couldn't read the commits from GitHub, so contributors aren't credited" }
+}
+
 # Sections: otherwise the commit subjects
 if (-not $sections) {
-    $commits = $null
-    if (Get-Command gh -ErrorAction SilentlyContinue) {
-        $compare = Get-GitHubJson "repos/$Repo/compare/$PreviousTag...$(& git -C $repoRoot rev-parse $Sha)"
-        if ($compare) {
-            $commits = @($compare.commits | Where-Object { @($_.parents).Count -eq 1 } |
-                ForEach-Object { "$($_.author.login)`t$(($_.commit.message -split "`n")[0])" })
-        }
-    }
-    if (-not $commits) { $commits = & git -C $repoRoot log "$PreviousTag..$Sha" --no-merges --reverse --format="`t%s" }
 
     $groups = [ordered]@{ "Features" = @(); "Bug Fixes" = @(); "Misc" = @() }
     $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
