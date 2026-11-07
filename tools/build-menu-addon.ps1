@@ -222,11 +222,13 @@ if (Test-Path $manifestPath) {
 
 # BEGIN vote footers
 # Keycaps on the vote, nominate and settings panels, for the WASD and number key styles, from what each panel's text hint says.
+# The vote panel gets them in mouse mode too, for voting with !1 to !9 in chat.
 # The hint stays in the file: it's the "done" message after voting. The bridge isn't changed, only the addon's copy of its layout.
 $voteXmlPath = Join-Path $contentDir "panorama\layout\custom_game\pmm_mapvote.xml"
 $voteXml = [IO.File]::ReadAllText($voteXmlPath)
 $dash = [string][char]0x2013
 $voteFooters = [ordered]@{
+    "mv_hint_click"  = @("click", @("Vote", $dash, "!1", "!9"))
     "mv_hint_wasd"   = @("wasd", @("Move", "/", "W", "S"), @("Vote", "", "E"), @("Mode", "", "R"))
     "mv_hint_digits" = @("digits", @("Vote", $dash, "1", "9"), @("Mode", "", "0"))
     "nm_hint_wasd"   = @("wasd", @("Move", "/", "W", "S"), @("Page", "/", "A", "D"), @("Nominate", "", "E"), @("Close", "", "R"))
