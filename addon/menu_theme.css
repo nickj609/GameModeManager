@@ -10,10 +10,11 @@
 	color: #F2F2F2;
 }
 
-/* Notifications use the menu's Mono background. The constructor's Mono leaves them PMM's blue. */
+/* Notifications use Mono's colours, a little lighter at the top than the menus, so the small box isn't so dark. The
+   constructor's Mono leaves them PMM's blue. */
 .utils-notify
 {
-	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) ) );
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(34, 34, 38, 0.95) ), to( rgba(14, 14, 16, 0.96) ) );
 }
 
 /* PMM never sets a description, but the empty line still takes up height */

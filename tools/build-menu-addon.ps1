@@ -257,6 +257,8 @@ foreach ($hint in $voteFooters.Keys) {
 }
 [IO.File]::WriteAllText($voteXmlPath, $voteXml, (New-Object Text.UTF8Encoding($false)))
 [IO.File]::AppendAllText((Join-Path $contentDir "panorama\styles\custom_game\pmm_mapvote.css"), [IO.File]::ReadAllText((Join-Path $addonDir "vote_footer.css")), (New-Object Text.UTF8Encoding($false)))
+# The admin panel gets Mono's background and border too, from addon\admin_theme.css
+[IO.File]::AppendAllText((Join-Path $contentDir "panorama\styles\custom_game\pmm_admin.css"), [IO.File]::ReadAllText((Join-Path $addonDir "admin_theme.css")), (New-Object Text.UTF8Encoding($false)))
 Write-Host "  Added the vote panel footers"
 # END vote footers
 

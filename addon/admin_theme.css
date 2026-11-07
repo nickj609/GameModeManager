@@ -1,0 +1,18 @@
+
+/* ==== Appended to PMM_SimpleAdmin's stylesheet by build-menu-addon.ps1: Mono's background and border, like the menus and the vote
+   panel. The red header and accents stay, so admin tools still stand apart. ==== */
+.sa-root
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) ) );
+	border: 1px solid #ffffff14;
+}
+
+.sa-foot
+{
+	border-top: 1px solid #ffffff14;
+}
+
+.sa-pill
+{
+	background-color: #ffffff14;
+}
