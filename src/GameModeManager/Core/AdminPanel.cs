@@ -237,6 +237,8 @@ namespace GameModeManager.Core
                         _mapMenus.ChangeMap(p, map);
                     else if (!_mapChooser.SetNextMap(map))
                         PlayerFeedback.Send(p, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");
+                    else
+                        PlayerFeedback.Send(p, _localizer, "notify.map", MenuNotice.Success, "admin.done.nextmap", map.DisplayName);
                 }), current);
             }
             return menu;
@@ -299,6 +301,8 @@ namespace GameModeManager.Core
                 {
                     if (!_mapChooser.SetNextMode(mode))
                         PlayerFeedback.Send(p, _localizer, "notify.mode", MenuNotice.Warning, "admin.vote-unavailable");
+                    else
+                        PlayerFeedback.Send(p, _localizer, "notify.mode", MenuNotice.Success, "admin.done.nextmode", mode.Name);
                 }), !_mapChooser.CanBeNextMode(mode));
             }
             return menu;

@@ -9,6 +9,8 @@ using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
+using GameModeManager.CrossCutting;
+using MenuManager;
 
 // Declare namespace
 namespace GameModeManager.Features
@@ -22,10 +24,12 @@ namespace GameModeManager.Features
         private WarmupManager _warmupManager;
         private Config _config = new Config();
         private ILogger<WarmupCommand> _logger;
+        private StringLocalizer _localizer;
 
         // Define class constructor
-        public WarmupCommand(WarmupMenus warmupMenus, WarmupManager warmupManager, PluginState pluginState, ILogger<WarmupCommand> logger)
+        public WarmupCommand(WarmupMenus warmupMenus, WarmupManager warmupManager, PluginState pluginState, StringLocalizer localizer, ILogger<WarmupCommand> logger)
         {
+            _localizer = localizer;
             _logger = logger;
             _pluginState = pluginState;
             _warmupMenus = warmupMenus;
@@ -106,7 +110,7 @@ namespace GameModeManager.Features
                         }
                         else
                         {
-                            command.ReplyToCommand($"Unable to find mode: {command.ArgByIndex(1)}");
+                            PlayerFeedback.Reply(command, player, _localizer, "notify.warmup", MenuNotice.Warning, "warmup.mode-not-found", command.ArgByIndex(1));
                         }
                     }
                     else
@@ -116,7 +120,7 @@ namespace GameModeManager.Features
                 }
                 else
                 {
-                    command.ReplyToCommand("Warmup cannot be started in ArmsRace mode.");   
+                    PlayerFeedback.Reply(command, player, _localizer, "notify.warmup", MenuNotice.Warning, "warmup.armsrace");   
                 }
             }
         }

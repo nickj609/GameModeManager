@@ -4,6 +4,7 @@ using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using MenuManager;
 using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Menu;
 
@@ -108,6 +109,7 @@ namespace GameModeManager.Menus
         public void ChangeSetting(CCSPlayerController player, ISetting setting, bool enable)
         {
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix(enable ? "enable.changesetting.message" : "disable.changesetting.message", player.PlayerName, setting.DisplayName));
+            PlayerFeedback.Notify(player, _localizer, "notify.setting", MenuNotice.Success, enable ? "admin.done.setting-enabled" : "admin.done.setting-disabled", setting.DisplayName);
             Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}");
         }
 

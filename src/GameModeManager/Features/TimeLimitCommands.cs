@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
+using MenuManager;
 
 // Declare namespace
 namespace GameModeManager.Features
@@ -53,20 +54,20 @@ namespace GameModeManager.Features
             // Parse the first argument
             if (!bool.TryParse(command.ArgByIndex(1), out bool enableRequested))
             {
-                command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.invalid-bool-error", command.ArgByIndex(1))); // Suggest adding this localization key
+                PlayerFeedback.Reply(command, player, _timeLimitLocalizer, "notify.timelimit", MenuNotice.Warning, "timelimit.invalid-bool-error", command.ArgByIndex(1));
                 return;
             }
 
             // Check if timelimit is already enabled/disabled
             if (enableRequested && _pluginState.TimeLimit.Enabled)
             {
-                command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.enabled-error")); // Already enabled
+                PlayerFeedback.Reply(command, player, _timeLimitLocalizer, "notify.timelimit", MenuNotice.Warning, "timelimit.enabled-error");
                 return;
             }
             
             if (!enableRequested && !_pluginState.TimeLimit.Enabled)
             {
-                command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.disabled-error")); // Already disabled
+                PlayerFeedback.Reply(command, player, _timeLimitLocalizer, "notify.timelimit", MenuNotice.Warning, "timelimit.disabled-error");
                 return;
             }
 
@@ -85,7 +86,7 @@ namespace GameModeManager.Features
                     }
                     else
                     {
-                        command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.value-error"));
+                        PlayerFeedback.Reply(command, player, _timeLimitLocalizer, "notify.timelimit", MenuNotice.Warning, "timelimit.value-error");
                         return; 
                     }
                 }
@@ -93,20 +94,20 @@ namespace GameModeManager.Features
                 if (specificTime.HasValue)
                 {
                     _timeLimitManager.EnableTimeLimit(specificTime.Value); 
-                    command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.enabled")); 
+                    PlayerFeedback.Reply(command, player, _timeLimitLocalizer, "notify.timelimit", MenuNotice.Success, "timelimit.enabled");
                     _logger.LogInformation("Time limit enabled by {Executor} with duration: {Seconds} seconds.", executor, specificTime.Value);
                 }
                 else
                 {
                     _timeLimitManager.EnableTimeLimit(); 
-                    command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.enabled"));
+                    PlayerFeedback.Reply(command, player, _timeLimitLocalizer, "notify.timelimit", MenuNotice.Success, "timelimit.enabled");
                     _logger.LogInformation("Time limit enabled by {Executor} using default duration.", executor);
                 }
             }
             else 
             {
                 _timeLimitManager.DisableTimeLimit(); 
-                command.ReplyToCommand(_timeLimitLocalizer.LocalizeWithPrefix("timelimit.disabled"));
+                PlayerFeedback.Reply(command, player, _timeLimitLocalizer, "notify.timelimit", MenuNotice.Success, "timelimit.disabled");
                 _logger.LogInformation("Time limit disabled by {Executor}.", executor);
             }
         }
