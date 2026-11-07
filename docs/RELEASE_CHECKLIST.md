@@ -3,7 +3,7 @@
 Merging to `main` publishes a release when the version is new, so go through this first.
 
 ## Before merging
-- [ ] Set the new version in `GameModeManager/Plugin.cs` (`ModuleVersion`). The NuGet package uses the same number.
+- [ ] Set the new version in `src/GameModeManager/Plugin.cs` (`ModuleVersion`). The NuGet package uses the same number.
 - [ ] The pull request's checks pass, including the bundled plugin and Kus config checks.
 - [ ] `scripts\Check-Visuals.ps1` in the server repo prints nothing. It covers the addon's build and upload, map pictures, screenshots and the README's versions.
 - [ ] If menu files changed, you've seen the uploaded addon on a PC that isn't using your local build.

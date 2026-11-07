@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PublicDir>$(SolutionDir)bin\$(Configuration)\$(TargetFramework)\Public\</PublicDir>
+    <!-- The plugins and cfgs that ship with GameModeManager in the release zip, laid out like game/csgo -->
+    <BundleDir>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '..', '..', 'bundle'))</BundleDir>
   </PropertyGroup>
   <ItemGroup>
     <!-- Provided by the server: never shipped next to the plugin -->
@@ -22,7 +24,7 @@
   <ItemGroup>
     <!-- PanoramaMenuManager API (capability menu:nfcore). Referenced from the sibling fork, not copied: it is GPL v3.
          At runtime it comes from shared/MenuManagerApi/ (installed with PanoramaMenuManager). -->
-    <ProjectReference Include="..\..\PanoramaMenuManagerCS2\MenuManagerApi\MenuManagerApi.csproj">
+    <ProjectReference Include="..\..\..\PanoramaMenuManagerCS2\MenuManagerApi\MenuManagerApi.csproj">
       <Private>false</Private>
     </ProjectReference>
     <!-- Our own contract: shipped in shared/GameModeManager.Shared/ by its project, not next to the plugin -->
@@ -38,8 +40,8 @@
     <MakeDir Directories="$(PublicDir)addons\counterstrikesharp\plugins\GameModeManager\lang" />
     <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R &quot;$(OutDir)*.*&quot; &quot;$(PublicDir)addons\counterstrikesharp\plugins\GameModeManager\&quot;" />
     <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(OutDir)* $(PublicDir)addons/counterstrikesharp/plugins/GameModeManager/" />
-    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /E /R &quot;$(ProjectDir)lib\csgo\&quot; &quot;$(PublicDir)&quot;" />
-    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(ProjectDir)lib/csgo/* $(PublicDir)" />
+    <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /E /R &quot;$(BundleDir)csgo\&quot; &quot;$(PublicDir)&quot;" />
+    <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(BundleDir)csgo/* $(PublicDir)" />
     <Exec Condition="'$(IsWindows)' == 'true'" Command="xcopy /Y /R &quot;$(ProjectDir)lang\*.*&quot; &quot;$(PublicDir)addons\counterstrikesharp\plugins\GameModeManager\lang\&quot;" />
     <Exec Condition="'$(IsWindows)' != 'true'" Command="cp -r $(ProjectDir)lang/* $(PublicDir)addons/counterstrikesharp/plugins/GameModeManager/lang/" />
   </Target>

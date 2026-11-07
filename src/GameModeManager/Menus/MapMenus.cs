@@ -19,10 +19,12 @@ namespace GameModeManager.Menus
         private ServerManager _serverManager;
         private MapChooserBridge _mapChooser;
         private VoteService _voteService;
+        private MenuLanguages _languages;
 
         // Define class constructor
-        public MapMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, MapChooserBridge mapChooser, VoteService voteService)
+        public MapMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, MapChooserBridge mapChooser, VoteService voteService, MenuLanguages languages)
         {
+            _languages = languages;
             _localizer = localizer;
             _mapChooser = mapChooser;
             _voteService = voteService;
@@ -31,14 +33,27 @@ namespace GameModeManager.Menus
         }
 
         // Define class properties
-        public IMenu? MainMenu; // Admin menu (!maps)
-        public IMenu? VoteMenu; // Player menu (!game, !changemap): no Back or random vote, which are for admins
+        public LocalizedMenu MainMenu = new(); // Admin menu (!maps)
+        public LocalizedMenu VoteMenu = new(); // Player menu (!game, !changemap): no Back or random vote, which are for admins
 
         // Define load method
-        // Built once per mode: ModeCommands calls this again when the mode changes
+        // Built once per mode, in each language: ModeCommands calls this again when the mode changes
         public void Load()
         {
-            IMenu? listMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.maps", "admin.change-map"), player => MainMenu?.Open(player));
+            LocalizedMenu _main = new();
+            LocalizedMenu _vote = new();
+            _languages.ForEach(culture =>
+            {
+                _vote.Set(culture, CreateVoteMenu(null, null));
+                _main.Set(culture, CreateMainMenu());
+            });
+            MainMenu = _main;
+            VoteMenu = _vote;
+        }
+
+        private IMenu? CreateMainMenu()
+        {
+            IMenu? listMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.maps", "admin.change-map"), player => MainMenu.Open(player));
 
             foreach (IMap _map in _pluginState.Game.CurrentMode.Maps)
             {
@@ -50,7 +65,7 @@ namespace GameModeManager.Menus
             }
 
             // GG1's next map: it changes at the end of the match
-            IMenu? nextMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.maps", "admin.next-map"), player => MainMenu?.Open(player));
+            IMenu? nextMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.maps", "admin.next-map"), player => MainMenu.Open(player));
             foreach (IMap _map in _pluginState.Game.CurrentMode.Maps)
             {
                 nextMenu?.AddMenuOption(_map.DisplayName, (player, option) =>
@@ -60,13 +75,13 @@ namespace GameModeManager.Menus
                 });
             }
 
-            VoteMenu = CreateVoteMenu(null, null);
-            IMenu? voteMenu = CreateVoteMenu(player => MainMenu?.Open(player), StartVote);
+            IMenu? voteMenu = CreateVoteMenu(player => MainMenu.Open(player), StartVote);
 
-            MainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.maps"));
-            MainMenu?.AddMenuOption(_localizer.Localize("admin.change-map"), (player, option) => listMenu?.Open(player));
-            MainMenu?.AddMenuOption(_localizer.Localize("admin.next-map"), (player, option) => nextMenu?.Open(player));
-            MainMenu?.AddMenuOption(_localizer.Localize("admin.start-vote"), (player, option) => voteMenu?.Open(player));
+            IMenu? mainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.maps"));
+            mainMenu?.AddMenuOption(_localizer.Localize("admin.change-map"), (player, option) => listMenu?.Open(player));
+            mainMenu?.AddMenuOption(_localizer.Localize("admin.next-map"), (player, option) => nextMenu?.Open(player));
+            mainMenu?.AddMenuOption(_localizer.Localize("admin.start-vote"), (player, option) => voteMenu?.Open(player));
+            return mainMenu;
         }
 
         // A yes/no vote on one map, with a random vote on top for admins
@@ -106,7 +121,7 @@ namespace GameModeManager.Menus
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
                 return;
             }
-            _voteService.StartYesNo(player, _localizer.Localize("map.vote.menu-title", map.DisplayName), () => _serverManager.ChangeMapInPool(map), map.DisplayName);
+            _voteService.StartYesNo(player, () => _localizer.Localize("map.vote.menu-title", map.DisplayName), () => _serverManager.ChangeMapInPool(map), map.DisplayName);
         }
 
         public void SetNextMap(CCSPlayerController player, IMap map)

@@ -1,4 +1,4 @@
-This plugin will display all in-game menus and messaging based on the player's preferred language. Below is an example language configuration file you can customize to your liking. The [CS2-CustomVotes](https://github.com/imi-tat0r/CS2-CustomVotes) plugin also has additional language files you can configure. 
+This plugin shows its menus (`!game`, `!maps`, `!modes`, `!settings`, `!warmup`, its votes and its section in CS2-SimpleAdmin's menu) and the replies to a player's own chat commands in that player's language. Players pick it with `!lang <code>` or `!game` → Language, from the languages that have a file here; any other language gets the server's. Messages to everyone, like a map change, and messages after picking a menu option use the server's language (`ServerLanguage` in CounterStrikeSharp's `core.json`). Map and mode names stay as they are. Below is an example language configuration file you can customize to your liking. The [CS2-CustomVotes](https://github.com/imi-tat0r/CS2-CustomVotes) plugin also has additional language files you can configure. 
 
 > [!NOTE]
 > Language files can be found in `csgo/addons/counterstrikesharp/plugins/GameModeManager/lang`.

@@ -11,9 +11,9 @@ $ErrorActionPreference = "Stop"
 $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 
 # The plugin and its NuGet contract are published under one version
-$pluginCs = Get-Content (Join-Path $repo "GameModeManager\Plugin.cs") -Raw
+$pluginCs = Get-Content (Join-Path $repo "src\GameModeManager\Plugin.cs") -Raw
 $version = [regex]::Match($pluginCs, 'ModuleVersion => "([^"]+)"').Groups[1].Value
-if (-not $version) { throw "No ModuleVersion found in GameModeManager\Plugin.cs" }
+if (-not $version) { throw "No ModuleVersion found in src\GameModeManager\Plugin.cs" }
 
 # A clean Public folder: files of earlier builds must not end up in the package
 $public = Join-Path $repo "bin\$Configuration\net10.0\Public"

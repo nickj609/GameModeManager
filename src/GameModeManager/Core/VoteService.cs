@@ -104,9 +104,16 @@ namespace GameModeManager.Core
         // when the vote can't start.
         public bool StartYesNo(CCSPlayerController caller, string title, Action onPassed, string? nativeSubject = null)
         {
+            return StartYesNo(caller, () => title, onPassed, nativeSubject);
+        }
+
+        // The same, with a title localized for each voter's menu. Chat and the native panel use the server's language.
+        public bool StartYesNo(CCSPlayerController caller, Func<string> localizedTitle, Action onPassed, string? nativeSubject = null)
+        {
             if (!CanStart(caller, out var voters))
                 return false;
 
+            string title = localizedTitle();
             string? titleToken = string.IsNullOrWhiteSpace(_config.Votes.NativeTitleToken) ? null : _config.Votes.NativeTitleToken;
             var vote = new ActiveVote
             {
@@ -135,7 +142,10 @@ namespace GameModeManager.Core
             if (!vote.Native)
             {
                 foreach (var player in voters)
-                    OpenBallotMenu(player, title);
+                {
+                    using (MenuLanguages.For(player))
+                        OpenBallotMenu(player, localizedTitle());
+                }
             }
 
             vote.Timer = _plugin?.AddTimer(_config.Votes.Duration, () => Finish(timeUp: true), TimerFlags.STOP_ON_MAPCHANGE);

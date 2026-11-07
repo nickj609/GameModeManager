@@ -1,6 +1,6 @@
 name: Build & Release
 
-# Merging to main publishes a release when ModuleVersion in GameModeManager/Plugin.cs is a version without a release.
+# Merging to main publishes a release when ModuleVersion in src/GameModeManager/Plugin.cs is a version without a release.
 # Merges that don't change the version only build. Pull requests build too, with the zip and the notes to look at.
 
 permissions: {}
@@ -65,8 +65,8 @@ jobs:
           "publish=$publish" >> $env:GITHUB_OUTPUT
 
           # The default config needs the published Workshop addon, or players get no menus
-          if ($publish -eq "true" -and (Select-String -Quiet -SimpleMatch 'WorkshopAddon { get; set; } = "";' GameModeManager/Config.cs)) {
-            "Publish the Workshop addon and put its ID as the WorkshopAddon default in GameModeManager/Config.cs before releasing."
+          if ($publish -eq "true" -and (Select-String -Quiet -SimpleMatch 'WorkshopAddon { get; set; } = "";' src/GameModeManager/Config.cs)) {
+            "Publish the Workshop addon and put its ID as the WorkshopAddon default in src/GameModeManager/Config.cs before releasing."
             exit 1
           }
 
@@ -77,7 +77,7 @@ jobs:
         run: |
           $config = "$env:RUNNER_TEMP/GameModeManager.json"
           Invoke-WebRequest -UseBasicParsing -OutFile $config -Uri "https://raw.githubusercontent.com/kus/cs2-modded-server/master/game/csgo/addons/counterstrikesharp/configs/plugins/GameModeManager/GameModeManager.json"
-          dotnet run --project ci/ConfigCheck -c Release -- $config
+          dotnet run --project tools/ConfigCheck -c Release -- $config
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
       - name: Write release notes
@@ -155,7 +155,7 @@ jobs:
 
       - name: Pack
         run: |
-          dotnet pack GameModeManager.Shared/GameModeManager.Shared.csproj -c Release -o nupkg -p:IsPacking=true
+          dotnet pack src/GameModeManager.Shared/GameModeManager.Shared.csproj -c Release -o nupkg -p:IsPacking=true
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
       # The temporary key lasts an hour, so it's requested right before the push

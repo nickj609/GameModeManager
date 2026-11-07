@@ -148,7 +148,7 @@ namespace GameModeManager.Core
         private void AddEntry(string id, string nameKey, string permission, Func<CCSPlayerController, object> factory)
         {
             var register = Method("RegisterMenu", p => p.Length == 7);
-            var menuFactory = Delegate.CreateDelegate(register.GetParameters()[3].ParameterType, new Factory(factory), typeof(Factory).GetMethod(nameof(Factory.Invoke))!);
+            var menuFactory = Delegate.CreateDelegate(register.GetParameters()[3].ParameterType, new Factory(InLanguage(factory)), typeof(Factory).GetMethod(nameof(Factory.Invoke))!);
             register.Invoke(_api, new object?[] { Category, id, nameKey, menuFactory, permission, null, _iLocalizer });
             _entries.Add(id);
         }
@@ -175,7 +175,18 @@ namespace GameModeManager.Core
 
         private void AddSubMenu(object menu, string name, Func<CCSPlayerController, object> factory, bool disabled = false)
         {
-            Call("AddSubMenu", p => p.Length == 5, menu, name, factory, disabled, null);
+            Call("AddSubMenu", p => p.Length == 5, menu, name, InLanguage(factory), disabled, null);
+        }
+
+        // These pages are built when they open, so each is built in the player's language. The section's name and its rows
+        // are localized by SimpleAdmin, like its own menus.
+        private static Func<CCSPlayerController, object> InLanguage(Func<CCSPlayerController, object> factory)
+        {
+            return player =>
+            {
+                using (MenuLanguages.For(player))
+                    return factory(player);
+            };
         }
 
         // Closes the menu, runs the action and records it in SimpleAdmin's log
@@ -414,7 +425,7 @@ namespace GameModeManager.Core
         private void ReopenRotation(CCSPlayerController player, string change)
         {
             Call("LogCommand", p => p.Length == 2 && p[1].ParameterType == typeof(string), player, $"rotation {change}");
-            Call("OpenMenu", p => p.Length == 2, RotationMenu(player), player);
+            Call("OpenMenu", p => p.Length == 2, InLanguage(RotationMenu)(player), player);
         }
 
         // Define child class

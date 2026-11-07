@@ -8,6 +8,6 @@
   <ItemGroup>
     <!-- The plugin leaves these out because the server provides them. This tool runs on its own, so it needs them. -->
     <PackageReference Include="CounterStrikeSharp.API" Version="1.0.378" />
-    <ProjectReference Include="..\..\GameModeManager\GameModeManager.csproj" />
+    <ProjectReference Include="..\..\src\GameModeManager\GameModeManager.csproj" />
   </ItemGroup>
 </Project>

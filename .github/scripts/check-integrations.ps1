@@ -1,10 +1,10 @@
 # Fails when a bundled plugin no longer has a member GameModeManager reaches through reflection, so an update can't break it
-# unnoticed. The lists are in GameModeManager/Core/ReflectedMembers.cs. CS2-SimpleAdmin isn't bundled, so the server repo's
+# unnoticed. The lists are in src/GameModeManager/Core/ReflectedMembers.cs. CS2-SimpleAdmin isn't bundled, so the server repo's
 # scripts/Apply-Updates.ps1 checks that one. Runs on Windows PowerShell 5.1 and PowerShell 7.
 
 $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
-$plugins = Join-Path $repo "GameModeManager\lib\csgo\addons\counterstrikesharp\plugins"
-$source = Get-Content (Join-Path $repo "GameModeManager\Core\ReflectedMembers.cs") -Raw
+$plugins = Join-Path $repo "bundle\csgo\addons\counterstrikesharp\plugins"
+$source = Get-Content (Join-Path $repo "src\GameModeManager\Core\ReflectedMembers.cs") -Raw
 $failed = $false
 
 $reflected = [ordered]@{
