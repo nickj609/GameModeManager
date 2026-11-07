@@ -1,4 +1,5 @@
 // Included libraries
+using MenuManager;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
@@ -186,22 +187,22 @@ namespace GameModeManager.Core
 
             if (!_config.Votes.Enabled)
             {
-                caller.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
+                PlayerFeedback.Send(caller, _localizer, "notify.vote", MenuNotice.Warning, "general.validation.disabled");
                 return false;
             }
             if (_vote != null || _nativeVote.Active)
             {
-                caller.PrintToChat(_localizer.LocalizeWithPrefix("vote.in-progress"));
+                PlayerFeedback.Send(caller, _localizer, "notify.vote", MenuNotice.Warning, "vote.in-progress");
                 return false;
             }
             if (_mapChooser.VoteInProgress())
             {
-                caller.PrintToChat(_localizer.LocalizeWithPrefix("vote.map-vote-in-progress"));
+                PlayerFeedback.Send(caller, _localizer, "notify.vote", MenuNotice.Warning, "vote.map-vote-in-progress");
                 return false;
             }
             if (!_config.Votes.AllowInWarmup && (_gameRules.WarmupRunning || _pluginState.Game.WarmupRunning))
             {
-                caller.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                PlayerFeedback.Send(caller, _localizer, "notify.vote", MenuNotice.Warning, "general.validation.warmup");
                 return false;
             }
             if (_lastStarted.TryGetValue(caller.SteamID, out var last))
@@ -209,7 +210,7 @@ namespace GameModeManager.Core
                 int wait = _config.Votes.Cooldown - (int)(DateTime.UtcNow - last).TotalSeconds;
                 if (wait > 0)
                 {
-                    caller.PrintToChat(_localizer.LocalizeWithPrefix("vote.cooldown", wait));
+                    PlayerFeedback.Send(caller, _localizer, "notify.vote", MenuNotice.Warning, "vote.cooldown", wait);
                     return false;
                 }
             }
@@ -217,12 +218,12 @@ namespace GameModeManager.Core
             voters = EligiblePlayers();
             if (voters.Count < _config.Votes.MinPlayers)
             {
-                caller.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config.Votes.MinPlayers));
+                PlayerFeedback.Send(caller, _localizer, "notify.vote", MenuNotice.Warning, "general.validation.minimum-players", _config.Votes.MinPlayers);
                 return false;
             }
             if (!voters.Any(p => p.Slot == caller.Slot))
             {
-                caller.PrintToChat(_localizer.LocalizeWithPrefix("vote.not-eligible"));
+                PlayerFeedback.Send(caller, _localizer, "notify.vote", MenuNotice.Warning, "vote.not-eligible");
                 return false;
             }
             return true;
@@ -285,7 +286,7 @@ namespace GameModeManager.Core
                 return;
 
             vote.Picks[player.Slot] = answer;
-            player.PrintToChat(_localizer.LocalizeWithPrefix("vote.you-chose", vote.Answers[answer]));
+            PlayerFeedback.Send(player, _localizer, "notify.vote", MenuNotice.Success, "vote.you-chose", vote.Answers[answer]);
             Evaluate();
         }
 
@@ -296,7 +297,7 @@ namespace GameModeManager.Core
                 return;
 
             vote.Ballots[player.Slot] = yes;
-            player.PrintToChat(_localizer.LocalizeWithPrefix(yes ? "vote.you-voted-yes" : "vote.you-voted-no"));
+            PlayerFeedback.Send(player, _localizer, "notify.vote", MenuNotice.Success, yes ? "vote.you-voted-yes" : "vote.you-voted-no");
             if (vote.Native)
                 _nativeVote.UpdateCounts(vote.Yes, vote.No);
             Evaluate();

@@ -45,6 +45,13 @@ namespace GameModeManager
         public bool Enabled { get; set; } = true; // Adds a Game Modes section to CS2-SimpleAdmin's menu when it's installed, opening the !modes, !maps, !settings and !warmup menus
     }
 
+    // Define notification settings
+    public class NotificationSettings
+    {
+        public bool Enabled { get; set; } = true; // Shows a PanoramaMenuManager notification, in the player's language, for messages about their own action (language set, vote cast, can't vote, map not found). Needs "Notifications": true in MenuManagerCore.json
+        public bool Chat { get; set; } = true; // Also prints those messages in chat. PanoramaMenuManager can't tell when a notification isn't shown (turned off in !menu, menu files not loaded yet), so turn this off only if every player sees them
+    }
+
     // Define map settings
     public class MapSettings
     {
@@ -159,12 +166,13 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-        public int Version { get; set; } = 14;
+        public int Version { get; set; } = 15;
         public string WorkshopAddon { get; set; } = "3831211166"; // Workshop IDs (comma separated) of the addons with the menus' panorama files, added to MultiAddonManager's list. Empty = you load them yourself
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
         public MapChooserSettings MapChooser { get; set; } = new();
         public AdminPanelSettings AdminPanel { get; set; } = new();
+        public NotificationSettings Notifications { get; set; } = new();
         public GameSettings Settings { get; set; } = new();
         public WarmupSettings Warmup { get; set; } = new();
         public CommandSettings Commands { get; set; } = new();

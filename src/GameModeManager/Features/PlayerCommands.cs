@@ -1,4 +1,5 @@
 // Included libraries
+using MenuManager;
 using GameModeManager.Menus;
 using GameModeManager.Contracts;
 using GameModeManager.Shared.Models;
@@ -92,7 +93,7 @@ namespace GameModeManager.Features
             if (map != null)
                 _mapMenus.StartVote(player, map);
             else
-                player.PrintToChat(_localizer.LocalizeWithPrefix("vote.no-match", name));
+                PlayerFeedback.Send(player, _localizer, "notify.vote", MenuNotice.Warning, "vote.no-match", name);
         }
 
         // No argument: a random vote on GG1's panel for admins, the list to pick from for everyone else. A mode's name: a yes/no vote on it.
@@ -116,7 +117,7 @@ namespace GameModeManager.Features
             if (mode != null && (_config.GameModes.InVotes(mode.Name) || AdminManager.PlayerHasPermissions(player, RandomVotePermission)))
                 _modeMenus.StartVote(player, mode);
             else
-                player.PrintToChat(_localizer.LocalizeWithPrefix("vote.no-match", name));
+                PlayerFeedback.Send(player, _localizer, "notify.vote", MenuNotice.Warning, "vote.no-match", name);
         }
 
         private static string ArgumentOf(CommandInfo command)

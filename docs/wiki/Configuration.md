@@ -5,7 +5,7 @@
 	
 ```json
 {
-  "Version": 14,
+  "Version": 15,
   "WorkshopAddon": "3831211166",
   "Maps": {
     "Delay": 5,
@@ -33,6 +33,10 @@
   },
   "AdminPanel": {
     "Enabled": true
+  },
+  "Notifications": {
+    "Enabled": true,
+    "Chat": true
   },
   "Settings": {
     "Enabled": true,
@@ -446,6 +450,14 @@ These settings are for player votes (`!changemap`, `!changemode`, `!changesettin
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Enabled             | Adds a **Manage game** section to CS2-SimpleAdmin's menu when it's installed.                                                             |
+
+# Notification Settings
+Messages to one player about their own action (language set, vote cast, why a vote can't start, map not in the pool) also show as a PanoramaMenuManager notification, in the player's language. Added in config version 15. Messages to everyone stay in chat.
+
+| Setting             | Description                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Enabled             | Shows the notification. Needs `"Notifications": true` in `MenuManagerCore.json`; players can turn them off in `!menu`.                    |
+| Chat                | Also prints the message in chat. PanoramaMenuManager can't tell GameModeManager when a notification wasn't shown, so keep this on unless every player sees them. |
 
 # Game Settings
 | Setting             | Description                                                                                                                               |

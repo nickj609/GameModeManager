@@ -1,4 +1,5 @@
 // Included libraries
+using MenuManager;
 using System.Reflection;
 using GameModeManager.Menus;
 using CounterStrikeSharp.API;
@@ -235,7 +236,7 @@ namespace GameModeManager.Core
                     if (!next)
                         _mapMenus.ChangeMap(p, map);
                     else if (!_mapChooser.SetNextMap(map))
-                        p.PrintToChat(_localizer.LocalizeWithPrefix("admin.vote-unavailable"));
+                        PlayerFeedback.Send(p, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");
                 }), current);
             }
             return menu;
@@ -297,7 +298,7 @@ namespace GameModeManager.Core
                 AddOption(menu, MarkCurrent(mode.Name, _pluginState.Game.CurrentMode.Equals(mode)), p => Act(p, $"setnextmap {mode.Name}", () =>
                 {
                     if (!_mapChooser.SetNextMode(mode))
-                        p.PrintToChat(_localizer.LocalizeWithPrefix("admin.vote-unavailable"));
+                        PlayerFeedback.Send(p, _localizer, "notify.mode", MenuNotice.Warning, "admin.vote-unavailable");
                 }), !_mapChooser.CanBeNextMode(mode));
             }
             return menu;
@@ -361,7 +362,7 @@ namespace GameModeManager.Core
                     if (schedule)
                     {
                         Server.ExecuteCommand(command); // A server command
-                        p.PrintToChat(_localizer.LocalizeWithPrefix("admin.warmup-scheduled", mode.Name));
+                        PlayerFeedback.Send(p, _localizer, "notify.warmup", MenuNotice.Success, "admin.warmup-scheduled", mode.Name);
                     }
                     else
                         p.ExecuteClientCommandFromServer(command);

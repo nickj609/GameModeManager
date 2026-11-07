@@ -1,4 +1,5 @@
 // Included libraries
+using MenuManager;
 using GameModeManager.Core;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
@@ -145,16 +146,16 @@ namespace GameModeManager.Menus
         public void SetNextMode(CCSPlayerController player, IMode mode)
         {
             if (_pluginState.Game.CurrentMode.Equals(mode))
-                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
+                PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "general.validation.current");
             else if (!_mapChooser.SetNextMode(mode))
-                player.PrintToChat(_localizer.LocalizeWithPrefix("admin.vote-unavailable"));
+                PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "admin.vote-unavailable");
         }
 
         public void StartVote(CCSPlayerController player, IMode mode)
         {
             if (_pluginState.Game.CurrentMode.Equals(mode))
             {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
+                PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "general.validation.current");
                 return;
             }
             _voteService.StartYesNo(player, () => _localizer.Localize("mode.vote.menu-title", mode.Name), () => _serverManager.ChangeMode(mode), mode.Name);
@@ -167,7 +168,7 @@ namespace GameModeManager.Menus
                 return;
 
             if (!_mapChooser.StartModeVote(player))
-                player.PrintToChat(_localizer.LocalizeWithPrefix("admin.vote-unavailable"));
+                PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "admin.vote-unavailable");
         }
     }
 }

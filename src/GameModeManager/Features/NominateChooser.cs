@@ -1,4 +1,5 @@
 // Included libraries
+using MenuManager;
 using GameModeManager.Core;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
@@ -90,7 +91,7 @@ namespace GameModeManager.Features
             {
                 var player = Utilities.GetPlayerFromSlot(slot);
                 if (player != null && player.IsValid)
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("nominate.mode-taken"));
+                    PlayerFeedback.Send(player, _localizer, "notify.nominate", MenuNotice.Warning, "nominate.mode-taken");
             }
         }
 
@@ -179,7 +180,7 @@ namespace GameModeManager.Features
         private void NominateMode(CCSPlayerController player, IMode mode)
         {
             if (_mapChooser.OtherModeNominated(player))
-                player.PrintToChat(_localizer.LocalizeWithPrefix("nominate.mode-taken"));
+                PlayerFeedback.Send(player, _localizer, "notify.nominate", MenuNotice.Warning, "nominate.mode-taken");
             else if (_mapChooser.NominationsOpen())
                 _mapChooser.NominateMode(player, mode);
             else
