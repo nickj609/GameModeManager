@@ -1,0 +1,84 @@
+
+/* ==== Keycap footers on the vote, nominate and settings panels. Appended to PMM_GG1MapChooser's stylesheet by build-menu-addon.ps1 ==== */
+.mv-root.mode-wasd .mv-hint-wasd,
+.mv-root.mode-digits .mv-hint-digits
+{
+	visibility: collapse;
+}
+
+/* After voting, the hint line is the "done" message */
+.mv-root.done.mode-wasd .mv-hint-wasd,
+.mv-root.done.mode-digits .mv-hint-digits
+{
+	visibility: visible;
+}
+
+.gmm-vote-keys
+{
+	width: fill-parent-flow( 1.0 );
+	flow-children: right;
+	visibility: collapse;
+}
+
+.mv-root.mode-wasd .gmm-vote-keys-wasd,
+.mv-root.mode-digits .gmm-vote-keys-digits
+{
+	visibility: visible;
+}
+
+.mv-root.done .gmm-vote-keys
+{
+	visibility: collapse;
+}
+
+.gmm-vote-key
+{
+	width: 18px;
+	height: 18px;
+	padding-top: 2px;
+	text-align: center;
+	font-size: 11px;
+	color: #160a0b;
+	background-color: #f2eeee;
+	border-radius: 3px;
+}
+
+.gmm-vote-key-close
+{
+	color: #ffe9e6;
+	background-color: #b3201f;
+}
+
+.gmm-vote-key-or
+{
+	margin-left: 3px;
+	margin-right: 3px;
+	padding-top: 1px;
+	font-size: 12px;
+	color: #c9cfdc;
+}
+
+.gmm-vote-key-name
+{
+	margin-left: 4px;
+	margin-right: 10px;
+	padding-top: 1px;
+	font-size: 12px;
+	color: #c9cfdc;
+}
+
+/* The vote panel has its count on the right, so its keys stay left. These two have no count, so theirs are centred. */
+#nm-root.mode-wasd .mv-foot,
+#nm-root.mode-digits .mv-foot,
+#st-root.mode-wasd .mv-foot,
+#st-root.mode-digits .mv-foot
+{
+	flow-children: none;
+}
+
+#nm-root .gmm-vote-keys,
+#st-root .gmm-vote-keys
+{
+	width: fit-children;
+	horizontal-align: center;
+}
