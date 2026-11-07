@@ -51,6 +51,8 @@ namespace GameModeManager
             public bool WarmupRunning = false;
             public IMap CurrentMap = DefaultMap;
             public bool RotationsEnabled = true;
+            public bool RtvInMode = true;
+            public bool RtvEnabled(Config config) => config.MapChooser.Rtv && RtvInMode;
             public bool WarmupScheduled = false;
             public bool CountdownRunning = false;
             public IMode CurrentMode = DefaultMode;
@@ -74,7 +76,6 @@ namespace GameModeManager
             // Define class properties
             public bool Enabled = false;
             public float Duration = 120;
-            public bool Scheduled = false;
             public bool CustomLimit = false;
             public float CustomStartTime = 0f;
         }   

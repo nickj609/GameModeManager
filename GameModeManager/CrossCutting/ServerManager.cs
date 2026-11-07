@@ -180,7 +180,13 @@ namespace GameModeManager.CrossCutting
             ChangeMode(mode, _config.Maps.Delay);
         }
 
-        public void ChangeMode(IMode mode, int delay)
+        // A map from the mode's own list, picked by !mode <mode> <map>
+        public void ChangeMode(IMode mode, IMap map)
+        {
+            ChangeMode(mode, _config.Maps.Delay, map);
+        }
+
+        public void ChangeMode(IMode mode, int delay, IMap? map = null)
         {
             _logger.LogInformation($"Current mode: {_pluginState.Game.CurrentMode.Name}");
             _logger.LogInformation($"New mode: {mode.Name}");
@@ -190,9 +196,11 @@ namespace GameModeManager.CrossCutting
                 // Execute mode config. Not before the countdown: its settings and restarts would hit the map being left.
                 Server.ExecuteCommand($"exec {mode.Config}");
 
-                // If no default map, set next map to random map
+                // The map asked for, else the default map, else a random map
                 IMap nextMap;
-                if (mode.DefaultMap == null)
+                if (map != null)
+                    nextMap = map;
+                else if (mode.DefaultMap == null)
                     nextMap = GetRandomMap(mode);
                 else
                     nextMap = mode.DefaultMap;
@@ -219,7 +227,7 @@ namespace GameModeManager.CrossCutting
             _pluginState.Game.MapRotations++;
 
             // A rotation has to end up somewhere else: not the current mode, and not a mode with no maps
-            List<IMode> modes = _pluginState.Game.Modes.Values.Where(mode => !mode.Equals(_pluginState.Game.CurrentMode) && mode.Maps.Count > 0).ToList();
+            List<IMode> modes = _pluginState.Game.Modes.Values.Where(mode => !mode.Equals(_pluginState.Game.CurrentMode) && mode.Maps.Count > 0 && _config.GameModes.InRotation(mode.Name)).ToList();
             if (!modeDue || modes.Count == 0)
             {
                 ChangeMap(_config.Maps.Delay, ChangeToNextMap);

@@ -17,7 +17,7 @@
     "Position": "Right",
     "FreezeTimeVote": true,
     "FreezeTimeExtra": 3,
-    "ExtendFreezeDirect": true,
+    "ExtendFreezeDirect": false,
     "FreezeTimeFallback": 15,
     "ShowVoteCounts": true,
     "ChatNumbers": true,

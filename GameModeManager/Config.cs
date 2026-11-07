@@ -19,6 +19,8 @@ namespace GameModeManager
         public string Config { get; set; } = "casual.cfg";
         public string? DefaultMap { get; set; } = null;
         public List<string> MapGroups { get; set; } = new List<string>() { "mg_active", "mg_comp" };
+        public bool InVotes { get; set; } = true; // false = left out of votes, !nominate, !changemode and random picks. Admins can still choose it
+        public bool InRotation { get; set; } = true; // false = mode rotation never picks it. Schedules can still use it
     }
 
     public class WarmupModeEntry
@@ -33,6 +35,7 @@ namespace GameModeManager
         public bool GeneratePools { get; set; } = true; // Writes cfg/GGMCmaps.json: one GG1 pool per mode from its map groups
         public int TriggerSecondsBeforeEnd { get; set; } = 60; // Time-limited modes: start GG1's vote this many seconds before the end
         public int TriggerKillsBeforeEnd { get; set; } = 13; // Arms race: start GG1's vote when the leader has this many kills
+        public bool Rtv { get; set; } = true; // Lets players use !rtv and !nominate. Off doesn't affect end-of-map votes or rotations
         public bool ModesInVotes { get; set; } = true; // One random other mode offered in votes and !nominate, reshuffled every map
     }
 
@@ -63,7 +66,6 @@ namespace GameModeManager
         public bool AllowSpectators { get; set; } = false; // Spectators can vote (and count towards the percentage)
         public bool AllowInWarmup { get; set; } = false; // Allows votes during warmup
         public string NativeTitleToken { get; set; } = ""; // Native panel title from platform_english.txt on the server and every player's PC. Empty = the game's "Change current level to X?"
-        public bool UsePanorama { get; set; } = false; // Deprecated (CS2-CustomVotes): true = Style "native"
     }
 
     // Define game settings
@@ -117,6 +119,9 @@ namespace GameModeManager
         public ModeEntry Default { get; set; } = new ModeEntry() { Name = "Casual", Config = "casual.cfg", MapGroups = new List<string>() { "mg_active", "mg_comp" } }; // Default mode on server start
         public string MapGroupFile { get; set; } = "gamemodes_server.txt"; // Default game modes and map groups file
 
+        public bool InVotes(string mode) => List.FirstOrDefault(entry => entry.Name.Equals(mode, StringComparison.OrdinalIgnoreCase))?.InVotes != false;
+        public bool InRotation(string mode) => List.FirstOrDefault(entry => entry.Name.Equals(mode, StringComparison.OrdinalIgnoreCase))?.InRotation != false;
+
         public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
         {
             new ModeEntry() { Name = "45", Config = "45.cfg", DefaultMap = "3276886893", MapGroups = new List<string>(){"mg_45"} },
@@ -154,7 +159,7 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-        public int Version { get; set; } = 13;
+        public int Version { get; set; } = 14;
         public string WorkshopAddon { get; set; } = "3831211166"; // Workshop IDs (comma separated) of the addons with the menus' panorama files, added to MultiAddonManager's list. Empty = you load them yourself
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
@@ -165,6 +170,128 @@ namespace GameModeManager
         public CommandSettings Commands { get; set; } = new();
         public RotationSettings Rotation { get; set; } = new();
         public GameModeSettings GameModes { get; set; } = new();
+
+        // The checks that only need the config itself. ci/ConfigCheck runs these on Kus's config.
+        public void Validate(ILogger logger)
+        {
+            // Maps settings
+            if (String.IsNullOrEmpty(Maps.Default))
+            {
+                logger.LogError("Invalid: Default map must not be empty.");
+                throw new Exception("Invalid: Default map must not be empty.");
+            }
+            if (Maps.Delay < 0)
+            {
+                logger.LogError("Invalid: Maps Delay cannot be negative.");
+                throw new Exception("Invalid: Maps Delay cannot be negative.");
+            }
+
+            // Game mode settings
+            if (GameModes.List.Count == 0)
+            {
+                logger.LogError("Undefined: Game modes list cannot be empty.");
+                throw new Exception("Undefined: Game modes list cannot be empty.");
+            }
+
+            if (GameModes.Default == null)
+            {
+                logger.LogError("Invalid: Default game mode must not be empty.");
+                throw new Exception("Invalid: Default game mode must not be empty.");
+            }
+
+            // A duplicate name stops the plugin loading when the modes are added
+            HashSet<string> modeNames = new(StringComparer.OrdinalIgnoreCase);
+            foreach (ModeEntry mode in GameModes.List)
+            {
+                if (!modeNames.Add(mode.Name))
+                {
+                    logger.LogError("Invalid: Game mode \"{Name}\" is listed twice.", mode.Name);
+                    throw new Exception($"Invalid: Game mode \"{mode.Name}\" is listed twice.");
+                }
+            }
+            if (!modeNames.Contains(GameModes.Default.Name))
+                logger.LogWarning("Default game mode \"{Name}\" isn't in the game modes list.", GameModes.Default.Name);
+
+            // Rotation settings
+            if (Rotation.ModeSchedules == true)
+            {
+                if (Rotation.Schedule.Count <= 0)
+                {
+                    logger.LogError("Invalid: Schedule cannot be empty");
+                    throw new Exception("Invalid: Schedule cannot be empty");
+                }
+                foreach (ScheduleEntry entry in Rotation.Schedule)
+                {
+                    if (!DateTime.TryParse(entry.Time, out _))
+                    {
+                        logger.LogError("Invalid: Schedule time \"{Time}\" isn't a time, like \"15:00\".", entry.Time);
+                        throw new Exception($"Invalid: Schedule time \"{entry.Time}\" isn't a time, like \"15:00\".");
+                    }
+                    if (!modeNames.Contains(entry.Mode))
+                        logger.LogWarning("Schedule mode \"{Mode}\" isn't in the game modes list, so {Time} won't change anything.", entry.Mode, entry.Time);
+                }
+
+                // Rotating the mode every few maps would move the server off its schedule. Admins can still turn it on from the admin menu.
+                if (Rotation.ModeRotation)
+                {
+                    logger.LogWarning("Rotation ModeRotation and ModeSchedules are both on: using the schedule, and turning ModeRotation off.");
+                    Rotation.ModeRotation = false;
+                }
+            }
+            if (Rotation.CustomTimeLimit < 0)
+            {
+                logger.LogError("Invalid: Rotation CustomTimeLimit cannot be negative.");
+                throw new Exception("Invalid: Rotation CustomTimeLimit cannot be negative.");
+            }
+            if (Rotation.ModeInterval <= 0)
+            {
+                logger.LogError("Invalid: Rotation ModeInterval must be greater than 0.");
+                throw new Exception("Invalid: Rotation ModeInterval must be greater than 0.");
+            }
+
+            // Map chooser settings
+            if (MapChooser.TriggerSecondsBeforeEnd < 0 || MapChooser.TriggerKillsBeforeEnd < 0)
+            {
+                logger.LogError("Invalid: MapChooser values cannot be negative.");
+                throw new Exception("Invalid: MapChooser values cannot be negative.");
+            }
+
+            // Vote settings
+            if (!Votes.Style.Equals("menu", StringComparison.OrdinalIgnoreCase) && !Votes.Style.Equals("native", StringComparison.OrdinalIgnoreCase))
+            {
+                // 1.0.x configs say "center" or "chat" here, and shouldn't stop the plugin loading
+                logger.LogWarning("Votes Style \"{Style}\" isn't available: using \"menu\". Use \"menu\" or \"native\".", Votes.Style);
+                Votes.Style = "menu";
+            }
+            if (Votes.Percentage <= 0 || Votes.Percentage > 100)
+            {
+                logger.LogError("Invalid: Votes Percentage must be between 1 and 100.");
+                throw new Exception("Invalid: Votes Percentage must be between 1 and 100.");
+            }
+            if (Votes.Duration <= 0)
+            {
+                logger.LogError("Invalid: Votes Duration must be greater than 0.");
+                throw new Exception("Invalid: Votes Duration must be greater than 0.");
+            }
+            if (Votes.MinPlayers < 0 || Votes.Cooldown < 0)
+            {
+                logger.LogError("Invalid: Votes MinPlayers and Cooldown cannot be negative.");
+                throw new Exception("Invalid: Votes MinPlayers and Cooldown cannot be negative.");
+            }
+
+            // Warmup settings
+            if (Warmup.Time < 0)
+            {
+                logger.LogError("Invalid: Warmup Time cannot be negative.");
+                throw new Exception("Invalid: Warmup Time cannot be negative.");
+            }
+
+            // Config version check
+            if (Version < 12)
+            {
+                throw new Exception("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it");
+            }
+        }
     }
 
     // Define plugin class for parsing config
@@ -175,17 +302,7 @@ namespace GameModeManager
         // Perform error checking
         public void OnConfigParsed(Config _config)
         {
-            // Maps settings
-            if (String.IsNullOrEmpty(_config.Maps.Default))
-            {
-                Logger.LogError("Invalid: Default map must not be empty.");
-                throw new Exception("Invalid: Default map must not be empty.");
-            }
-            if (_config.Maps.Delay < 0)
-            {
-                Logger.LogError("Invalid: Maps Delay cannot be negative.");
-                throw new Exception("Invalid: Maps Delay cannot be negative.");
-            }
+            _config.Validate(Logger);
 
             // Game Settings
             if (_config.Settings.Enabled && !Directory.Exists(Path.Combine(PluginState.GameController.ConfigDirectory, _config.Settings.Folder)))
@@ -203,85 +320,6 @@ namespace GameModeManager
             {
                 Logger.LogError($"Cannot find map group file: {_config.GameModes.MapGroupFile}");
                 throw new Exception($"Cannot find map group file: {_config.GameModes.MapGroupFile}");
-            }
-
-            if (_config.GameModes.List.Count == 0)
-            {
-                Logger.LogError("Undefined: Game modes list cannot be empty.");
-                throw new Exception("Undefined: Game modes list cannot be empty.");
-            }
-
-            if (_config.GameModes.Default == null)
-            {
-                Logger.LogError("Invalid: Default game mode must not be empty.");
-                throw new Exception("Invalid: Default game mode must not be empty.");
-            }
-
-            // Rotation settings
-            if (_config.Rotation.ModeSchedules == true)
-            {
-                if (_config.Rotation.Schedule.Count <= 0)
-                {
-                    Logger.LogError("Invalid: Schedule cannot be empty");
-                    throw new Exception("Invalid: Schedule cannot be empty");
-                }
-            }
-            if (_config.Rotation.CustomTimeLimit < 0)
-            {
-                Logger.LogError("Invalid: Rotation CustomTimeLimit cannot be negative.");
-                throw new Exception("Invalid: Rotation CustomTimeLimit cannot be negative.");
-            }
-            if (_config.Rotation.ModeInterval <= 0)
-            {
-                Logger.LogError("Invalid: Rotation ModeInterval must be greater than 0.");
-                throw new Exception("Invalid: Rotation ModeInterval must be greater than 0.");
-            }
-
-            // Map chooser settings
-            if (_config.MapChooser.TriggerSecondsBeforeEnd < 0 || _config.MapChooser.TriggerKillsBeforeEnd < 0)
-            {
-                Logger.LogError("Invalid: MapChooser values cannot be negative.");
-                throw new Exception("Invalid: MapChooser values cannot be negative.");
-            }
-
-            // Vote settings
-            if (_config.Votes.UsePanorama && _config.Votes.Style.Equals("menu", StringComparison.OrdinalIgnoreCase))
-            {
-                _config.Votes.Style = "native";
-            }
-            if (!_config.Votes.Style.Equals("menu", StringComparison.OrdinalIgnoreCase) && !_config.Votes.Style.Equals("native", StringComparison.OrdinalIgnoreCase))
-            {
-                // 1.0.x configs say "center" or "chat" here, and shouldn't stop the plugin loading
-                Logger.LogWarning("Votes Style \"{Style}\" isn't available: using \"menu\". Use \"menu\" or \"native\".", _config.Votes.Style);
-                _config.Votes.Style = "menu";
-            }
-            if (_config.Votes.Percentage <= 0 || _config.Votes.Percentage > 100)
-            {
-                Logger.LogError("Invalid: Votes Percentage must be between 1 and 100.");
-                throw new Exception("Invalid: Votes Percentage must be between 1 and 100.");
-            }
-            if (_config.Votes.Duration <= 0)
-            {
-                Logger.LogError("Invalid: Votes Duration must be greater than 0.");
-                throw new Exception("Invalid: Votes Duration must be greater than 0.");
-            }
-            if (_config.Votes.MinPlayers < 0 || _config.Votes.Cooldown < 0)
-            {
-                Logger.LogError("Invalid: Votes MinPlayers and Cooldown cannot be negative.");
-                throw new Exception("Invalid: Votes MinPlayers and Cooldown cannot be negative.");
-            }
-
-            // Warmup settings
-            if (_config.Warmup.Time < 0)
-            {
-                Logger.LogError("Invalid: Warmup Time cannot be negative.");
-                throw new Exception("Invalid: Warmup Time cannot be negative.");
-            }
-
-            // Config version check
-            if (_config.Version < 12)
-            {
-                throw new Exception("Your config file is too old, please backup and remove it from addons/counterstrikesharp/configs/plugins/GameModeManager to recreate it");
             }
 
             // Set config

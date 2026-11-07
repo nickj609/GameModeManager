@@ -69,7 +69,7 @@ namespace GameModeManager.Features
                 return HookResult.Continue;
 
             IMode? mode = _mapChooser.FindMode(name);
-            if (mode == null || !_mapChooser.CanBeNextMode(mode))
+            if (mode == null || !_mapChooser.CanBeNextMode(mode) || !_mapChooser.InVotes(mode))
                 return HookResult.Continue; // A map, or GG1 says it can't be nominated
 
             Server.NextFrame(() =>
@@ -96,10 +96,10 @@ namespace GameModeManager.Features
 
         private bool Usable(CCSPlayerController? player)
         {
-            return player != null && player.IsValid && _config.MapChooser.ModesInVotes && _mapChooser.Available;
+            return player != null && player.IsValid && _config.MapChooser.ModesInVotes && _mapChooser.Available && _pluginState.Game.RtvEnabled(_config);
         }
 
-        private HookResult Open(CCSPlayerController? player)
+        public HookResult Open(CCSPlayerController? player)
         {
             if (!Usable(player))
                 return HookResult.Continue;
@@ -143,7 +143,7 @@ namespace GameModeManager.Features
         private IMenu ModeList(CCSPlayerController player, IMenu back)
         {
             IMenu menu = MenuFactory.Api!.GetMenu(_localizer.Path("commands.menu-nominate", "nominate.modes"), p => back.Open(p));
-            foreach (IMode mode in _pluginState.Game.Modes.Values.Where(_mapChooser.CanBeNextMode).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
+            foreach (IMode mode in _pluginState.Game.Modes.Values.Where(m => _mapChooser.CanBeNextMode(m) && _mapChooser.InVotes(m)).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
                 AddRow(menu, player, mode.Name, mode.Name, false, p => NominateMode(p, mode));
             return menu;
         }

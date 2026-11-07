@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- The plugin leaves these out because the server provides them. This tool runs on its own, so it needs them. -->
+    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.378" />
+    <ProjectReference Include="..\..\GameModeManager\GameModeManager.csproj" />
+  </ItemGroup>
+</Project>

@@ -113,7 +113,7 @@ namespace GameModeManager.Features
             }
 
             IMode? mode = _pluginState.Game.Modes.Values.FirstOrDefault(m => m.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if (mode != null)
+            if (mode != null && (_config.GameModes.InVotes(mode.Name) || AdminManager.PlayerHasPermissions(player, RandomVotePermission)))
                 _modeMenus.StartVote(player, mode);
             else
                 player.PrintToChat(_localizer.LocalizeWithPrefix("vote.no-match", name));

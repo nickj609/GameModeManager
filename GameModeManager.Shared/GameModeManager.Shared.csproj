@@ -6,7 +6,12 @@
         <RootNamespace>GameModeManager.Shared</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>2.0.0</Version>
+        <!-- The plugin's version, so there's one number to change -->
+        <Version>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)..\GameModeManager\Plugin.cs')), 'ModuleVersion => "([^"]+)"').Groups[1].Value)</Version>
+        <Authors>Nickj609</Authors>
+        <Description>Shared API for GameModeManager, a Counter-Strike 2 server plugin that manages game modes, maps and settings.</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/nickj609/GameModeManager</PackageProjectUrl>
         <!-- Same release folder as the plugin when built from the solution, else this project's own bin -->
         <PublicDir Condition="'$(SolutionDir)' != '' And '$(SolutionDir)' != '*Undefined*'">$(SolutionDir)bin\$(Configuration)\$(TargetFramework)\Public\</PublicDir>
         <PublicDir Condition="'$(PublicDir)' == ''">$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Public\</PublicDir>

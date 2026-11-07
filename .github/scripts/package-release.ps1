@@ -13,10 +13,7 @@ $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 # The plugin and its NuGet contract are published under one version
 $pluginCs = Get-Content (Join-Path $repo "GameModeManager\Plugin.cs") -Raw
 $version = [regex]::Match($pluginCs, 'ModuleVersion => "([^"]+)"').Groups[1].Value
-$sharedCsproj = Get-Content (Join-Path $repo "GameModeManager.Shared\GameModeManager.Shared.csproj") -Raw
-$sharedVersion = [regex]::Match($sharedCsproj, '<Version>([^<]+)</Version>').Groups[1].Value
 if (-not $version) { throw "No ModuleVersion found in GameModeManager\Plugin.cs" }
-if ($version -ne $sharedVersion) { throw "Plugin.cs is version $version but GameModeManager.Shared.csproj is $sharedVersion" }
 
 # A clean Public folder: files of earlier builds must not end up in the package
 $public = Join-Path $repo "bin\$Configuration\net10.0\Public"

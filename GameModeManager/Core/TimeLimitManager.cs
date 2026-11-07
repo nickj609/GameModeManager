@@ -4,7 +4,6 @@ using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Localization;
 using CounterStrikeSharp.API.Modules.Cvars;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
@@ -19,22 +18,19 @@ namespace GameModeManager.Core
         private readonly GameRules _gameRules;
         private ILogger<TimeLimitManager> _logger;
         private readonly PluginState _pluginState;
-        private readonly StringLocalizer _localizer;
         private readonly ServerManager _serverManager;
-        private readonly MaxRoundsManager _maxRoundsManager;
 
         // Define class constructor
-        public TimeLimitManager(GameRules gameRules, ServerManager serverManager, PluginState pluginState, MaxRoundsManager maxRoundsManager, IStringLocalizer iLocalizer, ILogger<TimeLimitManager> logger)
+        public TimeLimitManager(GameRules gameRules, ServerManager serverManager, PluginState pluginState, ILogger<TimeLimitManager> logger)
         {
             _logger = logger;
             _gameRules = gameRules;
             _pluginState = pluginState;
             _serverManager = serverManager;
-            _maxRoundsManager = maxRoundsManager;
-            _localizer = new StringLocalizer(iLocalizer, "timeleft.prefix");
         }
 
         // Define class properties
+        private Plugin? _plugin;
         private Timer? timer;
         private ConVar? timeLimit; 
         private decimal StandardTimeLimitValue => (decimal)(timeLimit?.GetPrimitiveValue<float>() ?? 0F) * 60M;
@@ -98,6 +94,8 @@ namespace GameModeManager.Core
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
+            _plugin = plugin;
+
             if (_config.Commands.TimeLimit)
             {
                 LoadCvar();
@@ -122,11 +120,6 @@ namespace GameModeManager.Core
             return StandardUnlimitedTime;
         }
 
-        public decimal TimePlayed()
-        {
-            return timePlayed; 
-        }
-
         public decimal TimeRemaining()
         {
             return timeRemaining; 
@@ -147,7 +140,6 @@ namespace GameModeManager.Core
             
             _pluginState.TimeLimit.CustomLimit = false;
             _pluginState.TimeLimit.Enabled = false;
-            _pluginState.TimeLimit.Scheduled = false;
             _pluginState.TimeLimit.Duration = 0f;
             _pluginState.TimeLimit.CustomStartTime = 0f;
             _logger.LogDebug("Time limit timer disabled and state reset.");
@@ -163,7 +155,7 @@ namespace GameModeManager.Core
             if (remaining > 1)
             {
                 _logger.LogInformation($"Time limit extended: {remaining:0}s left.");
-                timer = new Timer((float)remaining, OnTimeLimitReached);
+                timer = _plugin?.AddTimer((float)remaining, OnTimeLimitReached);
                 return;
             }
 
@@ -185,9 +177,8 @@ namespace GameModeManager.Core
                 {
                     _pluginState.TimeLimit.CustomLimit = false; 
                     _pluginState.TimeLimit.Enabled = true;
-                    _pluginState.TimeLimit.Scheduled = false; 
                     
-                    timer = new Timer((float)remaining, OnTimeLimitReached);
+                    timer = _plugin?.AddTimer((float)remaining, OnTimeLimitReached);
                     _logger.LogDebug($"Standard timer enabled. Remaining: {remaining}s");
                 } 
                 else 
@@ -213,7 +204,6 @@ namespace GameModeManager.Core
 
             _pluginState.TimeLimit.CustomLimit = true; 
             _pluginState.TimeLimit.Enabled = true; 
-            _pluginState.TimeLimit.Scheduled = false; 
             _pluginState.TimeLimit.Duration = customDurationSeconds; 
             _pluginState.TimeLimit.CustomStartTime = Server.CurrentTime; 
 
@@ -224,76 +214,14 @@ namespace GameModeManager.Core
 
             _logger.LogDebug($"Starting custom timer for {customDurationSeconds} seconds.");
 
-            timer = new Timer(customDurationSeconds, OnTimeLimitReached);
+            timer = _plugin?.AddTimer(customDurationSeconds, OnTimeLimitReached);
         }
-
-        public string GetTimeLeftMessage()
-        {
-            string _message;
-
-            if (_gameRules.WarmupRunning)
-                return _localizer.Localize("timeleft.warmup");
-
-            decimal currentRemaining = timeRemaining;
-
-            if (!UnlimitedTime())
-            {
-                if (currentRemaining > 1) 
-                {
-                    TimeSpan remaining = TimeSpan.FromSeconds((double)currentRemaining);
-
-                    if (remaining.Hours > 0)
-                        _message = _localizer.Localize("timeleft.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
-                    else if (remaining.Minutes > 0)
-                        _message = _localizer.Localize("timeleft.remaining-time-minute", remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
-                    else
-                        _message = _localizer.Localize("timeleft.remaining-time-second", remaining.Seconds);
-                }
-                else
-                {
-                    _message = _localizer.Localize("timeleft.remaining-time-over");
-                }
-            }
-            else if (!_maxRoundsManager.UnlimitedRounds) 
-            {
-                if (_maxRoundsManager.RemainingRounds > 1)
-                    _message = _localizer.Localize("timeleft.remaining-rounds", _maxRoundsManager.RemainingRounds);
-                else
-                    _message = _localizer.Localize("timeleft.last-round");
-            }
-            else
-            {
-                _message = _localizer.Localize("timeleft.no-time-limit");
-            }
-
-            return _message;
-        }
-
 
         // Define event handlers
         public HookResult EventRoundAnnounceMatchStartHandler(EventRoundAnnounceMatchStart @event, GameEventInfo info)
         {
-            _logger.LogDebug("EventRoundAnnounceMatchStart triggered."); 
-            if (_pluginState.TimeLimit.Scheduled)
-            {
-                _logger.LogDebug($"TimeLimitScheduled is true. Custom: {_pluginState.TimeLimit.CustomLimit}");
-
-                if (_pluginState.TimeLimit.CustomLimit)
-                {
-                    _logger.LogDebug($"Enabling scheduled custom time limit: {_pluginState.TimeLimit.Duration}s");
-                    EnableTimeLimit(_pluginState.TimeLimit.Duration); 
-                }
-                else
-                {
-                    _logger.LogDebug("Enabling scheduled standard time limit.");
-                    EnableTimeLimit();
-                }
-                _pluginState.TimeLimit.Scheduled = false;
-            }
-            else
-            {
-                DisableTimeLimit();
-            }
+            _logger.LogDebug("EventRoundAnnounceMatchStart triggered.");
+            DisableTimeLimit();
             return HookResult.Continue;
         }
 

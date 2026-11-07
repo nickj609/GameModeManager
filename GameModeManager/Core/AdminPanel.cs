@@ -23,6 +23,7 @@ namespace GameModeManager.Core
         private Plugin? _plugin;
         private MapMenus _mapMenus;
         private ModeMenus _modeMenus;
+        private PlayerMenu _playerMenu;
         private MapChooserBridge _mapChooser;
         private PluginState _pluginState;
         private SettingMenus _settingMenus;
@@ -32,11 +33,12 @@ namespace GameModeManager.Core
         private IStringLocalizer _iLocalizer;
 
         // Define class constructor
-        public AdminPanel(PluginState pluginState, MapMenus mapMenus, ModeMenus modeMenus, MapChooserBridge mapChooser, SettingMenus settingMenus, StringLocalizer localizer, IStringLocalizer iLocalizer, ILogger<AdminPanel> logger)
+        public AdminPanel(PluginState pluginState, MapMenus mapMenus, ModeMenus modeMenus, PlayerMenu playerMenu, MapChooserBridge mapChooser, SettingMenus settingMenus, StringLocalizer localizer, IStringLocalizer iLocalizer, ILogger<AdminPanel> logger)
         {
             _logger = logger;
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
+            _playerMenu = playerMenu;
             _mapChooser = mapChooser;
             _localizer = localizer;
             _iLocalizer = iLocalizer;
@@ -46,6 +48,7 @@ namespace GameModeManager.Core
 
         // Define class properties
         private object? _api;
+        public bool Active => _api != null;
         private Type? _apiType;
         private Action? _readyHandler;
         private const string Category = "gamemodemanager";
@@ -366,6 +369,12 @@ namespace GameModeManager.Core
             AddToggle(menu, "admin.rotation-modes", rotation.ModeRotation, () => rotation.ModeRotation = !rotation.ModeRotation);
             AddValue(menu, "admin.rotation-interval", _localizer.Localize("admin.rotation-map-count", rotation.ModeInterval),
                 new[] { 1, 2, 3, 4, 5, 6, 8, 10 }, maps => _localizer.Localize("admin.rotation-map-count", maps), () => rotation.ModeInterval, maps => rotation.ModeInterval = maps);
+            AddToggle(menu, "admin.rtv", _config.MapChooser.Rtv, () =>
+            {
+                // !game has an RTV row only while it's on
+                _config.MapChooser.Rtv = !_config.MapChooser.Rtv;
+                _playerMenu.Load();
+            });
             AddToggle(menu, "admin.rotation-empty", rotation.WhenServerEmpty, () => rotation.WhenServerEmpty = !rotation.WhenServerEmpty);
             AddValue(menu, "admin.rotation-empty-time", _localizer.Localize("admin.rotation-minutes", rotation.CustomTimeLimit / 60),
                 new[] { 5, 10, 15, 20, 30, 60 }, minutes => _localizer.Localize("admin.rotation-minutes", minutes), () => rotation.CustomTimeLimit / 60, minutes => rotation.CustomTimeLimit = minutes * 60);
