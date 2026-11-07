@@ -143,14 +143,22 @@ namespace GameModeManager.Features
         public void OnCurrentMapCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player != null)
-                command.ReplyToCommand(_localizer.Localize("currentmap.message", _pluginState.Game.CurrentMap.DisplayName));
+            {
+                PlayerFeedback.Notify(player, _localizer, "notify.map", MenuNotice.Success, "currentmap.message", _pluginState.Game.CurrentMap.DisplayName);
+                if (PlayerFeedback.ChatLine)
+                    command.ReplyToCommand(_localizer.Localize("currentmap.message", _pluginState.Game.CurrentMap.DisplayName));
+            }
         }
 
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnCurrentModeCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player != null)
-                command.ReplyToCommand(_localizer.Localize("currentmode.message", _pluginState.Game.CurrentMode.Name));
+            {
+                PlayerFeedback.Notify(player, _localizer, "notify.mode", MenuNotice.Success, "currentmode.message", _pluginState.Game.CurrentMode.Name);
+                if (PlayerFeedback.ChatLine)
+                    command.ReplyToCommand(_localizer.Localize("currentmode.message", _pluginState.Game.CurrentMode.Name));
+            }
         } 
     }
 }

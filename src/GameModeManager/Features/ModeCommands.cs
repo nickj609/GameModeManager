@@ -108,7 +108,10 @@ namespace GameModeManager.Features
             if (_mapName == null)
             {
                 if (player != null)
+                {
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, _mode.Name));
+                    PlayerFeedback.Notify(player, _localizer, "notify.mode", MenuNotice.Success, "admin.done.changemode", _mode.Name);
+                }
 
                 _serverManager.ChangeMode(_mode);
                 return;
@@ -122,7 +125,10 @@ namespace GameModeManager.Features
             }
 
             if (player != null)
+            {
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.map-message", player.PlayerName, _mode.Name, _map.DisplayName));
+                PlayerFeedback.Notify(player, _localizer, "notify.mode", MenuNotice.Success, "admin.done.changemode-map", _mode.Name, _map.DisplayName);
+            }
 
             _serverManager.ChangeMode(_mode, _map);
         }

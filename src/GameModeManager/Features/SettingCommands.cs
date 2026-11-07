@@ -4,6 +4,7 @@ using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using MenuManager;
 using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -59,21 +60,23 @@ namespace GameModeManager.Features
                     if (_status.Equals("enable", StringComparison.OrdinalIgnoreCase)) 
                     {
                         Server.PrintToChatAll(_localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, _settingName));
+                        PlayerFeedback.Notify(player, _localizer, "notify.setting", MenuNotice.Success, "admin.done.setting-enabled", _setting.DisplayName);
                         Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Enable}");
                     }
                     else if (_status.Equals("disable", StringComparison.OrdinalIgnoreCase))
                     {
                         Server.PrintToChatAll(_localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, _settingName));
+                        PlayerFeedback.Notify(player, _localizer, "notify.setting", MenuNotice.Success, "admin.done.setting-disabled", _setting.DisplayName);
                         Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Disable}");
                     }
                     else
                     {
-                        command.ReplyToCommand($"Unexpected argument: {_status}");
-                    }  
+                        PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "setting.unexpected-argument", _status);
+                    }
                 }
                 else
                 {
-                    command.ReplyToCommand($"Can't find setting: {_settingName}");
+                    PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "setting.not-found", _settingName);
                 }
             }
         }

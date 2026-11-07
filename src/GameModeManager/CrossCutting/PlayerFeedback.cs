@@ -47,6 +47,19 @@ namespace GameModeManager.CrossCutting
             Deliver(player, localizer, titleKey, notice, key, args, command.ReplyToCommand);
         }
 
+        // The notification alone, for the admin whose change is already announced to everyone in chat
+        public static void Notify(CCSPlayerController? player, StringLocalizer localizer, string titleKey, MenuNotice notice, string key, params object[] args)
+        {
+            if (player == null || !player.IsValid || player.IsBot || !_settings.Enabled)
+                return;
+
+            using var _temporaryCulture = MenuLanguages.For(player);
+            MenuFactory.Api?.Notify(player, Plain(localizer.Localize(titleKey)), Plain(localizer.Localize(key, args)), notice);
+        }
+
+        // Whether a message that has its own chat line should still print it: the same rule as Send and Reply
+        public static bool ChatLine => !_settings.Enabled || MenuFactory.Api == null || _settings.Chat;
+
         private static void Deliver(CCSPlayerController player, StringLocalizer localizer, string titleKey, MenuNotice notice, string key, object[] args, Action<string> chat)
         {
             using var _temporaryCulture = MenuLanguages.For(player);

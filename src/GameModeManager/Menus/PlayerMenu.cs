@@ -152,7 +152,8 @@ namespace GameModeManager.Menus
                         menu?.AddMenuOption(_localizer.Localize("commands.menu-currentmode"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
-                            if (player != null)
+                            PlayerFeedback.Notify(player, _localizer, "notify.mode", MenuNotice.Success, "currentmode.message", _pluginState.Game.CurrentMode.Name);
+                            if (player != null && PlayerFeedback.ChatLine)
                                 player.PrintToChat(_localizer.Localize("currentmode.message", _pluginState.Game.CurrentMode.Name));
                         });
                         break;
@@ -160,7 +161,9 @@ namespace GameModeManager.Menus
                         menu?.AddMenuOption(_localizer.Localize("commands.menu-currentmap"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
-                            player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.Game.CurrentMap.Name));
+                            PlayerFeedback.Notify(player, _localizer, "notify.map", MenuNotice.Success, "currentmap.message", _pluginState.Game.CurrentMap.DisplayName);
+                            if (PlayerFeedback.ChatLine)
+                                player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.Game.CurrentMap.Name));
                         });
                         break;
                 }

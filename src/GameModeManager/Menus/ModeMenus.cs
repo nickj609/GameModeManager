@@ -133,6 +133,7 @@ namespace GameModeManager.Menus
         public void ChangeMode(CCSPlayerController player, IMode mode)
         {
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, mode.Name));
+            PlayerFeedback.Notify(player, _localizer, "notify.mode", MenuNotice.Success, "admin.done.changemode", mode.Name);
             _serverManager.ChangeMode(mode);
         }
 
@@ -149,6 +150,8 @@ namespace GameModeManager.Menus
                 PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "general.validation.current");
             else if (!_mapChooser.SetNextMode(mode))
                 PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "admin.vote-unavailable");
+            else
+                PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Success, "admin.done.nextmode", mode.Name);
         }
 
         public void StartVote(CCSPlayerController player, IMode mode)

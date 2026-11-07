@@ -112,6 +112,7 @@ namespace GameModeManager.Menus
         public void ChangeMap(CCSPlayerController player, IMap map)
         {
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, map.DisplayName));
+            PlayerFeedback.Notify(player, _localizer, "notify.map", MenuNotice.Success, "admin.done.changemap", map.DisplayName);
             _serverManager.ChangeMapInPool(map);
         }
 
@@ -131,6 +132,8 @@ namespace GameModeManager.Menus
                 PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "general.validation.current");
             else if (!_mapChooser.SetNextMap(map))
                 PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");
+            else
+                PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Success, "admin.done.nextmap", map.DisplayName);
         }
 
         private bool OnlyOneMap(CCSPlayerController player)
