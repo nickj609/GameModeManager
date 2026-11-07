@@ -1,0 +1,67 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Addon thumbnail</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1280px;height:720px;overflow:hidden;font-family:"Bahnschrift","Segoe UI",sans-serif}
+.s{position:relative;width:1280px;height:720px;overflow:hidden;background:linear-gradient(180deg,#121110 0%,#1c1712 60%,#2a2016 100%)}
+.head{position:absolute;left:0;right:0;top:50px;text-align:center}
+.n{font-size:78px;font-weight:700;color:#fff;line-height:1;letter-spacing:-.5px}
+.n b{color:#f5a623;font-weight:700}
+.d{font-size:25px;color:#d8cfc2;margin-top:14px;letter-spacing:.5px}
+
+.card{position:absolute;box-shadow:0 18px 50px #000000b8}
+
+.pm{left:435px;top:204px;width:410px;z-index:3;background:linear-gradient(180deg,rgba(18,18,20,.97),rgba(8,8,10,.98));border-radius:5px;overflow:hidden;color:#ececec}.pm::before,.pm::after{content:"";position:absolute;top:0;bottom:0;width:5px;background:#f5a623;z-index:2}.pm::before{left:0}.pm::after{right:0}
+.b{height:58px;padding-top:12px;color:#f2f2f2;font-size:26px;font-weight:700;letter-spacing:4px;text-transform:uppercase;display:flex;align-items:center;justify-content:center}
+.rs{margin:6px 22px 0;padding-top:10px;border-top:1px solid rgba(217,217,217,.06)}
+.r{display:flex;justify-content:space-between;align-items:center;height:48px;padding:0 16px;font-size:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;border-radius:5px;background:rgba(255,255,255,.04)}
+.r{position:relative}.r.on{background:rgba(255,255,255,.10)}.r.on::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#f5a623}
+.r i{font-style:normal;color:#b0b0b4}
+.pg{display:flex;justify-content:center;gap:18px;margin:8px 22px 0;padding-top:10px;border-top:1px solid rgba(217,217,217,.06);color:#9a9a9e;font-size:15px}
+.f{display:flex;justify-content:center;align-items:center;padding:10px 0 18px;font-size:13px;color:#9a9a9e;white-space:nowrap}
+.k{width:22px;height:22px;line-height:22px;font-size:13px;text-align:center;background:#f2eeee;color:#160a0b;border-radius:4px;font-weight:600}
+.k.x{background:#b3201f;color:#ffe9e6}
+.w{margin:0 9px 0 4px}.w.e{margin-right:0}.o{margin:0 3px;color:#9a9a9e}
+
+.mv{left:30px;top:240px;width:420px;z-index:2;background:#121723;border:1px solid #f5a62399;border-radius:12px;padding:14px 16px 16px;color:#fff}
+.br{font-size:12px;letter-spacing:2px;color:#f5a623}.ti{font-size:25px;font-weight:600;margin-top:1px}
+.vh{display:flex;align-items:center;gap:10px}.vt{flex:1}.tm{height:30px;padding:0 12px;line-height:28px;border:1px solid #f5a62399;border-radius:15px;background:#f5a6231a;color:#f5a623;font-size:15px;font-weight:600}
+.num{width:24px;height:24px;border-radius:12px;background:#ffffff1f;text-align:center;line-height:24px;font-size:13px;font-weight:600;flex:none}
+.ln{display:flex;align-items:center;gap:6px}.bd{font-size:11px;padding:1px 5px;border-radius:3px;color:#10131a;background:#f5a623}
+.bot{display:flex;justify-content:space-between;padding:12px 24px 14px;font-size:15px;color:#b79c99;border-top:1px solid #5c1a1c80}
+.tb{height:3px;background:#ffffff14;border-radius:2px;margin:10px 0 12px}.tb i{display:block;height:3px;width:62%;background:#f5a623;border-radius:2px}
+.ro{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;margin-bottom:6px;background:#ffffff0d}
+.ro.me{background:#f5a6231f;box-shadow:inset 0 0 0 1px #f5a62380}
+.art{width:80px;height:45px;border-radius:4px;background-size:cover;background-position:center;background-color:#222;flex:none}
+.in{flex:1;font-size:17px;font-weight:600}.bar{height:4px;background:#ffffff14;border-radius:2px;margin-top:6px}.bar i{display:block;height:4px;background:#f5a623;border-radius:2px}
+.vf{display:flex;align-items:center;margin-top:9px;font-size:12px;color:#c9cfdc;white-space:nowrap}.vk{width:18px;height:18px;line-height:18px;text-align:center;font-size:11px;background:#f2eeee;color:#160a0b;border-radius:3px;font-weight:600}.vo{margin:0 3px}.vn{margin:0 10px 0 4px}.vc{margin-left:auto}
+.c{width:22px;text-align:right;font-size:17px;font-weight:600;color:#e3e7f0}
+
+.sa{left:830px;top:240px;width:420px;z-index:2;background:#160a0b;border:1px solid #7a2224;border-radius:8px;overflow:hidden;color:#f4e9e7}
+.hd{height:44px;line-height:44px;padding:0 16px;background:#b3201f;font-size:13px;letter-spacing:1.8px;font-weight:600;color:#ffe9e6}
+.tl{padding:12px 18px 6px}.cr{font-size:13px;color:#b79c99}.tt{font-size:22px;font-weight:600;margin-top:2px}
+.ls{padding:0 10px 10px}
+.rw{display:flex;align-items:center;height:44px;padding:0 10px;font-size:18px}
+.rw svg{width:26px;height:26px;margin-right:12px;color:#ff6b5e;flex:none}.rw span{flex:1}.rw u{text-decoration:none;color:#7a5c59;font-size:20px}
+</style></head><body><div class="s">
+<div class="head"><div class="n">GameModeManager <b>Menus</b></div><div class="d">Panorama menus and vote panels for CS2 servers</div></div>
+
+<div class="card mv"><div class="vh"><div class="vt"><div class="br">VOTE</div><div class="ti">NEXT</div></div><div class="tm">0:18</div></div><div class="tb"><i></i></div>
+ <div class="ro me"><div class="num">1</div><div class="art" style="background-image:url(__MAPS__aim_map.png)"></div><div class="in"><div class="ln">aim_map</div><div class="bar"><i style="width:80%"></i></div></div><div class="c">5</div></div>
+ <div class="ro"><div class="num">2</div><div class="art" style="background-image:url(__MAPS__ar_dizzy.png)"></div><div class="in"><div class="ln">ar_dizzy</div><div class="bar"><i style="width:45%"></i></div></div><div class="c">3</div></div>
+ <div class="ro"><div class="num">3</div><div class="art" style="background-image:url(__MAPS__bhop_arcturus.png)"></div><div class="in"><div class="ln">bhop_arcturus</div><div class="bar"><i style="width:30%"></i></div></div><div class="c">2</div></div>
+ <div class="ro"><div class="num">4</div><div class="art" style="background-image:url(__MAPS__battleball.png)"></div><div class="in"><div class="ln">Battle Ball<span class="bd">Mode</span></div><div class="bar"><i style="width:15%"></i></div></div><div class="c">1</div></div>
+ <div class="vf"><span class="vk">1</span><span class="vo">&ndash;</span><span class="vk">9</span><span class="vn">Vote</span><span class="vk">0</span><span class="vn">Mode</span><span class="vc">1 / 3 votes</span></div>
+</div>
+
+<div class="card sa"><div class="hd">ADMIN MENU</div><div class="tl"><div class="cr">Main &rsaquo;</div><div class="tt">Manage game</div></div><div class="ls">
+ <div class="rw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h3c5 0 7 10 12 10h3M3 17h3c1.800 0 3.300-1.300 4.600-3M14 8.500C15.200 7.600 16.500 7 18 7h3M18 4l3 3-3 3M18 14l3 3-3 3"/></svg><span>Maps</span><u>&rsaquo;</u></div>
+ <div class="rw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v7a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/></svg><span>Modes</span><u>&rsaquo;</u></div>
+ <div class="rw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13l5 5L20 7"/></svg><span>Settings</span><u>&rsaquo;</u></div>
+ <div class="rw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="7"/><path d="M12 11v3l2 2M10 3h4M12 3v4"/></svg><span>Warmup</span><u>&rsaquo;</u></div>
+ <div class="rw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.500-4L3 9M3 4v5h5M4 13a8 8 0 0 0 14.500 4L21 15M21 20v-5h-5"/></svg><span>Rotation</span><u>&rsaquo;</u></div>
+</div><div class="bot"><span>Back</span><span>Close</span></div></div>
+
+<div class="card pm"><div class="b">Game Modes</div><div class="rs"><div class="r on"><span>Change mode</span><i>&rsaquo;</i></div><div class="r"><span>Set next mode</span><i>&rsaquo;</i></div><div class="r"><span>Start vote</span><i>&rsaquo;</i></div></div>
+<div class="pg"><span>&lsaquo;</span><span>1 / 1</span><span>&rsaquo;</span></div><div class="f"><span class="k">W</span><span class="o">/</span><span class="k">S</span><span class="w">Move</span><span class="k">D</span><span class="o">/</span><span class="k">E</span><span class="w">Select</span><span class="k">A</span><span class="w">Back</span><span class="k x">R</span><span class="w e">Close</span></div></div>
+</div></body></html>

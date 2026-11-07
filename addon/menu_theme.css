@@ -1,0 +1,110 @@
+
+/* GameModeManager theme, added after PMM's ui.css by build-menu-addon.ps1.
+   Regular menus (!maps, !modes, !settings, !warmup, !game, !menu) use PMM's Mono look, which build-menu-addon.ps1 applies.
+   Its accent is Morosco.io orange (#f5a623) instead of Mono's white, which colours the side bars, the row's focus bar and
+   switches like the vote panels. */
+
+/* PMM colours the title with the accent too: it keeps Mono's white, so only the bars are orange */
+.utils-title
+{
+	color: #F2F2F2;
+}
+
+/* Notifications use the menu's Mono background. The constructor's Mono leaves them PMM's blue. */
+.utils-notify
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) ) );
+}
+
+/* PMM never sets a description, but the empty line still takes up height */
+.utils-desc
+{
+	visibility: collapse;
+}
+
+/* The orange bar runs the full height of its row, like the admin panel's */
+.utils-item-focus
+{
+	height: 100%;
+}
+
+/* The orange bar for the row under the mouse too, like the row selected with keys */
+.utils-item:hover .utils-item-focus
+{
+	visibility: visible;
+}
+
+.utils-item.is-disabled:hover .utils-item-focus
+{
+	visibility: collapse;
+}
+
+/* An empty row slot flashes PMM's row colour as it fills: keep it clear */
+.utils-item.k-empty
+{
+	background-color: #00000000;
+}
+
+/* The WASD and number key footers: keycaps instead of PMM's text hint */
+.utils-menu.mode-wasd .utils-hint,
+.utils-menu.mode-digits .utils-hint
+{
+	visibility: collapse;
+}
+
+.gmm-keys
+{
+	horizontal-align: center;
+	flow-children: right;
+	margin-top: 10px;
+	visibility: collapse;
+}
+
+.utils-menu.mode-wasd .gmm-keys-wasd,
+.utils-menu.mode-digits .gmm-keys-digits
+{
+	visibility: visible;
+}
+
+.gmm-key
+{
+	width: 22px;
+	height: 22px;
+	margin-right: 3px;
+	padding-top: 3px;
+	text-align: center;
+	font-size: 13px;
+	color: #160a0b;
+	background-color: #f2eeee;
+	border-radius: 4px;
+}
+
+/* The footer's words use PMM's label grey, like its page counter */
+.gmm-key-or
+{
+	margin-right: 3px;
+	padding-top: 3px;
+	font-size: 13px;
+	color: label-color;
+}
+
+.gmm-key-close
+{
+	color: #ffe9e6;
+	background-color: #b3201f;
+}
+
+.gmm-key-name
+{
+	margin-left: 2px;
+	margin-right: 12px;
+	padding-top: 3px;
+	font-size: 13px;
+	color: label-color;
+}
+
+/* No gap after the last word, or the footer sits left of centre */
+.gmm-key-name-last
+{
+	margin-right: 0px;
+}

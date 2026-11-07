@@ -1,0 +1,115 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Menu mockups</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1280px;height:720px;overflow:hidden;background:#12100e;font-family:"Bahnschrift","Segoe UI",sans-serif;color:#f4ece0}
+.stage{position:relative;width:1280px;height:720px;background:linear-gradient(115deg,#3a2a1c 0%,#1d1712 48%,#12100e 100%);overflow:hidden}
+.floor{position:absolute;left:0;right:0;bottom:0;height:210px;background:linear-gradient(180deg,#2a2017 0%,#191410 100%);border-top:2px solid #4a3826}
+.wall{position:absolute;left:120px;top:60px;width:420px;height:452px;background:#2e2319;border:2px solid #3f3023}
+.wall.b{left:520px;top:130px;width:260px;height:382px;background:#251c15}
+.host{position:absolute;left:70px;top:50%;transform:translateY(-50%)}
+.host>*{zoom:1.32}
+.side{position:absolute;left:800px;top:220px;width:420px}
+.side h1{font-size:44px;font-weight:600;color:#f5a623;line-height:1.1}
+.side p{margin-top:16px;font-size:22px;line-height:1.4;color:#efe6d8}
+.note{position:absolute;right:28px;bottom:20px;font-size:15px;color:#b8a78f}
+.brandline{position:absolute;right:28px;top:22px;font-size:15px;letter-spacing:1px;color:#b8a78f}
+
+.pm{width:400px;background:linear-gradient(180deg,rgba(18,18,20,.92),rgba(8,8,10,.95));border-radius:4px;position:relative;overflow:hidden}
+.pm::before,.pm::after{content:"";position:absolute;top:0;bottom:0;width:4px;background:#f5a623;z-index:2}.pm::before{left:0}.pm::after{right:0}
+.pm .band{height:46px;padding:14px 72px 0;box-sizing:border-box;white-space:nowrap;color:#f2f2f2;font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;justify-content:center}
+.pm .ic{position:absolute;top:10px;width:24px;height:24px;color:#c8c8cc;font-size:20px;line-height:24px;text-align:center;font-weight:700}
+.pm .back{right:44px}.pm .x{right:14px}
+.pm .rows{padding:10px 20px 0;border-top:1px solid rgba(217,217,217,.06);margin:8px 20px 0;padding-left:0;padding-right:0}
+.pm .row{display:flex;align-items:center;justify-content:space-between;font-size:17px;height:40px;padding:0 16px;margin:6px 0;border-radius:5px;background:rgba(255,255,255,.04);color:#ececec;letter-spacing:1px;text-transform:uppercase}
+.pm .row{position:relative}.pm .row.on{background:rgba(255,255,255,.10)}.pm .row.on::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#f5a623}
+.pm .row .chev{color:#b0b0b4}
+.pm .num{display:inline-block;width:24px;color:#f5a623;font-weight:700}
+.pm .div{height:1px;background:rgba(217,217,217,.06);margin:10px 20px 8px}
+.pm .page{display:flex;justify-content:center;gap:18px;color:#9a9a9e;font-size:14px}
+.pm .foot{display:flex;justify-content:center;align-items:center;margin:10px 0 16px;font-size:13px;white-space:nowrap;color:#9a9a9e}
+.k{width:22px;height:22px;line-height:22px;text-align:center;background:#f2eeee;color:#160a0b;border-radius:4px;font-weight:600}
+.k.x{background:#b3201f;color:#ffe9e6}
+.or{margin:0 3px;color:#9a9a9e}.nm{margin:0 12px 0 5px}.nm.l{margin-right:0}
+.hint{text-align:center;margin:10px 0 16px;font-size:13px;color:#c9b08c;letter-spacing:1px}
+.pad{height:16px}
+
+.cg{width:430px;background:#140f0c9e;padding:16px 20px;text-shadow:1px 1px 2px #000}
+.cg .t{color:#e9e4d0;font-size:25px;margin-bottom:10px}
+.cg .r{color:#f0a63c;font-size:24px;line-height:34px}
+.cg .r.off{color:#e9e4d0}
+.cg .gap{height:14px}
+
+.mv{width:420px;background:linear-gradient(180deg,#161c28f2,#0b0f17f2);border:1px solid #f5a623aa;border-radius:12px;padding:14px 16px 16px}
+.mv .head{display:flex;align-items:center;gap:10px}
+.mv .ht{flex:1}.mv .br{font-size:12px;letter-spacing:2px;color:#f5a623}.mv .ti{font-size:26px;color:#fff;font-weight:600}
+.mv .tm{height:30px;padding:0 12px;line-height:28px;border:1px solid #f5a62399;border-radius:15px;background:#f5a6231a;color:#f5a623;font-size:15px;font-weight:600}
+.mv .tb{height:3px;background:#ffffff14;border-radius:2px;margin:10px 0 12px}.mv .tb i{display:block;height:3px;width:62%;background:#f5a623;border-radius:2px}
+.mv .ro{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;margin-bottom:6px;background:#ffffff0d}
+.mv .ro.me{background:#f5a6231f;box-shadow:inset 0 0 0 1px #f5a62380}
+.mv .n{width:24px;height:24px;border-radius:12px;background:#ffffff1f;text-align:center;line-height:24px;font-size:13px;font-weight:600;flex:none}
+.mv .art{width:80px;height:45px;border-radius:4px;background-size:cover;background-position:center;flex:none;background-color:#222}
+.mv .in{flex:1;min-width:0}
+.mv .ln{display:flex;align-items:center;gap:6px;font-size:17px;color:#fff;font-weight:600}
+.mv .bd{font-size:11px;padding:1px 5px;border-radius:3px;color:#10131a;background:#f5a623}
+.mv .bar{height:4px;background:#ffffff14;border-radius:2px;margin-top:6px}.mv .bar i{display:block;height:4px;background:#f5a623;border-radius:2px}
+.mv .vf{display:flex;align-items:center;margin-top:9px;font-size:12px;color:#c9cfdc;white-space:nowrap}.mv .vf .vk{width:18px;height:18px;line-height:18px;text-align:center;font-size:11px;background:#f2eeee;color:#160a0b;border-radius:3px;font-weight:600}.mv .vf .vo{margin:0 3px}.mv .vf .vn{margin:0 10px 0 4px}.mv .vf .vc{margin-left:auto}
+.mv .c{width:24px;text-align:right;font-size:17px;font-weight:600;color:#e3e7f0;flex:none}
+
+.sa{width:460px;background:#160a0bf2;border:1px solid #5c1a1c;border-radius:6px;overflow:hidden}
+.sa .hd{display:flex;align-items:center;height:42px;padding:0 14px;background:#b3201f}
+.sa .brand{flex:1;font-size:13px;letter-spacing:1.8px;font-weight:600;color:#ffe9e6}.sa .cnt{font-size:13px;color:#ffd7d2}
+.sa .tl{padding:12px 16px 8px}.sa .cr{font-size:13px;color:#b79c99}.sa .tt{font-size:22px;font-weight:600;color:#f4e9e7;margin-top:2px}.sa .su{font-size:13px;color:#c9a9a5;margin-top:3px}
+.sa .list{padding:0 8px 14px}
+.sa .rw{display:flex;align-items:center;height:42px;padding:0 10px;font-size:17px;color:#f4e9e7;border-radius:4px}
+.sa .rw.on{background:#3a1012;box-shadow:inset 3px 0 0 #ff4a3d}
+.sa .rw span{flex:1}.sa .ar{flex:none;color:#7a5c59;font-size:20px}
+.sa .ico{width:28px;height:28px;margin-right:12px;flex:none;color:#ff6b5e}
+.sa .pill{flex:none;width:50px;height:24px;line-height:24px;text-align:center;border-radius:4px;font-size:13px;font-weight:600;letter-spacing:1px}
+.sa .pill.on{background:#2f4a22;color:#a6d86a}.sa .pill.off{background:#ffffff14;color:#9c8582}
+.sa .val{flex:none;font-size:14px;color:#9c8582;margin-right:8px}
+.sa .bot{display:flex;justify-content:space-between;padding:12px 24px 14px;font-size:15px;color:#b79c99;border-top:1px solid #5c1a1c80}
+</style></head>
+<body><div class="stage"><div class="wall"></div><div class="wall b"></div><div class="floor"></div>
+<div class="host" id="host"></div>
+<div class="side"><h1 id="h"></h1><p id="p"></p></div>
+<div class="note">Illustration of the in-game menu. Details may differ.</div>
+</div>
+<script>
+var img='__MAPS__';
+function rows(a,chev){return a.map(function(t,i){return '<div class="row'+(i==0?' on':'')+'"><span>'+t+'</span>'+(chev?'<span class="chev">&rsaquo;</span>':'')+'</div>'}).join('')}
+var keys='<div class="foot"><span class="k">W</span><span class="or">/</span><span class="k">S</span><span class="nm">Move</span><span class="k">D</span><span class="or">/</span><span class="k">E</span><span class="nm">Select</span><span class="k">A</span><span class="nm">Back</span><span class="k x">R</span><span class="nm l">Close</span></div>';
+var digitKeys='<div class="foot"><span class="k">1</span><span class="or">&ndash;</span><span class="k">6</span><span class="nm">Select</span><span class="k">8</span><span class="nm">Back</span><span class="k">9</span><span class="nm">Next</span><span class="k x">0</span><span class="nm l">Close</span></div>';
+var scenes={
+wasd:{h:'Panorama WASD',p:'Move with W and S, select with D or E, go back with A and close with R.',
+ m:'<div class="pm"><div class="band">Game Modes</div><div class="rows">'+rows(['Change mode','Set next mode','Start vote'],1)+'</div><div class="div"></div><div class="page"><span>&lsaquo;</span><span>1 / 1</span><span>&rsaquo;</span></div>'+keys+'</div>'},
+mouse:{h:'Panorama mouse',p:'Click rows with the mouse. Long lists use the page buttons, and each submenu shows its path in the header.',
+ m:'<div class="pm"><div class="band">Maps &rsaquo; Change map</div><div class="ic back">&lsaquo;</div><div class="ic x">&times;</div><div class="rows">'+rows(['Random map','de_dust2','de_inferno','de_mirage','de_nuke'],0)+'</div><div class="div"></div><div class="page"><span>&lsaquo;</span><span>1 / 3</span><span>&rsaquo;</span></div><div class="pad"></div></div>'},
+digits:{h:'Panorama number keys',p:'The same panel, driven by the number keys. Press 1 to 6 to pick, 8 for back, 9 for next and 0 to exit.',
+ m:'<div class="pm"><div class="band">Maps</div><div class="rows">'+['Change map','Set next map','Start vote'].map(function(t,i){return '<div class="row"><span><span class="num">'+(i+1)+'</span>'+t+'</span></div>'}).join('')+'</div><div class="div"></div><div class="page"><span>&lsaquo;</span><span>1 / 1</span><span>&rsaquo;</span></div>'+digitKeys+'</div>'},
+csgo:{h:'CS:GO style',p:'The classic number key menu. Press 1 to 7 to pick, 8 for back, 9 for next and 0 to exit.',
+ m:'<div class="cg"><div class="t">Game Modes</div><div class="r">1. Change mode</div><div class="r">2. Set next mode</div><div class="r">3. Start vote</div><div class="gap"></div><div class="r off">0. Exit</div></div>'},
+vote:{h:'Map and mode votes',p:'Vote with pictures for each map. A game mode can appear in the vote alongside the maps, using its default map\'s picture.',
+ m:'<div class="mv"><div class="head"><div class="ht"><div class="br">VOTE</div><div class="ti">NEXT</div></div><div class="tm">0:18</div></div><div class="tb"><i></i></div>'+
+  [['1','aim_map','aim_map',0,5,'me'],['2','bhop_arcturus','bhop_arcturus',0,3,''],['3','ar_dizzy','ar_dizzy',0,2,''],['4','battleball','Battle Ball',1,1,'']].map(function(r){return '<div class="ro '+r[5]+'"><div class="n">'+r[0]+'</div><div class="art" style="background-image:url('+img+r[1]+'.png)"></div><div class="in"><div class="ln">'+r[2]+(r[3]?'<span class="bd">Mode</span>':'')+'</div><div class="bar"><i style="width:'+(r[4]*18)+'%"></i></div></div><div class="c">'+r[4]+'</div></div>'}).join('')+'<div class="vf"><span class="vk">W</span><span class="vo">/</span><span class="vk">S</span><span class="vn">Move</span><span class="vk">E</span><span class="vn">Vote</span><span class="vk">R</span><span class="vn">Mode</span><span class="vc">1 / 3 votes</span></div></div>'},
+admin:{h:'Admin panel',p:'CS2-SimpleAdmin on its own panel, in red so admin tools stand apart. GameModeManager adds a Manage game section.',
+ m:'<div class="sa"><div class="hd"><div class="brand">ADMIN MENU</div></div><div class="tl"><div class="cr">Main &rsaquo;</div><div class="tt">Manage game</div></div><div class="list">'+[
+  ['Maps','<path d="M3 7h3c5 0 7 10 12 10h3M3 17h3c1.800 0 3.300-1.300 4.600-3M14 8.500C15.200 7.600 16.500 7 18 7h3M18 4l3 3-3 3M18 14l3 3-3 3"/>'],
+  ['Modes','<path d="M8 21h8M12 17v4M7 4h10v7a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/>'],
+  ['Settings','<path d="M4 13l5 5L20 7"/>'],
+  ['Warmup','<circle cx="12" cy="14" r="7"/><path d="M12 11v3l2 2M10 3h4M12 3v4"/>'],
+  ['Rotation','<path d="M20 11a8 8 0 0 0-14.500-4L3 9M3 4v5h5M4 13a8 8 0 0 0 14.500 4L21 15M21 20v-5h-5"/>']
+ ].map(function(r){return '<div class="rw"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round">'+r[1]+'</svg><span>'+r[0]+'</span><div class="ar">&rsaquo;</div></div>'}).join('')+'</div><div class="bot"><span>Back</span><span>Close</span></div></div>'}
+,rotation:{h:'Rotation settings',p:'Turn map rotation, mode rotation, and RTV and nominate on or off from the admin panel, and choose how often modes change. Changes last until the server restarts.',
+ m:'<div class="sa"><div class="hd"><div class="brand">ADMIN MENU</div></div><div class="tl"><div class="cr">Main &rsaquo; Manage game &rsaquo;</div><div class="tt">Rotation</div></div><div class="list">'+
+  '<div class="rw"><span>Map rotation</span><div class="pill on">ON</div></div>'+
+  '<div class="rw"><span>Mode rotation</span><div class="pill off">OFF</div></div>'+
+  '<div class="rw"><span>Change mode every</span><div class="val">4 map(s)</div><div class="ar">&rsaquo;</div></div>'+
+  '<div class="rw"><span>RTV / Nominate</span><div class="pill on">ON</div></div>'+
+  '<div class="rw"><span>Rotate when empty</span><div class="pill off">OFF</div></div>'+
+  '<div class="rw"><span>Empty server wait</span><div class="val">10 min</div><div class="ar">&rsaquo;</div></div>'+
+  '</div><div class="bot"><span>Back</span><span>Close</span></div></div>'}
+};
+var s=scenes[location.hash.slice(1)]||scenes.wasd;
+document.getElementById('host').innerHTML=s.m;document.getElementById('h').textContent=s.h;document.getElementById('p').textContent=s.p;
+</script></body></html>
