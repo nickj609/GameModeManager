@@ -1,4 +1,5 @@
 // Included libraries
+using MenuManager;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using GameModeManager.CrossCutting;
@@ -53,7 +54,7 @@ namespace GameModeManager.Menus
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     Server.ExecuteCommand($"css_warmupmode \"{_mode.Name}\"");
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("admin.warmup-scheduled", _mode.Name));
+                    PlayerFeedback.Send(player, _localizer, "notify.warmup", MenuNotice.Success, "admin.warmup-scheduled", _mode.Name);
                 });
             }
 

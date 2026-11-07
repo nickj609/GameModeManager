@@ -1,4 +1,5 @@
 // Included libraries
+using MenuManager;
 using GameModeManager.Core;
 using GameModeManager.Menus;
 using CounterStrikeSharp.API;
@@ -100,7 +101,7 @@ namespace GameModeManager.Features
 
             if (_mode == null)
             {
-                command.ReplyToCommand(_localizer.LocalizeWithPrefix("changemode.mode-not-found", string.Join(" ", _args)));
+                PlayerFeedback.Reply(command, player, _localizer, "notify.mode", MenuNotice.Warning, "changemode.mode-not-found", string.Join(" ", _args));
                 return;
             }
 
@@ -116,7 +117,7 @@ namespace GameModeManager.Features
             IMap? _map = FindMap(_mode, _mapName);
             if (_map == null)
             {
-                command.ReplyToCommand(_localizer.LocalizeWithPrefix("changemode.map-not-found", _mapName, _mode.Name));
+                PlayerFeedback.Reply(command, player, _localizer, "notify.mode", MenuNotice.Warning, "changemode.map-not-found", _mapName, _mode.Name);
                 return;
             }
 

@@ -1,4 +1,5 @@
 // Included libraries
+using MenuManager;
 using GameModeManager.Core;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
@@ -118,7 +119,7 @@ namespace GameModeManager.Menus
         {
             if (_pluginState.Game.CurrentMap.Equals(map))
             {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
+                PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "general.validation.current");
                 return;
             }
             _voteService.StartYesNo(player, () => _localizer.Localize("map.vote.menu-title", map.DisplayName), () => _serverManager.ChangeMapInPool(map), map.DisplayName);
@@ -127,9 +128,9 @@ namespace GameModeManager.Menus
         public void SetNextMap(CCSPlayerController player, IMap map)
         {
             if (_pluginState.Game.CurrentMap.Equals(map))
-                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
+                PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "general.validation.current");
             else if (!_mapChooser.SetNextMap(map))
-                player.PrintToChat(_localizer.LocalizeWithPrefix("admin.vote-unavailable"));
+                PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");
         }
 
         private bool OnlyOneMap(CCSPlayerController player)
@@ -137,7 +138,7 @@ namespace GameModeManager.Menus
             if (_pluginState.Game.CurrentMode.Maps.Count >= 2)
                 return false;
 
-            player.PrintToChat(_localizer.LocalizeWithPrefix("admin.one-map"));
+            PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "admin.one-map");
             return true;
         }
 
@@ -158,7 +159,7 @@ namespace GameModeManager.Menus
                 return;
 
             if (!_mapChooser.StartMapVote())
-                player.PrintToChat(_localizer.LocalizeWithPrefix("admin.vote-unavailable"));
+                PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");
         }
     }
 }

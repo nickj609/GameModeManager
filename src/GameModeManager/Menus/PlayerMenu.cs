@@ -1,4 +1,5 @@
 // Included libraries
+using MenuManager;
 using System.Globalization;
 using GameModeManager.Contracts;
 using GameModeManager.Features;
@@ -81,8 +82,8 @@ namespace GameModeManager.Menus
                     MenuFactory.Api?.CloseMenu(p);
                     PlayerLanguageManager.Instance.SetLanguage(new SteamID(p.SteamID), _culture);
 
-                    using (new WithTemporaryCulture(_culture))
-                        p.PrintToChat(_localizer.LocalizeWithPrefix("language.changed", LanguageName(_culture)));
+                    // In the new language: Send uses the player's language, set just above
+                    PlayerFeedback.Send(p, _localizer, "notify.language", MenuNotice.Success, "language.changed", LanguageName(_culture));
                 }, _isCurrent);
             }
             return _menu;

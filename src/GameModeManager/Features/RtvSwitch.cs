@@ -1,4 +1,5 @@
 // Included libraries
+using MenuManager;
 using GameModeManager.Menus;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
@@ -86,20 +87,20 @@ namespace GameModeManager.Features
 
         private HookResult OnCommand(CCSPlayerController? player, CommandInfo command)
         {
-            return Refuse(player, "rtv.disabled");
+            return Refuse(player, "notify.rtv", "rtv.disabled");
         }
 
         private HookResult OnNominate(CCSPlayerController? player, CommandInfo command)
         {
-            return Refuse(player, "nominate.disabled");
+            return Refuse(player, "notify.nominate", "nominate.disabled");
         }
 
-        private HookResult Refuse(CCSPlayerController? player, string message)
+        private HookResult Refuse(CCSPlayerController? player, string titleKey, string message)
         {
             if (_pluginState.Game.RtvEnabled(_config) || player == null || !player.IsValid)
                 return HookResult.Continue;
 
-            player.PrintToChat(_localizer.LocalizeWithPrefix(message));
+            PlayerFeedback.Send(player, _localizer, titleKey, MenuNotice.Warning, message);
             return HookResult.Handled;
         }
     }
