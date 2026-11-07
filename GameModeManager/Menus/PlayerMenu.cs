@@ -1,9 +1,12 @@
 // Included libraries
+using System.Globalization;
 using GameModeManager.Contracts;
 using GameModeManager.Features;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Modules.Menu;
+using CounterStrikeSharp.API.Modules.Entities;
+using CounterStrikeSharp.API.Core.Translations;
 
 // Declare namespace
 namespace GameModeManager.Menus
@@ -43,10 +46,63 @@ namespace GameModeManager.Menus
             { "!timeleft", ("commands.menu-timeleft", "timeleft") }
         };
 
+        // Languages a player can pick: one per file in lang/, the same codes as !lang
+        private List<CultureInfo> _languages = new();
+
         // Load config
         public void OnConfigParsed(Config config)
         {
             _config = config;
+        }
+
+        // Define on load behavior
+        public void OnLoad(Plugin plugin)
+        {
+            string _folder = Path.Combine(plugin.ModuleDirectory, "lang");
+            if (!Directory.Exists(_folder))
+                return;
+
+            _languages = Directory.EnumerateFiles(_folder, "*.json")
+                .Select(file => FindCulture(Path.GetFileNameWithoutExtension(file)))
+                .OfType<CultureInfo>()
+                .OrderBy(culture => culture.NativeName, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        private static CultureInfo? FindCulture(string name)
+        {
+            // !lang only accepts names .NET knows, so a file named otherwise can't be picked
+            return CultureInfo.GetCultures(CultureTypes.AllCultures).FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // A language's own name, capitalised: "Deutsch", "Français", "中文（简体）"
+        private static string LanguageName(CultureInfo culture)
+        {
+            string _name = culture.NativeName;
+            return _name.Length > 0 ? char.ToUpper(_name[0], culture) + _name[1..] : culture.Name;
+        }
+
+        // Sets the language every CounterStrikeSharp plugin uses for this player, like !lang. It lasts until the server restarts.
+        private IMenu? LanguageMenu(CCSPlayerController player)
+        {
+            IMenu? _menu = MenuFactory.Api?.GetMenu(_localizer.Path("commands.menu-title", "commands.menu-language"), p => MainMenu?.Open(p));
+            CultureInfo _current = player.GetLanguage();
+
+            foreach (CultureInfo _culture in _languages)
+            {
+                bool _isCurrent = _culture.Name.Equals(_current.Name, StringComparison.OrdinalIgnoreCase);
+                string _label = _isCurrent ? $"{LanguageName(_culture)} · {_localizer.Localize("admin.current")}" : LanguageName(_culture);
+
+                _menu?.AddMenuOption(_label, (p, option) =>
+                {
+                    MenuFactory.Api?.CloseMenu(p);
+                    PlayerLanguageManager.Instance.SetLanguage(new SteamID(p.SteamID), _culture);
+
+                    using (new WithTemporaryCulture(_culture))
+                        p.PrintToChat(_localizer.LocalizeWithPrefix("language.changed", LanguageName(_culture)));
+                }, _isCurrent);
+            }
+            return _menu;
         }
 
         // Define load method
@@ -116,6 +172,14 @@ namespace GameModeManager.Menus
                         });
                         break;
                 }
+            }
+
+            if (_languages.Count > 1)
+            {
+                MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-language"), (player, option) =>
+                {
+                    LanguageMenu(player)?.Open(player);
+                });
             }
         }
     }

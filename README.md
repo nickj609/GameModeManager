@@ -159,7 +159,7 @@ Their licenses are in their folders, and the links above have their source. Thei
 
 | Command        | Description                                                              |
 | :------------- | :----------------------------------------------------------------------- |
-| `!game` | Menu of player commands, including GG1MapChooser's RTV, Nominate, Next map, Time left. |
+| `!game` | Menu of player commands, including GG1MapChooser's RTV, Nominate, Next map, Time left, and Language. |
 | `!currentmap` | Displays the current map.                                                |
 | `!currentmode` | Displays the current game mode.                                          |
 | `!menu` | Choose your menu style. |

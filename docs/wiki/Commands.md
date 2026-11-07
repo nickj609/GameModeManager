@@ -45,7 +45,7 @@ Player commands are commands that standard players with no administrative rights
 
 | Command        | Description                                                                                  |
 | :------------- | :------------------------------------------------------------------------------------------- |
-| !game          | Displays a menu of player commands.                                                          |
+| !game          | Displays a menu of player commands. Includes Language, to pick the language every plugin shows you in (like !lang). |
 | !menu          | Chooses your menu style.                                                                     |
 | !currentmap    | Displays the current map.                                                                    |
 | !currentmode   | Displays the current game mode.                                                              |
