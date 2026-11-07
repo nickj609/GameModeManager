@@ -1,4 +1,5 @@
 // Included libraries
+using GameModeManager.Core;
 using GameModeManager.Menus;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
@@ -14,10 +15,13 @@ namespace GameModeManager.Features
         // Define class dependencies
         private MapMenus _mapMenus;
         private Config _config = new Config();
+        private AdminPanel _adminPanel;
+
 
         // Define class constructor
-        public MapCommands(MapMenus mapMenus)
+        public MapCommands(AdminPanel adminPanel, MapMenus mapMenus)
         {
+            _adminPanel = adminPanel;
             _mapMenus = mapMenus;
         }
 
@@ -40,7 +44,7 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnMapsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player != null)
+            if (player != null && !_adminPanel.Open(player, "maps"))
                 _mapMenus.MainMenu?.Open(player);
         }
     }

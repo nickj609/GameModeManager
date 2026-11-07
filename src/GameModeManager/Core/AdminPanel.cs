@@ -138,6 +138,36 @@ namespace GameModeManager.Core
             _logger.LogInformation("Added Manage game to CS2-SimpleAdmin's menu");
         }
 
+        // The page !maps, !modes, !settings or !warmup opens when AdminPanel.CommandMenus is "admin". False when SimpleAdmin or
+        // that page isn't loaded, so the command opens GameModeManager's own menu instead.
+        public bool Open(CCSPlayerController player, string page)
+        {
+            if (_api == null || !_entries.Contains(page) || !_config.AdminPanel.CommandMenus.Equals("admin", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            Func<CCSPlayerController, object>? factory = page switch
+            {
+                "maps" => MapsMenu,
+                "modes" => ModesMenu,
+                "settings" => SettingsMenu,
+                "warmup" => WarmupMenu,
+                _ => null
+            };
+            if (factory == null)
+                return false;
+
+            try
+            {
+                Call("OpenMenu", p => p.Length == 2, InLanguage(factory)(player), player);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("CS2-SimpleAdmin's {Page} page didn't open, so the default menu opens: {Message}", page, (ex.InnerException ?? ex).Message);
+                return false;
+            }
+        }
+
         private void Unregister()
         {
             foreach (string id in _entries)

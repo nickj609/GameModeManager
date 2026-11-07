@@ -43,6 +43,7 @@ namespace GameModeManager
     public class AdminPanelSettings
     {
         public bool Enabled { get; set; } = true; // Adds a Game Modes section to CS2-SimpleAdmin's menu when it's installed, opening the !modes, !maps, !settings and !warmup menus
+        public string CommandMenus { get; set; } = "default"; // What !maps, !modes, !settings and !warmup open: "default" = GameModeManager's own menus, "admin" = the same pages in CS2-SimpleAdmin's admin panel, or the default menus when it isn't loaded
     }
 
     // Define notification settings
@@ -219,6 +220,13 @@ namespace GameModeManager
             }
             if (!modeNames.Contains(GameModes.Default.Name))
                 logger.LogWarning("Default game mode \"{Name}\" isn't in the game modes list.", GameModes.Default.Name);
+
+            // Admin command menus
+            if (!AdminPanel.CommandMenus.Equals("default", StringComparison.OrdinalIgnoreCase) && !AdminPanel.CommandMenus.Equals("admin", StringComparison.OrdinalIgnoreCase))
+            {
+                logger.LogWarning("AdminPanel.CommandMenus \"{Value}\" isn't \"default\" or \"admin\": using \"default\".", AdminPanel.CommandMenus);
+                AdminPanel.CommandMenus = "default";
+            }
 
             // Rotation settings
             if (Rotation.ModeSchedules == true)
