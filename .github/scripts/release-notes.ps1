@@ -17,9 +17,18 @@ $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 
 function Read-AtRef([string]$Ref, [string]$Path) {
+    # A missing path is an answer, not an error: Windows PowerShell would stop on git's message under "Stop"
+    $ErrorActionPreference = "Continue"
     $text = & git -C $repoRoot show "${Ref}:$Path" 2>$null
     if ($LASTEXITCODE -ne 0) { return "" }
     return ($text -join "`n")
+}
+
+# A file of the plugin project at a ref: src/GameModeManager/ since 2.1.x, GameModeManager/ in older tags
+function Read-PluginFile([string]$Ref, [string]$Name) {
+    $text = Read-AtRef $Ref "src/GameModeManager/$Name"
+    if (-not $text) { $text = Read-AtRef $Ref "GameModeManager/$Name" }
+    return $text
 }
 
 # $null when gh isn't signed in or the request fails: the notes then fall back to local git
@@ -52,8 +61,8 @@ function Format-Subject([string]$Subject, [string]$Login) {
     return "- $text"
 }
 
-$version = [regex]::Match((Read-AtRef $Sha "GameModeManager/Plugin.cs"), 'ModuleVersion => "([^"]+)"').Groups[1].Value
-if (-not $version) { throw "No ModuleVersion in GameModeManager/Plugin.cs at $Sha" }
+$version = [regex]::Match((Read-PluginFile $Sha "Plugin.cs"), 'ModuleVersion => "([^"]+)"').Groups[1].Value
+if (-not $version) { throw "No ModuleVersion in src/GameModeManager/Plugin.cs at $Sha" }
 
 # The last published release, not the highest tag: the v1.0.7x tags are older test tags
 if (-not $PreviousTag) {
@@ -122,8 +131,8 @@ if (-not $sections) {
 
 # A changed config version gets the same notice as v1.0.60 / v1.0.61, unless the description already has one
 $important = ""
-$configNow = Get-ConfigVersion (Read-AtRef $Sha "GameModeManager/Config.cs")
-$configBefore = Get-ConfigVersion (Read-AtRef $PreviousTag "GameModeManager/Config.cs")
+$configNow = Get-ConfigVersion (Read-PluginFile $Sha "Config.cs")
+$configBefore = Get-ConfigVersion (Read-PluginFile $PreviousTag "Config.cs")
 if ($configNow -and $configNow -ne $configBefore -and $sections -notmatch '\[!IMPORTANT\]') {
     $important = "> [!IMPORTANT]`n> - If moving from $PreviousTag or earlier, back up your ``GameModeManager.json`` configuration file and let the plugin generate the new version. This version has minor changes to the configuration file. `n>`n`n"
 }

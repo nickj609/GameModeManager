@@ -20,10 +20,12 @@ namespace GameModeManager.Menus
         private StringLocalizer _localizer;
         private ServerManager _serverManager;
         private MapChooserBridge _mapChooser;
+        private MenuLanguages _languages;
 
         // Define class constructor
-        public ModeMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, VoteService voteService, MapChooserBridge mapChooser)
+        public ModeMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, VoteService voteService, MapChooserBridge mapChooser, MenuLanguages languages)
         {
+            _languages = languages;
             _localizer = localizer;
             _mapChooser = mapChooser;
             _voteService = voteService;
@@ -32,8 +34,8 @@ namespace GameModeManager.Menus
         }
 
         // Define class properties
-        public IMenu? MainMenu; // Admin menu (!modes)
-        public IMenu? VoteMenu; // Player menu (!game, !changemode): no Back or random vote, which are for admins
+        public LocalizedMenu MainMenu = new(); // Admin menu (!modes)
+        public LocalizedMenu VoteMenu = new(); // Player menu (!game, !changemode): no Back or random vote, which are for admins
         public bool VotesEnabled => _config.Votes.Enabled && _config.Votes.GameModes;
 
         // Load config
@@ -43,10 +45,24 @@ namespace GameModeManager.Menus
         }
 
         // Define load method
+        // Built once in each language
         public void Load()
         {
+            LocalizedMenu _main = new();
+            LocalizedMenu _vote = new();
+            _languages.ForEach(culture =>
+            {
+                _vote.Set(culture, CreateVoteMenu(null, false));
+                _main.Set(culture, CreateMainMenu());
+            });
+            MainMenu = _main;
+            VoteMenu = _vote;
+        }
+
+        private IMenu? CreateMainMenu()
+        {
             // Create the mode list
-            IMenu? listMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.category", "admin.change-mode"), player => MainMenu?.Open(player));
+            IMenu? listMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.category", "admin.change-mode"), player => MainMenu.Open(player));
 
             listMenu?.AddMenuOption(_localizer.Localize("admin.random-mode"), (player, option) =>
             {
@@ -63,10 +79,8 @@ namespace GameModeManager.Menus
                 });
             }
 
-            VoteMenu = CreateVoteMenu(null, false);
-
             // GG1's next map: the mode changes at the end of the match
-            IMenu? nextMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.category", "admin.next-mode"), player => MainMenu?.Open(player));
+            IMenu? nextMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.category", "admin.next-mode"), player => MainMenu.Open(player));
             foreach (IMode? _mode in _pluginState.Game.Modes.Values)
             {
                 nextMenu?.AddMenuOption(_mode.Name, (player, option) =>
@@ -76,13 +90,14 @@ namespace GameModeManager.Menus
                 });
             }
 
-            IMenu? adminVoteMenu = CreateVoteMenu(player => MainMenu?.Open(player), true);
+            IMenu? adminVoteMenu = CreateVoteMenu(player => MainMenu.Open(player), true);
 
-            MainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.category"));
-            MainMenu?.AddMenuOption(_localizer.Localize("admin.change-mode"), (player, option) => listMenu?.Open(player));
-            MainMenu?.AddMenuOption(_localizer.Localize("admin.next-mode"), (player, option) => nextMenu?.Open(player));
+            IMenu? mainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.category"));
+            mainMenu?.AddMenuOption(_localizer.Localize("admin.change-mode"), (player, option) => listMenu?.Open(player));
+            mainMenu?.AddMenuOption(_localizer.Localize("admin.next-mode"), (player, option) => nextMenu?.Open(player));
             if (VotesEnabled)
-                MainMenu?.AddMenuOption(_localizer.Localize("admin.start-vote"), (player, option) => adminVoteMenu?.Open(player));
+                mainMenu?.AddMenuOption(_localizer.Localize("admin.start-vote"), (player, option) => adminVoteMenu?.Open(player));
+            return mainMenu;
         }
 
         // A yes/no vote on one mode, with a random vote on top for admins
@@ -142,7 +157,7 @@ namespace GameModeManager.Menus
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current"));
                 return;
             }
-            _voteService.StartYesNo(player, _localizer.Localize("mode.vote.menu-title", mode.Name), () => _serverManager.ChangeMode(mode), mode.Name);
+            _voteService.StartYesNo(player, () => _localizer.Localize("mode.vote.menu-title", mode.Name), () => _serverManager.ChangeMode(mode), mode.Name);
         }
 
         // A vote on GG1's panel between random other modes

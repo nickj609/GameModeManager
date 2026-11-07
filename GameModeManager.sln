@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameModeManager", "GameModeManager\GameModeManager.csproj", "{37126431-C4D7-4615-BFE5-0E9D06CDD01A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameModeManager", "src\GameModeManager\GameModeManager.csproj", "{37126431-C4D7-4615-BFE5-0E9D06CDD01A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameModeManager.Shared", "GameModeManager.Shared\GameModeManager.Shared.csproj", "{35AA69C9-78B6-4EE0-AC79-B7E8E9844FC1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameModeManager.Shared", "src\GameModeManager.Shared\GameModeManager.Shared.csproj", "{35AA69C9-78B6-4EE0-AC79-B7E8E9844FC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

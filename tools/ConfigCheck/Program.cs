@@ -1,5 +1,5 @@
 // Checks that a GameModeManager.json loads, with the same rules as the plugin. Run by the release workflow on Kus's config,
-// because that's the file most people upgrade with: dotnet run --project ci/ConfigCheck -- <path to GameModeManager.json>
+// because that's the file most people upgrade with: dotnet run --project tools/ConfigCheck -- <path to GameModeManager.json>
 using System.Text.Json;
 using GameModeManager;
 using Microsoft.Extensions.Logging;

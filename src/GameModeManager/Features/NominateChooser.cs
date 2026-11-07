@@ -115,9 +115,19 @@ namespace GameModeManager.Features
                     return;
                 }
 
+                // Built when it opens, in the player's language
+                using var _culture = MenuLanguages.For(player);
                 IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("commands.menu-nominate"));
-                menu?.AddMenuOption(_localizer.Localize("nominate.maps"), (p, option) => MapList(p, menu).Open(p));
-                menu?.AddMenuOption(_localizer.Localize("nominate.modes"), (p, option) => ModeList(p, menu).Open(p));
+                menu?.AddMenuOption(_localizer.Localize("nominate.maps"), (p, option) =>
+                {
+                    using (MenuLanguages.For(p))
+                        MapList(p, menu).Open(p);
+                });
+                menu?.AddMenuOption(_localizer.Localize("nominate.modes"), (p, option) =>
+                {
+                    using (MenuLanguages.For(p))
+                        ModeList(p, menu).Open(p);
+                });
                 menu?.Open(player);
             });
             return HookResult.Handled;

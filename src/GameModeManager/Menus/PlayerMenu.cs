@@ -22,10 +22,12 @@ namespace GameModeManager.Menus
         private PluginState _pluginState;
         private SettingMenus _settingMenus;
         private StringLocalizer _localizer;
+        private MenuLanguages _menuLanguages;
 
         // Define class constructor
-        public PlayerMenu(NominateChooser nominateChooser, PluginState pluginState, StringLocalizer localizer, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus)
+        public PlayerMenu(NominateChooser nominateChooser, PluginState pluginState, StringLocalizer localizer, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, MenuLanguages menuLanguages)
         {
+            _menuLanguages = menuLanguages;
             _nominateChooser = nominateChooser;
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
@@ -35,7 +37,7 @@ namespace GameModeManager.Menus
         }
 
         // Define class properties
-        public IMenu? MainMenu;
+        public LocalizedMenu MainMenu = new();
 
         // GG1MapChooser's player commands, run for the player from this menu. !nominate lists the current mode's maps.
         private static readonly Dictionary<string, (string Label, string Command)> MapChooserCommands = new()
@@ -47,32 +49,12 @@ namespace GameModeManager.Menus
         };
 
         // Languages a player can pick: one per file in lang/, the same codes as !lang
-        private List<CultureInfo> _languages = new();
+        private List<CultureInfo> _languages => _menuLanguages.Languages;
 
         // Load config
         public void OnConfigParsed(Config config)
         {
             _config = config;
-        }
-
-        // Define on load behavior
-        public void OnLoad(Plugin plugin)
-        {
-            string _folder = Path.Combine(plugin.ModuleDirectory, "lang");
-            if (!Directory.Exists(_folder))
-                return;
-
-            _languages = Directory.EnumerateFiles(_folder, "*.json")
-                .Select(file => FindCulture(Path.GetFileNameWithoutExtension(file)))
-                .OfType<CultureInfo>()
-                .OrderBy(culture => culture.NativeName, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-        }
-
-        private static CultureInfo? FindCulture(string name)
-        {
-            // !lang only accepts names .NET knows, so a file named otherwise can't be picked
-            return CultureInfo.GetCultures(CultureTypes.AllCultures).FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
         // A language's own name, capitalised: "Deutsch", "Français", "中文（简体）"
@@ -85,7 +67,8 @@ namespace GameModeManager.Menus
         // Sets the language every CounterStrikeSharp plugin uses for this player, like !lang. It lasts until the server restarts.
         private IMenu? LanguageMenu(CCSPlayerController player)
         {
-            IMenu? _menu = MenuFactory.Api?.GetMenu(_localizer.Path("commands.menu-title", "commands.menu-language"), p => MainMenu?.Open(p));
+            using var _temporaryCulture = MenuLanguages.For(player);
+            IMenu? _menu = MenuFactory.Api?.GetMenu(_localizer.Path("commands.menu-title", "commands.menu-language"), p => MainMenu.Open(p));
             CultureInfo _current = player.GetLanguage();
 
             foreach (CultureInfo _culture in _languages)
@@ -106,17 +89,25 @@ namespace GameModeManager.Menus
         }
 
         // Define load method
+        // Built once in each language
         public void Load()
         {
+            LocalizedMenu _main = new();
+            _menuLanguages.ForEach(culture => _main.Set(culture, CreateMainMenu()));
+            MainMenu = _main;
+        }
+
+        private IMenu? CreateMainMenu()
+        {
             // Create main menu
-            MainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("commands.menu-title"));
+            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("commands.menu-title"));
 
             foreach (var (command, (label, consoleCommand)) in MapChooserCommands)
             {
                 if (command is "!rtv" or "!nominate" && !_pluginState.Game.RtvEnabled(_config))
                     continue;
 
-                MainMenu?.AddMenuOption(_localizer.Localize(label), (player, option) =>
+                menu?.AddMenuOption(_localizer.Localize(label), (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
 
@@ -133,14 +124,14 @@ namespace GameModeManager.Menus
                 switch (_command)
                 {
                     case "!changemap":
-                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-changemap"), (player, option) =>
+                        menu?.AddMenuOption(_localizer.Localize("commands.menu-changemap"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
                             _mapMenus.VoteMenu?.Open(player);
                         });
                         break;
                     case "!changemode":
-                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-changemode"), (player, option) =>
+                        menu?.AddMenuOption(_localizer.Localize("commands.menu-changemode"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
                             if (_config.Votes.Enabled && _config.Votes.GameModes)
@@ -148,7 +139,7 @@ namespace GameModeManager.Menus
                         });
                         break;
                     case "!changesetting":
-                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-changesetting"), (player, option) =>
+                        menu?.AddMenuOption(_localizer.Localize("commands.menu-changesetting"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
                             // The vote menu: MainMenu is the admin enable/disable menu (no vote)
@@ -157,7 +148,7 @@ namespace GameModeManager.Menus
                         });
                         break;
                     case "!currentmode":
-                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-currentmode"), (player, option) =>
+                        menu?.AddMenuOption(_localizer.Localize("commands.menu-currentmode"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
                             if (player != null)
@@ -165,7 +156,7 @@ namespace GameModeManager.Menus
                         });
                         break;
                     case "!currentmap":
-                        MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-currentmap"), (player, option) =>
+                        menu?.AddMenuOption(_localizer.Localize("commands.menu-currentmap"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
                             player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.Game.CurrentMap.Name));
@@ -176,11 +167,12 @@ namespace GameModeManager.Menus
 
             if (_languages.Count > 1)
             {
-                MainMenu?.AddMenuOption(_localizer.Localize("commands.menu-language"), (player, option) =>
+                menu?.AddMenuOption(_localizer.Localize("commands.menu-language"), (player, option) =>
                 {
                     LanguageMenu(player)?.Open(player);
                 });
             }
+            return menu;
         }
     }
 }

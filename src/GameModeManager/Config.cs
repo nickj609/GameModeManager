@@ -171,7 +171,7 @@ namespace GameModeManager
         public RotationSettings Rotation { get; set; } = new();
         public GameModeSettings GameModes { get; set; } = new();
 
-        // The checks that only need the config itself. ci/ConfigCheck runs these on Kus's config.
+        // The checks that only need the config itself. tools/ConfigCheck runs these on Kus's config.
         public void Validate(ILogger logger)
         {
             // Maps settings
