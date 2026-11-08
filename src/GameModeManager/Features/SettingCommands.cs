@@ -1,4 +1,5 @@
 // Included libraries
+using GameModeManager.Core;
 using GameModeManager.Menus;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
@@ -20,10 +21,13 @@ namespace GameModeManager.Features
         private SettingMenus _settingMenus;
         private StringLocalizer _localizer;
         private Config _config = new Config();
+        private AdminPanel _adminPanel;
+
 
         // Define class constructor
-        public SettingCommands(PluginState pluginState, StringLocalizer localizer, SettingMenus settingMenus)
+        public SettingCommands(AdminPanel adminPanel, PluginState pluginState, StringLocalizer localizer, SettingMenus settingMenus)
         {
+            _adminPanel = adminPanel;
             _localizer = localizer;
             _pluginState = pluginState;
             _settingMenus = settingMenus;
@@ -85,7 +89,7 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player != null)
+            if (player != null && !_adminPanel.Open(player, "settings"))
                 _settingMenus.MainMenu?.Open(player);
         }
     }

@@ -25,10 +25,13 @@ namespace GameModeManager.Features
         private Config _config = new Config();
         private MapChooserBridge _mapChooser;
         private RtvSwitch _rtvSwitch;
+        private AdminPanel _adminPanel;
+
 
         // Define class constructor
-        public ModeCommands(RtvSwitch rtvSwitch, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, ModeMenus modeMenus, MapMenus mapMenus, MapChooserBridge mapChooser)
+        public ModeCommands(AdminPanel adminPanel, RtvSwitch rtvSwitch, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, ModeMenus modeMenus, MapMenus mapMenus, MapChooserBridge mapChooser)
         {
+            _adminPanel = adminPanel;
             _rtvSwitch = rtvSwitch;
             _mapChooser = mapChooser;
             _mapMenus = mapMenus;
@@ -149,7 +152,7 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnModesCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player != null)
+            if (player != null && !_adminPanel.Open(player, "modes"))
                 _modeMenus.MainMenu?.Open(player);
         }
     }

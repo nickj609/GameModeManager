@@ -25,10 +25,13 @@ namespace GameModeManager.Features
         private Config _config = new Config();
         private ILogger<WarmupCommand> _logger;
         private StringLocalizer _localizer;
+        private AdminPanel _adminPanel;
+
 
         // Define class constructor
-        public WarmupCommand(WarmupMenus warmupMenus, WarmupManager warmupManager, PluginState pluginState, StringLocalizer localizer, ILogger<WarmupCommand> logger)
+        public WarmupCommand(AdminPanel adminPanel, WarmupMenus warmupMenus, WarmupManager warmupManager, PluginState pluginState, StringLocalizer localizer, ILogger<WarmupCommand> logger)
         {
+            _adminPanel = adminPanel;
             _localizer = localizer;
             _logger = logger;
             _pluginState = pluginState;
@@ -71,7 +74,7 @@ namespace GameModeManager.Features
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnWarmupCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player != null)
+            if (player != null && !_adminPanel.Open(player, "warmup"))
                 _warmupMenus.MainMenu?.Open(player);
         }
 

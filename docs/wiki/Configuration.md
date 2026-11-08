@@ -32,7 +32,8 @@
     "ModesInVotes": true
   },
   "AdminPanel": {
-    "Enabled": true
+    "Enabled": true,
+    "CommandMenus": "default"
   },
   "Notifications": {
     "Enabled": true,
@@ -450,6 +451,7 @@ These settings are for player votes (`!changemap`, `!changemode`, `!changesettin
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Enabled             | Adds a **Manage game** section to CS2-SimpleAdmin's menu when it's installed.                                                             |
+| CommandMenus        | What `!maps`, `!modes`, `!settings` and `!warmup` open. `"default"`: GameModeManager's own menus. `"admin"`: the same pages in CS2-SimpleAdmin's admin panel, so admin tools always look like it. Falls back to `"default"` when SimpleAdmin or the Manage game section isn't loaded. Added in config version 15. |
 
 # Notification Settings
 Messages to one player about their own action (language set, vote cast, why a vote can't start, map not in the pool) also show as a PanoramaMenuManager notification, in the player's language. Added in config version 15. Messages to everyone stay in chat.
