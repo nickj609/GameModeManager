@@ -438,7 +438,7 @@ These settings are for player votes (`!changemap`, `!changemode`, `!changesettin
 | Enabled             | Enables player votes.                                                                                                                     |
 | GameModes           | Enables game mode votes.                                                                                                                  |
 | GameSettings        | Enables game setting votes.                                                                                                               |
-| Style               | `menu` = PanoramaMenu Yes/No menu, `native` = the game's F1/F2 vote panel.                                                                |
+| Style               | `menu` = PanoramaMenu Yes/No menu, `native` = the game's F1/F2 vote panel for map votes (its only text is "Change current level to …?"). Mode and setting votes use the menu, unless NativeTitleToken is set. |
 | Percentage          | Percent of eligible players that must vote yes.                                                                                           |
 | Duration            | Vote duration in seconds.                                                                                                                 |
 | MinPlayers          | Minimum eligible players to start a vote.                                                                                                 |
