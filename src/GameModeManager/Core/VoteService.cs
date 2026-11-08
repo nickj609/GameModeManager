@@ -297,7 +297,16 @@ namespace GameModeManager.Core
                 return;
 
             vote.Ballots[player.Slot] = yes;
-            PlayerFeedback.Send(player, _localizer, "notify.vote", MenuNotice.Success, yes ? "vote.you-voted-yes" : "vote.you-voted-no");
+            string _key = yes ? "vote.you-voted-yes" : "vote.you-voted-no";
+
+            // The game's panel already says "You voted: YES", so no notification: only the chat line, when it would print anyway
+            if (!vote.Native)
+                PlayerFeedback.Send(player, _localizer, "notify.vote", MenuNotice.Success, _key);
+            else if (PlayerFeedback.ChatLine)
+            {
+                using (MenuLanguages.For(player))
+                    player.PrintToChat(_localizer.LocalizeWithPrefix(_key));
+            }
             if (vote.Native)
                 _nativeVote.UpdateCounts(vote.Yes, vote.No);
             Evaluate();

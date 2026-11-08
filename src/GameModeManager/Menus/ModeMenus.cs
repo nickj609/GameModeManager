@@ -45,6 +45,17 @@ namespace GameModeManager.Menus
             _config = config;
         }
 
+        // Define on map start behavior
+        // Built again for each map, so the current map and mode are the ones greyed out. A frame later: the current map is set by then.
+        public void OnMapStart(string map)
+        {
+            Server.NextFrame(() =>
+            {
+                if (MenuFactory.Api != null)
+                    Load();
+            });
+        }
+
         // Define load method
         // Built once in each language
         public void Load()
@@ -77,7 +88,7 @@ namespace GameModeManager.Menus
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     ChangeMode(player, _mode);
-                });
+                }, _pluginState.Game.CurrentMode.Equals(_mode));   // The current mode is greyed out
             }
 
             // GG1's next map: the mode changes at the end of the match
@@ -88,7 +99,7 @@ namespace GameModeManager.Menus
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     SetNextMode(player, _mode);
-                });
+                }, _pluginState.Game.CurrentMode.Equals(_mode));   // The current mode is greyed out
             }
 
             IMenu? adminVoteMenu = CreateVoteMenu(player => MainMenu.Open(player), true);
@@ -124,7 +135,7 @@ namespace GameModeManager.Menus
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     StartVote(player, _mode);
-                });
+                }, _pluginState.Game.CurrentMode.Equals(_mode));   // The current mode is greyed out
             }
             return menu;
         }
@@ -161,7 +172,7 @@ namespace GameModeManager.Menus
                 PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "general.validation.current");
                 return;
             }
-            _voteService.StartYesNo(player, () => _localizer.Localize("mode.vote.menu-title", mode.Name), () => _serverManager.ChangeMode(mode), mode.Name);
+            _voteService.StartYesNo(player, () => _localizer.Localize("mode.vote.menu-title", mode.Name), () => _serverManager.ChangeMode(mode));   // The menu vote: the game's panel can only say "Change current level to"
         }
 
         // A vote on GG1's panel between random other modes
