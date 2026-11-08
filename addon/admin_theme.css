@@ -62,5 +62,5 @@
 .sa-row:hover .sa-arrow { color: #d83a30; }
 .sa-arrow { margin-right: 18px; }
 
-/* Rows a little rounder, like the menus' (PMM_SimpleAdmin uses 4px) */
-.sa-row { border-radius: 6px; }
+/* Rows rounded like the menus' (PMM uses 5px, PMM_SimpleAdmin 4px) */
+.sa-row { border-radius: 5px; }
