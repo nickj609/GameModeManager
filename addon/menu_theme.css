@@ -121,7 +121,6 @@
 	padding-top: 3px;
 	font-size: 13px;
 	color: label-color;
-	font-weight: bold; /* The thin dash or slash is easy to miss at 13px */
 }
 
 .gmm-key-close

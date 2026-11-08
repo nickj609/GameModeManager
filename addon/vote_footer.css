@@ -57,7 +57,6 @@
 	padding-top: 1px;
 	font-size: 12px;
 	color: #9a9a9e;
-	font-weight: bold; /* The thin dash or slash is easy to miss at 12px */
 }
 
 .gmm-vote-key-name

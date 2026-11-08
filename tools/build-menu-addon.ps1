@@ -163,7 +163,7 @@ foreach ($style in $keyFooters.Keys) {
     foreach ($group in $keyFooters[$style]) {
         $keys = @($group | Select-Object -Skip 2)
         foreach ($key in $keys) {
-            if ($key -ne $keys[0]) { [void]$footer.AppendLine("`t`t`t`t`t`t<Label class=`"gmm-key-or stratum-medium-tf`" text=`"$($group[1])`" />") }
+            if ($key -ne $keys[0]) { [void]$footer.AppendLine("`t`t`t`t`t`t<Label class=`"gmm-key-or stratum-bold-tf`" text=`"$($group[1])`" />") }
             $class = if ($group[0] -eq "Close") { "gmm-key gmm-key-close" } else { "gmm-key" }
             [void]$footer.AppendLine("`t`t`t`t`t`t<Label class=`"$class stratum-bold-tf`" text=`"$key`" />")
         }
@@ -246,7 +246,7 @@ foreach ($hint in $voteFooters.Keys) {
     foreach ($group in ($spec | Select-Object -Skip 1)) {
         $caps = @($group | Select-Object -Skip 2)
         foreach ($cap in $caps) {
-            if ($cap -ne $caps[0]) { [void]$keys.AppendLine("`t`t`t`t`t`t<Label class=`"gmm-vote-key-or stratum-medium-tf`" text=`"$($group[1])`" />") }
+            if ($cap -ne $caps[0]) { [void]$keys.AppendLine("`t`t`t`t`t`t<Label class=`"gmm-vote-key-or stratum-bold-tf`" text=`"$($group[1])`" />") }
             $class = if ($group[0] -eq "Close") { "gmm-vote-key gmm-vote-key-close" } else { "gmm-vote-key" }
             [void]$keys.AppendLine("`t`t`t`t`t`t<Label class=`"$class stratum-bold-tf`" text=`"$cap`" />")
         }
