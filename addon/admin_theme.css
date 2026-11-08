@@ -3,6 +3,7 @@
    panel. The red header and accents stay, so admin tools still stand apart. ==== */
 .sa-root
 {
+	width: 430px; /* PMM_SimpleAdmin's 460px, a little narrower: still wider than the menus (400px) and the vote panel (420px) */
 	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(18, 18, 20, 0.92) ), color-stop( 0.1, rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) ) ); /* The menus' gradient, starting below the red header, which covers about the top tenth */
 	border: 1px solid #ffffff14; /* The vote panel's outline. The red header covers it, below. */
 	overflow: noclip noclip; /* So the header can reach over the outline. Nothing else in the panel goes past its edge. */
@@ -35,11 +36,11 @@
 	background-color: #ffffff05;
 }
 
-/* The red header reaches over the outline at the top and sides, so there's no light line around it. The panel is always 460px
-   wide, so the header is too, starting 1px left of it. Its top corners are rounded like the panel's, which no longer clips them. */
+/* The red header reaches over the outline at the top and sides, so there's no light line around it. The panel is 430px wide
+   (set above), so the header is too, starting 1px left of it. Its top corners are rounded like the panel's, which no longer clips them. */
 .sa-head
 {
-	width: 460px;
+	width: 430px;
 	margin: -1px 0px 0px -1px;
 	border-radius: 6px 6px 0px 0px;
 }
