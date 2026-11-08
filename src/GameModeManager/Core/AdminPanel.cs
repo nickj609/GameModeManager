@@ -210,6 +210,10 @@ namespace GameModeManager.Core
         private void AddSubMenu(object menu, string name, Func<CCSPlayerController, object> factory, bool disabled = false)
         {
             Call("AddSubMenu", p => p.Length == 5, menu, name, InLanguage(factory), disabled, null);
+
+            // PMM_SimpleAdmin's panel shows its "›" from the start, instead of after the first click
+            if (!disabled)
+                SimpleAdminArrows.Learn(menu, name);
         }
 
         // These pages are built when they open, so each is built in the player's language. The section's name and its rows
