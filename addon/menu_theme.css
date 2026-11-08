@@ -136,6 +136,12 @@
 	color: #f5a623;
 }
 
+/* The other choices in a neutral grey: PMM's #cfd4d9 is slightly blue */
+.utils-opt Label
+{
+	color: #d8d8da;
+}
+
 /* The WASD and number key footers: keycaps instead of PMM's text hint */
 .utils-menu.mode-wasd .utils-hint,
 .utils-menu.mode-digits .utils-hint

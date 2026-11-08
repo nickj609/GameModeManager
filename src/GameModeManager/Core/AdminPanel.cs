@@ -48,6 +48,9 @@ namespace GameModeManager.Core
         }
 
         // Define class properties
+        // PMM_SimpleAdmin draws what comes after this on the right of the row, as a hint: a dot between thin spaces (U+2009),
+        // like its own. CS2-SimpleAdmin's plain menus show it as "Name · value".
+        private const string HintSeparator = " · ";
         private object? _api;
         public bool Active => _api != null;
         private Type? _apiType;
@@ -439,7 +442,7 @@ namespace GameModeManager.Core
         private void AddValue(object menu, string key, string current, int[] choices, Func<int, string> text, Func<int> read, Action<int> write)
         {
             string name = _localizer.Localize(key);
-            AddSubMenu(menu, $"{name}: {current}", player =>
+            AddSubMenu(menu, $"{name}{HintSeparator}{current}", player =>
             {
                 object page = NewMenu(name, player);
                 foreach (int choice in choices)
