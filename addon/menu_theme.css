@@ -73,11 +73,48 @@
 	margin: 4px 0px;
 }
 
-/* A dropdown that's open: PMM's own size, with the spacing above */
+/* A dropdown that's open: PMM's own size, with the spacing above. PMM opens the first three rows' lists downward: with empty
+   rows hidden there can be nothing below, and the list would be cut off at the bottom of the menu. So a list that opens
+   downward makes the menu taller while it's open, and the rows below move down. One that opens upward still overlaps the
+   rows above it. */
 .utils-slot.is-open
 {
 	height: 178px;
-	margin-bottom: -130px;
+	margin-bottom: 4px;
+}
+
+.utils-slot.is-open.is-up
+{
+	margin-top: -130px;
+	margin-bottom: 4px;
+}
+
+/* The dropdown in the menu's own colours: its dark background and faint outline, a subtle hover, and the current choice in
+   the orange accent. Panorama draws these whites about 4x stronger than a browser. */
+.utils-select-menu
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(24, 24, 26, 0.98) ), to( rgba(12, 12, 14, 0.98) ) );
+	border: 1px solid #ffffff14;
+}
+
+.utils-opt:hover
+{
+	background-color: rgba(255, 255, 255, 0.03);
+}
+
+.utils-opt:active
+{
+	background-color: rgba(255, 255, 255, 0.05);
+}
+
+.utils-opt.utils-sel
+{
+	background-color: rgba(245, 166, 35, 0.06);
+}
+
+.utils-opt.utils-sel Label
+{
+	color: #f5a623;
 }
 
 /* The WASD and number key footers: keycaps instead of PMM's text hint */
