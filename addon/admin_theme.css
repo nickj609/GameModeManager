@@ -68,3 +68,6 @@
 /* The counts, values and arrow on the right a touch bigger (PMM_SimpleAdmin: 13px and 20px), so they read next to the labels */
 .sa-hint { font-size: 14px; }
 .sa-arrow { font-size: 22px; }
+
+/* The icons in the highlighted row's red, instead of PMM_SimpleAdmin's lighter one */
+.sa-ic { wash-color: #d83a30; }
