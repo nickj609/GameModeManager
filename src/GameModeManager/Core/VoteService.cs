@@ -248,12 +248,12 @@ namespace GameModeManager.Core
             if (menu == null)
                 return;
 
-            menu.AddMenuOption(_localizer.Localize("menu.yes"), (p, option) =>
+            MenuActions.Add(menu, _localizer.Localize("menu.yes"), (p, option) =>
             {
                 MenuFactory.Api?.CloseMenu(p);
                 Ballot(p, true);
             });
-            menu.AddMenuOption(_localizer.Localize("menu.no"), (p, option) =>
+            MenuActions.Add(menu, _localizer.Localize("menu.no"), (p, option) =>
             {
                 MenuFactory.Api?.CloseMenu(p);
                 Ballot(p, false);
@@ -270,7 +270,7 @@ namespace GameModeManager.Core
             for (int i = 0; i < vote.Answers.Count; i++)
             {
                 int answer = i;
-                menu.AddMenuOption(vote.Answers[answer], (p, option) =>
+                MenuActions.Add(menu, vote.Answers[answer], (p, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(p);
                     Pick(p, answer);

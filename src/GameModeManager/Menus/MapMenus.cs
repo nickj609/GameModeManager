@@ -69,7 +69,7 @@ namespace GameModeManager.Menus
 
             foreach (IMap _map in _pluginState.Game.CurrentMode.Maps)
             {
-                listMenu?.AddMenuOption(_map.DisplayName, (player, option) =>
+                MenuActions.Add(listMenu, _map.DisplayName, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     ChangeMap(player, _map);
@@ -80,7 +80,7 @@ namespace GameModeManager.Menus
             IMenu? nextMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.maps", "admin.next-map"), player => MainMenu.Open(player));
             foreach (IMap _map in _pluginState.Game.CurrentMode.Maps)
             {
-                nextMenu?.AddMenuOption(_map.DisplayName, (player, option) =>
+                MenuActions.Add(nextMenu, _map.DisplayName, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     SetNextMap(player, _map);
@@ -102,7 +102,7 @@ namespace GameModeManager.Menus
             IMenu? menu = MenuFactory.Api?.GetMenu(back != null ? _localizer.Path("admin.maps", "admin.start-vote") : _localizer.Localize("admin.start-vote"), back);
             if (randomVote != null)
             {
-                menu?.AddMenuOption(_localizer.Localize("admin.random-vote"), (player, option) =>
+                MenuActions.Add(menu, _localizer.Localize("admin.random-vote"), (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     randomVote(player);
@@ -110,7 +110,7 @@ namespace GameModeManager.Menus
             }
             foreach (IMap _map in _pluginState.Game.CurrentMode.Maps)
             {
-                menu?.AddMenuOption(_map.DisplayName, (player, option) =>
+                MenuActions.Add(menu, _map.DisplayName, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     StartVote(player, _map);
