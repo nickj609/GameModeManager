@@ -18,12 +18,28 @@
 	world-blur: gaussian(2, 2, 2); /* Blurred behind like the menus: PMM only blurs the menu's background */
 }
 
-/* The success tick: PMM's long bar ends about half a pixel below and right of the short one, so the bottom looks flat and
-   smeared. 1px higher, its end lands on the short bar's, so the two meet in a sharp V. */
-.ntf-ok-long
+/* The notification icons as pictures (tools\draw-notify-icons.ps1): PMM's tick, "!" and cross, same size, place and colours,
+   but each one shape. PMM builds them from rotated bars, and its tick's two bars don't quite meet. */
+.ntf-ok-short,
+.ntf-ok-long,
+.ntf-warn-stem,
+.ntf-warn-dot,
+.ntf-err-a,
+.ntf-err-b
 {
-	margin-bottom: 7px;
+	visibility: collapse;
 }
+
+.ntf-mark
+{
+	background-size: 16px 16px;
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
+}
+
+.ntf-mark-ok { background-image: url("file://{images}/custom_game/gmm/notify_ok.png"); }
+.ntf-mark-warn { background-image: url("file://{images}/custom_game/gmm/notify_warn.png"); }
+.ntf-mark-err { background-image: url("file://{images}/custom_game/gmm/notify_err.png"); }
 
 /* PMM never sets a description, but the empty line still takes up height */
 .utils-desc

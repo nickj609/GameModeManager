@@ -198,6 +198,16 @@ Write-Host "  Added the vote title tokens"
 # Add the pictures from the server repo's bisect\build-menu-images.ps1: map files, then a CSS class for each map and mode, as the bridge names them.
 # The compiler only takes a PNG through a file:// reference in CSS, and builds it along with that stylesheet.
 $imageFiles = @()
+
+# GameModeManager's own pictures (addon\images, from tools\draw-notify-icons.ps1): the notification icons menu_theme.css uses
+$ownImages = Join-Path $PSScriptRoot "..\addon\images"
+$ownTarget = Join-Path $contentDir "panorama\images\custom_game\gmm"
+New-Item -ItemType Directory -Force -Path $ownTarget | Out-Null
+foreach ($picture in Get-ChildItem -LiteralPath $ownImages -Filter "*.png") {
+    Copy-Item -LiteralPath $picture.FullName -Destination (Join-Path $ownTarget $picture.Name) -Force
+    $imageFiles += "panorama/images/custom_game/gmm/$($picture.Name)"
+}
+Write-Host "  Added $($imageFiles.Count) notification icon(s)"
 $imagesDir = Join-Path $env:USERPROFILE "Documents\CS2\addon-images"
 $manifestPath = Join-Path $imagesDir "images.json"
 if (Test-Path $manifestPath) {
@@ -217,7 +227,7 @@ if (Test-Path $manifestPath) {
         [void]$classes.AppendLine(".mi-$class { background-image: url(`"$url`"); }")
     }
     [IO.File]::AppendAllText((Join-Path $contentDir "panorama\styles\custom_game\pmm_mapvote_maps.css"), "`r`n" + $classes.ToString(), $utf8)
-    Write-Host "  Added $($imageFiles.Count) map picture(s)"
+    Write-Host "  Added $(@($images.maps.PSObject.Properties).Count) map picture(s)"
 }
 
 # BEGIN vote footers
