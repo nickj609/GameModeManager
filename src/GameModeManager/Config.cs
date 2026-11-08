@@ -74,7 +74,8 @@ namespace GameModeManager
         public int Cooldown { get; set; } = 60; // Seconds before the same player can start another vote
         public bool AllowSpectators { get; set; } = false; // Spectators can vote (and count towards the percentage)
         public bool AllowInWarmup { get; set; } = false; // Allows votes during warmup
-        public string NativeTitleToken { get; set; } = ""; // Native panel title from platform_english.txt on the server and every player's PC. Empty = the game's "Change current level to X?"
+        public string NativeTitleToken { get; set; } = ""; // Native panel title for setting votes, from platform_english.txt on every player's PC. Empty = setting votes use the menu. Maps and modes always use "Change current level to X?"
+        public bool NativeQuestions { get; set; } = false; // !vote questions on the F1/F2 panel too (needs NativeTitleToken). false = the menu
     }
 
     // Define game settings

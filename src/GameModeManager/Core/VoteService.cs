@@ -18,8 +18,8 @@ namespace GameModeManager.Core
     // Player yes/no votes (change map, change mode, enable/disable a setting). Replaces CS2-CustomVotes.
     // One vote at a time. Shown as a PanoramaMenu menu ("menu") or the game's F1/F2 vote panel ("native"). The panel's only
     // title that needs no file on players' PCs is "Change current level to X?", so a vote passes X to use it. A vote that
-    // passes nothing, like a free question, uses the menu. Votes.NativeTitleToken shows every vote's own title on the panel
-    // instead, but players without the file that defines the token may not see the panel.
+    // passes nothing, like a setting, uses the menu, unless Votes.NativeTitleToken is set: then it shows its own title on the
+    // panel, which players without the file that defines the token don't see at all. Maps and modes always keep the game's text.
     // A vote with its own answers always uses the menu, because the panel only has yes and no. It only reports the result.
     public class VoteService : IPluginDependency<Plugin, Config>
     {
@@ -47,7 +47,6 @@ namespace GameModeManager.Core
         // Define class properties
         private ActiveVote? _vote;
         private readonly Dictionary<ulong, DateTime> _lastStarted = new();
-        public bool InProgress => _vote != null;
 
         private class ActiveVote
         {
@@ -103,19 +102,22 @@ namespace GameModeManager.Core
 
         // Starts a yes/no vote. title is already localized (chat colours allowed). Returns false and tells the caller why
         // when the vote can't start.
-        public bool StartYesNo(CCSPlayerController caller, string title, Action onPassed, string? nativeSubject = null)
+        public bool StartYesNo(CCSPlayerController caller, string title, Action onPassed, string? nativeSubject = null, bool allowNative = true)
         {
-            return StartYesNo(caller, () => title, onPassed, nativeSubject);
+            return StartYesNo(caller, () => title, onPassed, nativeSubject, allowNative);
         }
 
         // The same, with a title localized for each voter's menu. Chat and the native panel use the server's language.
-        public bool StartYesNo(CCSPlayerController caller, Func<string> localizedTitle, Action onPassed, string? nativeSubject = null)
+        // allowNative false keeps the vote on the menu whatever the style.
+        public bool StartYesNo(CCSPlayerController caller, Func<string> localizedTitle, Action onPassed, string? nativeSubject = null, bool allowNative = true)
         {
             if (!CanStart(caller, out var voters))
                 return false;
 
             string title = localizedTitle();
-            string? titleToken = string.IsNullOrWhiteSpace(_config.Votes.NativeTitleToken) ? null : _config.Votes.NativeTitleToken;
+            // Maps and modes keep the game's own "Change current level to X?", which every player has. Only a vote without
+            // one, like a setting, uses the custom text, which needs the file on players' PCs.
+            string? titleToken = !allowNative || nativeSubject != null || string.IsNullOrWhiteSpace(_config.Votes.NativeTitleToken) ? null : _config.Votes.NativeTitleToken;
             var vote = new ActiveVote
             {
                 Title = title,

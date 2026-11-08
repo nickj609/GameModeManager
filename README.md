@@ -70,7 +70,7 @@ Players choose what to play next with [GG1MapChooser](https://github.com/ssypche
 
 Admins can start a random vote or a yes/no vote from **Start vote** in `!maps`, `!modes` and the admin menu.
 
-With `Votes.Style` set to `"native"`, map votes like `!changemap de_dust2` use the game's own F1/F2 vote panel instead of a menu. It shows who started the vote. Mode and setting votes stay on the menu, because the game's panel can only ask "Change current level to …?".
+With `Votes.Style` set to `"native"`, map and mode votes like `!changemap de_dust2` use the game's own F1/F2 vote panel instead of a menu. It shows who started the vote. Setting votes stay on the menu, because the game's panel can only ask "Change current level to …?".
 
 ![Yes/no vote on the game's F1/F2 panel](docs/images/vote-native.png)
 
@@ -87,7 +87,7 @@ GG1MapChooser is **required** since 2.0.0: it picks the maps, and GameModeManage
 - **Mode rotation:** with `Rotation.ModeRotation`, the mode changes every `ModeInterval` maps. On the map where it changes, `ModeVote: "random"` skips the map vote and picks a random mode, and `"vote"` makes every vote on that map, `!rtv` included, a vote on modes only. `CountSkippedMaps` decides whether maps left early count. Players are told at the start of that map's match.
 - **Keep these GG1 settings:** the included config turns off `ChangeMapAfterWinDraw`, `ChangeMapAfterTimeLimit`, `RandomMapOnStart` and `LastDisconnectedChangeMap` so only GameModeManager changes the map, and uses the `wasd` menus the bridge needs.
 - **GG1 updates:** GG1 isn't modified. A few features read its internals and log a warning or do nothing if an update changes them.
-- **Vote panel text:** `Votes.NativeTitleToken` shows each vote's own title on the game's F1/F2 vote panel, but needs `platform_english.txt` on the server and every player's PC.
+- **Vote panel text:** map and mode votes use the game's own "Change current level to …?" on the F1/F2 vote panel, which works for every player. Setting votes use the menu, unless you set `Votes.NativeTitleToken` to `#SFUI_vote_panorama_vote_default`: then they show their own question on the panel, like "Enable Alltalk?", and so do `!vote` questions with `Votes.NativeQuestions`. The text comes from each player's own `platform_english.txt` (in `Counter-Strike Global Offensive\game\csgo\resource`), so every player must copy the one in the release's `csgo/resource` there. A player without it sees no panel for those votes and can't vote on them, so only use this on servers where every player has the file. See [Vote Settings](docs/wiki/Configuration.md#vote-settings).
 - **Changing to any map by name:** use an admin plugin like [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin)'s `!map`, or GG1's `ggmap`.
 
 </details>

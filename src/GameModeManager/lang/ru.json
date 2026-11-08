@@ -91,7 +91,6 @@
   "admin.rotation-minutes": "{0} мин",
   "changemap.message": "Администратор {LIGHTRED}{0}{DEFAULT} изменил карту на {LIGHTRED}{1}{DEFAULT}.",
   "admin.warmup-scheduled": "Разминка {GREEN}{0}{DEFAULT} запланирована.",
-  "admin.current": "текущий",
   "language.changed": "Язык изменён на {GOLD}{0}{DEFAULT}.",
   "notify.language": "Язык",
   "notify.map": "Карта",

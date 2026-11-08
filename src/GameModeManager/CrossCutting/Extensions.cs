@@ -1,11 +1,9 @@
 // Included libraries
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory;
-using CounterStrikeSharp.API.Modules.Entities;
 
 // Declare namespace
 namespace GameModeManager.CrossCutting
@@ -40,12 +38,6 @@ namespace GameModeManager.CrossCutting
                 .Select(pawn => pawn!);
         }
 
-        public static void PrintCenterTextAll(string text)
-        {
-            foreach (var player in ValidPlayers(false))
-                player.PrintToCenter(text);
-        }
-
         public static int ValidPlayerCount(bool considerBots = false)
         {
             return ValidPlayers(considerBots).Length;
@@ -74,35 +66,10 @@ namespace GameModeManager.CrossCutting
                 .ToArray();
         }
 
-        public static bool CanTarget(this CCSPlayerController? controller, CCSPlayerController? target)
-        {
-            if (controller is null || target is null) return true;
-            if (target.IsBot) return true;
-
-            return AdminManager.CanPlayerTarget(controller, target) ||
-                                    AdminManager.CanPlayerTarget(new SteamID(controller.SteamID),
-                                        new SteamID(target.SteamID));
-        } 
-
         public static bool ReallyValid(this CCSPlayerController? player, bool considerBots = false)
         {
             return player is not null && player.IsValid && player.Connected == PlayerConnectedState.Connected &&
                 (considerBots || (!player.IsBot && !player.IsHLTV));
-        }
-
-        public static string GetTeamString(this CCSPlayerController? player, bool abbreviate = false)
-        {
-            var teamNum = player != null ? (int)player.Team : -1;
-            var teamStr = teamNum switch
-            {
-                (int)CsTeam.None => "team.none",
-                (int)CsTeam.CounterTerrorist => "team.ct",
-                (int)CsTeam.Terrorist => "team.t",
-                (int)CsTeam.Spectator => "team.spec",
-                _ => ""
-            };
-
-            return abbreviate ? teamStr + ".short" : teamStr + ".long";
         }
     }
         

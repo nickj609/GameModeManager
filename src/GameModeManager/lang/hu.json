@@ -91,7 +91,6 @@
   "admin.rotation-minutes": "{0} perc",
   "changemap.message": "A(z) {LIGHTRED}{0}{DEFAULT} adminisztrátor átállította a pályát {LIGHTRED}{1}{DEFAULT} pályára.",
   "admin.warmup-scheduled": "{GREEN}{0}{DEFAULT} bemelegítés ütemezve.",
-  "admin.current": "jelenlegi",
   "language.changed": "Nyelv beállítva: {GOLD}{0}{DEFAULT}.",
   "notify.language": "Nyelv",
   "notify.map": "Pálya",
