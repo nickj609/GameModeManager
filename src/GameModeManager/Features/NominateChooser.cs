@@ -139,7 +139,7 @@ namespace GameModeManager.Features
             IMenu menu = MenuFactory.Api!.GetMenu(_localizer.Path("commands.menu-nominate", "nominate.maps"), p => back.Open(p));
             foreach (IMap map in _pluginState.Game.CurrentMode.Maps.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
-                bool current = _pluginState.Game.CurrentMap.Equals(map);
+                bool current = _pluginState.Game.IsCurrentMap(map);
                 AddRow(menu, player, map.Name, map.DisplayName, current, p =>
                 {
                     if (_mapChooser.NominationsOpen())

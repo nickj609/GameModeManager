@@ -25,6 +25,12 @@ namespace GameModeManager.Core
             "Instance", "Maps", "Title", "Badge", "HideVoteFor", "PClass", "HudForgetSlot", "_vote", "Viewers"
         };
 
+        // Optional, not bundled: only the admin panel's arrows (SimpleAdminArrows) use these
+        public static readonly string[] PMM_SimpleAdmin =
+        {
+            "Instance", "_arrows", "ArrowKey", "SplitTitle"
+        };
+
         // Define class methods
         public static List<string> Missing(Assembly assembly, IEnumerable<string> names)
         {

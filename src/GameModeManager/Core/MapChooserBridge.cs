@@ -107,8 +107,13 @@ namespace GameModeManager.Core
                 return;
             }
 
-            var active = (JsonObject)pool.DeepClone();
-            AddModeEntries(active, mode);
+            var active = ModesOnlyPool(mode);
+            ModesOnly = active != null;
+            if (active == null)
+            {
+                active = (JsonObject)pool.DeepClone();
+                AddModeEntries(active, mode);
+            }
             _activePool = active;
             _activeMode = mode.Name;
 
@@ -117,6 +122,19 @@ namespace GameModeManager.Core
                 Server.ExecuteCommand("reloadmaps");
                 _logger.LogInformation("GG1MapChooser pool set to {Mode}", mode.Name);
             }
+        }
+
+        // Every mode the rotation can change to, when it changes at the end of this map and ModeVote is "vote". Null otherwise,
+        // or when fewer than two modes are left: one mode needs no vote, and the end of the map changes to it.
+        private JsonObject? ModesOnlyPool(IMode current)
+        {
+            if (!current.Equals(_pluginState.Game.CurrentMode) || !_config.Rotation.VoteForMode || !ModeChangeDue())
+                return null;
+
+            var pool = new JsonObject();
+            foreach (var (id, mode) in _modeEntries.Where(m => _pools.ContainsKey(m.Value.Name) && RotationModes().Contains(m.Value)))
+                AddModeEntry(pool, id, mode, 1);
+            return pool.Count >= 2 ? pool : null;
         }
 
         // Puts one random other mode in the pool. GG1 treats it like a workshop map: when it wins, GG1 runs
@@ -146,6 +164,27 @@ namespace GameModeManager.Core
                 ["weight"] = weight,
             };
         }
+
+        // Whether this map's end changes the mode. MapRotations only moves at the end of a map, so it's known all map long.
+        public bool ModeChangeDue()
+        {
+            RotationSettings rotation = _config.Rotation;
+            return _pluginState.Game.RotationsEnabled && rotation.ModeRotation && _pluginState.Game.MapRotations != 0
+                && _pluginState.Game.MapRotations % rotation.ModeInterval == 0 && RotationModes().Count > 0;
+        }
+
+        // The modes a rotation can change to: not the current one, not one without maps, and not one set to InRotation: false
+        public List<IMode> RotationModes()
+        {
+            return _pluginState.Game.Modes.Values.Where(mode => !mode.Equals(_pluginState.Game.CurrentMode) && mode.Maps.Count > 0
+                && _config.GameModes.InRotation(mode.Name)).ToList();
+        }
+
+        // ModeVote "vote" on the map where the mode changes: GG1's pool is only modes, so every vote picks one
+        public bool ModesOnly { get; private set; }
+
+        // ModeVote "random" on the map where the mode changes: no map vote, a random mode at the end
+        public bool RandomModeDue() => ModeChangeDue() && !_config.Rotation.VoteForMode;
 
         public bool CanBeNextMode(IMode mode)
         {
@@ -299,8 +338,13 @@ namespace GameModeManager.Core
         public void OnMapStart(string map)
         {
             _watchFound = false;
-            if (_config.MapChooser.ModesInVotes)
-                Server.NextFrame(() => SetPool(_pluginState.Game.CurrentMode));
+            // Mode rotation can need a modes-only pool on this map, or the normal one back
+            if (_config.MapChooser.ModesInVotes || _config.Rotation.ModeRotation)
+                Server.NextFrame(() =>
+                {
+                    SetPool(_pluginState.Game.CurrentMode);
+                    ApplyRoundVote();
+                });
         }
 
         // GG1 has these only in its config, but reads them while running. Set from mode cfgs (css_mapvote_extend,
@@ -315,9 +359,18 @@ namespace GameModeManager.Core
         public void SetRoundVote(bool enabled)
         {
             _roundVote = enabled;
-            // On again means what GG1MapChooser.json says
+            ApplyRoundVote();
+        }
+
+        // GG1's own vote after enough round wins. On means what GG1MapChooser.json says, and it's off on a map that ends with
+        // a random mode, which has no map vote.
+        private void ApplyRoundVote()
+        {
+            if (_roundVote == null && !RandomModeDue() && _roundVoteConfigured == null)
+                return;
+
             _roundVoteConfigured ??= _gg1.GetOption("WinDrawSettings", "VoteDependsOnRoundWins");
-            _gg1.SetOption("WinDrawSettings", "VoteDependsOnRoundWins", enabled && _roundVoteConfigured != false);
+            _gg1.SetOption("WinDrawSettings", "VoteDependsOnRoundWins", _roundVote != false && _roundVoteConfigured != false && !RandomModeDue());
         }
 
         // Changes to a map of the active pool
@@ -338,10 +391,10 @@ namespace GameModeManager.Core
         // Starts GG1's vote for the next map (changes at the end of the map), unless one ran or is running
         public bool StartMapVote()
         {
-            if (VoteInProgress() || NextMapChosen() || _pluginState.Game.CurrentMode.Maps.Count < 2)
+            if (VoteInProgress() || NextMapChosen() || (ModesOnly ? ActivePoolMaps < 2 : _pluginState.Game.CurrentMode.Maps.Count < 2))
                 return false;
 
-            _logger.LogInformation("Starting GG1MapChooser end-of-map vote");
+            _logger.LogInformation(ModesOnly ? "Starting GG1MapChooser end-of-map vote on modes" : "Starting GG1MapChooser end-of-map vote");
             Server.ExecuteCommand("ggmc_mapvote_start");
             return true;
         }
@@ -376,10 +429,15 @@ namespace GameModeManager.Core
         public string? NextMapName()
         {
             string? key = _gg1.NextMap();
-            if (key == null)
-                return null;
+            return key == null ? null : DisplayName(key);
+        }
 
+        // A GG1 pool entry as players see it: a map's display name, or a mode's name (a mode entry's key is the mode's name)
+        public string DisplayName(string key)
+        {
             return _pluginState.Game.Maps.TryGetValue(key, out IMap? map) ? map.DisplayName : key;
         }
+
+        public bool IsMode(string key) => IsModeEntry(key);
     }
 }

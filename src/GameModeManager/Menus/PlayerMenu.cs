@@ -78,7 +78,7 @@ namespace GameModeManager.Menus
             foreach (CultureInfo _culture in _languages)
             {
                 bool _isCurrent = _culture.Name.Equals(_current.Name, StringComparison.OrdinalIgnoreCase);
-                string _label = _isCurrent ? $"{LanguageName(_culture)} · {_localizer.Localize("admin.current")}" : LanguageName(_culture);
+                string _label = LanguageName(_culture);   // The current language is greyed out
 
                 MenuActions.Add(_menu, _label, (p, option) =>
                 {

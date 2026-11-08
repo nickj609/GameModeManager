@@ -116,8 +116,8 @@ namespace GameModeManager.Menus
         public void StartVote(CCSPlayerController player, ISetting setting, bool enable)
         {
             _voteService.StartYesNo(player, () => _localizer.Localize(enable ? "vote.enable-setting" : "vote.disable-setting", setting.DisplayName),
-                () => Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}"),
-                $"{_localizer.Localize(enable ? "menu.enable" : "menu.disable")} {setting.DisplayName}");
+                () => Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}"));
+            // The menu vote: the game's panel can only say "Change current level to"
         }
 
         // Define vote methods
