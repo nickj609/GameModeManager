@@ -70,9 +70,15 @@ namespace GameModeManager.Core
         // GG1 keeps the vote's result in _roundEndMap until it changes the map
         public bool NextMapChosen()
         {
+            return NextMap() != null;
+        }
+
+        // The map or mode entry GG1 changes to next, or null when there's none yet
+        public string? NextMap()
+        {
             var mapChooser = FindMapChooser();
             var field = mapChooser?.GetType().GetField("_roundEndMap", AnyInstance);
-            return field?.GetValue(mapChooser) is string map && map.Length > 0;
+            return field?.GetValue(mapChooser) is string map && map.Length > 0 ? map : null;
         }
 
         // GG1's flag for a map change it has started. Null when it can't be read.

@@ -50,6 +50,8 @@ GameModeManager's menus use [PanoramaMenuManager](https://github.com/RRimmer/Pan
 
 Number key styles need the number keys bound once. When a player picks one, a short check walks them through it. `!menu` also has center-screen and chat styles.
 
+Replies meant for one player, like a vote they cast, the current map or an admin's own change, also pop up as a notification in the top corner. Players can turn notifications off in `!menu`, and `Notifications` in `GameModeManager.json` sets whether the chat line still prints too.
+
 The pictures in this README are illustrations, so details may differ slightly in-game.
 
 ## Map and Mode Votes

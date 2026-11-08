@@ -371,5 +371,15 @@ namespace GameModeManager.Core
         {
             return _gg1.NextMapChosen();
         }
+
+        // What GG1 changes to next, as players see it: a map's display name, or a mode's name. Null when there's none yet.
+        public string? NextMapName()
+        {
+            string? key = _gg1.NextMap();
+            if (key == null)
+                return null;
+
+            return _pluginState.Game.Maps.TryGetValue(key, out IMap? map) ? map.DisplayName : key;
+        }
     }
 }
