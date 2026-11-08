@@ -63,7 +63,7 @@ namespace GameModeManager.Menus
         private IMenu? CreateMainMenu()
         {
             // Create the mode list
-            IMenu? listMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.category", "admin.change-mode"), player => MainMenu.Open(player));
+            IMenu? listMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.change-mode"), player => MainMenu.Open(player));
 
             listMenu?.AddMenuOption(_localizer.Localize("admin.random-mode"), (player, option) =>
             {
@@ -81,7 +81,7 @@ namespace GameModeManager.Menus
             }
 
             // GG1's next map: the mode changes at the end of the match
-            IMenu? nextMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.category", "admin.next-mode"), player => MainMenu.Open(player));
+            IMenu? nextMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("menu.next-mode-title"), player => MainMenu.Open(player));
             foreach (IMode? _mode in _pluginState.Game.Modes.Values)
             {
                 nextMenu?.AddMenuOption(_mode.Name, (player, option) =>
@@ -104,7 +104,7 @@ namespace GameModeManager.Menus
         // A yes/no vote on one mode, with a random vote on top for admins
         private IMenu? CreateVoteMenu(Action<CCSPlayerController>? back, bool randomVote)
         {
-            IMenu? menu = MenuFactory.Api?.GetMenu(back != null ? _localizer.Path("admin.category", "admin.start-vote") : _localizer.Localize("admin.start-vote"), back);
+            IMenu? menu = MenuFactory.Api?.GetMenu(back != null ? _localizer.Localize("admin.start-vote") : _localizer.Localize("admin.start-vote"), back);
             if (randomVote)
             {
                 menu?.AddMenuOption(_localizer.Localize("admin.random-vote"), (player, option) =>
