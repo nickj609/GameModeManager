@@ -69,5 +69,5 @@
 .sa-hint { font-size: 14px; }
 .sa-arrow { font-size: 22px; }
 
-/* The icons in the highlighted row's red, instead of PMM_SimpleAdmin's lighter one */
-.sa-ic { wash-color: #d83a30; }
+/* The icons halfway between PMM_SimpleAdmin's light red (#ff6b5e) and the highlighted row's (#d83a30) */
+.sa-ic { wash-color: #eb5247; }
