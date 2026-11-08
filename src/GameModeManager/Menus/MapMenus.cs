@@ -37,6 +37,17 @@ namespace GameModeManager.Menus
         public LocalizedMenu MainMenu = new(); // Admin menu (!maps)
         public LocalizedMenu VoteMenu = new(); // Player menu (!game, !changemap): no Back or random vote, which are for admins
 
+        // Define on map start behavior
+        // Built again for each map, so the current map and mode are the ones greyed out. A frame later: the current map is set by then.
+        public void OnMapStart(string map)
+        {
+            Server.NextFrame(() =>
+            {
+                if (MenuFactory.Api != null)
+                    Load();
+            });
+        }
+
         // Define load method
         // Built once per mode, in each language: ModeCommands calls this again when the mode changes
         public void Load()
@@ -62,7 +73,7 @@ namespace GameModeManager.Menus
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     ChangeMap(player, _map);
-                });
+                }, _pluginState.Game.IsCurrentMap(_map));   // The current map is greyed out
             }
 
             // GG1's next map: it changes at the end of the match
@@ -73,7 +84,7 @@ namespace GameModeManager.Menus
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     SetNextMap(player, _map);
-                });
+                }, _pluginState.Game.IsCurrentMap(_map));   // The current map is greyed out
             }
 
             IMenu? voteMenu = CreateVoteMenu(player => MainMenu.Open(player), StartVote);
@@ -103,7 +114,7 @@ namespace GameModeManager.Menus
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     StartVote(player, _map);
-                });
+                }, _pluginState.Game.IsCurrentMap(_map));   // The current map is greyed out
             }
             return menu;
         }
@@ -118,7 +129,7 @@ namespace GameModeManager.Menus
 
         public void StartVote(CCSPlayerController player, IMap map)
         {
-            if (_pluginState.Game.CurrentMap.Equals(map))
+            if (_pluginState.Game.IsCurrentMap(map))
             {
                 PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "general.validation.current");
                 return;
@@ -128,7 +139,7 @@ namespace GameModeManager.Menus
 
         public void SetNextMap(CCSPlayerController player, IMap map)
         {
-            if (_pluginState.Game.CurrentMap.Equals(map))
+            if (_pluginState.Game.IsCurrentMap(map))
                 PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "general.validation.current");
             else if (!_mapChooser.SetNextMap(map))
                 PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");

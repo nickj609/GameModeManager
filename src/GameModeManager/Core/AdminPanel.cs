@@ -48,6 +48,9 @@ namespace GameModeManager.Core
         }
 
         // Define class properties
+        // PMM_SimpleAdmin draws what comes after this on the right of the row, as a hint: a dot between thin spaces (U+2009),
+        // like its own. CS2-SimpleAdmin's plain menus show it as "Name · value".
+        private const string HintSeparator = " · ";
         private object? _api;
         public bool Active => _api != null;
         private Type? _apiType;
@@ -207,6 +210,10 @@ namespace GameModeManager.Core
         private void AddSubMenu(object menu, string name, Func<CCSPlayerController, object> factory, bool disabled = false)
         {
             Call("AddSubMenu", p => p.Length == 5, menu, name, InLanguage(factory), disabled, null);
+
+            // PMM_SimpleAdmin's panel shows its "›" from the start, instead of after the first click
+            if (!disabled)
+                SimpleAdminArrows.Learn(menu, name);
         }
 
         // These pages are built when they open, so each is built in the player's language. The section's name and its rows
@@ -228,11 +235,6 @@ namespace GameModeManager.Core
             Call("LogCommand", p => p.Length == 2 && p[1].ParameterType == typeof(string), player, logged);
         }
 
-        private string MarkCurrent(string name, bool current)
-        {
-            return current ? $"{name} · {_localizer.Localize("admin.current")}" : name;
-        }
-
         // Define menus
         private object MapsMenu(CCSPlayerController player)
         {
@@ -247,7 +249,7 @@ namespace GameModeManager.Core
         private object MapListMenu(CCSPlayerController player, bool next)
         {
             object menu = NewMenu(_localizer.Localize(next ? "admin.next-map" : "admin.change-map"), player);
-            var maps = _pluginState.Game.CurrentMode.Maps.Where(m => !_pluginState.Game.CurrentMap.Equals(m)).ToList();
+            var maps = _pluginState.Game.CurrentMode.Maps.Where(m => !_pluginState.Game.IsCurrentMap(m)).ToList();
 
             if (!next && maps.Count > 0)
             {
@@ -260,8 +262,8 @@ namespace GameModeManager.Core
 
             foreach (IMap map in _pluginState.Game.CurrentMode.Maps.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
-                bool current = _pluginState.Game.CurrentMap.Equals(map);
-                AddOption(menu, MarkCurrent(map.DisplayName, current), p => Act(p, $"{(next ? "setnextmap" : "ggmap")} {map.Name}", () =>
+                bool current = _pluginState.Game.IsCurrentMap(map);
+                AddOption(menu, map.DisplayName, p => Act(p, $"{(next ? "setnextmap" : "ggmap")} {map.Name}", () =>
                 {
                     if (!next)
                         _mapMenus.ChangeMap(p, map);
@@ -281,8 +283,8 @@ namespace GameModeManager.Core
             AddOption(menu, _localizer.Localize("admin.random-vote"), p => Act(p, "ggmc_mapvote_start", () => _mapMenus.StartVote(p)));
             foreach (IMap map in _pluginState.Game.CurrentMode.Maps.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
-                bool current = _pluginState.Game.CurrentMap.Equals(map);
-                AddOption(menu, MarkCurrent(map.DisplayName, current), p => Act(p, $"vote \"{map.Name}\"", () => _mapMenus.StartVote(p, map)), current);
+                bool current = _pluginState.Game.IsCurrentMap(map);
+                AddOption(menu, map.DisplayName, p => Act(p, $"vote \"{map.Name}\"", () => _mapMenus.StartVote(p, map)), current);
             }
             return menu;
         }
@@ -305,7 +307,7 @@ namespace GameModeManager.Core
             foreach (IMode mode in _pluginState.Game.Modes.Values.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
             {
                 bool current = _pluginState.Game.CurrentMode.Equals(mode);
-                AddOption(menu, MarkCurrent(mode.Name, current), p => Act(p, $"vote \"{mode.Name}\"", () => _modeMenus.StartVote(p, mode)), current);
+                AddOption(menu, mode.Name, p => Act(p, $"vote \"{mode.Name}\"", () => _modeMenus.StartVote(p, mode)), current);
             }
             return menu;
         }
@@ -317,7 +319,7 @@ namespace GameModeManager.Core
             foreach (IMode mode in _pluginState.Game.Modes.Values.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
             {
                 bool current = _pluginState.Game.CurrentMode.Equals(mode);
-                AddOption(menu, MarkCurrent(mode.Name, current), p => Act(p, $"css_mode \"{mode.Name}\"", () => _modeMenus.ChangeMode(p, mode)), current);
+                AddOption(menu, mode.Name, p => Act(p, $"css_mode \"{mode.Name}\"", () => _modeMenus.ChangeMode(p, mode)), current);
             }
             return menu;
         }
@@ -327,7 +329,7 @@ namespace GameModeManager.Core
             object menu = NewMenu(_localizer.Localize("admin.next-mode"), player);
             foreach (IMode mode in _pluginState.Game.Modes.Values.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
             {
-                AddOption(menu, MarkCurrent(mode.Name, _pluginState.Game.CurrentMode.Equals(mode)), p => Act(p, $"setnextmap {mode.Name}", () =>
+                AddOption(menu, mode.Name, p => Act(p, $"setnextmap {mode.Name}", () =>
                 {
                     if (!_mapChooser.SetNextMode(mode))
                         PlayerFeedback.Send(p, _localizer, "notify.mode", MenuNotice.Warning, "admin.vote-unavailable");
@@ -450,18 +452,18 @@ namespace GameModeManager.Core
         private void AddValue(object menu, string key, string current, int[] choices, Func<int, string> text, Func<int> read, Action<int> write)
         {
             string name = _localizer.Localize(key);
-            AddSubMenu(menu, $"{name}: {current}", player =>
+            AddSubMenu(menu, $"{name}{HintSeparator}{current}", player =>
             {
                 object page = NewMenu(name, player);
                 foreach (int choice in choices)
                 {
                     string label = text(choice);
-                    AddOption(page, MarkCurrent(label, choice == read()), p =>
+                    AddOption(page, label, p =>
                     {
                         write(choice);
                         PlayerFeedback.Send(p, _localizer, "notify.rotation", MenuNotice.Success, "admin.done.value-set", name, label);
                         ReopenRotation(p, $"{key} {choice}");
-                    });
+                    }, choice == read());   // The current value is greyed out
                 }
                 return page;
             });
