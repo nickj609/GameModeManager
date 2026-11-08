@@ -1,4 +1,5 @@
 // Included libraries
+using GameModeManager.Features;
 using MenuManager;
 using GameModeManager.Core;
 using CounterStrikeSharp.API;
@@ -23,9 +24,12 @@ namespace GameModeManager.Menus
         private MapChooserBridge _mapChooser;
         private MenuLanguages _languages;
 
+        private NextMapAnnouncer _nextMapAnnouncer;
+
         // Define class constructor
-        public ModeMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, VoteService voteService, MapChooserBridge mapChooser, MenuLanguages languages)
+        public ModeMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, VoteService voteService, MapChooserBridge mapChooser, MenuLanguages languages, NextMapAnnouncer nextMapAnnouncer)
         {
+            _nextMapAnnouncer = nextMapAnnouncer;
             _languages = languages;
             _localizer = localizer;
             _mapChooser = mapChooser;
@@ -162,7 +166,8 @@ namespace GameModeManager.Menus
             else if (!_mapChooser.SetNextMode(mode))
                 PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "admin.vote-unavailable");
             else
-                PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Success, "admin.done.nextmode", mode.Name);
+                if (!_nextMapAnnouncer.Announces())   // The announcement to everyone tells the admin too
+                    PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Success, "admin.done.nextmode", mode.Name);
         }
 
         public void StartVote(CCSPlayerController player, IMode mode)
