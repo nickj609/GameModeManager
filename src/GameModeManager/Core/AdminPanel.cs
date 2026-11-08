@@ -228,11 +228,6 @@ namespace GameModeManager.Core
             Call("LogCommand", p => p.Length == 2 && p[1].ParameterType == typeof(string), player, logged);
         }
 
-        private string MarkCurrent(string name, bool current)
-        {
-            return current ? $"{name} · {_localizer.Localize("admin.current")}" : name;
-        }
-
         // Define menus
         private object MapsMenu(CCSPlayerController player)
         {
@@ -261,7 +256,7 @@ namespace GameModeManager.Core
             foreach (IMap map in _pluginState.Game.CurrentMode.Maps.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
                 bool current = _pluginState.Game.CurrentMap.Equals(map);
-                AddOption(menu, MarkCurrent(map.DisplayName, current), p => Act(p, $"{(next ? "setnextmap" : "ggmap")} {map.Name}", () =>
+                AddOption(menu, map.DisplayName, p => Act(p, $"{(next ? "setnextmap" : "ggmap")} {map.Name}", () =>
                 {
                     if (!next)
                         _mapMenus.ChangeMap(p, map);
@@ -282,7 +277,7 @@ namespace GameModeManager.Core
             foreach (IMap map in _pluginState.Game.CurrentMode.Maps.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
                 bool current = _pluginState.Game.CurrentMap.Equals(map);
-                AddOption(menu, MarkCurrent(map.DisplayName, current), p => Act(p, $"vote \"{map.Name}\"", () => _mapMenus.StartVote(p, map)), current);
+                AddOption(menu, map.DisplayName, p => Act(p, $"vote \"{map.Name}\"", () => _mapMenus.StartVote(p, map)), current);
             }
             return menu;
         }
@@ -305,7 +300,7 @@ namespace GameModeManager.Core
             foreach (IMode mode in _pluginState.Game.Modes.Values.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
             {
                 bool current = _pluginState.Game.CurrentMode.Equals(mode);
-                AddOption(menu, MarkCurrent(mode.Name, current), p => Act(p, $"vote \"{mode.Name}\"", () => _modeMenus.StartVote(p, mode)), current);
+                AddOption(menu, mode.Name, p => Act(p, $"vote \"{mode.Name}\"", () => _modeMenus.StartVote(p, mode)), current);
             }
             return menu;
         }
@@ -317,7 +312,7 @@ namespace GameModeManager.Core
             foreach (IMode mode in _pluginState.Game.Modes.Values.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
             {
                 bool current = _pluginState.Game.CurrentMode.Equals(mode);
-                AddOption(menu, MarkCurrent(mode.Name, current), p => Act(p, $"css_mode \"{mode.Name}\"", () => _modeMenus.ChangeMode(p, mode)), current);
+                AddOption(menu, mode.Name, p => Act(p, $"css_mode \"{mode.Name}\"", () => _modeMenus.ChangeMode(p, mode)), current);
             }
             return menu;
         }
@@ -327,7 +322,7 @@ namespace GameModeManager.Core
             object menu = NewMenu(_localizer.Localize("admin.next-mode"), player);
             foreach (IMode mode in _pluginState.Game.Modes.Values.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
             {
-                AddOption(menu, MarkCurrent(mode.Name, _pluginState.Game.CurrentMode.Equals(mode)), p => Act(p, $"setnextmap {mode.Name}", () =>
+                AddOption(menu, mode.Name, p => Act(p, $"setnextmap {mode.Name}", () =>
                 {
                     if (!_mapChooser.SetNextMode(mode))
                         PlayerFeedback.Send(p, _localizer, "notify.mode", MenuNotice.Warning, "admin.vote-unavailable");
@@ -450,12 +445,12 @@ namespace GameModeManager.Core
                 foreach (int choice in choices)
                 {
                     string label = text(choice);
-                    AddOption(page, MarkCurrent(label, choice == read()), p =>
+                    AddOption(page, label, p =>
                     {
                         write(choice);
                         PlayerFeedback.Send(p, _localizer, "notify.rotation", MenuNotice.Success, "admin.done.value-set", name, label);
                         ReopenRotation(p, $"{key} {choice}");
-                    });
+                    }, choice == read());   // The current value is greyed out
                 }
                 return page;
             });

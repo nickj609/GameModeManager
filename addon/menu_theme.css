@@ -89,12 +89,31 @@
 	margin-bottom: 4px;
 }
 
-/* The dropdown in the menu's own colours: its dark background and faint outline, a subtle hover, and the current choice in
-   the orange accent. Panorama draws these whites about 4x stronger than a browser. */
+/* The dropdown in the menu's own colours: a dark background a little lighter than the menu, so it stands out over it, its
+   faint outline, a subtle hover, and the current choice in the orange accent. Panorama draws these whites about 4x stronger
+   than a browser. */
 .utils-select-menu
 {
-	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(24, 24, 26, 0.98) ), to( rgba(12, 12, 14, 0.98) ) );
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(36, 36, 39, 0.98) ), to( rgba(24, 24, 26, 0.98) ) );
 	border: 1px solid #ffffff14;
+}
+
+/* Greyed out: the current map, mode or language, which can't be picked again. A plain row with grey text, like the admin
+   panel's, instead of PMM's dashed outline on dark blue. */
+.utils-item.is-disabled,
+.utils-item.is-disabled:hover,
+.utils-item.is-disabled:active,
+.utils-item.is-disabled.is-focus
+{
+	background-color: btn-bg;
+	border: 0px solid transparent;
+}
+
+.utils-item.is-disabled .utils-item-label,
+.utils-item.is-disabled:hover .utils-item-label,
+.utils-item.is-disabled.is-focus .utils-item-label
+{
+	color: #6e6e73;
 }
 
 .utils-opt:hover
