@@ -4,7 +4,8 @@
 .sa-root
 {
 	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) ) );
-	border: 1px solid #ffffff0d; /* Fainter than the vote panel's, so it barely shows around the red header. Panorama gives a border one colour on every side. */
+	border: 1px solid #ffffff14; /* The vote panel's outline. The red header covers it, below. */
+	overflow: noclip noclip; /* So the header can reach over the outline. Nothing else in the panel goes past its edge. */
 	world-blur: gaussian(2, 2, 2); /* Like the menus: the game behind is blurred, so the panel looks the same over bright maps */
 }
 
@@ -32,3 +33,23 @@
 {
 	background-color: #ffffff12;
 }
+
+/* The red header reaches over the outline at the top and sides, so there's no light line around it. The panel is always 460px
+   wide, so the header is too, starting 1px left of it. Its top corners are rounded like the panel's, which no longer clips them. */
+.sa-head
+{
+	width: 460px;
+	margin: -1px 0px 0px -1px;
+	border-radius: 6px 6px 0px 0px;
+}
+
+/* The menus' greys for the text, instead of PMM_SimpleAdmin's reddish ones. The header, icons, keys and danger rows stay red. */
+.sa-title { color: #f2f2f2; }
+.sa-lab { color: #ececec; }
+.sa-crumb { color: #9a9a9e; }
+.sa-sub { color: #b0b0b4; }
+.sa-hint { color: #b0b0b4; }
+.sa-pill { color: #b0b0b4; }
+.sa-arrow { color: #9a9a9e; }
+.sa-ft { color: #c8c8cc; }
+.sa-row.r-dim .sa-lab, .sa-row.r-dis .sa-lab { color: #6e6e73; }
