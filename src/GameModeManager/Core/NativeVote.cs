@@ -32,7 +32,7 @@ namespace GameModeManager.Core
         private const int UserMessageVoteStart = 346;
         private const int UserMessageVoteFailed = 348;
         private const int ServerSlot = 99; // The panel's "Vote by: Server"
-        private const int ChangeLevelVoteType = 1; // The game's change level vote: the panel shows its icon, not the CS logo
+        private const int ChangeLevelVoteType = 2; // Checked in game: 0 shows the kick icon, 2 the change level icon. -1 (no type) shows the CS logo.
         private const string ChangeLevelToken = "#SFUI_vote_changelevel"; // Built into every client: "Change current level to {s:s1}?"
         private CVoteController? _controller;
         private HashSet<int> _voterSlots = new();
