@@ -31,6 +31,7 @@ namespace GameModeManager.Core
         private const int VoteCastRemoved = 5;
         private const int UserMessageVoteStart = 346;
         private const int UserMessageVoteFailed = 348;
+        private const int ServerSlot = 99; // The panel's "Vote by: Server"
         private const string ChangeLevelToken = "#SFUI_vote_changelevel"; // Built into every client: "Change current level to {s:s1}?"
         private CVoteController? _controller;
         private HashSet<int> _voterSlots = new();
@@ -46,8 +47,9 @@ namespace GameModeManager.Core
         }
 
         // Define class methods
-        // Shows the panel to the given players. Ballots are reported through onBallot (true = yes).
-        public bool Start(List<CCSPlayerController> voters, string? token, string details, Action<CCSPlayerController, bool> onBallot)
+        // Shows the panel to the given players. Ballots are reported through onBallot (true = yes). The panel says 'Vote by' the
+        // caller, or the server when there's none.
+        public bool Start(List<CCSPlayerController> voters, string? token, string details, Action<CCSPlayerController, bool> onBallot, CCSPlayerController? caller = null)
         {
             if (Active)
                 return false;
@@ -85,7 +87,7 @@ namespace GameModeManager.Core
                 var filter = new RecipientFilter { player };
                 var message = UserMessage.FromId(UserMessageVoteStart);
                 message.SetInt("team", -1);
-                message.SetInt("player_slot", 99);
+                message.SetInt("player_slot", caller != null && caller.IsValid ? caller.Slot : ServerSlot);
                 message.SetInt("vote_type", -1);
                 message.SetString("disp_str", token ?? ChangeLevelToken);
                 message.SetString("details_str", details);

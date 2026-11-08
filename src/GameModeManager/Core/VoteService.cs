@@ -134,7 +134,7 @@ namespace GameModeManager.Core
 
             if (vote.Native)
             {
-                if (!_nativeVote.Start(voters, titleToken, vote.NativeSubject, Ballot))
+                if (!_nativeVote.Start(voters, titleToken, vote.NativeSubject, Ballot, caller))
                 {
                     _logger.LogWarning("Native vote could not start; falling back to the menu");
                     vote.Native = false;
