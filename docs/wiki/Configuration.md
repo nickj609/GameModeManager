@@ -5,7 +5,7 @@
 	
 ```json
 {
-  "Version": 15,
+  "Version": 16,
   "WorkshopAddon": "3831211166",
   "Maps": {
     "Delay": 5,
@@ -29,7 +29,8 @@
     "TriggerSecondsBeforeEnd": 60,
     "TriggerKillsBeforeEnd": 13,
     "Rtv": true,
-    "ModesInVotes": true
+    "ModesInVotes": true,
+    "NextMapMessages": true
   },
   "AdminPanel": {
     "Enabled": true,
@@ -78,6 +79,8 @@
     "CustomTimeLimit": 600,
     "ModeRotation": false,
     "ModeInterval": 4,
+    "ModeVote": "random",
+    "CountSkippedMaps": false,
     "ModeSchedules": false,
     "Schedule": [
       {
@@ -429,6 +432,7 @@ These settings control how GameModeManager works with [GG1MapChooser](https://gi
 | TriggerKillsBeforeEnd | Arms race: starts the end-of-map vote when the leader has this many kills.                                                              |
 | Rtv                 | Lets players use `!rtv` and `!nominate`. Added in 2.1.0. Off doesn't affect end-of-map votes or rotations.                               |
 | ModesInVotes        | Offers one random other mode in votes and `!nominate`, reshuffled every map.                                                              |
+| NextMapMessages     | GameModeManager announces the next map or mode as a notification and a chat line, with its display name, instead of GG1MapChooser's center message and chat line. GG1MapChooser's `!nextmap` reply is unchanged. Added in config version 16. |
 
 # Vote Settings
 These settings are for player votes (`!changemap`, `!changemode`, `!changesetting`).
@@ -497,6 +501,8 @@ Messages to everyone stay in chat.
 | CustomTimeLimit     | Custom time limit in seconds for rotations on server empty.                                                                               |
 | ModeRotation        | Enables game mode rotation. Turned off at load if ModeSchedules is on, because the schedule wins.                                         |
 | ModeInterval        | Changes game mode every x map rotations. (If ModeRotation is enabled)                                                                     |
+| ModeVote            | What happens on the map that ends with a mode change. `"random"`: no map vote, and a random mode at the end. `"vote"`: every vote on that map (end of map, `!rtv`, `!nominate`) lists only the modes in rotation, and the winner is the next mode (a random one when nobody votes). Players are told when the match starts. Added in config version 16. |
+| CountSkippedMaps    | Maps left early (RTV, an admin's map change) count toward ModeInterval too, so "every 4 maps" means any 4 maps. Off: only maps played to the end count. An early change to another mode on the map that was due counts either way, so the mode doesn't change twice. Added in config version 16. |
 | ModeSchedules       | Enables mode schedules. Wins over ModeRotation.                                                                                           |
 | Schedule            | Schedule for mode rotations (24-hr format in the server's local time)                                                                                    |
 
