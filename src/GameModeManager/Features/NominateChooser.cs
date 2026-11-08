@@ -136,7 +136,7 @@ namespace GameModeManager.Features
 
         private IMenu MapList(CCSPlayerController player, IMenu back)
         {
-            IMenu menu = MenuFactory.Api!.GetMenu(_localizer.Path("commands.menu-nominate", "nominate.maps"), p => back.Open(p));
+            IMenu menu = MenuFactory.Api!.GetMenu(_localizer.Localize("nominate.maps"), p => back.Open(p));
             foreach (IMap map in _pluginState.Game.CurrentMode.Maps.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
                 bool current = _pluginState.Game.IsCurrentMap(map);
@@ -153,7 +153,7 @@ namespace GameModeManager.Features
 
         private IMenu ModeList(CCSPlayerController player, IMenu back)
         {
-            IMenu menu = MenuFactory.Api!.GetMenu(_localizer.Path("commands.menu-nominate", "nominate.modes"), p => back.Open(p));
+            IMenu menu = MenuFactory.Api!.GetMenu(_localizer.Localize("nominate.modes"), p => back.Open(p));
             foreach (IMode mode in _pluginState.Game.Modes.Values.Where(m => _mapChooser.CanBeNextMode(m) && _mapChooser.InVotes(m)).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
                 AddRow(menu, player, mode.Name, mode.Name, false, p => NominateMode(p, mode));
             return menu;

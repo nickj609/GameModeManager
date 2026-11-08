@@ -40,8 +40,8 @@ namespace GameModeManager.Menus
         // The options run the warmup commands, which have the permission and arms race checks
         private IMenu? CreateMainMenu()
         {
-            IMenu? startMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.warmup", "admin.warmup-start"), player => MainMenu.Open(player));
-            IMenu? scheduleMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.warmup", "admin.warmup-schedule"), player => MainMenu.Open(player));
+            IMenu? startMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.warmup-start"), player => MainMenu.Open(player));
+            IMenu? scheduleMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.warmup-schedule"), player => MainMenu.Open(player));
 
             foreach (IMode _mode in _pluginState.Game.WarmupModes.Values)
             {

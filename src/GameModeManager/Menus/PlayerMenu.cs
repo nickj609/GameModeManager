@@ -72,7 +72,7 @@ namespace GameModeManager.Menus
         private IMenu? LanguageMenu(CCSPlayerController player)
         {
             using var _temporaryCulture = MenuLanguages.For(player);
-            IMenu? _menu = MenuFactory.Api?.GetMenu(_localizer.Path("commands.menu-title", "commands.menu-language"), p => MainMenu.Open(p));
+            IMenu? _menu = MenuFactory.Api?.GetMenu(_localizer.Localize("commands.menu-language"), p => MainMenu.Open(p));
             CultureInfo _current = player.GetLanguage();
 
             foreach (CultureInfo _culture in _languages)
