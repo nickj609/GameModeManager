@@ -3,7 +3,7 @@
    panel. The red header and accents stay, so admin tools still stand apart. ==== */
 .sa-root
 {
-	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) ) );
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(18, 18, 20, 0.92) ), color-stop( 0.1, rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) ) ); /* The menus' gradient, starting below the red header, which covers about the top tenth */
 	border: 1px solid #ffffff14; /* The vote panel's outline. The red header covers it, below. */
 	overflow: noclip noclip; /* So the header can reach over the outline. Nothing else in the panel goes past its edge. */
 	world-blur: gaussian(2, 2, 2); /* Like the menus: the game behind is blurred, so the panel looks the same over bright maps */
