@@ -18,6 +18,13 @@
 	world-blur: gaussian(2, 2, 2); /* Blurred behind like the menus: PMM only blurs the menu's background */
 }
 
+/* The success tick: PMM's long bar ends about half a pixel below and right of the short one, so the bottom looks flat and
+   smeared. 1px higher, its end lands on the short bar's, so the two meet in a sharp V. */
+.ntf-ok-long
+{
+	margin-bottom: 7px;
+}
+
 /* PMM never sets a description, but the empty line still takes up height */
 .utils-desc
 {
