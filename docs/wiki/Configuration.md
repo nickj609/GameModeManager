@@ -455,7 +455,7 @@ These settings are for player votes (`!changemap`, `!changemode`, `!changesettin
 
 # Notification Settings
 Messages meant for one player also show as a PanoramaMenuManager notification, in the player's language. Added in config version 15:
-- **The player's own action:** language set, vote cast, why a vote can't start, map not in the pool.
+- **The player's own action:** language set, vote cast (on the menu: the game's F1/F2 panel shows it itself), why a vote can't start, map not in the pool.
 - **What they asked for:** current map and mode, and, from the `!game` menu, the time, rounds or wins left and the next map (a warning when there's no limit or no next map yet).
 - **An admin's own change:** map, mode, setting, rotation option or warmup. Everyone still sees the change announced in chat.
 
