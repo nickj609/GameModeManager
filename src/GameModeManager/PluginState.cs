@@ -50,6 +50,8 @@ namespace GameModeManager
             public bool PerMapWarmup = false;
             public bool WarmupRunning = false;
             public IMap CurrentMap = DefaultMap;
+            // By name: only one map is loaded at a time, and the same map can be listed in two map groups with different workshop IDs
+            public bool IsCurrentMap(IMap map) => CurrentMap.Name.Equals(map.Name, StringComparison.OrdinalIgnoreCase);
             public bool RotationsEnabled = true;
             public bool RtvInMode = true;
             public bool RtvEnabled(Config config) => config.MapChooser.Rtv && RtvInMode;

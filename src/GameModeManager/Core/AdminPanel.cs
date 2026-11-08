@@ -242,7 +242,7 @@ namespace GameModeManager.Core
         private object MapListMenu(CCSPlayerController player, bool next)
         {
             object menu = NewMenu(_localizer.Localize(next ? "admin.next-map" : "admin.change-map"), player);
-            var maps = _pluginState.Game.CurrentMode.Maps.Where(m => !_pluginState.Game.CurrentMap.Equals(m)).ToList();
+            var maps = _pluginState.Game.CurrentMode.Maps.Where(m => !_pluginState.Game.IsCurrentMap(m)).ToList();
 
             if (!next && maps.Count > 0)
             {
@@ -255,7 +255,7 @@ namespace GameModeManager.Core
 
             foreach (IMap map in _pluginState.Game.CurrentMode.Maps.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
-                bool current = _pluginState.Game.CurrentMap.Equals(map);
+                bool current = _pluginState.Game.IsCurrentMap(map);
                 AddOption(menu, map.DisplayName, p => Act(p, $"{(next ? "setnextmap" : "ggmap")} {map.Name}", () =>
                 {
                     if (!next)
@@ -276,7 +276,7 @@ namespace GameModeManager.Core
             AddOption(menu, _localizer.Localize("admin.random-vote"), p => Act(p, "ggmc_mapvote_start", () => _mapMenus.StartVote(p)));
             foreach (IMap map in _pluginState.Game.CurrentMode.Maps.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
-                bool current = _pluginState.Game.CurrentMap.Equals(map);
+                bool current = _pluginState.Game.IsCurrentMap(map);
                 AddOption(menu, map.DisplayName, p => Act(p, $"vote \"{map.Name}\"", () => _mapMenus.StartVote(p, map)), current);
             }
             return menu;

@@ -73,7 +73,7 @@ namespace GameModeManager.Menus
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     ChangeMap(player, _map);
-                }, _pluginState.Game.CurrentMap.Equals(_map));   // The current map is greyed out
+                }, _pluginState.Game.IsCurrentMap(_map));   // The current map is greyed out
             }
 
             // GG1's next map: it changes at the end of the match
@@ -84,7 +84,7 @@ namespace GameModeManager.Menus
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     SetNextMap(player, _map);
-                }, _pluginState.Game.CurrentMap.Equals(_map));   // The current map is greyed out
+                }, _pluginState.Game.IsCurrentMap(_map));   // The current map is greyed out
             }
 
             IMenu? voteMenu = CreateVoteMenu(player => MainMenu.Open(player), StartVote);
@@ -114,7 +114,7 @@ namespace GameModeManager.Menus
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     StartVote(player, _map);
-                }, _pluginState.Game.CurrentMap.Equals(_map));   // The current map is greyed out
+                }, _pluginState.Game.IsCurrentMap(_map));   // The current map is greyed out
             }
             return menu;
         }
@@ -129,7 +129,7 @@ namespace GameModeManager.Menus
 
         public void StartVote(CCSPlayerController player, IMap map)
         {
-            if (_pluginState.Game.CurrentMap.Equals(map))
+            if (_pluginState.Game.IsCurrentMap(map))
             {
                 PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "general.validation.current");
                 return;
@@ -139,7 +139,7 @@ namespace GameModeManager.Menus
 
         public void SetNextMap(CCSPlayerController player, IMap map)
         {
-            if (_pluginState.Game.CurrentMap.Equals(map))
+            if (_pluginState.Game.IsCurrentMap(map))
                 PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "general.validation.current");
             else if (!_mapChooser.SetNextMap(map))
                 PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");
