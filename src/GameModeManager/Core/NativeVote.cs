@@ -50,7 +50,7 @@ namespace GameModeManager.Core
         // Define class methods
         // Shows the panel to the given players. Ballots are reported through onBallot (true = yes). The panel says 'Vote by' the
         // caller, or the server when there's none.
-        public bool Start(List<CCSPlayerController> voters, string? token, string details, Action<CCSPlayerController, bool> onBallot, CCSPlayerController? caller = null, int voteType = ChangeLevelVoteType)
+        public bool Start(List<CCSPlayerController> voters, string? token, string details, Action<CCSPlayerController, bool> onBallot, CCSPlayerController? caller = null)
         {
             if (Active)
                 return false;
@@ -89,7 +89,7 @@ namespace GameModeManager.Core
                 var message = UserMessage.FromId(UserMessageVoteStart);
                 message.SetInt("team", -1);
                 message.SetInt("player_slot", caller != null && caller.IsValid ? caller.Slot : ServerSlot);
-                message.SetInt("vote_type", voteType);
+                message.SetInt("vote_type", ChangeLevelVoteType);
                 message.SetString("disp_str", token ?? ChangeLevelToken);
                 message.SetString("details_str", details);
                 message.SetBool("is_yes_no_vote", true);
