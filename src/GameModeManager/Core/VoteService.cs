@@ -47,7 +47,6 @@ namespace GameModeManager.Core
         // Define class properties
         private ActiveVote? _vote;
         private readonly Dictionary<ulong, DateTime> _lastStarted = new();
-        public bool InProgress => _vote != null;
 
         private class ActiveVote
         {

@@ -91,7 +91,6 @@
   "admin.rotation-minutes": "{0} min",
   "changemap.message": "Beheerder {LIGHTRED}{0}{DEFAULT} heeft de kaart gewijzigd naar {LIGHTRED}{1}{DEFAULT}.",
   "admin.warmup-scheduled": "Opwarmronde {GREEN}{0}{DEFAULT} gepland.",
-  "admin.current": "huidig",
   "language.changed": "Taal ingesteld op {GOLD}{0}{DEFAULT}.",
   "notify.language": "Taal",
   "notify.map": "Kaart",

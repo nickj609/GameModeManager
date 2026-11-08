@@ -91,7 +91,6 @@
   "admin.rotation-minutes": "{0} Min.",
   "changemap.message": "Admin {LIGHTRED}{0}{DEFAULT} hat die Karte zu {LIGHTRED}{1}{DEFAULT} geändert.",
   "admin.warmup-scheduled": "Aufwärmphase {GREEN}{0}{DEFAULT} geplant.",
-  "admin.current": "aktuell",
   "language.changed": "Sprache auf {GOLD}{0}{DEFAULT} gesetzt.",
   "notify.language": "Sprache",
   "notify.map": "Karte",

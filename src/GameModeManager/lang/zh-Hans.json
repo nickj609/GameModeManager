@@ -91,7 +91,6 @@
   "admin.rotation-minutes": "{0} 分钟",
   "changemap.message": "管理员{LIGHTRED}{0}{DEFAULT}已将地图更改为{LIGHTRED}{1}{DEFAULT}",
   "admin.warmup-scheduled": "已安排热身 {GREEN}{0}{DEFAULT}。",
-  "admin.current": "当前",
   "language.changed": "语言已设置为{GOLD}{0}{DEFAULT}。",
   "notify.language": "语言",
   "notify.map": "地图",

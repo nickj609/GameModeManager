@@ -91,7 +91,6 @@
   "admin.rotation-minutes": "{0} min",
   "changemap.message": "El administrador {LIGHTRED}{0}{DEFAULT} ha cambiado el mapa a {LIGHTRED}{1}{DEFAULT}.",
   "admin.warmup-scheduled": "Calentamiento {GREEN}{0}{DEFAULT} programado.",
-  "admin.current": "actual",
   "language.changed": "Idioma cambiado a {GOLD}{0}{DEFAULT}.",
   "notify.language": "Idioma",
   "notify.map": "Mapa",
