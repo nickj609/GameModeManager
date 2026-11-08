@@ -139,7 +139,7 @@ namespace GameModeManager.Features
             IMenu menu = MenuFactory.Api!.GetMenu(_localizer.Localize("nominate.maps"), p => back.Open(p));
             foreach (IMap map in _pluginState.Game.CurrentMode.Maps.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
-                bool current = _pluginState.Game.CurrentMap.Equals(map);
+                bool current = _pluginState.Game.IsCurrentMap(map);
                 AddRow(menu, player, map.Name, map.DisplayName, current, p =>
                 {
                     if (_mapChooser.NominationsOpen())
@@ -170,7 +170,7 @@ namespace GameModeManager.Features
             else if (!available)
                 label = $"{name} · {_localizer.Localize("nominate.unavailable")}";
 
-            menu.AddMenuOption(label, (p, option) =>
+            MenuActions.Add(menu, label, (p, option) =>
             {
                 MenuFactory.Api?.CloseMenu(p);
                 pick(p);

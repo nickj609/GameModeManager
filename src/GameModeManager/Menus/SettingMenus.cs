@@ -84,7 +84,7 @@ namespace GameModeManager.Menus
 
             foreach (ISetting _setting in _pluginState.Game.Settings.Values)
             {
-                menu?.AddMenuOption(_setting.DisplayName, (player, option) =>
+                MenuActions.Add(menu, _setting.DisplayName, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     ChangeSetting(player, _setting, enable);
@@ -116,8 +116,8 @@ namespace GameModeManager.Menus
         public void StartVote(CCSPlayerController player, ISetting setting, bool enable)
         {
             _voteService.StartYesNo(player, () => _localizer.Localize(enable ? "vote.enable-setting" : "vote.disable-setting", setting.DisplayName),
-                () => Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}"),
-                $"{_localizer.Localize(enable ? "menu.enable" : "menu.disable")} {setting.DisplayName}");
+                () => Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}"));
+            // The menu vote: the game's panel can only say "Change current level to"
         }
 
         // Define vote methods
@@ -129,12 +129,12 @@ namespace GameModeManager.Menus
             if (menu == null)
                 return;
 
-            menu.AddMenuOption(_localizer.Localize("menu.enable"), (p, option) =>
+            MenuActions.Add(menu, _localizer.Localize("menu.enable"), (p, option) =>
             {
                 MenuFactory.Api?.CloseMenu(p);
                 StartVote(p, setting, true);
             });
-            menu.AddMenuOption(_localizer.Localize("menu.disable"), (p, option) =>
+            MenuActions.Add(menu, _localizer.Localize("menu.disable"), (p, option) =>
             {
                 MenuFactory.Api?.CloseMenu(p);
                 StartVote(p, setting, false);

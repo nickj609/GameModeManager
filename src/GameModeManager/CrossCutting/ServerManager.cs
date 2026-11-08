@@ -222,13 +222,14 @@ namespace GameModeManager.CrossCutting
             if (MapChanging)
                 return;
 
-            bool modeDue = _config.Rotation.ModeRotation &&
-                _pluginState.Game.MapRotations != 0 && _pluginState.Game.MapRotations % _config.Rotation.ModeInterval == 0;
+            bool modeDue = _mapChooser.ModeChangeDue();
             _pluginState.Game.MapRotations++;
+            _pluginState.Game.RotationStarted = true;
 
-            // A rotation has to end up somewhere else: not the current mode, and not a mode with no maps
-            List<IMode> modes = _pluginState.Game.Modes.Values.Where(mode => !mode.Equals(_pluginState.Game.CurrentMode) && mode.Maps.Count > 0 && _config.GameModes.InRotation(mode.Name)).ToList();
-            if (!modeDue || modes.Count == 0)
+            // A rotation has to end up somewhere else: not the current mode, and not a mode with no maps.
+            // ModeVote "vote": GG1's pool is only modes on this map, so its winner (or random pick) is the new mode.
+            List<IMode> modes = _mapChooser.RotationModes();
+            if (!modeDue || modes.Count == 0 || _mapChooser.ModesOnly)
             {
                 ChangeMap(_config.Maps.Delay, ChangeToNextMap);
                 return;
@@ -255,6 +256,16 @@ namespace GameModeManager.CrossCutting
             {
                 if (_mapChooser.Available && _mapChooser.MapChanging() != false)
                     return;
+
+                // A modes-only pool means the mode is changing: a random one of the rotation's modes
+                List<IMode> modes = _mapChooser.RotationModes();
+                if (_mapChooser.ModesOnly && modes.Count > 0)
+                {
+                    IMode nextMode = modes[Random.Shared.Next(modes.Count)];
+                    _logger.LogWarning("GG1MapChooser has no next mode: changing to {Mode}.", nextMode.Name);
+                    ChangeMode(nextMode, 0);
+                    return;
+                }
 
                 IMap nextMap = GetRandomMap(_pluginState.Game.CurrentMode);
                 _logger.LogWarning("GG1MapChooser has no next map: changing to {Map}.", nextMap.Name);
