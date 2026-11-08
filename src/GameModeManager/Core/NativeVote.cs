@@ -32,6 +32,7 @@ namespace GameModeManager.Core
         private const int UserMessageVoteStart = 346;
         private const int UserMessageVoteFailed = 348;
         private const int ServerSlot = 99; // The panel's "Vote by: Server"
+        private const int ChangeLevelVoteType = 1; // The game's change level vote: the panel shows its icon, not the CS logo
         private const string ChangeLevelToken = "#SFUI_vote_changelevel"; // Built into every client: "Change current level to {s:s1}?"
         private CVoteController? _controller;
         private HashSet<int> _voterSlots = new();
@@ -88,7 +89,7 @@ namespace GameModeManager.Core
                 var message = UserMessage.FromId(UserMessageVoteStart);
                 message.SetInt("team", -1);
                 message.SetInt("player_slot", caller != null && caller.IsValid ? caller.Slot : ServerSlot);
-                message.SetInt("vote_type", -1);
+                message.SetInt("vote_type", ChangeLevelVoteType);
                 message.SetString("disp_str", token ?? ChangeLevelToken);
                 message.SetString("details_str", details);
                 message.SetBool("is_yes_no_vote", true);
@@ -128,7 +129,7 @@ namespace GameModeManager.Core
             {
                 var message = UserMessage.FromPartialName("VotePass");
                 message.SetInt("team", -1);
-                message.SetInt("vote_type", 1);
+                message.SetInt("vote_type", ChangeLevelVoteType);
                 message.SetString("disp_str", "#SFUI_vote_passed");
                 message.SetString("details_str", details);
                 message.Send(filter);
