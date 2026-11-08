@@ -70,7 +70,7 @@ Players choose what to play next with [GG1MapChooser](https://github.com/ssypche
 
 Admins can start a random vote or a yes/no vote from **Start vote** in `!maps`, `!modes` and the admin menu.
 
-With `Votes.Style` set to `"native"`, yes/no votes like `!changemap de_dust2` use the game's own F1/F2 vote panel instead of a menu. It shows who started the vote.
+With `Votes.Style` set to `"native"`, map votes like `!changemap de_dust2` use the game's own F1/F2 vote panel instead of a menu. It shows who started the vote. Mode and setting votes stay on the menu, because the game's panel can only ask "Change current level to …?".
 
 ![Yes/no vote on the game's F1/F2 panel](docs/images/vote-native.png)
 
