@@ -22,7 +22,8 @@
     "Cooldown": 60,
     "AllowSpectators": false,
     "AllowInWarmup": false,
-    "NativeTitleToken": ""
+    "NativeTitleToken": "",
+    "NativeQuestions": false
   },
   "MapChooser": {
     "GeneratePools": true,
@@ -449,7 +450,15 @@ These settings are for player votes (`!changemap`, `!changemode`, `!changesettin
 | Cooldown            | Seconds before the same player can start another vote.                                                                                    |
 | AllowSpectators     | Lets spectators vote, and counts them towards the percentage.                                                                             |
 | AllowInWarmup       | Allows votes during warmup.                                                                                                               |
-| NativeTitleToken    | Native panel title from `platform_english.txt` on the server and every player's PC. Empty = the game's "Change current level to X?".      |
+| NativeTitleToken    | Text the F1/F2 panel shows. Empty = the game's own "Change current level to X?" for map and mode votes. `#SFUI_vote_panorama_vote_default` = each vote's own title for map, mode and setting votes. Needs the file below on every player's PC. |
+| NativeQuestions     | `true` puts `!vote` questions on the F1/F2 panel too, when NativeTitleToken is set. `false` (default) keeps them on the menu.            |
+
+**Custom vote panel text needs a file on every player's PC.** The game looks the panel's text up on each player's computer, not on the server, and it opens no panel at all for a text it doesn't know. With `NativeTitleToken` set:
+
+1. Every player copies `csgo/resource/platform_english.txt` from the GameModeManager release (the same file GG1MapChooser ships in `Resources/`) to `Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\resource\` on their PC. If a `platform_english.txt` is already there, add the `SFUI_vote_panorama_vote_*` lines to it.
+2. They restart CS2. The game reads the file only at startup.
+
+A player without the file sees no vote panel and can't vote, and Steam's "Verify integrity of game files" can remove it. The menu addon (`tools/build-menu-addon.ps1`) also carries the file, but the game may read it only at startup, before the addon loads, so don't count on that. Keep `NativeTitleToken` empty on public servers.
 
 # Admin Panel Settings
 | Setting             | Description                                                                                                                               |

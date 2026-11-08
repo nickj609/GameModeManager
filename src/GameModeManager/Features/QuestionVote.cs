@@ -72,7 +72,7 @@ namespace GameModeManager.Features
                 if (arguments.Count > MaxYesNoArguments)
                     _voteService.StartChoice(player, arguments[0], arguments.Skip(1).Distinct(StringComparer.OrdinalIgnoreCase).ToList());
                 else
-                    _voteService.StartYesNo(player, string.Join(' ', arguments), () => { });
+                    _voteService.StartYesNo(player, string.Join(' ', arguments), () => { }, allowNative: _config.Votes.NativeQuestions);
             });
             return HookResult.Handled;
         }

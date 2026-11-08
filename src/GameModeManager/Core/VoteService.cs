@@ -103,19 +103,20 @@ namespace GameModeManager.Core
 
         // Starts a yes/no vote. title is already localized (chat colours allowed). Returns false and tells the caller why
         // when the vote can't start.
-        public bool StartYesNo(CCSPlayerController caller, string title, Action onPassed, string? nativeSubject = null)
+        public bool StartYesNo(CCSPlayerController caller, string title, Action onPassed, string? nativeSubject = null, bool allowNative = true)
         {
-            return StartYesNo(caller, () => title, onPassed, nativeSubject);
+            return StartYesNo(caller, () => title, onPassed, nativeSubject, allowNative);
         }
 
         // The same, with a title localized for each voter's menu. Chat and the native panel use the server's language.
-        public bool StartYesNo(CCSPlayerController caller, Func<string> localizedTitle, Action onPassed, string? nativeSubject = null)
+        // allowNative false keeps the vote on the menu whatever the style.
+        public bool StartYesNo(CCSPlayerController caller, Func<string> localizedTitle, Action onPassed, string? nativeSubject = null, bool allowNative = true)
         {
             if (!CanStart(caller, out var voters))
                 return false;
 
             string title = localizedTitle();
-            string? titleToken = string.IsNullOrWhiteSpace(_config.Votes.NativeTitleToken) ? null : _config.Votes.NativeTitleToken;
+            string? titleToken = !allowNative || string.IsNullOrWhiteSpace(_config.Votes.NativeTitleToken) ? null : _config.Votes.NativeTitleToken;
             var vote = new ActiveVote
             {
                 Title = title,
