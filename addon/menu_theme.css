@@ -15,6 +15,7 @@
 .utils-notify
 {
 	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(28, 28, 31, 0.95) ), to( rgba(14, 14, 16, 0.96) ) );
+	world-blur: gaussian(2, 2, 2); /* Blurred behind like the menus: PMM only blurs the menu's background */
 }
 
 /* PMM never sets a description, but the empty line still takes up height */
