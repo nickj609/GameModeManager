@@ -18,16 +18,19 @@ namespace GameModeManager.Core
         private const BindingFlags AnyInstance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         private static readonly Regex Tags = new(@"\{[A-Za-z_]+\}|<[^>]{1,40}>", RegexOptions.Compiled); // PMM_SimpleAdmin's TagRx
 
+        public static int Learned { get; private set; } // Arrows set since the plugin loaded, for css_gmm_status
+
         // Define class methods
         // The row "text" on the page "menu" opens a page. Does nothing when PMM_SimpleAdmin isn't loaded.
         public static void Learn(object menu, string text)
         {
             try
             {
-                if (menu.GetType().GetProperty("Title")?.GetValue(menu) is not string title || Arrows() is not IDictionary<string, bool> arrows)
+                if (Title(menu) is not string title || Arrows() is not IDictionary<string, bool> arrows)
                     return;
 
                 arrows[Head(Clean(title)) + "\u0001" + Clean(text)] = true;
+                Learned++;
             }
             catch
             {
@@ -35,13 +38,29 @@ namespace GameModeManager.Core
             }
         }
 
-        // PMM_SimpleAdmin's running plugin and its learned rows
+        // The page's title as the panel gets it. CS2-SimpleAdmin's API hands out its MenuBuilder, which keeps the title in _title
+        // and localizes it when the page opens (GetLocalizedTitle): the menu the panel draws has that title.
+        private static string? Title(object menu)
+        {
+            Type type = menu.GetType();
+            if (type.GetMethod("GetLocalizedTitle", AnyInstance, Type.EmptyTypes) is MethodInfo localized && localized.Invoke(menu, null) is string title)
+                return title;
+
+            return type.GetField("_title", AnyInstance)?.GetValue(menu) as string ?? type.GetProperty("Title")?.GetValue(menu) as string;
+        }
+
+        // PMM_SimpleAdmin's running plugin and its learned rows. The last loaded copy with a plugin: a hot reload can leave an
+        // older one loaded.
         private static IDictionary<string, bool>? Arrows()
         {
-            Type? type = AppDomain.CurrentDomain.GetAssemblies()
-                .FirstOrDefault(assembly => assembly.GetName().Name == "PMM_SimpleAdmin")?.GetType("PMM_SimpleAdmin.Plugin");
-            object? plugin = type?.GetField("Instance", AnyStatic)?.GetValue(null);
-            return plugin == null ? null : type!.GetField("_arrows", AnyInstance)?.GetValue(plugin) as IDictionary<string, bool>;
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == "PMM_SimpleAdmin").Reverse())
+            {
+                Type? type = assembly.GetType("PMM_SimpleAdmin.Plugin");
+                object? plugin = type?.GetField("Instance", AnyStatic)?.GetValue(null);
+                if (plugin != null && type!.GetField("_arrows", AnyInstance)?.GetValue(plugin) is IDictionary<string, bool> arrows)
+                    return arrows;
+            }
+            return null;
         }
 
         // The same cleaning as PMM_SimpleAdmin: no colour tags or short HTML, one line
