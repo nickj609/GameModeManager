@@ -50,7 +50,12 @@ namespace GameModeManager.Features
             if (_maxRounds > 0)
                 _parts.Add(_localizer.Localize("timeleft.rounds", Math.Max(0, _maxRounds - _gameRules.TotalRoundsPlayed)));
 
+            // Wins a team still needs: mp_winlimit, else more than half of mp_maxrounds when the match can be clinched (the
+            // game's default), like GG1MapChooser counts them
             int _winLimit = ConVar.Find("mp_winlimit")?.GetPrimitiveValue<int>() ?? 0;
+            bool _canClinch = ConVar.Find("mp_match_can_clinch")?.GetPrimitiveValue<bool>() ?? true;
+            if (_winLimit <= 0 && _maxRounds > 0 && _canClinch)
+                _winLimit = _maxRounds / 2 + 1;
             if (_winLimit > 0)
                 _parts.Add(_localizer.Localize("timeleft.wins", Math.Max(0, _winLimit - HighestTeamScore())));
 

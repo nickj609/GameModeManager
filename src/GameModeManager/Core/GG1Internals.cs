@@ -30,6 +30,10 @@ namespace GameModeManager.Core
         public bool Available => FindMapChooser() != null;
         public Assembly? Assembly => FindMapChooser()?.GetType().Assembly;
 
+        // GG1's plugin folder. Not its assembly's Location: CounterStrikeSharp loads plugins for hot reload, from memory, so
+        // that's empty.
+        public string? ModuleDirectory => (FindMapChooser() as BasePlugin)?.ModuleDirectory;
+
         // Define class methods
         // GG1's public API object (capability ggmc:api), found without a compile-time reference
         private static object? FindApi()

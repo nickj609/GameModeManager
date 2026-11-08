@@ -136,10 +136,10 @@ namespace GameModeManager.Features
 
         private IMenu MapList(CCSPlayerController player, IMenu back)
         {
-            IMenu menu = MenuFactory.Api!.GetMenu(_localizer.Path("commands.menu-nominate", "nominate.maps"), p => back.Open(p));
+            IMenu menu = MenuFactory.Api!.GetMenu(_localizer.Localize("nominate.maps"), p => back.Open(p));
             foreach (IMap map in _pluginState.Game.CurrentMode.Maps.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
-                bool current = _pluginState.Game.CurrentMap.Equals(map);
+                bool current = _pluginState.Game.IsCurrentMap(map);
                 AddRow(menu, player, map.Name, map.DisplayName, current, p =>
                 {
                     if (_mapChooser.NominationsOpen())
@@ -153,7 +153,7 @@ namespace GameModeManager.Features
 
         private IMenu ModeList(CCSPlayerController player, IMenu back)
         {
-            IMenu menu = MenuFactory.Api!.GetMenu(_localizer.Path("commands.menu-nominate", "nominate.modes"), p => back.Open(p));
+            IMenu menu = MenuFactory.Api!.GetMenu(_localizer.Localize("nominate.modes"), p => back.Open(p));
             foreach (IMode mode in _pluginState.Game.Modes.Values.Where(m => _mapChooser.CanBeNextMode(m) && _mapChooser.InVotes(m)).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
                 AddRow(menu, player, mode.Name, mode.Name, false, p => NominateMode(p, mode));
             return menu;
@@ -170,7 +170,7 @@ namespace GameModeManager.Features
             else if (!available)
                 label = $"{name} · {_localizer.Localize("nominate.unavailable")}";
 
-            menu.AddMenuOption(label, (p, option) =>
+            MenuActions.Add(menu, label, (p, option) =>
             {
                 MenuFactory.Api?.CloseMenu(p);
                 pick(p);

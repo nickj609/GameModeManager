@@ -72,15 +72,15 @@ namespace GameModeManager.Menus
         private IMenu? LanguageMenu(CCSPlayerController player)
         {
             using var _temporaryCulture = MenuLanguages.For(player);
-            IMenu? _menu = MenuFactory.Api?.GetMenu(_localizer.Path("commands.menu-title", "commands.menu-language"), p => MainMenu.Open(p));
+            IMenu? _menu = MenuFactory.Api?.GetMenu(_localizer.Localize("commands.menu-language"), p => MainMenu.Open(p));
             CultureInfo _current = player.GetLanguage();
 
             foreach (CultureInfo _culture in _languages)
             {
                 bool _isCurrent = _culture.Name.Equals(_current.Name, StringComparison.OrdinalIgnoreCase);
-                string _label = _isCurrent ? $"{LanguageName(_culture)} · {_localizer.Localize("admin.current")}" : LanguageName(_culture);
+                string _label = LanguageName(_culture);   // The current language is greyed out
 
-                _menu?.AddMenuOption(_label, (p, option) =>
+                MenuActions.Add(_menu, _label, (p, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(p);
                     PlayerLanguageManager.Instance.SetLanguage(new SteamID(p.SteamID), _culture);
@@ -111,7 +111,8 @@ namespace GameModeManager.Menus
                 if (command is "!rtv" or "!nominate" && !_pluginState.Game.RtvEnabled(_config))
                     continue;
 
-                menu?.AddMenuOption(_localizer.Localize(label), (player, option) =>
+                // !nominate opens a page, the others (RTV, next map, time left) act straight away
+                Action<CCSPlayerController, ChatMenuOption> select = (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
 
@@ -132,7 +133,12 @@ namespace GameModeManager.Menus
                     }
 
                     player.ExecuteClientCommandFromServer(consoleCommand);
-                });
+                };
+
+                if (command == "!nominate")
+                    menu?.AddMenuOption(_localizer.Localize(label), select);
+                else
+                    MenuActions.Add(menu, _localizer.Localize(label), select);
             }
 
             foreach (string _command in _pluginState.Game.PlayerCommands)
@@ -164,7 +170,7 @@ namespace GameModeManager.Menus
                         });
                         break;
                     case "!currentmode":
-                        menu?.AddMenuOption(_localizer.Localize("commands.menu-currentmode"), (player, option) =>
+                        MenuActions.Add(menu, _localizer.Localize("commands.menu-currentmode"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
                             PlayerFeedback.NotifyText(player, _localizer, "commands.menu-currentmode", MenuNotice.Success, _pluginState.Game.CurrentMode.Name);
@@ -173,7 +179,7 @@ namespace GameModeManager.Menus
                         });
                         break;
                     case "!currentmap":
-                        menu?.AddMenuOption(_localizer.Localize("commands.menu-currentmap"), (player, option) =>
+                        MenuActions.Add(menu, _localizer.Localize("commands.menu-currentmap"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
                             PlayerFeedback.NotifyText(player, _localizer, "commands.menu-currentmap", MenuNotice.Success, _pluginState.Game.CurrentMap.DisplayName);

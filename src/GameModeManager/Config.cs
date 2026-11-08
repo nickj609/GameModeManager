@@ -37,6 +37,7 @@ namespace GameModeManager
         public int TriggerKillsBeforeEnd { get; set; } = 13; // Arms race: start GG1's vote when the leader has this many kills
         public bool Rtv { get; set; } = true; // Lets players use !rtv and !nominate. Off doesn't affect end-of-map votes or rotations
         public bool ModesInVotes { get; set; } = true; // One random other mode offered in votes and !nominate, reshuffled every map
+        public bool NextMapMessages { get; set; } = true; // GameModeManager announces the next map or mode as a notification and a chat line, instead of GG1MapChooser's chat and center messages
     }
 
     // Define admin panel settings
@@ -112,6 +113,9 @@ namespace GameModeManager
         public int CustomTimeLimit { get; set; } = 600; // Sets custom time limit in seconds for rotation when server empty
         public bool ModeRotation { get; set; } = false; // Enables game mode rotations
         public int ModeInterval { get; set; } = 4; // Changes mode every x map rotations
+        public string ModeVote { get; set; } = "random"; // When the mode changes: "random" skips the map vote and picks a mode, "vote" makes every vote on that map list only modes
+        public bool CountSkippedMaps { get; set; } = false; // Maps left early (RTV, an admin's map change) count toward ModeInterval too
+        public bool VoteForMode => ModeVote.Equals("vote", StringComparison.OrdinalIgnoreCase);
         public bool ModeSchedules { get; set; } = false; // Enables or disables mode schedules
         public List<ScheduleEntry> Schedule { get; set; } = new List<ScheduleEntry>()
         {
@@ -167,7 +171,7 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-        public int Version { get; set; } = 15;
+        public int Version { get; set; } = 16;
         public string WorkshopAddon { get; set; } = "3831211166"; // Workshop IDs (comma separated) of the addons with the menus' panorama files, added to MultiAddonManager's list. Empty = you load them yourself
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
@@ -263,6 +267,11 @@ namespace GameModeManager
             {
                 logger.LogError("Invalid: Rotation ModeInterval must be greater than 0.");
                 throw new Exception("Invalid: Rotation ModeInterval must be greater than 0.");
+            }
+            if (!Rotation.ModeVote.Equals("random", StringComparison.OrdinalIgnoreCase) && !Rotation.VoteForMode)
+            {
+                logger.LogWarning("Rotation ModeVote \"{Value}\" isn't \"random\" or \"vote\": using \"random\".", Rotation.ModeVote);
+                Rotation.ModeVote = "random";
             }
 
             // Map chooser settings
