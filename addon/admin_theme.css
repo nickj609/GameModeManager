@@ -5,6 +5,7 @@
 {
 	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) ) );
 	border: 1px solid #ffffff14;
+	border-top: 1px solid #b3201f; /* The red header's colour, so the outline doesn't show around it */
 	world-blur: gaussian(2, 2, 2); /* Like the menus: the game behind is blurred, so the panel looks the same over bright maps */
 }
 
@@ -24,4 +25,11 @@
 	background-size: contain;
 	background-position: 50% 50%;
 	background-repeat: no-repeat;
+}
+
+/* The row under the mouse: the menus' grey highlight instead of dark red. The red bar and arrow stay as the admin accent. */
+.sa-row:hover,
+.sa-fb:hover
+{
+	background-color: #ffffff1a;
 }
