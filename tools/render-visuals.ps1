@@ -19,6 +19,7 @@ $mockups = Join-Path (Split-Path -Parent $PSScriptRoot) "addon\mockups"
 
 if (-not (Test-Path $Edge)) { throw "Microsoft Edge not found: $Edge" }
 $maps = (Join-Path $script:VisualsDir "maps") -replace '\\', '/'
+$icons = (Join-Path (Split-Path -Parent $PSScriptRoot) "addon\images") -replace '\\', '/'   # the notification icons the mockups show
 if (-not (Test-Path $maps)) { throw "No map pictures in $maps. Run the server repo's bisect\build-menu-images.ps1 first." }
 
 # Each picture: the page and scene, then where it goes
@@ -38,7 +39,7 @@ $work = Join-Path ([IO.Path]::GetTempPath()) ("cs2-render-" + [guid]::NewGuid().
 New-Item -ItemType Directory -Force -Path $work | Out-Null
 try {
     foreach ($page in @("scenes.html", "thumbnail.html")) {
-        $html = [IO.File]::ReadAllText((Join-Path $mockups $page), [Text.Encoding]::UTF8).Replace("__MAPS__", "file:///$maps/")
+        $html = [IO.File]::ReadAllText((Join-Path $mockups $page), [Text.Encoding]::UTF8).Replace("__MAPS__", "file:///$maps/").Replace("__ICONS__", "file:///$icons/")
         [IO.File]::WriteAllText((Join-Path $work $page), $html, (New-Object Text.UTF8Encoding($false)))
     }
 
