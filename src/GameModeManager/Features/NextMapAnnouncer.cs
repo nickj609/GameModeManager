@@ -131,11 +131,10 @@ namespace GameModeManager.Features
             _chat = new();
             _random = new();
 
-            string? folder = _gg1.Assembly?.Location is string location && location.Length > 0
-                ? Path.Combine(Path.GetDirectoryName(location) ?? "", "lang") : null;
+            string? folder = _gg1.ModuleDirectory is string directory && directory.Length > 0 ? Path.Combine(directory, "lang") : null;
             if (folder == null || !Directory.Exists(folder))
             {
-                _logger.LogWarning("GG1MapChooser's lang folder wasn't found: its next map messages stay as they are");
+                _logger.LogWarning("GG1MapChooser's lang folder wasn't found ({Folder}): its next map messages stay as they are", folder ?? "no plugin folder");
                 return;
             }
 
@@ -153,6 +152,7 @@ namespace GameModeManager.Features
                     _logger.LogWarning("Couldn't read {File}: {Error}", Path.GetFileName(file), error.Message);
                 }
             }
+            _logger.LogInformation("Next map messages: {Count} GG1MapChooser message(s) recognised from {Folder}", _center.Count + _chat.Count + _random.Count, folder);
         }
 
         private static void Add(JsonElement root, string key, List<Regex> patterns)
