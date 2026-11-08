@@ -71,8 +71,3 @@
 
 /* The icons halfway between PMM_SimpleAdmin's light red (#ff6b5e) and the highlighted row's (#d83a30) */
 .sa-ic { wash-color: #eb5247; }
-
-/* The values on the right (the rotation page's "4 map(s)", "Random mode", a map's "now") in a light red, so they stand out
-   from the labels. The main menu's counts and the player list's ids stay grey. */
-.sa-hint { color: #f08a80; }
-.sa-row.r-icon .sa-hint, .sa-row.r-team .sa-hint { color: #b0b0b4; }
