@@ -1,6 +1,7 @@
 // Included libraries
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
@@ -17,14 +18,21 @@ namespace GameModeManager.Core
         private Timer? _rotationTimer;
         private PluginState _pluginState;
         private ServerManager _serverManager;
+        private MapChooserBridge _mapChooser;
         private Config _config = new Config();
 
         // Define class constructor
-        public RotationManager(ServerManager serverManager, PluginState pluginState)
+        public RotationManager(ServerManager serverManager, PluginState pluginState, MapChooserBridge mapChooser)
         {
+            _mapChooser = mapChooser;
             _pluginState = pluginState;
             _serverManager = serverManager;
         }
+
+        // Define class properties
+        private bool _mapStarted;
+        private bool _modeDueLastMap;
+        private IMode? _lastMode;
         
         // Load config
         public void OnConfigParsed(Config config)
@@ -49,6 +57,24 @@ namespace GameModeManager.Core
                 foreach (ScheduleEntry entry in _config.Rotation.Schedule)
                     StartSchedule(entry);
             }
+        }
+
+        // Define on map start behavior
+        // A map left early (RTV, an admin's map change) isn't a rotation, so TriggerRotation didn't count it. It counts when
+        // CountSkippedMaps is on, and always when it changed the mode on the map that was due to: that change was the rotation.
+        public void OnMapStart(string map)
+        {
+            if (_mapStarted && !_pluginState.Game.RotationStarted)
+            {
+                bool modeChanged = _lastMode != null && !_pluginState.Game.CurrentMode.Equals(_lastMode);
+                if (_config.Rotation.CountSkippedMaps || (_modeDueLastMap && modeChanged))
+                    _pluginState.Game.MapRotations++;
+            }
+
+            _mapStarted = true;
+            _pluginState.Game.RotationStarted = false;
+            _lastMode = _pluginState.Game.CurrentMode;
+            _modeDueLastMap = _mapChooser.ModeChangeDue();
         }
 
         // Define class methods

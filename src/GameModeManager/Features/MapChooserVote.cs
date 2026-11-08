@@ -1,4 +1,5 @@
 // Included libraries
+using MenuManager;
 using GameModeManager.Core;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
@@ -24,10 +25,12 @@ namespace GameModeManager.Features
         private MapChooserBridge _mapChooser;
         private ServerManager _serverManager;
         private TimeLimitManager _timeLimitManager;
+        private StringLocalizer _localizer;
 
         // Define class constructor
-        public MapChooserVote(GameRules gameRules, MapChooserBridge mapChooser, TimeLimitManager timeLimitManager, ServerManager serverManager)
+        public MapChooserVote(GameRules gameRules, MapChooserBridge mapChooser, TimeLimitManager timeLimitManager, ServerManager serverManager, StringLocalizer localizer)
         {
+            _localizer = localizer;
             _gameRules = gameRules;
             _mapChooser = mapChooser;
             _serverManager = serverManager;
@@ -64,6 +67,7 @@ namespace GameModeManager.Features
             plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
             plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
             plugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
+            plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(OnMatchStart);
         }
 
         // Define on map start behavior
@@ -83,6 +87,13 @@ namespace GameModeManager.Features
                 return;
 
             _started = true;
+
+            // ModeVote "random": the end of this map changes to a random mode, so a map vote would be for nothing
+            if (_mapChooser.RandomModeDue())
+            {
+                PlayerFeedback.SendAll(_localizer, "notify.nextmode", MenuNotice.Success, "rotation.mode-next");
+                return;
+            }
             _mapChooser.StartMapVote();
         }
 
@@ -157,6 +168,16 @@ namespace GameModeManager.Features
                         Start();
                 }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
             }
+            return HookResult.Continue;
+        }
+
+        // The map that ends with a mode change says so when its match starts
+        private HookResult OnMatchStart(EventRoundAnnounceMatchStart @event, GameEventInfo info)
+        {
+            if (_mapChooser.RandomModeDue())
+                PlayerFeedback.SendAll(_localizer, "notify.nextmode", MenuNotice.Success, "rotation.mode-next");
+            else if (_mapChooser.ModesOnly)
+                PlayerFeedback.SendAll(_localizer, "notify.nextmode", MenuNotice.Success, "rotation.mode-vote-next");
             return HookResult.Continue;
         }
 

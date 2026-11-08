@@ -45,6 +45,17 @@ namespace GameModeManager.Menus
             _config = config;
         }
 
+        // Define on map start behavior
+        // Built again for each map, so the current map and mode are the ones greyed out. A frame later: the current map is set by then.
+        public void OnMapStart(string map)
+        {
+            Server.NextFrame(() =>
+            {
+                if (MenuFactory.Api != null)
+                    Load();
+            });
+        }
+
         // Define load method
         // Built once in each language
         public void Load()
@@ -63,9 +74,9 @@ namespace GameModeManager.Menus
         private IMenu? CreateMainMenu()
         {
             // Create the mode list
-            IMenu? listMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.category", "admin.change-mode"), player => MainMenu.Open(player));
+            IMenu? listMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.change-mode"), player => MainMenu.Open(player));
 
-            listMenu?.AddMenuOption(_localizer.Localize("admin.random-mode"), (player, option) =>
+            MenuActions.Add(listMenu, _localizer.Localize("admin.random-mode"), (player, option) =>
             {
                 MenuFactory.Api?.CloseMenu(player);
                 ChangeToRandomMode(player);
@@ -73,22 +84,22 @@ namespace GameModeManager.Menus
 
             foreach (IMode? _mode in _pluginState.Game.Modes.Values)
             {
-                listMenu?.AddMenuOption(_mode.Name, (player, option) =>
+                MenuActions.Add(listMenu, _mode.Name, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     ChangeMode(player, _mode);
-                });
+                }, _pluginState.Game.CurrentMode.Equals(_mode));   // The current mode is greyed out
             }
 
             // GG1's next map: the mode changes at the end of the match
-            IMenu? nextMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.category", "admin.next-mode"), player => MainMenu.Open(player));
+            IMenu? nextMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("menu.next-mode-title"), player => MainMenu.Open(player));
             foreach (IMode? _mode in _pluginState.Game.Modes.Values)
             {
-                nextMenu?.AddMenuOption(_mode.Name, (player, option) =>
+                MenuActions.Add(nextMenu, _mode.Name, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     SetNextMode(player, _mode);
-                });
+                }, _pluginState.Game.CurrentMode.Equals(_mode));   // The current mode is greyed out
             }
 
             IMenu? adminVoteMenu = CreateVoteMenu(player => MainMenu.Open(player), true);
@@ -104,10 +115,10 @@ namespace GameModeManager.Menus
         // A yes/no vote on one mode, with a random vote on top for admins
         private IMenu? CreateVoteMenu(Action<CCSPlayerController>? back, bool randomVote)
         {
-            IMenu? menu = MenuFactory.Api?.GetMenu(back != null ? _localizer.Path("admin.category", "admin.start-vote") : _localizer.Localize("admin.start-vote"), back);
+            IMenu? menu = MenuFactory.Api?.GetMenu(back != null ? _localizer.Localize("admin.start-vote") : _localizer.Localize("admin.start-vote"), back);
             if (randomVote)
             {
-                menu?.AddMenuOption(_localizer.Localize("admin.random-vote"), (player, option) =>
+                MenuActions.Add(menu, _localizer.Localize("admin.random-vote"), (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     StartVote(player);
@@ -120,11 +131,11 @@ namespace GameModeManager.Menus
                 if (back == null && !_mapChooser.InVotes(_mode))
                     continue;
 
-                menu?.AddMenuOption(_mode.Name, (player, option) =>
+                MenuActions.Add(menu, _mode.Name, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     StartVote(player, _mode);
-                });
+                }, _pluginState.Game.CurrentMode.Equals(_mode));   // The current mode is greyed out
             }
             return menu;
         }
@@ -161,7 +172,7 @@ namespace GameModeManager.Menus
                 PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "general.validation.current");
                 return;
             }
-            _voteService.StartYesNo(player, () => _localizer.Localize("mode.vote.menu-title", mode.Name), () => _serverManager.ChangeMode(mode), mode.Name);
+            _voteService.StartYesNo(player, () => _localizer.Localize("mode.vote.menu-title", mode.Name), () => _serverManager.ChangeMode(mode));   // The menu vote: the game's panel can only say "Change current level to"
         }
 
         // A vote on GG1's panel between random other modes
