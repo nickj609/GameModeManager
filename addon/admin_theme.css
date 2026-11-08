@@ -27,11 +27,12 @@
 	background-repeat: no-repeat;
 }
 
-/* The row under the mouse: the menus' grey highlight instead of dark red. The red bar and arrow stay as the admin accent. */
+/* The row under the mouse: a subtle grey instead of dark red, like the mockups. Panorama blends this about four times stronger
+   than a browser, so 2% white here looks like the mockups' 7%. The red bar and arrow stay as the admin accent. */
 .sa-row:hover,
 .sa-fb:hover
 {
-	background-color: #ffffff16;
+	background-color: #ffffff05;
 }
 
 /* The red header reaches over the outline at the top and sides, so there's no light line around it. The panel is always 460px
