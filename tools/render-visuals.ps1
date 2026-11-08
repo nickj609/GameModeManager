@@ -30,6 +30,7 @@ $pictures = @(
     @("scenes.html#vote", "screenshots\5_vote.png", "vote.png"),
     @("scenes.html#admin", "screenshots\6_admin.png", "admin.png"),
     @("scenes.html#rotation", "screenshots\7_rotation.png", "admin-rotation.png"),
+    @("scenes.html#native", "", "vote-native.png"),   # the game's own vote panel, not the addon's: README only
     @("thumbnail.html", "thumbnail.png", "")
 )
 
@@ -47,9 +48,9 @@ try {
         $url = "file:///" + ($work -replace '\\', '/') + "/" + $picture[0]
         $process = Start-Process -FilePath $Edge -PassThru -Wait -WindowStyle Hidden -ArgumentList "--headless=new", "--disable-gpu", "--hide-scrollbars", "--allow-file-access-from-files", "--user-data-dir=`"$work\edge`"", "--window-size=1280,720", "--virtual-time-budget=4000", "--screenshot=`"$output`"", "`"$url`""
         if (-not (Test-Path $output)) { throw "Edge didn't draw $($picture[0]) (exit code $($process.ExitCode))" }
-        Copy-Item -LiteralPath $output -Destination (Join-Path $WorkshopDir $picture[1]) -Force
+        if ($picture[1]) { Copy-Item -LiteralPath $output -Destination (Join-Path $WorkshopDir $picture[1]) -Force }
         if ($picture[2]) { Copy-Item -LiteralPath $output -Destination (Join-Path $ReadmeDir $picture[2]) -Force }
-        Write-Host "  $($picture[1])"
+        Write-Host "  $(if ($picture[1]) { $picture[1] } else { "README: $($picture[2])" })"
     }
 }
 finally {
