@@ -16,3 +16,11 @@
 {
 	background-color: #ffffff14;
 }
+
+/* Icons keep their own shape: PMM_SimpleAdmin stretches them to a square, which squashes tall ones like Manage players' */
+.sa-ic
+{
+	background-size: contain;
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+}
