@@ -64,6 +64,7 @@ Players choose what to play next with [GG1MapChooser](https://github.com/ssypche
 - **End-of-map vote:** a vote starts by itself near the end of a match, and it can offer more time on the current map.
 - **Only the right maps:** votes and nominations only list maps from the current game mode, so a surf server won't offer a competitive map.
 - **Change the mode by vote:** one other game mode can appear in the vote beside the maps, and if it wins, the server changes to it. Votes can also choose a map at random from the current mode.
+- **Vote your way:** the ⚙ button at the top of the vote panel picks how each player votes: mouse, WASD, number keys or chat. Click it, or press `R` with WASD or `0` with number keys. **Auto** follows the style the player chose in `!menu`, and their `!menu` choice doesn't change.
 - **Quick yes/no votes:** type `!changemap` or `!changemode` to pick from a list, or add a name to vote on it straight away, like `!changemode Gun Game`.
 - **Handy commands:** `!nextmap` shows what's next, `!timeleft` shows the time remaining, and `!game` puts these all in one menu.
 
