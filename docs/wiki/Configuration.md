@@ -455,7 +455,7 @@ These settings are for player votes (`!changemap`, `!changemode`, `!changesettin
 
 **Custom vote panel text needs a file on every player's PC.** The game looks the panel's text up on each player's computer, not on the server, and it opens no panel at all for a text it doesn't know. With `NativeTitleToken` set:
 
-1. Every player copies `csgo/resource/platform_english.txt` from the GameModeManager release (the same file GG1MapChooser ships in `Resources/`) to `Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\resource\` on their PC. If a `platform_english.txt` is already there, add the `SFUI_vote_panorama_vote_*` lines to it.
+1. Every player downloads [`platform_english.txt`](https://github.com/nickj609/GameModeManager/blob/main/bundle/csgo/resource/platform_english.txt) (the same file GG1MapChooser ships in `Resources/`) to `Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\resource\` on their PC. If a `platform_english.txt` is already there, add the `SFUI_vote_panorama_vote_*` lines to it.
 2. They restart CS2. The game reads the file only at startup.
 
 A player without the file sees no panel for setting votes or questions and can't vote on them (map and mode votes still show), and Steam's "Verify integrity of game files" can remove it. The menu addon (`tools/build-menu-addon.ps1`) also carries the file, but the game may read it only at startup, before the addon loads, so don't count on that. Keep `NativeTitleToken` empty on public servers.
