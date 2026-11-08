@@ -95,6 +95,7 @@ If you use [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin), its a
 - **Polls:** with SimpleAdmin, `!vote` asks players a question. One or two words make a yes/no vote, and with more, the first is the question and the rest are its answers: `!vote "Best map?" Mirage Inferno Nuke`.
 - **To get the red panel shown here:** install the optional [PMM_SimpleAdmin](https://github.com/RRimmer/PMM_SimpleAdmin) plugin, which isn't in the zip, then restart the server fully. Its menu files are already in GameModeManager's Workshop addon, so players don't need anything extra. Without it, the same items appear in SimpleAdmin's normal menus.
 - **Turning it off:** set `AdminPanel.Enabled` to `false` in `GameModeManager.json`.
+- **Admin commands in the panel:** set `AdminPanel.CommandMenus` to `"admin"` and `!maps`, `!modes`, `!settings` and `!warmup` open their page of the red panel instead of GameModeManager's own menus. The default, `"default"`, keeps the regular menus, and `"admin"` falls back to them when SimpleAdmin or the panel isn't loaded.
 
 ## Requirements
 You need these on your server already, on Windows or Linux:
