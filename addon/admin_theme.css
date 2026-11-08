@@ -4,7 +4,7 @@
 .sa-root
 {
 	width: 430px; /* PMM_SimpleAdmin's 460px, a little narrower: still wider than the menus (400px) and the vote panel (420px) */
-	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(18, 18, 20, 0.92) ), color-stop( 0.1, rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) ) ); /* The menus' gradient, starting below the red header, which covers about the top tenth */
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) ) ); /* The menus' gradient */
 	border: 1px solid #ffffff14; /* The vote panel's outline. The red header covers it, below. */
 	overflow: noclip noclip; /* So the header can reach over the outline. Nothing else in the panel goes past its edge. */
 	world-blur: gaussian(2, 2, 2); /* Like the menus: the game behind is blurred, so the panel looks the same over bright maps */
@@ -61,3 +61,6 @@
 .sa-row:hover .sa-rbar { background-color: #d83a30; }
 .sa-row:hover .sa-arrow { color: #d83a30; }
 .sa-arrow { margin-right: 18px; }
+
+/* Rows a little rounder, like the menus' (PMM_SimpleAdmin uses 4px) */
+.sa-row { border-radius: 6px; }
