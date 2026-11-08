@@ -54,3 +54,9 @@
 .sa-arrow { color: #9a9a9e; }
 .sa-ft { color: #c8c8cc; }
 .sa-row.r-dim .sa-lab, .sa-row.r-dis .sa-lab { color: #6e6e73; }
+
+/* The highlighted row's bar and arrow in a softer red than PMM_SimpleAdmin's, nearer the header, so they don't glow on the dark
+   row. The arrow sits a little further from the edge. */
+.sa-row:hover .sa-rbar { background-color: #d83a30; }
+.sa-row:hover .sa-arrow { color: #d83a30; }
+.sa-arrow { margin-right: 12px; }
