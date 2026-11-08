@@ -1,5 +1,6 @@
 // Included libraries
 using MenuManager;
+using CounterStrikeSharp.API;
 using System.Text.RegularExpressions;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
@@ -34,6 +35,13 @@ namespace GameModeManager.CrossCutting
                 return;
 
             Deliver(player, localizer, titleKey, notice, key, args, player.PrintToChat);
+        }
+
+        // An announcement for everyone, each in their own language: what's next for the server
+        public static void SendAll(StringLocalizer localizer, string titleKey, MenuNotice notice, string key, params object[] args)
+        {
+            foreach (CCSPlayerController player in Utilities.GetPlayers().Where(p => p.IsValid && !p.IsBot))
+                Deliver(player, localizer, titleKey, notice, key, args, player.PrintToChat);
         }
 
         // From a command: the chat line goes where the command came from (chat, the player's console or the server console)

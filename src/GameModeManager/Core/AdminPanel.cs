@@ -417,6 +417,12 @@ namespace GameModeManager.Core
             AddToggle(menu, "admin.rotation-modes", rotation.ModeRotation, () => rotation.ModeRotation = !rotation.ModeRotation);
             AddValue(menu, "admin.rotation-interval", _localizer.Localize("admin.rotation-map-count", rotation.ModeInterval),
                 new[] { 1, 2, 3, 4, 5, 6, 8, 10 }, maps => _localizer.Localize("admin.rotation-map-count", maps), () => rotation.ModeInterval, maps => rotation.ModeInterval = maps);
+
+            // 0 = a random mode, 1 = a vote on modes. Applies from the next map, which is when GG1's pool is set.
+            Func<int, string> modeVote = choice => _localizer.Localize(choice == 1 ? "admin.rotation-mode-vote-vote" : "admin.rotation-mode-vote-random");
+            AddValue(menu, "admin.rotation-mode-vote", modeVote(rotation.VoteForMode ? 1 : 0), new[] { 0, 1 }, modeVote,
+                () => rotation.VoteForMode ? 1 : 0, choice => rotation.ModeVote = choice == 1 ? "vote" : "random");
+            AddToggle(menu, "admin.rotation-count-skipped", rotation.CountSkippedMaps, () => rotation.CountSkippedMaps = !rotation.CountSkippedMaps);
             AddToggle(menu, "admin.rtv", _config.MapChooser.Rtv, () =>
             {
                 // !game has an RTV row only while it's on

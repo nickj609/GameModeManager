@@ -47,6 +47,7 @@ namespace GameModeManager
 
             // Define dynamic properties
             public int MapRotations = 0;
+            public bool RotationStarted = false; // This map's end was a rotation, so it's already counted in MapRotations
             public bool PerMapWarmup = false;
             public bool WarmupRunning = false;
             public IMap CurrentMap = DefaultMap;

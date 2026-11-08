@@ -172,7 +172,7 @@ namespace GameModeManager.Menus
                 PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "general.validation.current");
                 return;
             }
-            _voteService.StartYesNo(player, () => _localizer.Localize("mode.vote.menu-title", mode.Name), () => _serverManager.ChangeMode(mode), mode.Name);
+            _voteService.StartYesNo(player, () => _localizer.Localize("mode.vote.menu-title", mode.Name), () => _serverManager.ChangeMode(mode));   // The menu vote: the game's panel can only say "Change current level to"
         }
 
         // A vote on GG1's panel between random other modes
