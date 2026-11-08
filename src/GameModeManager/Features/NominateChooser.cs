@@ -170,7 +170,7 @@ namespace GameModeManager.Features
             else if (!available)
                 label = $"{name} · {_localizer.Localize("nominate.unavailable")}";
 
-            menu.AddMenuOption(label, (p, option) =>
+            MenuActions.Add(menu, label, (p, option) =>
             {
                 MenuFactory.Api?.CloseMenu(p);
                 pick(p);

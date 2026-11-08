@@ -65,7 +65,7 @@ namespace GameModeManager.Menus
             // Create the mode list
             IMenu? listMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.category", "admin.change-mode"), player => MainMenu.Open(player));
 
-            listMenu?.AddMenuOption(_localizer.Localize("admin.random-mode"), (player, option) =>
+            MenuActions.Add(listMenu, _localizer.Localize("admin.random-mode"), (player, option) =>
             {
                 MenuFactory.Api?.CloseMenu(player);
                 ChangeToRandomMode(player);
@@ -73,7 +73,7 @@ namespace GameModeManager.Menus
 
             foreach (IMode? _mode in _pluginState.Game.Modes.Values)
             {
-                listMenu?.AddMenuOption(_mode.Name, (player, option) =>
+                MenuActions.Add(listMenu, _mode.Name, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     ChangeMode(player, _mode);
@@ -84,7 +84,7 @@ namespace GameModeManager.Menus
             IMenu? nextMenu = MenuFactory.Api?.GetMenu(_localizer.Path("admin.category", "admin.next-mode"), player => MainMenu.Open(player));
             foreach (IMode? _mode in _pluginState.Game.Modes.Values)
             {
-                nextMenu?.AddMenuOption(_mode.Name, (player, option) =>
+                MenuActions.Add(nextMenu, _mode.Name, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     SetNextMode(player, _mode);
@@ -107,7 +107,7 @@ namespace GameModeManager.Menus
             IMenu? menu = MenuFactory.Api?.GetMenu(back != null ? _localizer.Path("admin.category", "admin.start-vote") : _localizer.Localize("admin.start-vote"), back);
             if (randomVote)
             {
-                menu?.AddMenuOption(_localizer.Localize("admin.random-vote"), (player, option) =>
+                MenuActions.Add(menu, _localizer.Localize("admin.random-vote"), (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     StartVote(player);
@@ -120,7 +120,7 @@ namespace GameModeManager.Menus
                 if (back == null && !_mapChooser.InVotes(_mode))
                     continue;
 
-                menu?.AddMenuOption(_mode.Name, (player, option) =>
+                MenuActions.Add(menu, _mode.Name, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
                     StartVote(player, _mode);
