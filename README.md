@@ -41,7 +41,7 @@ GameModeManager's menus use [PanoramaMenuManager](https://github.com/RRimmer/Pan
 | Panorama WASD | Panorama mouse |
 | :-: | :-: |
 | ![Panorama WASD menu](docs/images/menu-wasd.png) | ![Panorama mouse menu](docs/images/menu-mouse.png) |
-| Move with `W` and `S`, select with `D` or `E`, go back with `A` and close with `R`. | Click a row to select it. Long lists have page buttons at the bottom. |
+| Move with `W` and `S`, select with `D` or `E`, go back with `A` and close with `R`. | Click a row to select it. Rows that open another page have an arrow, and long lists have page buttons at the bottom. |
 
 | Panorama number keys | CS:GO style |
 | :-: | :-: |
