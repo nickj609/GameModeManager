@@ -71,7 +71,9 @@ namespace GameModeManager.Features
                 $"Workshop addon: {AddonStatus()}",
                 $"CS2-SimpleAdmin section: {(!_config.AdminPanel.Enabled ? "turned off" : _adminPanel.Active ? "added" : "not added, CS2-SimpleAdmin isn't installed")}",
                 $"RTV and nominate: {OnOff(_config.MapChooser.Rtv)}, in this mode: {OnOff(_pluginState.Game.RtvInMode)}, modes in votes: {OnOff(_config.MapChooser.ModesInVotes)}, player votes: {OnOff(_config.Votes.Enabled)} ({_config.Votes.Style})",
-                $"Rotation: maps {OnOff(_pluginState.Game.RotationsEnabled)}, modes {OnOff(rotation.ModeRotation)}, schedules {OnOff(rotation.ModeSchedules)}, when empty {OnOff(rotation.WhenServerEmpty)}"
+                $"Rotation: maps {OnOff(_pluginState.Game.RotationsEnabled)}, modes {OnOff(rotation.ModeRotation)} (every {rotation.ModeInterval}, {rotation.ModeVote}, skipped maps count: {OnOff(rotation.CountSkippedMaps)}), schedules {OnOff(rotation.ModeSchedules)}, when empty {OnOff(rotation.WhenServerEmpty)}",
+                $"Mode rotation now: {_pluginState.Game.MapRotations} map(s) counted, this map ends with a mode change: {(_mapChooser.ModeChangeDue() ? (_mapChooser.ModesOnly ? "yes, by vote" : "yes, random") : "no")}",
+                $"Next map messages: {(_config.MapChooser.NextMapMessages ? "GameModeManager's" : "GG1MapChooser's")}"
             };
         }
 
