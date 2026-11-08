@@ -270,7 +270,8 @@ namespace GameModeManager.Core
                     else if (!_mapChooser.SetNextMap(map))
                         PlayerFeedback.Send(p, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");
                     else
-                        PlayerFeedback.Send(p, _localizer, "notify.map", MenuNotice.Success, "admin.done.nextmap", map.DisplayName);
+                        if (!_mapMenus.AnnouncesNext)   // The announcement to everyone tells the admin too
+                            PlayerFeedback.Send(p, _localizer, "notify.map", MenuNotice.Success, "admin.done.nextmap", map.DisplayName);
                 }), current);
             }
             return menu;
@@ -334,7 +335,8 @@ namespace GameModeManager.Core
                     if (!_mapChooser.SetNextMode(mode))
                         PlayerFeedback.Send(p, _localizer, "notify.mode", MenuNotice.Warning, "admin.vote-unavailable");
                     else
-                        PlayerFeedback.Send(p, _localizer, "notify.mode", MenuNotice.Success, "admin.done.nextmode", mode.Name);
+                        if (!_mapMenus.AnnouncesNext)   // The announcement to everyone tells the admin too
+                            PlayerFeedback.Send(p, _localizer, "notify.mode", MenuNotice.Success, "admin.done.nextmode", mode.Name);
                 }), !_mapChooser.CanBeNextMode(mode));
             }
             return menu;

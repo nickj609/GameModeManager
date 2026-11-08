@@ -64,6 +64,18 @@ namespace GameModeManager.Features
         }
 
         // Define class methods
+        // Whether GameModeManager announces the next map or mode itself: on, and GG1's messages were found in its lang files.
+        // Then an admin who sets the next map or mode needs no reply of their own: the announcement tells them too.
+        public bool Announces()
+        {
+            if (!_config.MapChooser.NextMapMessages || !_mapChooser.Available)
+                return false;
+
+            if (_center == null)
+                LoadTemplates();
+            return _center!.Count > 0;
+        }
+
         private HookResult OnTextMessage(UserMessage message)
         {
             if (!_config.MapChooser.NextMapMessages || !_mapChooser.Available)

@@ -1,4 +1,5 @@
 // Included libraries
+using GameModeManager.Features;
 using MenuManager;
 using GameModeManager.Core;
 using CounterStrikeSharp.API;
@@ -22,9 +23,12 @@ namespace GameModeManager.Menus
         private VoteService _voteService;
         private MenuLanguages _languages;
 
+        private NextMapAnnouncer _nextMapAnnouncer;
+
         // Define class constructor
-        public MapMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, MapChooserBridge mapChooser, VoteService voteService, MenuLanguages languages)
+        public MapMenus(PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, MapChooserBridge mapChooser, VoteService voteService, MenuLanguages languages, NextMapAnnouncer nextMapAnnouncer)
         {
+            _nextMapAnnouncer = nextMapAnnouncer;
             _languages = languages;
             _localizer = localizer;
             _mapChooser = mapChooser;
@@ -137,6 +141,9 @@ namespace GameModeManager.Menus
             _voteService.StartYesNo(player, () => _localizer.Localize("map.vote.menu-title", map.DisplayName), () => _serverManager.ChangeMapInPool(map), map.DisplayName);
         }
 
+        // GameModeManager announces the next map or mode to everyone, so an admin who sets it needs no reply of their own
+        public bool AnnouncesNext => _nextMapAnnouncer.Announces();
+
         public void SetNextMap(CCSPlayerController player, IMap map)
         {
             if (_pluginState.Game.IsCurrentMap(map))
@@ -144,7 +151,8 @@ namespace GameModeManager.Menus
             else if (!_mapChooser.SetNextMap(map))
                 PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");
             else
-                PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Success, "admin.done.nextmap", map.DisplayName);
+                if (!_nextMapAnnouncer.Announces())   // The announcement to everyone tells the admin too
+                    PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Success, "admin.done.nextmap", map.DisplayName);
         }
 
         private bool OnlyOneMap(CCSPlayerController player)
