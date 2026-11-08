@@ -9,10 +9,11 @@ using CounterStrikeSharp.API.Modules.Commands;
 namespace GameModeManager.CrossCutting
 {
     // Define class
-    // Messages to one player about their own action (language set, vote cast, can't vote, map not found): a PanoramaMenuManager
-    // notification and the chat line, both in the player's language. Notify does nothing when MenuManagerCore's Notifications is
-    // off, the player turned them off in !menu, or the menu files aren't loaded yet, and it can't say so. So the chat line stays
-    // on by default (Notifications.Chat). Messages to everyone stay in chat.
+    // Messages to one player: about their own action (language set, vote cast, can't vote, map not found), what they asked for
+    // (current map or mode, time left, next map), and an admin's own change (map, mode, setting, rotation, warmup), which is also
+    // announced to everyone in chat. A PanoramaMenuManager notification and the chat line, both in the player's language. Notify
+    // does nothing when MenuManagerCore's Notifications is off, the player turned them off in !menu, or the menu files aren't
+    // loaded yet, and it can't say so. So the chat line stays on by default (Notifications.Chat).
     public class PlayerFeedback : IPluginDependency<Plugin, Config>
     {
         // Define class properties
@@ -55,6 +56,16 @@ namespace GameModeManager.CrossCutting
 
             using var _temporaryCulture = MenuLanguages.For(player);
             MenuFactory.Api?.Notify(player, Plain(localizer.Localize(titleKey)), Plain(localizer.Localize(key, args)), notice);
+        }
+
+        // A notification whose message is already worked out, like a map's name, for messages that print their own chat line
+        public static void NotifyText(CCSPlayerController? player, StringLocalizer localizer, string titleKey, MenuNotice notice, string text)
+        {
+            if (player == null || !player.IsValid || player.IsBot || !_settings.Enabled)
+                return;
+
+            using var _temporaryCulture = MenuLanguages.For(player);
+            MenuFactory.Api?.Notify(player, Plain(localizer.Localize(titleKey)), Plain(text), notice);
         }
 
         // Whether a message that has its own chat line should still print it: the same rule as Send and Reply

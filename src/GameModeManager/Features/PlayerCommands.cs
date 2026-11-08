@@ -144,7 +144,7 @@ namespace GameModeManager.Features
         {
             if (player != null)
             {
-                PlayerFeedback.Notify(player, _localizer, "notify.map", MenuNotice.Success, "currentmap.message", _pluginState.Game.CurrentMap.DisplayName);
+                PlayerFeedback.NotifyText(player, _localizer, "commands.menu-currentmap", MenuNotice.Success, _pluginState.Game.CurrentMap.DisplayName);
                 if (PlayerFeedback.ChatLine)
                     command.ReplyToCommand(_localizer.Localize("currentmap.message", _pluginState.Game.CurrentMap.DisplayName));
             }
@@ -155,7 +155,7 @@ namespace GameModeManager.Features
         {
             if (player != null)
             {
-                PlayerFeedback.Notify(player, _localizer, "notify.mode", MenuNotice.Success, "currentmode.message", _pluginState.Game.CurrentMode.Name);
+                PlayerFeedback.NotifyText(player, _localizer, "commands.menu-currentmode", MenuNotice.Success, _pluginState.Game.CurrentMode.Name);
                 if (PlayerFeedback.ChatLine)
                     command.ReplyToCommand(_localizer.Localize("currentmode.message", _pluginState.Game.CurrentMode.Name));
             }

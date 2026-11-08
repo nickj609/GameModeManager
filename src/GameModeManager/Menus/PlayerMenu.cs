@@ -24,10 +24,12 @@ namespace GameModeManager.Menus
         private SettingMenus _settingMenus;
         private StringLocalizer _localizer;
         private MenuLanguages _menuLanguages;
+        private GameInfo _gameInfo;
 
         // Define class constructor
-        public PlayerMenu(NominateChooser nominateChooser, PluginState pluginState, StringLocalizer localizer, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, MenuLanguages menuLanguages)
+        public PlayerMenu(NominateChooser nominateChooser, PluginState pluginState, StringLocalizer localizer, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, MenuLanguages menuLanguages, GameInfo gameInfo)
         {
+            _gameInfo = gameInfo;
             _menuLanguages = menuLanguages;
             _nominateChooser = nominateChooser;
             _mapMenus = mapMenus;
@@ -40,7 +42,8 @@ namespace GameModeManager.Menus
         // Define class properties
         public LocalizedMenu MainMenu = new();
 
-        // GG1MapChooser's player commands, run for the player from this menu. !nominate lists the current mode's maps.
+        // GG1MapChooser's player commands, run for the player from this menu. !nominate lists the current mode's maps. !nextmap and
+        // !timeleft are answered here instead (GameInfo), as a notification.
         private static readonly Dictionary<string, (string Label, string Command)> MapChooserCommands = new()
         {
             { "!rtv", ("commands.menu-rtv", "rtv") },
@@ -116,6 +119,18 @@ namespace GameModeManager.Menus
                     if (command == "!nominate" && _nominateChooser.Open(player) == HookResult.Handled)
                         return;
 
+                    if (command == "!nextmap")
+                    {
+                        _gameInfo.ShowNextMap(player);
+                        return;
+                    }
+
+                    if (command == "!timeleft")
+                    {
+                        _gameInfo.ShowTimeLeft(player);
+                        return;
+                    }
+
                     player.ExecuteClientCommandFromServer(consoleCommand);
                 });
             }
@@ -152,7 +167,7 @@ namespace GameModeManager.Menus
                         menu?.AddMenuOption(_localizer.Localize("commands.menu-currentmode"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
-                            PlayerFeedback.Notify(player, _localizer, "notify.mode", MenuNotice.Success, "currentmode.message", _pluginState.Game.CurrentMode.Name);
+                            PlayerFeedback.NotifyText(player, _localizer, "commands.menu-currentmode", MenuNotice.Success, _pluginState.Game.CurrentMode.Name);
                             if (player != null && PlayerFeedback.ChatLine)
                                 player.PrintToChat(_localizer.Localize("currentmode.message", _pluginState.Game.CurrentMode.Name));
                         });
@@ -161,9 +176,9 @@ namespace GameModeManager.Menus
                         menu?.AddMenuOption(_localizer.Localize("commands.menu-currentmap"), (player, option) =>
                         {
                             MenuFactory.Api?.CloseMenu(player);
-                            PlayerFeedback.Notify(player, _localizer, "notify.map", MenuNotice.Success, "currentmap.message", _pluginState.Game.CurrentMap.DisplayName);
+                            PlayerFeedback.NotifyText(player, _localizer, "commands.menu-currentmap", MenuNotice.Success, _pluginState.Game.CurrentMap.DisplayName);
                             if (PlayerFeedback.ChatLine)
-                                player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.Game.CurrentMap.Name));
+                                player.PrintToChat(_localizer.Localize("currentmap.message", _pluginState.Game.CurrentMap.DisplayName));
                         });
                         break;
                 }

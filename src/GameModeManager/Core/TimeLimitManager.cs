@@ -122,7 +122,15 @@ namespace GameModeManager.Core
 
         public decimal TimeRemaining()
         {
-            return timeRemaining; 
+            timeLimit ??= ConVar.Find("mp_timelimit");
+            return timeRemaining;
+        }
+
+        // Whether this map has a time limit at all: a custom one from !timelimit, or mp_timelimit
+        public bool HasTimeLimit()
+        {
+            timeLimit ??= ConVar.Find("mp_timelimit");
+            return _pluginState.TimeLimit.CustomLimit ? _pluginState.TimeLimit.Duration > 0 : !StandardUnlimitedTime;
         }
 
         private void LoadCvar()
