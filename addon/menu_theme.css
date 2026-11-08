@@ -10,10 +10,19 @@
 	color: #F2F2F2;
 }
 
-/* Notifications use the menu's Mono background. The constructor's Mono leaves them PMM's blue. */
+/* Notifications use Mono's colours, a little lighter at the top than the menus, so the small box isn't so dark. The
+   constructor's Mono leaves them PMM's blue. */
 .utils-notify
 {
-	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) ) );
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(28, 28, 31, 0.95) ), to( rgba(14, 14, 16, 0.96) ) );
+	world-blur: gaussian(2, 2, 2); /* Blurred behind like the menus: PMM only blurs the menu's background */
+}
+
+/* The success tick: PMM's long bar ends about half a pixel below and right of the short one, so the bottom looks flat and
+   smeared. 1px higher, its end lands on the short bar's, so the two meet in a sharp V. */
+.ntf-ok-long
+{
+	margin-bottom: 7px;
 }
 
 /* PMM never sets a description, but the empty line still takes up height */
@@ -39,10 +48,36 @@
 	visibility: collapse;
 }
 
-/* An empty row slot flashes PMM's row colour as it fills: keep it clear */
+/* PMM always has six row slots and marks unused ones k-empty. Hide those and let the menu shrink to the rows it has.
+   The row spacing moves from the slot to the item, so a slot with a hidden item takes no space. Clear, so it doesn't flash. */
 .utils-item.k-empty
 {
+	visibility: collapse;
 	background-color: #00000000;
+	border: 0px solid transparent;
+}
+
+.utils-buttons
+{
+	height: fit-children;
+}
+
+.utils-slot
+{
+	height: fit-children;
+	margin: 0px;
+}
+
+.utils-item
+{
+	margin: 4px 0px;
+}
+
+/* A dropdown that's open: PMM's own size, with the spacing above */
+.utils-slot.is-open
+{
+	height: 178px;
+	margin-bottom: -130px;
 }
 
 /* The WASD and number key footers: keycaps instead of PMM's text hint */

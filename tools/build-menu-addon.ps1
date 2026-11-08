@@ -126,9 +126,9 @@ $css = [IO.File]::ReadAllText($uiCss) -replace '(?m)^@define accent: [^;]+;', '@
 $mono = [ordered]@{
     '@define accent-soft: rgba(96, 128, 255, 0.40);' = '@define accent-soft: rgba(255, 255, 255, 0.16);'
     '@define frame: rgba(140, 170, 210, 0.22);' = '@define frame: rgba(255, 255, 255, 0.14);'
-    '@define btn-bg: rgba(255, 255, 255, 0.05);' = '@define btn-bg: rgba(255, 255, 255, 0.04);'
-    '@define btn-bg-hover: rgba(255, 255, 255, 0.11);' = '@define btn-bg-hover: rgba(255, 255, 255, 0.10);'
-    '@define btn-bg-active: rgba(255, 255, 255, 0.18);' = '@define btn-bg-active: rgba(255, 255, 255, 0.16);'
+    '@define btn-bg: rgba(255, 255, 255, 0.05);' = '@define btn-bg: rgba(255, 255, 255, 0.012);'
+    '@define btn-bg-hover: rgba(255, 255, 255, 0.11);' = '@define btn-bg-hover: rgba(255, 255, 255, 0.028);'
+    '@define btn-bg-active: rgba(255, 255, 255, 0.18);' = '@define btn-bg-active: rgba(255, 255, 255, 0.045);'
     '@define label-color: #8b8f94;' = '@define label-color: #9a9a9e;'
     'from( rgba(22, 30, 42, 0.82) ), to( rgba(13, 19, 28, 0.86) )' = 'from( rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) )'
     'background-image: url("s2r://panorama/images/backgrounds/bluedots_large_png.vtex");' = 'background-image: none;'
@@ -222,11 +222,13 @@ if (Test-Path $manifestPath) {
 
 # BEGIN vote footers
 # Keycaps on the vote, nominate and settings panels, for the WASD and number key styles, from what each panel's text hint says.
+# The vote panel gets them in mouse mode too, for voting with !1 to !9 in chat.
 # The hint stays in the file: it's the "done" message after voting. The bridge isn't changed, only the addon's copy of its layout.
 $voteXmlPath = Join-Path $contentDir "panorama\layout\custom_game\pmm_mapvote.xml"
 $voteXml = [IO.File]::ReadAllText($voteXmlPath)
 $dash = [string][char]0x2013
 $voteFooters = [ordered]@{
+    "mv_hint_click"  = @("click", ,@("Vote", $dash, "!1", "!9"))   # one group: the comma keeps it a group
     "mv_hint_wasd"   = @("wasd", @("Move", "/", "W", "S"), @("Vote", "", "E"), @("Mode", "", "R"))
     "mv_hint_digits" = @("digits", @("Vote", $dash, "1", "9"), @("Mode", "", "0"))
     "nm_hint_wasd"   = @("wasd", @("Move", "/", "W", "S"), @("Page", "/", "A", "D"), @("Nominate", "", "E"), @("Close", "", "R"))
@@ -255,6 +257,8 @@ foreach ($hint in $voteFooters.Keys) {
 }
 [IO.File]::WriteAllText($voteXmlPath, $voteXml, (New-Object Text.UTF8Encoding($false)))
 [IO.File]::AppendAllText((Join-Path $contentDir "panorama\styles\custom_game\pmm_mapvote.css"), [IO.File]::ReadAllText((Join-Path $addonDir "vote_footer.css")), (New-Object Text.UTF8Encoding($false)))
+# The admin panel gets Mono's background and border too, from addon\admin_theme.css
+[IO.File]::AppendAllText((Join-Path $contentDir "panorama\styles\custom_game\pmm_admin.css"), [IO.File]::ReadAllText((Join-Path $addonDir "admin_theme.css")), (New-Object Text.UTF8Encoding($false)))
 Write-Host "  Added the vote panel footers"
 # END vote footers
 

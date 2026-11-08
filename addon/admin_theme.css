@@ -1,0 +1,73 @@
+
+/* ==== Appended to PMM_SimpleAdmin's stylesheet by build-menu-addon.ps1: Mono's background and border, like the menus and the vote
+   panel. The red header and accents stay, so admin tools still stand apart. ==== */
+.sa-root
+{
+	width: 430px; /* PMM_SimpleAdmin's 460px, a little narrower: still wider than the menus (400px) and the vote panel (420px) */
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( rgba(18, 18, 20, 0.92) ), to( rgba(8, 8, 10, 0.95) ) ); /* The menus' gradient */
+	border: 1px solid #ffffff14; /* The vote panel's outline. The red header covers it, below. */
+	overflow: noclip noclip; /* So the header can reach over the outline. Nothing else in the panel goes past its edge. */
+	world-blur: gaussian(2, 2, 2); /* Like the menus: the game behind is blurred, so the panel looks the same over bright maps */
+}
+
+.sa-foot
+{
+	border-top: 1px solid #ffffff14;
+}
+
+.sa-pill
+{
+	background-color: #ffffff14;
+}
+
+/* Icons keep their own shape: PMM_SimpleAdmin stretches them to a square, which squashes tall ones like Manage players' */
+.sa-ic
+{
+	background-size: contain;
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+}
+
+/* The row under the mouse: a subtle grey instead of dark red, like the mockups. Panorama blends this about four times stronger
+   than a browser, so 2% white here looks like the mockups' 7%. The red bar and arrow stay as the admin accent. */
+.sa-row:hover,
+.sa-fb:hover
+{
+	background-color: #ffffff05;
+}
+
+/* The red header reaches over the outline at the top and sides, so there's no light line around it. The panel is 430px wide
+   (set above), so the header is too, starting 1px left of it. Its top corners are rounded like the panel's, which no longer clips them. */
+.sa-head
+{
+	width: 430px;
+	margin: -1px 0px 0px -1px;
+	border-radius: 6px 6px 0px 0px;
+}
+
+/* The menus' greys for the text, instead of PMM_SimpleAdmin's reddish ones. The header, icons, keys and danger rows stay red. */
+.sa-title { color: #f2f2f2; }
+.sa-lab { color: #ececec; }
+.sa-crumb { color: #9a9a9e; }
+.sa-sub { color: #b0b0b4; }
+.sa-hint { color: #b0b0b4; }
+.sa-pill { color: #b0b0b4; }
+.sa-arrow { color: #9a9a9e; }
+.sa-ft { color: #c8c8cc; }
+.sa-row.r-dim .sa-lab, .sa-row.r-dis .sa-lab { color: #6e6e73; }
+
+/* The highlighted row's bar and arrow in a softer red than PMM_SimpleAdmin's, nearer the header, so they don't glow on the dark
+   row. The arrow sits about as far from the right edge as the text is from the left. */
+.sa-row:hover .sa-rbar { background-color: #d83a30; }
+.sa-row:hover .sa-arrow { color: #d83a30; }
+.sa-arrow { margin-right: 18px; }
+
+/* Rows rounded like the menus' (PMM uses 5px, PMM_SimpleAdmin 4px) */
+.sa-row { border-radius: 5px; }
+
+/* The counts, values and arrow on the right a touch bigger (PMM_SimpleAdmin: 13px and 20px), so they read next to the labels */
+.sa-hint { font-size: 14px; }
+.sa-arrow { font-size: 22px; }
+
+/* The icons halfway between PMM_SimpleAdmin's light red (#ff6b5e) and the highlighted row's (#d83a30) */
+.sa-ic { wash-color: #eb5247; }
