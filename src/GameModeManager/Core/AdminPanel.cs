@@ -28,13 +28,14 @@ namespace GameModeManager.Core
         private MapChooserBridge _mapChooser;
         private PluginState _pluginState;
         private SettingMenus _settingMenus;
+        private SettingStates _settingStates;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<AdminPanel> _logger;
         private IStringLocalizer _iLocalizer;
 
         // Define class constructor
-        public AdminPanel(PluginState pluginState, MapMenus mapMenus, ModeMenus modeMenus, PlayerMenu playerMenu, MapChooserBridge mapChooser, SettingMenus settingMenus, StringLocalizer localizer, IStringLocalizer iLocalizer, ILogger<AdminPanel> logger)
+        public AdminPanel(PluginState pluginState, MapMenus mapMenus, ModeMenus modeMenus, PlayerMenu playerMenu, MapChooserBridge mapChooser, SettingMenus settingMenus, SettingStates settingStates, StringLocalizer localizer, IStringLocalizer iLocalizer, ILogger<AdminPanel> logger)
         {
             _logger = logger;
             _mapMenus = mapMenus;
@@ -45,6 +46,7 @@ namespace GameModeManager.Core
             _iLocalizer = iLocalizer;
             _pluginState = pluginState;
             _settingMenus = settingMenus;
+            _settingStates = settingStates;
         }
 
         // Define class properties
@@ -357,11 +359,28 @@ namespace GameModeManager.Core
         {
             object menu = NewMenu(_localizer.Localize(vote ? "admin.start-vote" : "admin.change-setting"), player);
             foreach (ISetting setting in _pluginState.Game.Settings.Values.OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase))
-                AddSubMenu(menu, setting.DisplayName, p => SettingMenu(p, setting, vote));
+            {
+                // A known state is an ON/OFF row that turns it the other way, or starts a vote on that
+                SettingState state = _settingStates.Get(setting);
+                if (state is SettingState.On or SettingState.Off)
+                {
+                    bool enable = state == SettingState.Off;
+                    string word = enable ? "enable" : "disable";
+                    AddOption(menu, $"({(enable ? "OFF" : "ON")}) [{setting.DisplayName}]", p => Act(p, $"{(vote ? "vote" : "css_setting")} {word} \"{setting.Name}\"", () =>
+                    {
+                        if (vote)
+                            _settingMenus.StartVote(p, setting, enable);
+                        else
+                            _settingMenus.ChangeSetting(p, setting, enable);
+                    }), !SettingMenus.CanChange(setting, enable));
+                }
+                else
+                    AddSubMenu(menu, setting.DisplayName, p => SettingMenu(p, setting, vote));
+            }
             return menu;
         }
 
-        // Only the cfg files are known, not whether a setting is on now: enable and disable, no toggle
+        // A setting whose state isn't known, or is mixed: enable and disable
         private object SettingMenu(CCSPlayerController player, ISetting setting, bool vote)
         {
             object menu = NewMenu(setting.DisplayName, player);

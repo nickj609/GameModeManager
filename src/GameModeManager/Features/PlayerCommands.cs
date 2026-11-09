@@ -129,7 +129,7 @@ namespace GameModeManager.Features
         public void OnChangeSettingCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player != null)
-                _settingMenus.VoteMenu?.Open(player);
+                _settingMenus.OpenVoteMenu(player);
         }
 
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]

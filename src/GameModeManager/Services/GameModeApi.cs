@@ -12,9 +12,9 @@ namespace GameModeManager.Services
     public class GameModeApi : IGameModeApi, IPluginDependency<Plugin, Config>
     {
         // Define class constructor
-        public GameModeApi(PluginState pluginState, ServerManager serverManager, WarmupManager warmupManager)
+        public GameModeApi(PluginState pluginState, ServerManager serverManager, WarmupManager warmupManager, SettingStates settingStates)
         {
-            State = new GameState(pluginState);
+            State = new GameState(pluginState, settingStates);
             Control = new GameModeController(serverManager);
             Warmup = new WarmupController(warmupManager);
         }
@@ -29,9 +29,14 @@ namespace GameModeManager.Services
         {
             // Define class dependencies
             private readonly PluginState _pluginState;
+            private readonly SettingStates _settingStates;
 
             // Define class constructor
-            public GameState(PluginState pluginState) => _pluginState = pluginState;
+            public GameState(PluginState pluginState, SettingStates settingStates)
+            {
+                _pluginState = pluginState;
+                _settingStates = settingStates;
+            }
 
             // Define class properties
             public IMap CurrentMap => _pluginState.Game.CurrentMap;
@@ -42,6 +47,7 @@ namespace GameModeManager.Services
             public Dictionary<string, IMode> Modes => _pluginState.Game.Modes;
             public Dictionary<string, ISetting> Settings => _pluginState.Game.Settings;
             public Dictionary<string, IMapGroup> MapGroups => _pluginState.Game.MapGroups;
+            public SettingState GetSettingState(ISetting setting) => _settingStates.Get(setting);
         }
 
         private class GameModeController : IGameModeControl

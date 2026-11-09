@@ -139,8 +139,6 @@
   "admin.change-mode": "Mód váltása",
   "admin.next-mode": "Következő mód beállítása",
   "menu.next-mode-title": "Következő Mód",
-  "settings.enable-title": "Beállítások bekapcsolása",
-  "settings.disable-title": "Beállítások kikapcsolása",
   "admin.change-setting": "Beállítás módosítása",
   "admin.start-vote": "Szavazás indítása",
   "admin.random-vote": "Véletlen szavazás",

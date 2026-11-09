@@ -30,7 +30,7 @@ The commands below can be run by the server, such as within your mode configurat
 | :---------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
 | !maps                                     | Displays an admin menu to change to one of the current mode's maps or start a map vote.                                |
 | !modes                                    | Displays an admin menu to change the game mode or start a vote on one.                                                 |
-| !settings                                 | Displays an admin menu to enable or disable custom game settings, or start a vote on one.                              |
+| !settings                                 | Displays an admin menu of custom game settings, each shown as on or off: pick one to turn it the other way, or start a vote on that.                              |
 | !mode <mode name> [map]                   | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**. Add a map from that mode's list to start on it, like **!mode surf surf_beginner**. |
 | !warmup                                   | Displays an admin menu to start, schedule or end warmup.                                                               |
 | !timelimit <true\|false> <seconds>        | Sets the time limit for the current map.                                                                               |
@@ -51,7 +51,7 @@ Player commands are commands that standard players with no administrative rights
 | !currentmode   | Displays the current game mode.                                                              |
 | !changemap     | Displays a menu of the current mode's maps. Picking one starts a yes/no vote to change to it. |
 | !changemode    | Displays a menu of modes. Picking one starts a yes/no vote to change to it.                  |
-| !changesetting | Displays a menu of settings. Pick one, then Enable or Disable, to start a vote.              |
+| !changesetting | Displays a menu of settings, each shown as on or off. Pick one to start a vote on turning it the other way.              |
 
 These come from [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser), which is included with GameModeManager:
 

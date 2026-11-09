@@ -166,7 +166,7 @@ namespace GameModeManager.Menus
                             MenuFactory.Api?.CloseMenu(player);
                             // The vote menu: MainMenu is the admin enable/disable menu (no vote)
                             if (_config.Votes.Enabled && _config.Votes.GameSettings)
-                                _settingMenus.VoteMenu?.Open(player);
+                                _settingMenus.OpenVoteMenu(player);
                         });
                         break;
                     case "!currentmode":

@@ -5,6 +5,7 @@ using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.CrossCutting;
+using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -21,11 +22,13 @@ namespace GameModeManager.Features
         private PluginState _pluginState;
         private AdminPanel _adminPanel;
         private MapChooserBridge _mapChooser;
+        private SettingStates _settingStates;
         private Config _config = new Config();
 
         // Define class constructor
-        public StatusCommand(PluginState pluginState, AdminPanel adminPanel, MapChooserBridge mapChooser)
+        public StatusCommand(PluginState pluginState, AdminPanel adminPanel, MapChooserBridge mapChooser, SettingStates settingStates)
         {
+            _settingStates = settingStates;
             _adminPanel = adminPanel;
             _mapChooser = mapChooser;
             _pluginState = pluginState;
@@ -74,8 +77,18 @@ namespace GameModeManager.Features
                 $"RTV and nominate: {OnOff(_config.MapChooser.Rtv)}, in this mode: {OnOff(_pluginState.Game.RtvInMode)}, modes in votes: {OnOff(_config.MapChooser.ModesInVotes)}, player votes: {OnOff(_config.Votes.Enabled)} ({_config.Votes.Style})",
                 $"Rotation: maps {OnOff(_pluginState.Game.RotationsEnabled)}, modes {OnOff(rotation.ModeRotation)} (every {rotation.ModeInterval}, {rotation.ModeVote}, skipped maps count: {OnOff(rotation.CountSkippedMaps)}), schedules {OnOff(rotation.ModeSchedules)}, when empty {OnOff(rotation.WhenServerEmpty)}",
                 $"Mode rotation now: {_pluginState.Game.MapRotations} map(s) counted, this map ends with a mode change: {(_mapChooser.ModeChangeDue() ? (_mapChooser.ModesOnly ? "yes, by vote" : "yes, random") : "no")}",
-                $"Next map messages: {(_config.MapChooser.NextMapMessages ? "GameModeManager's" : "GG1MapChooser's")}"
+                $"Next map messages: {(_config.MapChooser.NextMapMessages ? "GameModeManager's" : "GG1MapChooser's")}",
+                $"Settings: {SettingsStatus()}"
             };
+        }
+
+        // How many settings are on and off now, and which ones show no state (their cfg files set nothing that can be checked)
+        private string SettingsStatus()
+        {
+            var states = _pluginState.Game.Settings.Values.Select(setting => (setting.Name, State: _settingStates.Get(setting))).ToList();
+            int Count(SettingState state) => states.Count(s => s.State == state);
+            var unknown = states.Where(s => s.State is SettingState.Unknown or SettingState.Mixed).Select(s => $"{s.Name} ({s.State.ToString().ToLowerInvariant()})").ToList();
+            return $"{Count(SettingState.On)} on, {Count(SettingState.Off)} off" + (unknown.Count > 0 ? $", no on/off row: {string.Join(", ", unknown)}" : "");
         }
 
         private static string PluginStatus(Assembly? assembly, string[] members, string whenMissing)

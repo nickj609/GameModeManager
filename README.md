@@ -153,7 +153,7 @@ Their licenses are in their folders, and the links above have their source. Thei
 | :---------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
 | `!maps` | Displays an admin menu to change to one of the current mode's maps or start a map vote.                                |
 | `!modes` | Displays an admin menu to change the game mode or start a vote on one.                                                 |
-| `!settings` | Displays an admin menu to enable or disable custom game settings, or start a vote on one.                              |   
+| `!settings` | Displays an admin menu of custom game settings, each shown as on or off: pick one to turn it the other way, or start a vote on that.                              |   
 | `!mode <mode name> [map]` | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**. Add a map from that mode's list to start on it, like **!mode surf surf_beginner**. |    
 | `!warmup` | Displays an admin menu to start, schedule or end warmup.                                                               |
 | `!timelimit <true\|false> <seconds>` | Sets the time limit for the current map.                                                                               |
@@ -174,7 +174,7 @@ Their licenses are in their folders, and the links above have their source. Thei
 | `!menu` | Choose your menu style. |
 | `!changemap` | Menu of the current mode's maps; picking one starts a yes/no vote to change to it. |
 | `!changemode` | Menu of modes; picking one starts a yes/no vote to change to it.         |
-| `!changesetting` | Menu of settings; pick one, then Enable or Disable, to start a vote.     |
+| `!changesetting` | Menu of settings, each shown as on or off; pick one to start a vote on turning it the other way.     |
 
 RTV, nominate (the current mode's maps), next map and time left come from GG1MapChooser: `!rtv`, `!nominate`, `!nextmap`, `!timeleft`.
 

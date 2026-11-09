@@ -8,6 +8,8 @@ GameModeManager provides a Shared API for other plugins to manage game modes. Ad
 > Version 2.0.0 targets .NET 10 and removes `IRTVApi` (`rtv:api`), because [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser) now handles RTV. Use its `ggmc:api` capability instead. `State.Maps`, `Modes`, `Settings` and `MapGroups` are now dictionaries. For .NET 8 plugins, stay on package version 1.0.63.
 >
 > Version 2.1.0 removes `ITimeLimitApi` (`time_limit:api`). If you need it, stay on package version 2.0.0, or [open an issue](https://github.com/nickj609/GameModeManager/issues/new/choose).
+>
+> Version 2.4.0 adds `State.GetSettingState(setting)`.
 
 # Interfaces
 <details>
@@ -24,6 +26,9 @@ public interface IGameState
     Dictionary<string, IMode> Modes { get; }
     Dictionary<string, ISetting> Settings { get; }
     Dictionary<string, IMapGroup> MapGroups { get; }
+
+    // Whether a setting is on now: On, Off, Mixed or Unknown (see the FAQ, "How do I add custom settings?")
+    SettingState GetSettingState(ISetting setting);
 }
 
 public interface IGameModeControl

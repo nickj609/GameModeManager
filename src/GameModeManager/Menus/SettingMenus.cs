@@ -12,6 +12,9 @@ using CounterStrikeSharp.API.Modules.Menu;
 namespace GameModeManager.Menus
 {
     // Define class
+    // The setting lists are built when they open, because they show whether each setting is on now (SettingStates). A setting
+    // whose state is known is an on/off row: choosing it turns it the other way, or starts a vote on that. One whose state
+    // isn't known, or is mixed, opens a page with Enable and Disable.
     public class SettingMenus: IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
@@ -20,10 +23,12 @@ namespace GameModeManager.Menus
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private MenuLanguages _languages;
+        private SettingStates _states;
 
         // Define class constructor
-        public SettingMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, MenuLanguages languages)
+        public SettingMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, MenuLanguages languages, SettingStates states)
         {
+            _states = states;
             _languages = languages;
             _localizer = localizer;
             _voteService = voteService;
@@ -31,8 +36,7 @@ namespace GameModeManager.Menus
         }
 
         // Define class properties
-        public LocalizedMenu MainMenu = new(); // Admin menu (!settings)
-        public LocalizedMenu VoteMenu = new(); // Player menu (!changesetting): no Back, because that would lead to the admin menu
+        private LocalizedMenu _mainMenu = new(); // Admin menu (!settings) with votes on: change a setting, or start a vote
         public bool VotesEnabled => _config.Votes.Enabled && _config.Votes.GameSettings;
 
         // Define on config parsed
@@ -42,70 +46,122 @@ namespace GameModeManager.Menus
         }
 
         // Define load method
-        // Built once in each language
+        // The first page is built once in each language
         public void Load()
         {
             LocalizedMenu _main = new();
-            LocalizedMenu _vote = new();
-            _languages.ForEach(culture =>
-            {
-                _vote.Set(culture, CreateVoteMenu(null));
-                _main.Set(culture, CreateMainMenu());
-            });
-            MainMenu = _main;
-            VoteMenu = _vote;
+            _languages.ForEach(culture => _main.Set(culture, CreateMainMenu()));
+            _mainMenu = _main;
         }
 
         private IMenu? CreateMainMenu()
         {
-            // Create the enable or disable menu, then a setting
-            IMenu? changeMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.change-setting"), VotesEnabled ? player => MainMenu.Open(player) : null);
-            IMenu? enableMenu = CreateChangeMenu(true, changeMenu);
-            IMenu? disableMenu = CreateChangeMenu(false, changeMenu);
-
-            changeMenu?.AddMenuOption(_localizer.Localize("menu.enable"), (player, option) => enableMenu?.Open(player));
-            changeMenu?.AddMenuOption(_localizer.Localize("menu.disable"), (player, option) => disableMenu?.Open(player));
-
-            // With votes off, !settings goes straight to enable or disable
-            if (!VotesEnabled)
-                return changeMenu;
-
-            IMenu? adminVoteMenu = CreateVoteMenu(player => MainMenu.Open(player));
-
             IMenu? mainMenu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.settings"));
-            mainMenu?.AddMenuOption(_localizer.Localize("admin.change-setting"), (player, option) => changeMenu?.Open(player));
-            mainMenu?.AddMenuOption(_localizer.Localize("admin.start-vote"), (player, option) => adminVoteMenu?.Open(player));
+            mainMenu?.AddMenuOption(_localizer.Localize("admin.change-setting"), (player, option) => OpenChangeMenu(player, p => OpenMainMenu(p)));
+            mainMenu?.AddMenuOption(_localizer.Localize("admin.start-vote"), (player, option) => OpenVoteMenu(player, p => OpenMainMenu(p)));
             return mainMenu;
         }
 
-        private IMenu? CreateChangeMenu(bool enable, IMenu? back)
+        // Define menu methods
+        // !settings. With votes off, it goes straight to the settings.
+        public void OpenMainMenu(CCSPlayerController player)
         {
-            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize(enable ? "settings.enable-title" : "settings.disable-title"), player => back?.Open(player));
-
-            foreach (ISetting _setting in _pluginState.Game.Settings.Values)
-            {
-                MenuActions.Add(menu, _setting.DisplayName, (player, option) =>
-                {
-                    MenuFactory.Api?.CloseMenu(player);
-                    ChangeSetting(player, _setting, enable);
-                });
-            }
-            return menu;
+            if (VotesEnabled)
+                _mainMenu.Open(player);
+            else
+                OpenChangeMenu(player, null);
         }
 
-        private IMenu? CreateVoteMenu(Action<CCSPlayerController>? back)
+        // Every setting, on or off: choosing one changes it
+        public void OpenChangeMenu(CCSPlayerController player, Action<CCSPlayerController>? back)
         {
-            IMenu? menu = MenuFactory.Api?.GetMenu(back != null ? _localizer.Localize("admin.start-vote") : _localizer.Localize("settings.menu-title"), back);
+            using var _culture = MenuLanguages.For(player);
+            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.change-setting"), back);
+            if (menu == null)
+                return;
+
+            foreach (ISetting setting in Sorted())
+            {
+                SettingState state = _states.Get(setting);
+                if (state is SettingState.On or SettingState.Off)
+                {
+                    bool on = state == SettingState.On;
+                    MenuFactory.Api!.AddToggle(menu, setting.DisplayName, on, (p, option) =>
+                    {
+                        MenuFactory.Api?.CloseMenu(p);
+                        ChangeSetting(p, setting, !on);
+                    }, !CanChange(setting, !on));
+                }
+                else
+                    menu.AddMenuOption(setting.DisplayName, (p, option) => OpenChoiceMenu(p, setting, false, q => OpenChangeMenu(q, back)));
+            }
+            menu.Open(player);
+        }
+
+        // !changesetting, and the admin's Start a vote: every setting, on or off. Choosing one starts a vote on turning it the
+        // other way.
+        public void OpenVoteMenu(CCSPlayerController player, Action<CCSPlayerController>? back = null)
+        {
             if (!VotesEnabled)
-                return menu;
+                return;
 
-            foreach (ISetting _setting in _pluginState.Game.Settings.Values)
-                menu?.AddMenuOption(_setting.DisplayName, (player, option) => OpenSettingVoteMenu(player, _setting, menu));
+            using var _culture = MenuLanguages.For(player);
+            IMenu? menu = MenuFactory.Api?.GetMenu(back != null ? _localizer.Localize("admin.start-vote") : _localizer.Localize("settings.menu-title"), back);
+            if (menu == null)
+                return;
 
-            return menu;
+            foreach (ISetting setting in Sorted())
+            {
+                SettingState state = _states.Get(setting);
+                if (state is SettingState.On or SettingState.Off)
+                {
+                    bool on = state == SettingState.On;
+                    MenuFactory.Api!.AddToggle(menu, setting.DisplayName, on, (p, option) =>
+                    {
+                        MenuFactory.Api?.CloseMenu(p);
+                        StartVote(p, setting, !on);
+                    }, !CanChange(setting, !on));
+                }
+                else
+                    menu.AddMenuOption(setting.DisplayName, (p, option) => OpenChoiceMenu(p, setting, true, q => OpenVoteMenu(q, back)));
+            }
+            menu.Open(player);
+        }
+
+        // A setting whose state isn't known: enable or disable, or a vote on it
+        private void OpenChoiceMenu(CCSPlayerController player, ISetting setting, bool vote, Action<CCSPlayerController> back)
+        {
+            using var _culture = MenuLanguages.For(player);
+            IMenu? menu = MenuFactory.Api?.GetMenu(vote ? _localizer.Localize("setting.vote.menu-title", setting.DisplayName) : setting.DisplayName, back);
+            if (menu == null)
+                return;
+
+            foreach (bool enable in new[] { true, false })
+            {
+                MenuActions.Add(menu, _localizer.Localize(enable ? "menu.enable" : "menu.disable"), (p, option) =>
+                {
+                    MenuFactory.Api?.CloseMenu(p);
+                    if (vote)
+                        StartVote(p, setting, enable);
+                    else
+                        ChangeSetting(p, setting, enable);
+                }, !CanChange(setting, enable));
+            }
+            menu.Open(player);
+        }
+
+        private IEnumerable<ISetting> Sorted()
+        {
+            return _pluginState.Game.Settings.Values.OrderBy(setting => setting.DisplayName, StringComparer.OrdinalIgnoreCase);
         }
 
         // Define class methods
+        // A setting can only be turned on or off when it has that cfg file
+        public static bool CanChange(ISetting setting, bool enable)
+        {
+            return (enable ? setting.Enable : setting.Disable) != "";
+        }
+
         public void ChangeSetting(CCSPlayerController player, ISetting setting, bool enable)
         {
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix(enable ? "enable.changesetting.message" : "disable.changesetting.message", player.PlayerName, setting.DisplayName));
@@ -117,29 +173,6 @@ namespace GameModeManager.Menus
         {
             _voteService.StartYesNo(player, () => _localizer.Localize(enable ? "vote.enable-setting" : "vote.disable-setting", setting.DisplayName),
                 () => Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}"));
-            // The menu vote: the game's panel can only say "Change current level to"
-        }
-
-        // Define vote methods
-        // Enable or disable, then a yes/no vote on it
-        private void OpenSettingVoteMenu(CCSPlayerController player, ISetting setting, IMenu? back)
-        {
-            using var _culture = MenuLanguages.For(player);
-            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("setting.vote.menu-title", setting.DisplayName), p => back?.Open(p));
-            if (menu == null)
-                return;
-
-            MenuActions.Add(menu, _localizer.Localize("menu.enable"), (p, option) =>
-            {
-                MenuFactory.Api?.CloseMenu(p);
-                StartVote(p, setting, true);
-            });
-            MenuActions.Add(menu, _localizer.Localize("menu.disable"), (p, option) =>
-            {
-                MenuFactory.Api?.CloseMenu(p);
-                StartVote(p, setting, false);
-            });
-            menu.Open(player);
         }
     }
 }

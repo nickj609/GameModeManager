@@ -4,6 +4,14 @@
 
 To add custom settings, create two configuration files with the `enable_` and `disable_ prefix` (i.e. **enable_autobhop.cfg**, **disable_autobhop.cfg**). Then, put those files in the `/csgo/cfg/settings/` folder. This is the default settings folder. You can change this folder in the configuration settings.
 
+The menus show each setting as on or off. GameModeManager works that out from what the two files set, compared with the server right now:
+
+- **ConVars** like `sv_autobunnyhopping 1`. A ConVar both files set to the same value doesn't count.
+- **Plugins** loaded or unloaded with `css_plugins load "plugins/disabled/RollTheDice/RollTheDice.dll"` or `css_plugins unload "Roll The Dice"`.
+- Lines inside `exec other.cfg` and `exec_after_delay <seconds> <command>` count too.
+
+Lines it can't check, like `say` and `echo`, are skipped. A setting whose files set nothing it can check, or whose state is mixed (some of each, after a ConVar was changed by hand), shows Enable and Disable instead. `css_gmm_status` lists those.
+
 </details>
 
 <details>

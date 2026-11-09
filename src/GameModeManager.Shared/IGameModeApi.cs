@@ -15,6 +15,9 @@ public interface IGameState
     Dictionary<string, IMode> Modes { get; }
     Dictionary<string, ISetting> Settings { get; }
     Dictionary<string, IMapGroup> MapGroups { get; }
+
+    // Whether a setting is on now, read from the server (its cfg files compared with the ConVars and plugins they change)
+    SettingState GetSettingState(ISetting setting);
 }
 
 public interface IGameModeControl

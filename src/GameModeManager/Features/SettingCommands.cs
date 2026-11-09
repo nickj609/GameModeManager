@@ -90,7 +90,7 @@ namespace GameModeManager.Features
         public void OnSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
             if (player != null && !_adminPanel.Open(player, "settings"))
-                _settingMenus.MainMenu?.Open(player);
+                _settingMenus.OpenMainMenu(player);
         }
     }
 }

@@ -1,0 +1,285 @@
+// Included libraries
+using System.Reflection;
+using System.Globalization;
+using GameModeManager.Contracts;
+using CounterStrikeSharp.API.Core;
+using Microsoft.Extensions.Logging;
+using GameModeManager.Shared.Models;
+using System.Text.RegularExpressions;
+using CounterStrikeSharp.API.Modules.Cvars;
+
+// Declare namespace
+namespace GameModeManager.Core
+{
+    // Define class
+    // Whether each setting is on now. A setting is only its enable and disable cfg files, so this reads what they set: ConVars
+    // ("sv_autobunnyhopping 1") and plugins ("css_plugins load ..."), through "exec" of other cfgs and "exec_after_delay", and
+    // compares that with the server when asked. So it's right after a map or mode change, a restart, or a ConVar changed by hand.
+    // A ConVar both files set to the same value doesn't count, and lines it can't check (say, echo, plain commands) are skipped.
+    public class SettingStates : IPluginDependency<Plugin, Config>
+    {
+        // Define class dependencies
+        private ILogger<SettingStates> _logger;
+        private Config _config = new();
+
+        // Define class constructor
+        public SettingStates(ILogger<SettingStates> logger)
+        {
+            _logger = logger;
+        }
+
+        // Define class properties
+        private const int MaxDepth = 8; // exec inside exec
+        private const double Tolerance = 0.0001;
+
+        // Values that never stay as a cfg sets them: they trigger something and go back
+        private static readonly HashSet<string> Ignored = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "mp_restartgame", "mp_restartgame_immediate", "mp_warmup_start", "mp_warmup_end", "sv_cheats"
+        };
+        private static readonly Regex DelayedCommand = new(@"^\s*exec_after_delay\s+\S+\s+(.+)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private readonly Dictionary<string, Checks> _files = new(StringComparer.OrdinalIgnoreCase);
+
+        // What one cfg file sets, with the files it runs
+        private class Checks
+        {
+            public Dictionary<string, string> ConVars = new(StringComparer.OrdinalIgnoreCase);
+            public Dictionary<string, bool> Plugins = new(StringComparer.OrdinalIgnoreCase); // Name or file name, loaded
+        }
+
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
+        // Define on map start behavior
+        // Read again, so an edited cfg counts from the next map
+        public void OnMapStart(string mapName)
+        {
+            _files.Clear();
+        }
+
+        // Define class methods
+        public SettingState Get(ISetting setting)
+        {
+            try
+            {
+                Checks? enable = setting.Enable != "" ? Read(setting.Enable) : null;
+                Checks? disable = setting.Disable != "" ? Read(setting.Disable) : null;
+                List<PluginContextInfo>? plugins = null;
+
+                bool? on = enable != null ? Holds(enable, disable, ref plugins) : null;
+                bool? off = disable != null ? Holds(disable, enable, ref plugins) : null;
+
+                return (on, off) switch
+                {
+                    (null, null) => SettingState.Unknown,
+                    (true, true) => SettingState.Unknown, // Both files set nothing different that can be checked
+                    (true, _) => SettingState.On,
+                    (_, true) => SettingState.Off,
+                    (false, null) => SettingState.Off,   // Only an enable cfg, and it isn't in effect
+                    (null, false) => SettingState.On,    // Only a disable cfg, and it isn't in effect
+                    _ => SettingState.Mixed
+                };
+            }
+            catch (Exception error)
+            {
+                _logger.LogWarning("Couldn't read the state of setting {Setting}: {Error}", setting.Name, error.Message);
+                return SettingState.Unknown;
+            }
+        }
+
+        // Whether everything this file sets is in effect. null when none of it can be checked.
+        private bool? Holds(Checks mine, Checks? other, ref List<PluginContextInfo>? plugins)
+        {
+            int checkedCount = 0;
+            foreach (var (name, value) in mine.ConVars)
+            {
+                if (other != null && other.ConVars.TryGetValue(name, out string? otherValue) && SameValue(otherValue, value))
+                    continue;
+
+                ConVar? conVar = ConVar.Find(name);
+                if (conVar == null)
+                    continue; // A command, or a plugin's ConVar while it isn't loaded
+
+                checkedCount++;
+                if (!SameValue(conVar.StringValue, value))
+                    return false;
+            }
+
+            foreach (var (name, loaded) in mine.Plugins)
+            {
+                plugins ??= LoadedPlugins();
+                if (plugins == null)
+                    break; // CounterStrikeSharp changed: plugin lines can't be checked
+
+                checkedCount++;
+                if (plugins.Any(plugin => plugin.Matches(name)) != loaded)
+                    return false;
+            }
+            return checkedCount == 0 ? null : true;
+        }
+
+        // Define file reading methods
+        // A file in the settings folder
+        private Checks Read(string file)
+        {
+            if (!_files.TryGetValue(file, out Checks? checks))
+            {
+                checks = new Checks();
+                ReadFile(Path.Combine(PluginState.GameController.ConfigDirectory, _config.Settings.Folder, file), checks, new HashSet<string>(StringComparer.OrdinalIgnoreCase), 0);
+                _files[file] = checks;
+            }
+            return checks;
+        }
+
+        private void ReadFile(string path, Checks checks, HashSet<string> visited, int depth)
+        {
+            if (depth > MaxDepth || !File.Exists(path) || !visited.Add(Path.GetFullPath(path)))
+                return;
+
+            foreach (string line in File.ReadAllLines(path))
+            {
+                foreach (string command in SplitCommands(StripComment(line)))
+                    ReadCommand(command, checks, visited, depth);
+            }
+        }
+
+        private void ReadCommand(string command, Checks checks, HashSet<string> visited, int depth)
+        {
+            // exec_after_delay <seconds> <command>, the command quoted or not
+            Match delayed = DelayedCommand.Match(command);
+            if (delayed.Success)
+            {
+                string inner = delayed.Groups[1].Value.Trim();
+                if (inner.Length > 1 && inner[0] == '"' && inner[^1] == '"' && inner.Count(c => c == '"') == 2)
+                    inner = inner[1..^1];
+                foreach (string part in SplitCommands(inner))
+                    ReadCommand(part, checks, visited, depth + 1);
+                return;
+            }
+
+            List<string> words = Words(command);
+            if (words.Count < 2)
+                return;
+
+            string name = words[0];
+            if (name.Equals("exec", StringComparison.OrdinalIgnoreCase))
+            {
+                string file = words[1].EndsWith(".cfg", StringComparison.OrdinalIgnoreCase) ? words[1] : words[1] + ".cfg";
+                ReadFile(Path.Combine(PluginState.GameController.ConfigDirectory, file), checks, visited, depth + 1);
+            }
+            else if (name.Equals("css_plugins", StringComparison.OrdinalIgnoreCase) && words.Count > 2)
+            {
+                string action = words[1].ToLowerInvariant();
+                string plugin = words[2].EndsWith(".dll", StringComparison.OrdinalIgnoreCase) ? Path.GetFileNameWithoutExtension(words[2]) : words[2];
+                if (action is "load" or "start")
+                    checks.Plugins[plugin] = true;
+                else if (action is "unload" or "stop")
+                    checks.Plugins[plugin] = false;
+            }
+            else if (!Ignored.Contains(name))
+                checks.ConVars[name] = words[1]; // The last value a file sets is the one that stays
+        }
+
+        // Define text helpers
+        private static string StripComment(string line)
+        {
+            bool quoted = false;
+            for (int i = 0; i < line.Length - 1; i++)
+            {
+                if (line[i] == '"')
+                    quoted = !quoted;
+                else if (!quoted && line[i] == '/' && line[i + 1] == '/')
+                    return line[..i];
+            }
+            return line;
+        }
+
+        // "a 1; b 2" is two commands, but not a ";" inside quotes
+        private static IEnumerable<string> SplitCommands(string line)
+        {
+            bool quoted = false;
+            int start = 0;
+            for (int i = 0; i < line.Length; i++)
+            {
+                if (line[i] == '"')
+                    quoted = !quoted;
+                else if (line[i] == ';' && !quoted)
+                {
+                    yield return line[start..i];
+                    start = i + 1;
+                }
+            }
+            yield return line[start..];
+        }
+
+        // Words, with quotes keeping a phrase together, like the console reads them
+        private static List<string> Words(string command)
+        {
+            List<string> words = new();
+            foreach (Match match in Regex.Matches(command, "\"([^\"]*)\"|(\\S+)"))
+                words.Add(match.Groups[1].Success ? match.Groups[1].Value : match.Groups[2].Value);
+            return words;
+        }
+
+        // "1" and "1.000000", "1" and "true", or the same text
+        private static bool SameValue(string actual, string expected)
+        {
+            actual = actual.Trim().Trim('"');
+            expected = expected.Trim().Trim('"');
+            if (Number(actual) is double a && Number(expected) is double b)
+                return Math.Abs(a - b) < Tolerance;
+            return actual.Equals(expected, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static double? Number(string text)
+        {
+            if (text.Equals("true", StringComparison.OrdinalIgnoreCase))
+                return 1;
+            if (text.Equals("false", StringComparison.OrdinalIgnoreCase))
+                return 0;
+            return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double value) ? value : null;
+        }
+
+        // Define plugin list methods
+        // A plugin CounterStrikeSharp has loaded now: its name and its file's name
+        private record PluginContextInfo(string ModuleName, string FileName)
+        {
+            public bool Matches(string name) => name.Equals(ModuleName, StringComparison.OrdinalIgnoreCase) || name.Equals(FileName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        // CounterStrikeSharp keeps its plugin list to itself (Application._pluginManager), so it's read through reflection.
+        // null when that changes: plugin lines are then skipped.
+        private List<PluginContextInfo>? LoadedPlugins()
+        {
+            const BindingFlags Any = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            try
+            {
+                object? manager = typeof(Application).GetField("_pluginManager", Any)?.GetValue(Application.Instance);
+                if (manager?.GetType().GetMethod("GetLoadedPlugins")?.Invoke(manager, null) is not System.Collections.IEnumerable contexts)
+                    return null;
+
+                List<PluginContextInfo> loaded = new();
+                foreach (object context in contexts)
+                {
+                    Type type = context.GetType();
+                    if (type.GetProperty("State")?.GetValue(context)?.ToString() != "Loaded")
+                        continue;
+
+                    string moduleName = (type.GetProperty("Plugin")?.GetValue(context) as IPlugin)?.ModuleName ?? "";
+                    string filePath = type.GetProperty("FilePath")?.GetValue(context) as string ?? "";
+                    loaded.Add(new PluginContextInfo(moduleName, Path.GetFileNameWithoutExtension(filePath)));
+                }
+                return loaded;
+            }
+            catch (Exception error)
+            {
+                _logger.LogWarning("Couldn't read CounterStrikeSharp's plugin list, so settings that load a plugin show no state: {Error}", error.Message);
+                return null;
+            }
+        }
+    }
+}

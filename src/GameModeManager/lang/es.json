@@ -139,8 +139,6 @@
   "admin.change-mode": "Cambiar modo",
   "admin.next-mode": "Establecer siguiente modo",
   "menu.next-mode-title": "Siguiente Modo",
-  "settings.enable-title": "Activar ajustes",
-  "settings.disable-title": "Desactivar ajustes",
   "admin.change-setting": "Cambiar ajuste",
   "admin.start-vote": "Iniciar votación",
   "admin.random-vote": "Votación aleatoria",
