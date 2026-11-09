@@ -34,16 +34,32 @@ namespace GameModeManager.Core
         // that's empty.
         public string? ModuleDirectory => (FindMapChooser() as BasePlugin)?.ModuleDirectory;
 
+        // GG1's API and plugin, found once and kept until the next map: finding them searches every loaded assembly. Not kept while it isn't
+        // found, so a GG1 that loads after GameModeManager is still picked up. A GG1 reloaded mid-map is found at the next map.
+        private static object? _api;
+        private static object? _mapChooser;
+
+        // Define on map start behavior
+        public void OnMapStart(string mapName)
+        {
+            _api = null;
+            _mapChooser = null;
+        }
+
         // Define class methods
         // GG1's public API object (capability ggmc:api), found without a compile-time reference
         private static object? FindApi()
         {
+            if (_api != null)
+                return _api;
+
             try
             {
                 var assembly = AppDomain.CurrentDomain.GetAssemblies().LastOrDefault(a => a.GetName().Name == "GG1MapChooser");
                 var capability = assembly?.GetType("MapChooser.MapChooser")?
                     .GetProperty("MCAPICapability", BindingFlags.Public | BindingFlags.Static)?.GetValue(null);
-                return capability?.GetType().GetMethod("Get", Type.EmptyTypes)?.Invoke(capability, null);
+                _api = capability?.GetType().GetMethod("Get", Type.EmptyTypes)?.Invoke(capability, null);
+                return _api;
             }
             catch
             {
@@ -54,8 +70,12 @@ namespace GameModeManager.Core
         // The GG1MapChooser plugin instance (held by its API object)
         private static object? FindMapChooser()
         {
+            if (_mapChooser != null)
+                return _mapChooser;
+
             var api = FindApi();
-            return api?.GetType().GetField("_mapChooser", AnyInstance)?.GetValue(api);
+            _mapChooser = api?.GetType().GetField("_mapChooser", AnyInstance)?.GetValue(api);
+            return _mapChooser;
         }
 
         public bool VoteInProgress()
