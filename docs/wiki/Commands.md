@@ -53,7 +53,7 @@ Player commands are commands that standard players with no administrative rights
 | !changemap     | Displays a menu of the current mode's maps. Picking one starts a yes/no vote to change to it. |
 | !changemode    | Displays a menu of modes. Picking one starts a yes/no vote to change to it.                  |
 | !changesetting | Displays a menu of settings, each shown as on or off. Pick one to start a vote on turning it the other way.              |
-| !actions | Menu of actions (cfgs in `cfg/actions/`, like adding a bot). Admins run them; players see only the ones they can run or vote on. |
+| !actions | Menu of actions: replaying a round, and the cfgs in `cfg/actions/`, like adding a bot. Admins run them; players see only the ones they can run or vote on. |
 
 These come from [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser), which is included with GameModeManager:
 

@@ -176,7 +176,7 @@ Their licenses are in their folders, and the links above have their source. Thei
 | `!changemap` | Menu of the current mode's maps; picking one starts a yes/no vote to change to it. |
 | `!changemode` | Menu of modes; picking one starts a yes/no vote to change to it.         |
 | `!changesetting` | Menu of settings, each shown as on or off; pick one to start a vote on turning it the other way.     |
-| `!actions` | Menu of actions (cfgs in `cfg/actions/`, like adding a bot). Admins run them; players see only the ones they can run or vote on. |
+| `!actions` | Menu of actions: replaying a round, and the cfgs in `cfg/actions/`, like adding a bot. Admins run them; players see only the ones they can run or vote on. |
 
 RTV, nominate (the current mode's maps), next map and time left come from GG1MapChooser: `!rtv`, `!nominate`, `!nextmap`, `!timeleft`.
 

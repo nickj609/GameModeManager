@@ -67,6 +67,8 @@ bot_add_ct
 
 The page stays open after an action runs, so you can run it several times in a row. Players only see the actions they can run or vote on.
 
+The Actions pages also have three built-in rows, for admins with `@css/generic` (`Actions.RoundRestorePermission`): **Replay this round**, **Replay last round** and **Go back to round**, which list this map's rounds. They use the game's round backups, so the match goes back to the start of that round with its scores and everyone's money, and the game pauses it until an admin unpauses (`mp_unpause_match`). Turn them off with `Actions.RoundRestore: false`.
+
 A setting whose files set no ConVar and load no plugin has no on/off state, so GameModeManager logs a warning for it at startup: if it runs something once, it belongs in the actions folder.
 </details>
 

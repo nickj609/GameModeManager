@@ -28,11 +28,15 @@ namespace GameModeManager.Menus
         private StringLocalizer _localizer;
         private VoteService _voteService;
         private ILogger<ActionMenus> _logger;
+        private RoundBackups _roundBackups;
+        private GameRules _gameRules;
         private Config _config = new();
 
         // Define class constructor
-        public ActionMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, ILogger<ActionMenus> logger)
+        public ActionMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, RoundBackups roundBackups, GameRules gameRules, ILogger<ActionMenus> logger)
         {
+            _gameRules = gameRules;
+            _roundBackups = roundBackups;
             _logger = logger;
             _localizer = localizer;
             _voteService = voteService;
@@ -92,7 +96,8 @@ namespace GameModeManager.Menus
         {
             using var _culture = MenuLanguages.For(player);
             List<GameAction> usable = _pluginState.Game.Actions.Where(action => CanRun(player, action) || CanVote(player, action)).ToList();
-            if (usable.Count == 0)
+            bool restore = CanRestore(player);
+            if (usable.Count == 0 && !restore)
             {
                 PlayerFeedback.Send(player, _localizer, "notify.action", MenuNotice.Warning, "actions.none");
                 return false;
@@ -102,6 +107,10 @@ namespace GameModeManager.Menus
             if (menu == null)
                 return false;
             menu.PostSelectAction = PostSelectAction.Nothing;
+
+            // The round rows first, greyed out in warmup or before the first backup
+            if (restore)
+                AddRoundRows(menu, player);
 
             foreach (string group in usable.Select(action => action.Group).Where(group => group != "").Distinct())
                 menu.AddMenuOption(group, (p, option) => OpenGroup(p, group));
@@ -140,7 +149,54 @@ namespace GameModeManager.Menus
             });
         }
 
+        // Replay this round, Replay last round, and Go back to round (a page of this map's rounds, the newest first)
+        private void AddRoundRows(IMenu menu, CCSPlayerController player)
+        {
+            List<RoundBackups.Backup> backups = Backups();
+            MenuActions.Add(menu, _localizer.Localize("action.replay-round"), (p, option) => Restore(p, backups[0]), backups.Count < 1);
+            MenuActions.Add(menu, _localizer.Localize("action.replay-last"), (p, option) => Restore(p, backups[1]), backups.Count < 2);
+            menu.AddMenuOption(_localizer.Localize("action.restore-round"), (p, option) => OpenRounds(p, backups), backups.Count < 1);
+        }
+
+        private void OpenRounds(CCSPlayerController player, List<RoundBackups.Backup> backups)
+        {
+            using var _culture = MenuLanguages.For(player);
+            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("action.restore-round"), p => OpenMenu(p));
+            if (menu == null)
+                return;
+
+            foreach (RoundBackups.Backup backup in backups)
+                MenuActions.Add(menu, _localizer.Localize("action.round", backup.Round), (p, option) => Restore(p, backup));
+            menu.Open(player);
+        }
+
+        // This map's round backups, the newest first; none in warmup
+        public List<RoundBackups.Backup> Backups()
+        {
+            return _gameRules.WarmupRunning ? new() : _roundBackups.List();
+        }
+
         // Define class methods
+        public bool CanRestore(CCSPlayerController player)
+        {
+            return _config.Actions.RoundRestore && SettingMenus.Allowed(player, _config.Actions.RoundRestorePermission);
+        }
+
+        public void Restore(CCSPlayerController player, RoundBackups.Backup backup)
+        {
+            MenuFactory.Api?.CloseMenu(player);
+            if (!_roundBackups.Restore(backup))
+            {
+                PlayerFeedback.Send(player, _localizer, "notify.action", MenuNotice.Warning, "general.validation.warmup");
+                return;
+            }
+
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restore.message", player.PlayerName, backup.Round));
+            if (_roundBackups.PausesAfterRestore())
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restore.paused"));
+            PlayerFeedback.Notify(player, _localizer, "notify.action", MenuNotice.Success, "admin.done.restore", backup.Round);
+        }
+
         public bool CanRun(CCSPlayerController player, GameAction action)
         {
             return SettingMenus.Allowed(player, action.Permission);
