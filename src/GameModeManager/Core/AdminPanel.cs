@@ -360,19 +360,25 @@ namespace GameModeManager.Core
             object menu = NewMenu(_localizer.Localize(vote ? "admin.start-vote" : "admin.change-setting"), player);
             foreach (ISetting setting in _pluginState.Game.Settings.Values.OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
-                // A known state is an ON/OFF row that turns it the other way, or starts a vote on that
+                // A known state is an ON/OFF row that turns it the other way, or starts a vote on that. Mixed shows as off.
                 SettingState state = _settingStates.Get(setting);
-                if (state is SettingState.On or SettingState.Off)
+                if (state != SettingState.Unknown)
                 {
-                    bool enable = state == SettingState.Off;
-                    string word = enable ? "enable" : "disable";
-                    AddOption(menu, $"({(enable ? "OFF" : "ON")}) [{setting.DisplayName}]", p => Act(p, $"{(vote ? "vote" : "css_setting")} {word} \"{setting.Name}\"", () =>
+                    bool enable = state != SettingState.On;
+                    string logged = $"{(vote ? "vote" : "css_setting")} {(enable ? "enable" : "disable")} \"{setting.Name}\"";
+                    AddOption(menu, $"({(enable ? "OFF" : "ON")}) [{setting.DisplayName}]", p =>
                     {
                         if (vote)
-                            _settingMenus.StartVote(p, setting, enable);
-                        else
-                            _settingMenus.ChangeSetting(p, setting, enable);
-                    }), !SettingMenus.CanChange(setting, enable));
+                        {
+                            Act(p, logged, () => _settingMenus.StartVote(p, setting, enable));
+                            return;
+                        }
+
+                        // The page opens again with the new state, so several can be changed in one go, like the rotation page
+                        _settingMenus.ChangeSetting(p, setting, enable);
+                        Call("LogCommand", q => q.Length == 2 && q[1].ParameterType == typeof(string), p, logged);
+                        Call("OpenMenu", q => q.Length == 2, InLanguage(q => SettingListMenu(q, false))(p), p);
+                    }, !SettingMenus.CanChange(setting, enable));
                 }
                 else
                     AddSubMenu(menu, setting.DisplayName, p => SettingMenu(p, setting, vote));

@@ -87,8 +87,13 @@ namespace GameModeManager.Features
         {
             var states = _pluginState.Game.Settings.Values.Select(setting => (setting.Name, State: _settingStates.Get(setting))).ToList();
             int Count(SettingState state) => states.Count(s => s.State == state);
-            var unknown = states.Where(s => s.State is SettingState.Unknown or SettingState.Mixed).Select(s => $"{s.Name} ({s.State.ToString().ToLowerInvariant()})").ToList();
-            return $"{Count(SettingState.On)} on, {Count(SettingState.Off)} off" + (unknown.Count > 0 ? $", no on/off row: {string.Join(", ", unknown)}" : "");
+            string Names(SettingState state) => string.Join(", ", states.Where(s => s.State == state).Select(s => s.Name));
+            string text = $"{Count(SettingState.On)} on, {Count(SettingState.Off)} off";
+            if (Count(SettingState.Mixed) > 0)
+                text += $", tied (shown as off): {Names(SettingState.Mixed)}";
+            if (Count(SettingState.Unknown) > 0)
+                text += $", nothing to check (Enable/Disable page): {Names(SettingState.Unknown)}";
+            return text;
         }
 
         private static string PluginStatus(Assembly? assembly, string[] members, string whenMissing)

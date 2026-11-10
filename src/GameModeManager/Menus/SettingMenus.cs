@@ -80,16 +80,21 @@ namespace GameModeManager.Menus
             if (menu == null)
                 return;
 
+            // The menu stays open: PMM flips a toggle in place, so several settings can be changed in one go
+            menu.PostSelectAction = PostSelectAction.Nothing;
+
             foreach (ISetting setting in Sorted())
             {
                 SettingState state = _states.Get(setting);
-                if (state is SettingState.On or SettingState.Off)
+                if (state != SettingState.Unknown)
                 {
-                    bool on = state == SettingState.On;
+                    bool on = state == SettingState.On; // Mixed shows as off: choosing it turns it on
                     MenuFactory.Api!.AddToggle(menu, setting.DisplayName, on, (p, option) =>
                     {
-                        MenuFactory.Api?.CloseMenu(p);
-                        ChangeSetting(p, setting, !on);
+                        if (!CanChange(setting, !on))
+                            return;
+                        on = !on;
+                        ChangeSetting(p, setting, on);
                     }, !CanChange(setting, !on));
                 }
                 else
@@ -113,9 +118,9 @@ namespace GameModeManager.Menus
             foreach (ISetting setting in Sorted())
             {
                 SettingState state = _states.Get(setting);
-                if (state is SettingState.On or SettingState.Off)
+                if (state != SettingState.Unknown)
                 {
-                    bool on = state == SettingState.On;
+                    bool on = state == SettingState.On; // Mixed shows as off: a vote to turn it on
                     MenuFactory.Api!.AddToggle(menu, setting.DisplayName, on, (p, option) =>
                     {
                         MenuFactory.Api?.CloseMenu(p);
@@ -166,6 +171,7 @@ namespace GameModeManager.Menus
         {
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix(enable ? "enable.changesetting.message" : "disable.changesetting.message", player.PlayerName, setting.DisplayName));
             PlayerFeedback.Notify(player, _localizer, "notify.setting", MenuNotice.Success, enable ? "admin.done.setting-enabled" : "admin.done.setting-disabled", setting.DisplayName);
+            _states.Expect(setting, enable);
             Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}");
         }
 
