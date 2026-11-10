@@ -93,7 +93,10 @@ namespace GameModeManager.CrossCutting
             }
 
             if (_config.Warmup.PerMap)
+            {
                 _pluginState.Game.WarmupScheduled = false;
+                ResetWarmupOptions(); // The next map's cfg sets its own
+            }
 
             Server.ExecuteCommand("bot_kick");
             PlayerExtensions.FreezePlayers();
@@ -193,6 +196,9 @@ namespace GameModeManager.CrossCutting
 
             ChangeMap(delay, () =>
             {
+                // The new mode's cfg sets its own warmup waiting and ready-up, else the config's apply
+                ResetWarmupOptions();
+
                 // Execute mode config. Not before the countdown: its settings and restarts would hit the map being left.
                 Server.ExecuteCommand($"exec {mode.Config}");
 
@@ -277,6 +283,14 @@ namespace GameModeManager.CrossCutting
         {
             if (_pluginState.Game.Modes.TryGetValue(state.Mode, out IMode? _mode) && !_pluginState.Game.CurrentMode.Equals(_mode))
                 ChangeMode(_mode);
+        }
+
+        // Warmup.MinPlayers, Ready and ReadyPercent from the config, before a mode or map cfg sets its own
+        public void ResetWarmupOptions()
+        {
+            _pluginState.Game.WarmupMinPlayers = _config.Warmup.MinPlayers;
+            _pluginState.Game.WarmupReady = _config.Warmup.Ready;
+            _pluginState.Game.WarmupReadyPercent = _config.Warmup.ReadyPercent;
         }
 
         public IMap GetRandomMap(IMode mode)

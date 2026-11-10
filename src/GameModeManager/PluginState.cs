@@ -49,6 +49,9 @@ namespace GameModeManager
             public int MapRotations = 0;
             public bool RotationStarted = false; // This map's end was a rotation, so it's already counted in MapRotations
             public bool PerMapWarmup = false;
+            public int WarmupMinPlayers = 0;       // Warmup.MinPlayers, or what a mode or map cfg set (css_warmup_minplayers)
+            public bool WarmupReady = false;       // Warmup.Ready, or what a mode or map cfg set (css_warmup_ready)
+            public int WarmupReadyPercent = 100;   // Warmup.ReadyPercent
             public bool WarmupRunning = false;
             public IMap CurrentMap = DefaultMap;
             // By name: only one map is loaded at a time, and the same map can be listed in two map groups with different workshop IDs

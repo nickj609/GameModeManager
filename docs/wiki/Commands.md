@@ -11,7 +11,9 @@ The commands below can be run by the server, such as within your mode configurat
 | Command                                       | Description                                                                                              |
 | :-------------------------------------------- | :------------------------------------------------------------------------------------------------------- |
 | css_gamemode <mode>                           | Sets the current mode.                                                                                   |
-| css_warmupmode <mode>                         | Schedules and sets the game mode to be used during the warmup period.                                    |
+| css_warmupmode <mode>                         | Schedules and sets the game mode to be used during the warmup period. `none` turns warmup off for this map or mode, and `random` picks a different warmup each time. Put it in a mode's or map's cfg.                                    |
+| css_warmup_minplayers <n> | For a mode's or map's cfg: warmup waits for this many players (see `Warmup.MinPlayers`). |
+| css_warmup_ready <true|false> [percent] ||false> [percent]` | For a mode's or map's cfg: ready-up in warmup on or off (see `Warmup.Ready`). |
 | css_endwarmup                                 | Ends the custom warmup mode, transitioning to the scheduled or default game mode.                        |
 | css_startwarmup <mode>                        | Immediately starts a custom warmup mode with the specified mode.                                         |
 | css_timelimit <true\|false> <seconds>         | Enables or disables a time limit for the map. Optionally, you can specify the time limit in seconds.     |
@@ -53,6 +55,7 @@ Player commands are commands that standard players with no administrative rights
 | !changemap     | Displays a menu of the current mode's maps. Picking one starts a yes/no vote to change to it. |
 | !changemode    | Displays a menu of modes. Picking one starts a yes/no vote to change to it.                  |
 | !changesetting | Displays a menu of settings, each shown as on or off. Pick one to start a vote on turning it the other way.              |
+| !ready / !unready | In a warmup with ready-up (`Warmup.Ready`): says you're ready, or not any more. The warmup ends once enough players are. |
 | !actions | Menu of actions: replaying a round, and the cfgs in `cfg/actions/`, like adding a bot. Admins run them; players see only the ones they can run or vote on. |
 
 These come from [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser), which is included with GameModeManager:

@@ -55,6 +55,9 @@
     "Enabled": true,
     "Time": 60,
     "PerMap": false,
+    "MinPlayers": 0,
+    "Ready": false,
+    "ReadyPercent": 100,
     "Default": {
       "Name": "Deathmatch",
       "Config": "warmup/dm.cfg"
@@ -513,8 +516,11 @@ Messages to everyone stay in chat.
 | Enabled             | Enables or disables warmup.                                                                                                               |
 | Time                | Warmup length in seconds. 0 = whatever `mp_warmuptime` is.                                                                                |
 | PerMap              | Enables or disables per map warmup (i.e. map configs).                                                                                    |
-| Default             | Default warmup mode.                                                                                                                      |
-| List                | A customizable list of warmup modes for your server.                                                                                      |
+| MinPlayers          | Warmup waits for this many players on a team. Until then the game's own warmup countdown is paused (`mp_warmup_pausetimer`), and carries on once they're there. `0` = it doesn't wait. A mode or map cfg can set its own with `css_warmup_minplayers <n>`. Added in config version 17. |
+| Ready               | Ready-up: players type `!ready` (and `!unready`), the countdown stays paused, and the warmup ends once `ReadyPercent` of the players on a team are ready. A mode or map cfg can turn it on or off with `css_warmup_ready <true|false> [percent]`. Added in config version 17. |
+| ReadyPercent        | Share of players who must be ready, from 1 to 100. Default 100.                                                                           |
+| Default             | Default warmup mode. `"Random"` picks a different one each time a warmup starts.                                                          |
+| List                | Warmup modes with their names. Every other cfg in `cfg/warmup/` is a warmup mode too, named by its `// name: ...` header (else its file name), so a new warmup only needs its cfg. |
 
 # Rotation Settings
 | Setting             | Description                                                                                                                               |
