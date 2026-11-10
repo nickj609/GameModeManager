@@ -28,11 +28,13 @@ namespace GameModeManager.Menus
         private StringLocalizer _localizer;
         private MenuLanguages _languages;
         private SettingStates _states;
+        private GameModeEvents _events;
 
         // Define class constructor
-        public SettingMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, MenuLanguages languages, SettingStates states)
+        public SettingMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, MenuLanguages languages, SettingStates states, GameModeEvents events)
         {
             _states = states;
+            _events = events;
             _languages = languages;
             _localizer = localizer;
             _voteService = voteService;
@@ -326,6 +328,7 @@ namespace GameModeManager.Menus
             PlayerFeedback.Notify(player, _localizer, "notify.setting", MenuNotice.Success, enable ? "admin.done.setting-enabled" : "admin.done.setting-disabled", setting.DisplayName);
             _states.Expect(setting, enable);
             Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}");
+            _events.RaiseSettingChanged(setting, enable);
             return AfterChange(player, setting.DisplayName, AppliesOf(setting), reopen);
         }
 
@@ -336,6 +339,7 @@ namespace GameModeManager.Menus
             _voteService.StartYesNo(player, () => _localizer.Localize(key, setting.DisplayName), () =>
             {
                 Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}");
+                _events.RaiseSettingChanged(setting, enable);
                 AfterVote(setting.DisplayName, applies);
             });
         }
@@ -347,6 +351,7 @@ namespace GameModeManager.Menus
             PlayerFeedback.Notify(player, _localizer, "notify.setting", MenuNotice.Success, "admin.done.setting-set", setting.Name, label);
             _states.ExpectValue(setting, index);
             Server.ExecuteCommand($"exec {_config.Settings.Folder}/{setting.Values[index].File}");
+            _events.RaiseValueSettingChanged(setting, label);
             return AfterChange(player, setting.Name, setting.Applies, reopen);
         }
 
@@ -356,8 +361,52 @@ namespace GameModeManager.Menus
             _voteService.StartYesNo(player, () => _localizer.Localize(key, setting.Name, setting.Values[index].Label), () =>
             {
                 Server.ExecuteCommand($"exec {_config.Settings.Folder}/{setting.Values[index].File}");
+                _events.RaiseValueSettingChanged(setting, setting.Values[index].Label);
                 AfterVote(setting.Name, setting.Applies);
             });
+        }
+
+        // Define API methods
+        // A change from another plugin (game_mode:api): no admin to name or ask, so players are only told when it applies.
+        // One that needs a restart waits for the plugin to restart the match.
+        public bool ApplyFromApi(ISetting setting, bool enable)
+        {
+            if (!CanChange(setting, enable))
+                return false;
+
+            _states.Expect(setting, enable);
+            Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}");
+            _events.RaiseSettingChanged(setting, enable);
+            AnnounceApplies(setting.DisplayName, AppliesOf(setting));
+            return true;
+        }
+
+        public bool ApplyValueFromApi(ValueSetting setting, string label)
+        {
+            int index = setting.Values.FindIndex(value => value.Label.Equals(label, StringComparison.OrdinalIgnoreCase));
+            if (index < 0)
+                return false;
+
+            _states.ExpectValue(setting, index);
+            Server.ExecuteCommand($"exec {_config.Settings.Folder}/{setting.Values[index].File}");
+            _events.RaiseValueSettingChanged(setting, setting.Values[index].Label);
+            AnnounceApplies(setting.Name, setting.Applies);
+            return true;
+        }
+
+        private void AnnounceApplies(string name, SettingApplies applies)
+        {
+            if (applies == SettingApplies.Now)
+                return;
+
+            Pending(applies, name);
+            string key = applies switch
+            {
+                SettingApplies.NextRound => "setting.applies-round",
+                SettingApplies.MapChange => "setting.applies-map",
+                _ => "setting.applies-restart"
+            };
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix(key, name));
         }
 
         // Define restart methods

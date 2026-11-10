@@ -22,12 +22,14 @@ namespace GameModeManager.CrossCutting
         private Config _config = new Config();
         private ILogger<ServerManager> _logger;
         private MapChooserBridge _mapChooser;
+        private GameModeEvents _events;
 
         // Define class constructor
-        public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer, MapChooserBridge mapChooser)
+        public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer, MapChooserBridge mapChooser, GameModeEvents events)
         {
             _logger = logger;
             _mapChooser = mapChooser;
+            _events = events;
             _localizer = localizer;
             _pluginState = pluginState;
         }
@@ -125,6 +127,7 @@ namespace GameModeManager.CrossCutting
 
         private void RunMapCommand(IMap nextMap)
         {
+            _events.RaiseMapChanging(nextMap.Name);
             if (Server.IsMapValid(nextMap.Name))
                 Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
             else if (nextMap.WorkshopId != -1)

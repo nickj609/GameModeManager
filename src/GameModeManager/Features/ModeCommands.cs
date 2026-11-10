@@ -25,14 +25,16 @@ namespace GameModeManager.Features
         private Config _config = new Config();
         private MapChooserBridge _mapChooser;
         private RtvSwitch _rtvSwitch;
+        private GameModeEvents _events;
         private AdminPanel _adminPanel;
 
 
         // Define class constructor
-        public ModeCommands(AdminPanel adminPanel, RtvSwitch rtvSwitch, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, ModeMenus modeMenus, MapMenus mapMenus, MapChooserBridge mapChooser)
+        public ModeCommands(AdminPanel adminPanel, RtvSwitch rtvSwitch, PluginState pluginState, StringLocalizer localizer, ServerManager serverManager, ModeMenus modeMenus, MapMenus mapMenus, MapChooserBridge mapChooser, GameModeEvents events)
         {
             _adminPanel = adminPanel;
             _rtvSwitch = rtvSwitch;
+            _events = events;
             _mapChooser = mapChooser;
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
@@ -77,7 +79,9 @@ namespace GameModeManager.Features
                         if (recent.Count > 20)
                             recent.RemoveAt(recent.Count - 1);
 
+                        IMode _previous = _pluginState.Game.CurrentMode;
                         _pluginState.Game.CurrentMode = _mode;
+                        _events.RaiseModeChanged(_previous, _mode);
 
                         // GG1MapChooser votes / RTV / nominate from this mode's maps
                         _mapChooser.SetPool(_mode);

@@ -30,12 +30,14 @@ namespace GameModeManager.Menus
         private ILogger<ActionMenus> _logger;
         private RoundBackups _roundBackups;
         private GameRules _gameRules;
+        private GameModeEvents _events;
         private Config _config = new();
 
         // Define class constructor
-        public ActionMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, RoundBackups roundBackups, GameRules gameRules, ILogger<ActionMenus> logger)
+        public ActionMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, RoundBackups roundBackups, GameRules gameRules, GameModeEvents events, ILogger<ActionMenus> logger)
         {
             _gameRules = gameRules;
+            _events = events;
             _roundBackups = roundBackups;
             _logger = logger;
             _localizer = localizer;
@@ -225,11 +227,19 @@ namespace GameModeManager.Menus
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix("action.message", player.PlayerName, action.Name));
             PlayerFeedback.Notify(player, _localizer, "notify.action", MenuNotice.Success, "admin.done.action", action.Name);
             Server.ExecuteCommand($"exec {action.File}");
+            _events.RaiseActionRun(action);
+        }
+
+        // An action from another plugin (game_mode:api), or a vote on one that passed: no admin to name
+        public void RunFromApi(GameAction action)
+        {
+            Server.ExecuteCommand($"exec {action.File}");
+            _events.RaiseActionRun(action);
         }
 
         public void StartVote(CCSPlayerController player, GameAction action)
         {
-            _voteService.StartYesNo(player, () => _localizer.Localize("vote.run-action", action.Name), () => Server.ExecuteCommand($"exec {action.File}"));
+            _voteService.StartYesNo(player, () => _localizer.Localize("vote.run-action", action.Name), () => RunFromApi(action));
         }
     }
 }
