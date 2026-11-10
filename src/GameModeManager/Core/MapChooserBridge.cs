@@ -234,11 +234,12 @@ namespace GameModeManager.Core
             return fresh.Count >= atLeast ? fresh : modes;
         }
 
-        // A random mode for a rotation or an admin's random pick: not one played recently, if there is one. Player limits
-        // (MinPlayers, MaxPlayers) are only for player votes. Null when the list is empty.
+        // A random mode for a rotation or an admin's random pick: one for this many players if there is one, and not one played
+        // recently if there is one. Choosing a mode by name ignores player limits. Null when the list is empty.
         public IMode? PickRandom(List<IMode> modes)
         {
-            List<IMode> candidates = Fresh(modes, 1);
+            List<IMode> fitting = modes.Where(FitsPlayers).ToList();
+            List<IMode> candidates = Fresh(fitting.Count > 0 ? fitting : modes, 1);
             return candidates.Count > 0 ? candidates[Random.Shared.Next(candidates.Count)] : null;
         }
 

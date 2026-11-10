@@ -21,7 +21,7 @@ namespace GameModeManager
         public List<string> MapGroups { get; set; } = new List<string>() { "mg_active", "mg_comp" };
         public bool InVotes { get; set; } = true; // false = left out of votes, !nominate, !changemode and random picks. Admins can still choose it
         public bool InRotation { get; set; } = true; // false = mode rotation never picks it. Schedules can still use it
-        public int MinPlayers { get; set; } = 0; // Player votes and !nominate offer it only with at least this many players. 0 = no limit. Admins, rotation and random picks ignore it
+        public int MinPlayers { get; set; } = 0; // Player votes, !nominate and random picks offer it only with at least this many players. 0 = no limit. Choosing it by name (admins) ignores it
         public int MaxPlayers { get; set; } = 0; // ...and at most this many. 0 = no limit
     }
 

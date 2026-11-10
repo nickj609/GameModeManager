@@ -182,7 +182,7 @@ namespace GameModeManager.Menus
 
         public void ChangeToRandomMode(CCSPlayerController player)
         {
-            // Not one played recently, when there is one
+            // For this many players, and not played recently, when there is one
             IMode? mode = _mapChooser.PickRandom(_pluginState.Game.Modes.Values.Where(m => _mapChooser.CanBeNextMode(m) && _mapChooser.InVotes(m)).ToList());
             if (mode != null)
                 ChangeMode(player, mode);
