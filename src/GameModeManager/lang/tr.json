@@ -128,6 +128,7 @@
   "admin.actions": "Eylemler",
   "notify.action": "Eylem",
   "actions.none": "Kullanabileceğin bir eylem yok.",
+  "action.rounds": "Rauntlar",
   "action.replay-round": "Bu raundu tekrarla",
   "action.replay-last": "Önceki raundu tekrarla",
   "action.restore-round": "Rauna geri dön",

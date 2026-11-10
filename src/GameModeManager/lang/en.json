@@ -128,6 +128,7 @@
   "admin.actions": "Actions",
   "notify.action": "Action",
   "actions.none": "There are no actions you can use.",
+  "action.rounds": "Rounds",
   "action.replay-round": "Replay this round",
   "action.replay-last": "Replay last round",
   "action.restore-round": "Go back to round",

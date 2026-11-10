@@ -128,6 +128,7 @@
   "admin.actions": "Дії",
   "notify.action": "Дія",
   "actions.none": "Немає доступних тобі дій.",
+  "action.rounds": "Раунди",
   "action.replay-round": "Переграти цей раунд",
   "action.replay-last": "Переграти минулий раунд",
   "action.restore-round": "Повернутися до раунду",

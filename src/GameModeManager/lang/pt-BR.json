@@ -128,6 +128,7 @@
   "admin.actions": "Ações",
   "notify.action": "Ação",
   "actions.none": "Não há ações que você possa usar.",
+  "action.rounds": "Rodadas",
   "action.replay-round": "Repetir esta rodada",
   "action.replay-last": "Repetir a rodada anterior",
   "action.restore-round": "Voltar para a rodada",

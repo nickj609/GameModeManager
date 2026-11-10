@@ -108,9 +108,9 @@ namespace GameModeManager.Menus
                 return false;
             menu.PostSelectAction = PostSelectAction.Nothing;
 
-            // The round rows first, greyed out in warmup or before the first backup
+            // Rounds first: replaying a round and going back to one
             if (restore)
-                AddRoundRows(menu, player);
+                menu.AddMenuOption(_localizer.Localize("action.rounds"), (p, option) => OpenRoundsPage(p));
 
             foreach (string group in usable.Select(action => action.Group).Where(group => group != "").Distinct())
                 menu.AddMenuOption(group, (p, option) => OpenGroup(p, group));
@@ -150,6 +150,18 @@ namespace GameModeManager.Menus
         }
 
         // Replay this round, Replay last round, and Go back to round (a page of this map's rounds, the newest first)
+        // The Rounds page: the round rows, greyed out in warmup or before the first backup
+        private void OpenRoundsPage(CCSPlayerController player)
+        {
+            using var _culture = MenuLanguages.For(player);
+            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("action.rounds"), p => OpenMenu(p));
+            if (menu == null)
+                return;
+
+            AddRoundRows(menu, player);
+            menu.Open(player);
+        }
+
         private void AddRoundRows(IMenu menu, CCSPlayerController player)
         {
             List<RoundBackups.Backup> backups = Backups();
@@ -161,7 +173,7 @@ namespace GameModeManager.Menus
         private void OpenRounds(CCSPlayerController player, List<RoundBackups.Backup> backups)
         {
             using var _culture = MenuLanguages.For(player);
-            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("action.restore-round"), p => OpenMenu(p));
+            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("action.restore-round"), p => OpenRoundsPage(p));
             if (menu == null)
                 return;
 
