@@ -1,5 +1,6 @@
 // Included libraries
 using GameModeManager.Core;
+using GameModeManager.Models;
 using GameModeManager.Menus;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
@@ -51,38 +52,59 @@ namespace GameModeManager.Features
 
         // Define command handlers
         [RequiresPermissions("@css/cvar")]
-        [CommandHelper(minArgs: 1, usage: "<enable|disable> <setting name>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [CommandHelper(minArgs: 1, usage: "<enable|disable> <setting name> | set <setting name> <value>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if(player != null)
-            {
-                string _status = $"{command.ArgByIndex(1)}";
-                string _settingName = $"{command.ArgByIndex(2)}";
+            if (player == null)
+                return;
 
-                if(_pluginState.Game.Settings.TryGetValue(_settingName, out ISetting? _setting)) 
-                {
-                    if (_status.Equals("enable", StringComparison.OrdinalIgnoreCase)) 
-                    {
-                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("enable.changesetting.message", player.PlayerName, _settingName));
-                        PlayerFeedback.Notify(player, _localizer, "notify.setting", MenuNotice.Success, "admin.done.setting-enabled", _setting.DisplayName);
-                        Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Enable}");
-                    }
-                    else if (_status.Equals("disable", StringComparison.OrdinalIgnoreCase))
-                    {
-                        Server.PrintToChatAll(_localizer.LocalizeWithPrefix("disable.changesetting.message", player.PlayerName, _settingName));
-                        PlayerFeedback.Notify(player, _localizer, "notify.setting", MenuNotice.Success, "admin.done.setting-disabled", _setting.DisplayName);
-                        Server.ExecuteCommand($"exec {_config.Settings.Folder}/{_setting.Disable}");
-                    }
-                    else
-                    {
-                        PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "setting.unexpected-argument", _status);
-                    }
-                }
-                else
+            string _status = command.ArgByIndex(1);
+            string _settingName = command.ArgByIndex(2);
+
+            // set <value setting> <value>: the value's label, like "5 minutes"
+            if (_status.Equals("set", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!_pluginState.Game.ValueSettings.TryGetValue(_settingName, out ValueSetting? _valueSetting))
                 {
                     PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "setting.not-found", _settingName);
+                    return;
                 }
+                if (!SettingMenus.Allowed(player, _valueSetting.Permission))
+                {
+                    PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "general.validation.no-permission", _valueSetting.Name);
+                    return;
+                }
+
+                string _value = command.ArgCount > 3 ? string.Join(' ', Enumerable.Range(3, command.ArgCount - 3).Select(command.ArgByIndex)) : "";
+                int _index = _valueSetting.Values.FindIndex(value => value.Label.Equals(_value, StringComparison.OrdinalIgnoreCase));
+                if (_index < 0)
+                    PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "setting.value-not-found", _valueSetting.Name, _value);
+                else
+                    _settingMenus.SetValue(player, _valueSetting, _index);
+                return;
             }
+
+            if (!_pluginState.Game.Settings.TryGetValue(_settingName, out ISetting? _setting))
+            {
+                PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "setting.not-found", _settingName);
+                return;
+            }
+            if (!SettingMenus.Allowed(player, SettingMenus.PermissionOf(_setting)))
+            {
+                PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "general.validation.no-permission", _setting.DisplayName);
+                return;
+            }
+
+            if (_status.Equals("enable", StringComparison.OrdinalIgnoreCase) || _status.Equals("disable", StringComparison.OrdinalIgnoreCase))
+            {
+                bool _enable = _status.Equals("enable", StringComparison.OrdinalIgnoreCase);
+                if (SettingMenus.CanChange(_setting, _enable))
+                    _settingMenus.ChangeSetting(player, _setting, _enable);
+                else
+                    PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "setting.unexpected-argument", _status);
+            }
+            else
+                PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "setting.unexpected-argument", _status);
         }
 
         [RequiresPermissions("@css/cvar")]

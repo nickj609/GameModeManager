@@ -85,6 +85,13 @@ namespace GameModeManager
         public string Folder { get; set; } = "settings"; // Default settings folder
     }
 
+    // Define action settings
+    public class ActionSettings
+    {
+        public bool Enabled { get; set; } = true; // !actions and the admin panel's Actions page, from the cfgs in Folder
+        public string Folder { get; set; } = "actions"; // In the cfg folder. Each subfolder is a group
+    }
+
     // Define command settings
     public class CommandSettings
     {
@@ -172,7 +179,7 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-        public int Version { get; set; } = 16;
+        public int Version { get; set; } = 17;
         public string WorkshopAddon { get; set; } = "3831211166"; // Workshop IDs (comma separated) of the addons with the menus' panorama files, added to MultiAddonManager's list. Empty = you load them yourself
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
@@ -180,6 +187,7 @@ namespace GameModeManager
         public AdminPanelSettings AdminPanel { get; set; } = new();
         public NotificationSettings Notifications { get; set; } = new();
         public GameSettings Settings { get; set; } = new();
+        public ActionSettings Actions { get; set; } = new();
         public WarmupSettings Warmup { get; set; } = new();
         public CommandSettings Commands { get; set; } = new();
         public RotationSettings Rotation { get; set; } = new();

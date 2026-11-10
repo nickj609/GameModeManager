@@ -1,0 +1,36 @@
+// Declare namespace
+namespace GameModeManager.Models
+{
+    // Define class
+    // A setting with a choice of values, like a round time of 2, 5 or 10 minutes: one cfg per value in the settings folder,
+    // tied together by the same "// setting: Round time" header, each with its own "// value: 5 minutes". Shown as one row with
+    // a dropdown of its values.
+    public class ValueSetting
+    {
+        // Define class properties
+        public string Name { get; }
+        public string Permission { get; set; } = ""; // Empty = @css/cvar
+        public bool InVotes { get; set; } = true;
+        public List<SettingValue> Values { get; } = new();
+
+        // Define class constructor
+        public ValueSetting(string name)
+        {
+            Name = name;
+        }
+    }
+
+    // Define class
+    // One value of a value setting: its cfg file (relative to the settings folder) and the name shown for it
+    public class SettingValue
+    {
+        public string File { get; }
+        public string Label { get; }
+
+        public SettingValue(string file, string label)
+        {
+            File = file;
+            Label = label;
+        }
+    }
+}
