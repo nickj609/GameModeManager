@@ -12,6 +12,7 @@ namespace GameModeManager.Models
         public string Permission { get; set; } = ""; // Empty = @css/cvar
         public bool InVotes { get; set; } = true;
         public string Group { get; set; } = ""; // From "// group: ..." in any of its files
+        public SettingApplies Applies { get; set; } = SettingApplies.Now; // From "// applies: ..." in any of its files
         public List<SettingValue> Values { get; } = new();
 
         // Define class constructor

@@ -389,9 +389,10 @@ namespace GameModeManager.Core
                                 Act(q, logged, () => _settingMenus.StartValueVote(q, valueSetting, index));
                                 return;
                             }
-                            _settingMenus.SetValue(q, valueSetting, index);
                             Call("LogCommand", c => c.Length == 2 && c[1].ParameterType == typeof(string), q, logged);
-                            Call("OpenMenu", c => c.Length == 2, InLanguage(c => SettingListMenu(c, false, group))(q), q);
+                            // A setting that needs a restart asks first; "Not now" comes back to this page
+                            if (!_settingMenus.SetValue(q, valueSetting, index, ReopenSettings(group)))
+                                ReopenSettings(group)(q);
                         }, active == index);
                     }
                     return page;
@@ -415,15 +416,21 @@ namespace GameModeManager.Core
                         }
 
                         // The page opens again with the new state, so several can be changed in one go, like the rotation page
-                        _settingMenus.ChangeSetting(p, setting, enable);
                         Call("LogCommand", q => q.Length == 2 && q[1].ParameterType == typeof(string), p, logged);
-                        Call("OpenMenu", q => q.Length == 2, InLanguage(q => SettingListMenu(q, false, group))(p), p);
+                        if (!_settingMenus.ChangeSetting(p, setting, enable, ReopenSettings(group)))
+                            ReopenSettings(group)(p);
                     }, !SettingMenus.CanChange(setting, enable) || !vote && !SettingMenus.Allowed(player, SettingMenus.PermissionOf(setting)));
                 }
                 else
                     AddSubMenu(menu, setting.DisplayName, p => SettingMenu(p, setting, vote));
             }
             return menu;
+        }
+
+        // Opens the settings page again, with the new state
+        private Action<CCSPlayerController> ReopenSettings(string group)
+        {
+            return player => Call("OpenMenu", c => c.Length == 2, InLanguage(c => SettingListMenu(c, false, group))(player), player);
         }
 
         // A setting whose state isn't known, or is mixed: enable and disable

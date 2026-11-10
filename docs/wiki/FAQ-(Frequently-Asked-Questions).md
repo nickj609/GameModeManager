@@ -26,6 +26,7 @@ sv_autobunnyhopping 1
 - `permission`: the flag needed to change it (default `@css/cvar`, like `!settings`).
 - `vote: false`: players can't vote on it. Admins can still change it.
 - `group: Match`: puts it on a page of its own in the settings menus, with the other settings of that group. Settings without a group are on the first page.
+- `applies: next round`, `applies: restart` or `applies: map change`: for a setting the game only reads at that point. Chat says so when it changes, and "Now in effect: ..." when it does. For `restart`, the admin is asked "Restart the match now?" once they close the menu, unless the match restarted in the meantime, so several settings can be changed first. A player vote on it asks "... and restart the match?" and restarts when it passes.
 
 **Settings with a choice of values.** For a setting like round time, make one cfg per value, without the `enable_`/`disable_` prefix, and give each the same `setting:` name and its own `value:`:
 
