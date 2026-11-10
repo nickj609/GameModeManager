@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Localization;
 
 // Declare namespace
-namespace GameModeManager.Infrastructure
+namespace GameModeManager.Common
 {
     // Define class
     public class StringLocalizer

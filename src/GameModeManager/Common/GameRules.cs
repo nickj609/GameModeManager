@@ -4,7 +4,7 @@ using CounterStrikeSharp.API.Core;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 // Declare namespace
-namespace GameModeManager.Infrastructure
+namespace GameModeManager.Common
 {
     // Define class
     public class GameRules : IPluginDependency<Plugin, Config>

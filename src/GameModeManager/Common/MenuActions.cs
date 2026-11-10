@@ -5,7 +5,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
-namespace GameModeManager.Infrastructure
+namespace GameModeManager.Common
 {
     // Define class
     // A menu row that does something straight away (picks a map, starts a vote, runs a command) instead of opening a page.

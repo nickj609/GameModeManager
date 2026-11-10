@@ -3,7 +3,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 // Declare namespace
-namespace GameModeManager.Infrastructure
+namespace GameModeManager.Common
 {
     // Define class
     public class DependencyManager<TPlugin, TConfig>

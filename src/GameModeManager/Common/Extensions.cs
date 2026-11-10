@@ -6,7 +6,7 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory;
 
 // Declare namespace
-namespace GameModeManager.Infrastructure
+namespace GameModeManager.Common
 {
     // Define player extensions
     public static class PlayerExtensions

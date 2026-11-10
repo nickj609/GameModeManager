@@ -6,7 +6,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 
 // Declare namespace
-namespace GameModeManager.Infrastructure
+namespace GameModeManager.Common
 {
     // Define class
     // Messages to one player: about their own action (language set, vote cast, can't vote, map not found), what they asked for

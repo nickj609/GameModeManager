@@ -6,10 +6,10 @@ using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Commands;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using TimerFlags = CounterStrikeSharp.API.Modules.Timers.TimerFlags;
-using CountdownTimer = GameModeManager.Infrastructure.CountdownTimer;
+using CountdownTimer = GameModeManager.Common.CountdownTimer;
 
 // Declare namespace
-namespace GameModeManager.Modes
+namespace GameModeManager.Rotation
 {
     // Define class
     public class ServerManager : IPluginDependency<Plugin, Config>

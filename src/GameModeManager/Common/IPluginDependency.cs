@@ -1,5 +1,5 @@
 ﻿// Declare namespace
-namespace GameModeManager.Infrastructure
+namespace GameModeManager.Common
 {
     // Define interface
     public interface IPluginDependency<TPlugin, TConfig>

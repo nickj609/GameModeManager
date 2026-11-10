@@ -4,7 +4,7 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using TimerFlags = CounterStrikeSharp.API.Modules.Timers.TimerFlags;
 
 // Declare namespace
-namespace GameModeManager.Infrastructure
+namespace GameModeManager.Common
 {
     // Define class
     public class CountdownTimer

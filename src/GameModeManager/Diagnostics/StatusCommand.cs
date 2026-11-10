@@ -8,7 +8,7 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Commands;
 
 // Declare namespace
-namespace GameModeManager.Players
+namespace GameModeManager.Diagnostics
 {
     // Define class
     // css_gmm_status: what GameModeManager found on this server, so a problem report can start from one command. It's for server

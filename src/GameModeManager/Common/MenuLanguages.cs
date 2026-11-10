@@ -5,7 +5,7 @@ using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Core.Translations;
 
 // Declare namespace
-namespace GameModeManager.Infrastructure
+namespace GameModeManager.Common
 {
     // Define class
     // The languages GameModeManager has a lang file for: one per file in lang/, the same codes as !lang. Menus are built once

@@ -3,7 +3,7 @@ using MenuManager;
 using CounterStrikeSharp.API.Core.Capabilities;
 
 // Declare namespace
-namespace GameModeManager.Infrastructure
+namespace GameModeManager.Common
 {
     // Define class
     public class MenuFactory : IPluginDependency<Plugin, Config>
