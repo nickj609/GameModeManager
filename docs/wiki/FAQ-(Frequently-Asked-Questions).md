@@ -10,7 +10,7 @@ The menus show each setting as on or off. GameModeManager works that out from wh
 - **Plugins** loaded or unloaded with `css_plugins load "plugins/disabled/RollTheDice/RollTheDice.dll"` or `css_plugins unload "Roll The Dice"`.
 - Lines inside `exec other.cfg` and `exec_after_delay <seconds> <command>` count too.
 
-Lines it can't check, like `say` and `echo`, are skipped. A setting whose files set nothing it can check, or whose state is mixed (some of each, after a ConVar was changed by hand), shows Enable and Disable instead. `css_gmm_status` lists those.
+Lines it can't check, like `say` and `echo`, are skipped. When neither file matches fully (a disable cfg often also runs shared cfgs the current mode sets its own way), the closer match wins, and a tie shows as off. Only a setting whose files set nothing it can check shows Enable and Disable instead. `css_gmm_status` lists those.
 
 </details>
 

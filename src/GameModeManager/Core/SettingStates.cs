@@ -31,6 +31,7 @@ namespace GameModeManager.Core
         // Define class properties
         private const int MaxDepth = 8; // exec inside exec
         private const double Tolerance = 0.0001;
+        private const int ExpectSeconds = 3;
 
         // Values that never stay as a cfg sets them: they trigger something and go back
         private static readonly HashSet<string> Ignored = new(StringComparer.OrdinalIgnoreCase)
@@ -40,6 +41,7 @@ namespace GameModeManager.Core
         private static readonly Regex DelayedCommand = new(@"^\s*exec_after_delay\s+\S+\s+(.+)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private readonly Dictionary<string, Checks> _files = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, (bool On, DateTime Until)> _expected = new(StringComparer.OrdinalIgnoreCase);
 
         // What one cfg file sets, with the files it runs
         private class Checks
@@ -59,30 +61,37 @@ namespace GameModeManager.Core
         public void OnMapStart(string mapName)
         {
             _files.Clear();
+            _expected.Clear();
         }
 
         // Define class methods
+        // On or Off by whichever cfg file the server matches more closely: a disable cfg often also runs shared cfgs (movement,
+        // knife drop) whose values the current mode sets its own way, so neither matches fully. Mixed only on a tie.
         public SettingState Get(ISetting setting)
         {
+            if (_expected.TryGetValue(setting.Name, out var expected) && DateTime.UtcNow < expected.Until)
+                return expected.On ? SettingState.On : SettingState.Off;
+
             try
             {
                 Checks? enable = setting.Enable != "" ? Read(setting.Enable) : null;
                 Checks? disable = setting.Disable != "" ? Read(setting.Disable) : null;
                 List<PluginContextInfo>? plugins = null;
 
-                bool? on = enable != null ? Holds(enable, disable, ref plugins) : null;
-                bool? off = disable != null ? Holds(disable, enable, ref plugins) : null;
+                double? on = enable != null ? Match(enable, disable, ref plugins) : null;
+                double? off = disable != null ? Match(disable, enable, ref plugins) : null;
 
-                return (on, off) switch
-                {
-                    (null, null) => SettingState.Unknown,
-                    (true, true) => SettingState.Unknown, // Both files set nothing different that can be checked
-                    (true, _) => SettingState.On,
-                    (_, true) => SettingState.Off,
-                    (false, null) => SettingState.Off,   // Only an enable cfg, and it isn't in effect
-                    (null, false) => SettingState.On,    // Only a disable cfg, and it isn't in effect
-                    _ => SettingState.Mixed
-                };
+                if (on == null && off == null)
+                    return SettingState.Unknown;
+                if (off == null)
+                    return on == 1 ? SettingState.On : SettingState.Off;   // Only an enable cfg that can be checked
+                if (on == null)
+                    return off == 1 ? SettingState.Off : SettingState.On;  // Only a disable cfg that can be checked
+                if (on > off)
+                    return SettingState.On;
+                if (off > on)
+                    return SettingState.Off;
+                return SettingState.Mixed;
             }
             catch (Exception error)
             {
@@ -91,10 +100,18 @@ namespace GameModeManager.Core
             }
         }
 
-        // Whether everything this file sets is in effect. null when none of it can be checked.
-        private bool? Holds(Checks mine, Checks? other, ref List<PluginContextInfo>? plugins)
+        // Just changed from a menu: its cfg runs on the next frame, and a plugin it loads or unloads may wait a second, so the
+        // new state is shown until then
+        public void Expect(ISetting setting, bool on)
+        {
+            _expected[setting.Name] = (on, DateTime.UtcNow.AddSeconds(ExpectSeconds));
+        }
+
+        // How much of what this file sets is in effect, from 0 to 1. null when none of it can be checked.
+        private double? Match(Checks mine, Checks? other, ref List<PluginContextInfo>? plugins)
         {
             int checkedCount = 0;
+            int matched = 0;
             foreach (var (name, value) in mine.ConVars)
             {
                 if (other != null && other.ConVars.TryGetValue(name, out string? otherValue) && SameValue(otherValue, value))
@@ -105,8 +122,8 @@ namespace GameModeManager.Core
                     continue; // A command, or a plugin's ConVar while it isn't loaded
 
                 checkedCount++;
-                if (!SameValue(conVar.StringValue, value))
-                    return false;
+                if (SameValue(conVar.StringValue, value))
+                    matched++;
             }
 
             foreach (var (name, loaded) in mine.Plugins)
@@ -116,10 +133,10 @@ namespace GameModeManager.Core
                     break; // CounterStrikeSharp changed: plugin lines can't be checked
 
                 checkedCount++;
-                if (plugins.Any(plugin => plugin.Matches(name)) != loaded)
-                    return false;
+                if (plugins.Any(plugin => plugin.Matches(name)) == loaded)
+                    matched++;
             }
-            return checkedCount == 0 ? null : true;
+            return checkedCount == 0 ? null : (double)matched / checkedCount;
         }
 
         // Define file reading methods
