@@ -25,6 +25,7 @@ sv_autobunnyhopping 1
 - `name`: the name in menus, instead of one made from the file name.
 - `permission`: the flag needed to change it (default `@css/cvar`, like `!settings`).
 - `vote: false`: players can't vote on it. Admins can still change it.
+- `group: Match`: puts it on a page of its own in the settings menus, with the other settings of that group. Settings without a group are on the first page.
 
 **Settings with a choice of values.** For a setting like round time, make one cfg per value, without the `enable_`/`disable_` prefix, and give each the same `setting:` name and its own `value:`:
 
@@ -37,6 +38,16 @@ mp_roundtime 5
 Files that share a `setting:` name are one row with a dropdown of their values, in file name order, so name them to sort the way you want them listed (`roundtime_02.cfg`, `roundtime_05.cfg`, `roundtime_10.cfg`). The current value is the file the server matches best. Any of the files can have `permission:` or `vote: false`. A setting needs at least two values. Set one from chat with `!setting set "Round time" "5 minutes"`.
 
 Files in the settings folder without a prefix or a `setting:` header are helpers that other cfgs run, and aren't shown.
+
+**Settings that come with GameModeManager.** The release has these in `cfg/settings/`, each with a header. A server keeps its own files, so updating only adds the ones it doesn't have:
+
+- **Match:** Friendly fire, Overtime, Halftime side swap, Team balance, Respawn, Kick idle players, and the values Round time, Max rounds and Freeze time
+- **Economy:** Free armor, Buy anywhere, Buying, and the values Buy time, Start money and Max money
+- **Players:** Alltalk, Knife drop, Damage report, Solid teammates, Free for all, Spectate enemies, and the value Gravity
+- **Movement:** Auto bunny hop, Movement unlock
+- **Bots:** Bots, and the values Bot difficulty and Bot count
+- **Practice:** Infinite ammo, Grenade trajectory
+- **Fun:** Scoutz
 
 </details>
 
@@ -64,6 +75,9 @@ bot_add_ct
 - `name`: the row's name, instead of one made from the file name.
 - `permission`: the flag needed to run it (default `@css/cvar`).
 - `vote: true`: players without that flag can start a vote on it, like "Run Swap Teams?".
+- `group: Bots`: puts it on a page of its own in `!actions`, with the other actions of that group. A subfolder works too: `actions/bots/add_ct.cfg` is in the Bots group unless its header says otherwise.
+
+**Actions that come with GameModeManager**, in `cfg/actions/`: Pause match, Unpause match, CT timeout and T timeout (Match); Swap teams and Scramble teams (Teams); Add bot CT, Add bot T, Kick CT bots, Kick T bots and Kick all bots (Bots). Restarting a round or the game is in CS2-SimpleAdmin's Server Manage menu, so it isn't repeated here.
 
 The page stays open after an action runs, so you can run it several times in a row. Players only see the actions they can run or vote on.
 
