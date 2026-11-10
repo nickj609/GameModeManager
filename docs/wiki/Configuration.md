@@ -5,7 +5,7 @@
 	
 ```json
 {
-  "Version": 16,
+  "Version": 17,
   "WorkshopAddon": "3831211166",
   "Maps": {
     "Delay": 5,
@@ -82,6 +82,7 @@
     "ModeInterval": 4,
     "ModeVote": "random",
     "CountSkippedMaps": false,
+    "RecentModes": 2,
     "ModeSchedules": false,
     "Schedule": [
       {
@@ -108,7 +109,9 @@
         "mg_comp"
       ],
       "InVotes": true,
-      "InRotation": true
+      "InRotation": true,
+      "MinPlayers": 0,
+      "MaxPlayers": 0
     },
     "MapGroupFile": "gamemodes_server.txt",
     "List": [
@@ -414,7 +417,7 @@
 # General Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Version             | Config version. GameModeManager won't load a config older than version 12.                                                                |
+| Version             | Config version. GameModeManager won't load a config older than version 12. On load, it adds settings from newer versions with their defaults and sets this to the current version, keeping the previous file as `GameModeManager.json.v<old version>.bak` (the updated file has no comments). Values already set are never changed. |
 | WorkshopAddon       | Workshop IDs (comma separated) of the addons with the menu files, added to MultiAddonManager's list. Empty = you load them yourself.      |
 
 # Map Settings
@@ -512,6 +515,7 @@ Messages to everyone stay in chat.
 | ModeInterval        | Changes game mode every x map rotations. (If ModeRotation is enabled)                                                                     |
 | ModeVote            | What happens on the map that ends with a mode change. `"random"`: no map vote, and a random mode at the end. `"vote"`: every vote on that map (end of map, `!rtv`, `!nominate`) lists only the modes in rotation, and the winner is the next mode (a random one when nobody votes). Players are told when the match starts. Added in config version 16. |
 | CountSkippedMaps    | Maps left early (RTV, an admin's map change) count toward ModeInterval too, so "every 4 maps" means any 4 maps. Off: only maps played to the end count. An early change to another mode on the map that was due counts either way, so the mode doesn't change twice. Added in config version 16. |
+| RecentModes         | Random mode picks (rotation, `!mode random`), the mode put in map votes and mode votes skip the last this many modes played before the current one, when others are left. `0` = only the current one is skipped. Added in config version 17. |
 | ModeSchedules       | Enables mode schedules. Wins over ModeRotation.                                                                                           |
 | Schedule            | Schedule for mode rotations (24-hr format in the server's local time)                                                                                    |
 
@@ -523,6 +527,8 @@ Messages to everyone stay in chat.
 | List                | The modes on your server. Each has a Name, Config, DefaultMap and MapGroups, plus the two settings below.                                 |
 | InVotes             | A mode's setting. `false` keeps it out of votes, `!nominate`, `!changemode` and random picks. Admins can still choose it. Added in 2.1.0. |
 | InRotation          | A mode's setting. `false` keeps it out of mode rotation. Schedules can still use it. Added in 2.1.0.                                      |
+| MinPlayers          | A mode's setting. Votes, `!nominate`, `!changemode` and random picks only offer the mode with at least this many players (bots and spectating HLTV don't count). Player menus show it greyed out with the players it's for. `0` = no limit. Admins can still choose it. Added in config version 17. |
+| MaxPlayers          | A mode's setting: the same, with at most this many players. `0` = no limit. Added in config version 17. |
 | List                | A customizable list of game modes for your server with friendly names for menus.                                                          |  
 
 > [!CAUTION]

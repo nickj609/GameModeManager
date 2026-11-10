@@ -119,6 +119,7 @@ namespace GameModeManager
         public string ModeVote { get; set; } = "random"; // When the mode changes: "random" skips the map vote and picks a mode, "vote" makes every vote on that map list only modes
         public bool CountSkippedMaps { get; set; } = false; // Maps left early (RTV, an admin's map change) count toward ModeInterval too
         public int RecentModes { get; set; } = 2; // Random mode picks and mode votes skip the last this many modes played, when others are left. 0 = only the current one
+        [System.Text.Json.Serialization.JsonIgnore]
         public bool VoteForMode => ModeVote.Equals("vote", StringComparison.OrdinalIgnoreCase);
         public bool ModeSchedules { get; set; } = false; // Enables or disables mode schedules
         public List<ScheduleEntry> Schedule { get; set; } = new List<ScheduleEntry>()
@@ -346,6 +347,9 @@ namespace GameModeManager
         public void OnConfigParsed(Config _config)
         {
             _config.Validate(Logger);
+
+            // Settings added since the file was written show up in it, with their defaults
+            ConfigUpgrade.Run(ModuleName, _config, Logger);
 
             // Game Settings
             if (_config.Settings.Enabled && !Directory.Exists(Path.Combine(PluginState.GameController.ConfigDirectory, _config.Settings.Folder)))
