@@ -235,7 +235,7 @@ namespace GameModeManager.CrossCutting
                 return;
             }
 
-            IMode nextMode = _mapChooser.PickRandom(modes)!; // For this many players, and not played recently, when it can
+            IMode nextMode = _mapChooser.PickRandom(modes)!; // Not one played recently, when it can
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", nextMode.Name));
             ChangeMode(nextMode);
         }

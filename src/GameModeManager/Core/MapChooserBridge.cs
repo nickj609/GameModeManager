@@ -136,7 +136,7 @@ namespace GameModeManager.Core
             var pool = new JsonObject();
             List<IMode> modes = Fresh(RotationModes().Where(mode => _pools.ContainsKey(mode.Name)).ToList(), 2);
             foreach (var (id, mode) in _modeEntries.Where(m => modes.Contains(m.Value)))
-                AddModeEntry(pool, id, mode, 1);
+                AddModeEntry(pool, id, mode, 1, limits: false); // Rotation ignores player limits
             return pool.Count >= 2 ? pool : null;
         }
 
@@ -156,15 +156,15 @@ namespace GameModeManager.Core
                 AddModeEntry(pool, id, mode, 1);
         }
 
-        private void AddModeEntry(JsonObject pool, string id, IMode mode, int weight)
+        private void AddModeEntry(JsonObject pool, string id, IMode mode, int weight, bool limits = true)
         {
             pool[mode.Name] = new JsonObject
             {
                 ["ws"] = true,
                 ["display"] = mode.Name,
                 ["mapid"] = id,
-                ["minplayers"] = _config.GameModes.Entry(mode.Name)?.MinPlayers ?? 0, // GG1 leaves it out of votes and nominations outside these
-                ["maxplayers"] = _config.GameModes.Entry(mode.Name)?.MaxPlayers ?? 0,
+                ["minplayers"] = limits ? _config.GameModes.Entry(mode.Name)?.MinPlayers ?? 0 : 0, // GG1 leaves it out of votes and nominations outside these
+                ["maxplayers"] = limits ? _config.GameModes.Entry(mode.Name)?.MaxPlayers ?? 0 : 0,
                 ["weight"] = weight,
             };
         }
@@ -234,12 +234,11 @@ namespace GameModeManager.Core
             return fresh.Count >= atLeast ? fresh : modes;
         }
 
-        // A random mode for a rotation or a random pick: one for this many players if there is one, and not one played
-        // recently if there is one. Null when the list is empty.
+        // A random mode for a rotation or an admin's random pick: not one played recently, if there is one. Player limits
+        // (MinPlayers, MaxPlayers) are only for player votes. Null when the list is empty.
         public IMode? PickRandom(List<IMode> modes)
         {
-            List<IMode> fitting = modes.Where(FitsPlayers).ToList();
-            List<IMode> candidates = Fresh(fitting.Count > 0 ? fitting : modes, 1);
+            List<IMode> candidates = Fresh(modes, 1);
             return candidates.Count > 0 ? candidates[Random.Shared.Next(candidates.Count)] : null;
         }
 
