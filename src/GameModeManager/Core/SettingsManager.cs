@@ -77,6 +77,7 @@ namespace GameModeManager.Core
                 setting.Permission = header.Permission ?? "";
                 setting.InVotes = header.Vote ?? true;
                 setting.Group = header.Group ?? "";
+                setting.Applies = SettingAppliesText.Parse(header.Applies);
             }
 
             foreach (ValueSetting setting in _pluginState.Game.ValueSettings.Values.Where(s => s.Values.Count < 2).ToList())
@@ -116,6 +117,8 @@ namespace GameModeManager.Core
                 setting.InVotes = false;
             if (header.Group != null)
                 setting.Group = header.Group;
+            if (header.Applies != null)
+                setting.Applies = SettingAppliesText.Parse(header.Applies);
 
             string label = header.Value ?? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Path.GetFileNameWithoutExtension(fileName).Replace("_", " "));
             setting.Values.Add(new SettingValue(fileName, label));
