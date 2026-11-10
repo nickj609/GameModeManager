@@ -157,7 +157,7 @@ namespace GameModeManager.Menus
                         {
                             MenuFactory.Api?.CloseMenu(player);
                             if (_config.Votes.Enabled && _config.Votes.GameModes)
-                                _modeMenus.VoteMenu?.Open(player);
+                                _modeMenus.OpenVoteMenu(player);
                         });
                         break;
                     case "!changesetting":

@@ -36,6 +36,8 @@
   "warmup.start.message": "Bemelegítő mód {GREEN}{0}{DEFAULT} elindítva.",
   "warmup.end.message": "Játékmód {GREEN}{0}{DEFAULT} elindítva.",
   "mode.vote.menu-title": "Játékmód váltása {GOLD}{0}{DEFAULT} módra?",
+  "mode.players": "{0} játékos",
+  "mode.players-only": "{GOLD}{0}{DEFAULT} {1} játékosnak való.",
   "map.vote.menu-title": "Pálya váltása erre: {GOLD}{0}{DEFAULT}?",
   "setting.vote.menu-title": "Beállítás váltása {GOLD}{0}{DEFAULT} beállításra?",
   "settings.menu-title": "Beállítások listája",

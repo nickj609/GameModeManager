@@ -109,13 +109,18 @@ namespace GameModeManager.Features
                 if (AdminManager.PlayerHasPermissions(player, RandomVotePermission))
                     _modeMenus.StartVote(player);
                 else
-                    _modeMenus.VoteMenu?.Open(player);
+                    _modeMenus.OpenVoteMenu(player);
                 return;
             }
 
             IMode? mode = _pluginState.Game.Modes.Values.FirstOrDefault(m => m.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if (mode != null && (_config.GameModes.InVotes(mode.Name) || AdminManager.PlayerHasPermissions(player, RandomVotePermission)))
-                _modeMenus.StartVote(player, mode);
+            bool admin = AdminManager.PlayerHasPermissions(player, RandomVotePermission);
+            if (mode != null && (_config.GameModes.InVotes(mode.Name) || admin))
+            {
+                // Admins can start a vote on any mode; players only on one for this many players
+                if (admin || _modeMenus.FitsOrTell(player, mode))
+                    _modeMenus.StartVote(player, mode);
+            }
             else
                 PlayerFeedback.Send(player, _localizer, "notify.vote", MenuNotice.Warning, "vote.no-match", name);
         }

@@ -59,6 +59,7 @@ namespace GameModeManager
             public bool WarmupScheduled = false;
             public bool CountdownRunning = false;
             public IMode CurrentMode = DefaultMode;
+            public List<string> RecentModes = new(); // Modes played before the current one, the latest first
             public IMode WarmupMode = DefaultWarmup;
             public Dictionary<string, IMode> Modes = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<string, IMode> WarmupModes = new(StringComparer.OrdinalIgnoreCase);

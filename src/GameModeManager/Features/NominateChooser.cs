@@ -70,7 +70,7 @@ namespace GameModeManager.Features
                 return HookResult.Continue;
 
             IMode? mode = _mapChooser.FindMode(name);
-            if (mode == null || !_mapChooser.CanBeNextMode(mode) || !_mapChooser.InVotes(mode))
+            if (mode == null || !_mapChooser.CanBeNextMode(mode) || !_mapChooser.InVotes(mode) || !_mapChooser.FitsPlayers(mode))
                 return HookResult.Continue; // A map, or GG1 says it can't be nominated
 
             Server.NextFrame(() =>
@@ -155,7 +155,8 @@ namespace GameModeManager.Features
         {
             IMenu menu = MenuFactory.Api!.GetMenu(_localizer.Localize("nominate.modes"), p => back.Open(p));
             foreach (IMode mode in _pluginState.Game.Modes.Values.Where(m => _mapChooser.CanBeNextMode(m) && _mapChooser.InVotes(m)).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
-                AddRow(menu, player, mode.Name, mode.Name, false, p => NominateMode(p, mode));
+                // Greyed out, with the players it's for, outside its MinPlayers and MaxPlayers
+                AddRow(menu, player, mode.Name, _mapChooser.FitsPlayers(mode) ? mode.Name : $"{mode.Name} · {_localizer.Localize("mode.players", _mapChooser.PlayerRange(mode))}", !_mapChooser.FitsPlayers(mode), p => NominateMode(p, mode));
             return menu;
         }
 

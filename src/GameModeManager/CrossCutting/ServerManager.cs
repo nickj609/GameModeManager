@@ -235,7 +235,7 @@ namespace GameModeManager.CrossCutting
                 return;
             }
 
-            IMode nextMode = modes[new Random().Next(0, modes.Count)];
+            IMode nextMode = _mapChooser.PickRandom(modes)!; // For this many players, and not played recently, when it can
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", nextMode.Name));
             ChangeMode(nextMode);
         }
@@ -261,7 +261,7 @@ namespace GameModeManager.CrossCutting
                 List<IMode> modes = _mapChooser.RotationModes();
                 if (_mapChooser.ModesOnly && modes.Count > 0)
                 {
-                    IMode nextMode = modes[Random.Shared.Next(modes.Count)];
+                    IMode nextMode = _mapChooser.PickRandom(modes)!;
                     _logger.LogWarning("GG1MapChooser has no next mode: changing to {Mode}.", nextMode.Name);
                     ChangeMode(nextMode, 0);
                     return;

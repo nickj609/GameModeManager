@@ -40,7 +40,6 @@ namespace GameModeManager.Menus
 
         // Define class properties
         public LocalizedMenu MainMenu = new(); // Admin menu (!modes)
-        public LocalizedMenu VoteMenu = new(); // Player menu (!game, !changemode): no Back or random vote, which are for admins
         public bool VotesEnabled => _config.Votes.Enabled && _config.Votes.GameModes;
 
         // Load config
@@ -65,14 +64,11 @@ namespace GameModeManager.Menus
         public void Load()
         {
             LocalizedMenu _main = new();
-            LocalizedMenu _vote = new();
             _languages.ForEach(culture =>
             {
-                _vote.Set(culture, CreateVoteMenu(null, false));
                 _main.Set(culture, CreateMainMenu());
             });
             MainMenu = _main;
-            VoteMenu = _vote;
         }
 
         private IMenu? CreateMainMenu()
@@ -129,12 +125,9 @@ namespace GameModeManager.Menus
                 });
             }
 
+            // The admins' list has every mode (players get OpenVoteMenu)
             foreach (IMode? _mode in _pluginState.Game.Modes.Values)
             {
-                // The admins' list has every mode
-                if (back == null && !_mapChooser.InVotes(_mode))
-                    continue;
-
                 MenuActions.Add(menu, _mode.Name, (player, option) =>
                 {
                     MenuFactory.Api?.CloseMenu(player);
@@ -142,6 +135,41 @@ namespace GameModeManager.Menus
                 }, _pluginState.Game.CurrentMode.Equals(_mode));   // The current mode is greyed out
             }
             return menu;
+        }
+
+        // A player's vote on a mode by name: false, and tells them who it's for, when it doesn't fit the players here now
+        public bool FitsOrTell(CCSPlayerController player, IMode mode)
+        {
+            if (_mapChooser.FitsPlayers(mode))
+                return true;
+
+            PlayerFeedback.Send(player, _localizer, "notify.vote", MenuNotice.Warning, "mode.players-only", mode.Name, _mapChooser.PlayerRange(mode));
+            return false;
+        }
+
+        // !changemode and !game's Change mode for players. Built when it opens: a mode outside its MinPlayers and MaxPlayers for
+        // the players here now is greyed out, with the players it's for.
+        public void OpenVoteMenu(CCSPlayerController player)
+        {
+            if (!VotesEnabled)
+                return;
+
+            using var _culture = MenuLanguages.For(player);
+            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.start-vote"));
+            if (menu == null)
+                return;
+
+            foreach (IMode mode in _pluginState.Game.Modes.Values.Where(_mapChooser.InVotes))
+            {
+                bool fits = _mapChooser.FitsPlayers(mode);
+                string label = fits ? mode.Name : $"{mode.Name} · {_localizer.Localize("mode.players", _mapChooser.PlayerRange(mode))}";
+                MenuActions.Add(menu, label, (p, option) =>
+                {
+                    MenuFactory.Api?.CloseMenu(p);
+                    StartVote(p, mode);
+                }, _pluginState.Game.CurrentMode.Equals(mode) || !fits);   // The current mode is greyed out too
+            }
+            menu.Open(player);
         }
 
         // Define class methods
@@ -154,9 +182,10 @@ namespace GameModeManager.Menus
 
         public void ChangeToRandomMode(CCSPlayerController player)
         {
-            var modes = _pluginState.Game.Modes.Values.Where(m => _mapChooser.CanBeNextMode(m) && _mapChooser.InVotes(m)).ToList();
-            if (modes.Count > 0)
-                ChangeMode(player, modes[Random.Shared.Next(modes.Count)]);
+            // For this many players, and not played recently, when there is one
+            IMode? mode = _mapChooser.PickRandom(_pluginState.Game.Modes.Values.Where(m => _mapChooser.CanBeNextMode(m) && _mapChooser.InVotes(m)).ToList());
+            if (mode != null)
+                ChangeMode(player, mode);
         }
 
         public void SetNextMode(CCSPlayerController player, IMode mode)

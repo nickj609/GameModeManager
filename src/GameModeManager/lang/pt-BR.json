@@ -36,6 +36,8 @@
   "warmup.start.message": "Modo de aquecimento {GREEN}{0}{DEFAULT} iniciado.",
   "warmup.end.message": "Modo de jogo {GREEN}{0}{DEFAULT} iniciado.",
   "mode.vote.menu-title": "Mudar o modo de jogo para {GOLD}{0}{DEFAULT}?",
+  "mode.players": "{0} jogadores",
+  "mode.players-only": "{GOLD}{0}{DEFAULT} é para {1} jogadores.",
   "map.vote.menu-title": "Mudar o mapa para {GOLD}{0}{DEFAULT}?",
   "setting.vote.menu-title": "Mudar a configuração {GOLD}{0}{DEFAULT}?",
   "settings.menu-title": "Lista de configurações",
