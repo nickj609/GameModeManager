@@ -142,7 +142,7 @@ namespace GameModeManager.Core
                 AddEntry("settings", "admin.game-settings", CvarPermission, SettingsMenu);
             if (_config.Warmup.Enabled)
                 AddEntry("warmup", "admin.warmup", CvarPermission, WarmupMenu);
-            if (_config.Actions.Enabled && _pluginState.Game.Actions.Count > 0)
+            if (_config.Actions.Enabled && (_pluginState.Game.Actions.Count > 0 || _config.Actions.RoundRestore))
                 AddEntry("actions", "admin.actions", SectionPermission, p => ActionsMenu(p, null)); // Each action has its own flag
             AddEntry("rotation", "admin.rotation", CvarPermission, RotationMenu);
             _logger.LogInformation("Added Manage game to CS2-SimpleAdmin's menu");
@@ -446,6 +446,20 @@ namespace GameModeManager.Core
             object menu = NewMenu(group ?? _localizer.Localize("admin.actions"), player);
             if (group == null)
             {
+                // The round rows first: they close the panel, because the match pauses
+                if (_actionMenus.CanRestore(player))
+                {
+                    List<RoundBackups.Backup> backups = _actionMenus.Backups();
+                    AddOption(menu, _localizer.Localize("action.replay-round"), p => Act(p, "round restore 0", () => _actionMenus.Restore(p, backups[0])), backups.Count < 1);
+                    AddOption(menu, _localizer.Localize("action.replay-last"), p => Act(p, "round restore 1", () => _actionMenus.Restore(p, backups[1])), backups.Count < 2);
+                    AddSubMenu(menu, _localizer.Localize("action.restore-round"), p =>
+                    {
+                        object page = NewMenu(_localizer.Localize("action.restore-round"), p);
+                        foreach (RoundBackups.Backup backup in backups)
+                            AddOption(page, _localizer.Localize("action.round", backup.Round), q => Act(q, $"round restore {backup.File}", () => _actionMenus.Restore(q, backup)));
+                        return page;
+                    }, backups.Count < 1);
+                }
                 foreach (string name in _pluginState.Game.Actions.Select(action => action.Group).Where(name => name != "").Distinct())
                     AddSubMenu(menu, name, p => ActionsMenu(p, name));
             }

@@ -92,6 +92,8 @@ namespace GameModeManager
     {
         public bool Enabled { get; set; } = true; // !actions and the admin panel's Actions page, from the cfgs in Folder
         public string Folder { get; set; } = "actions"; // In the cfg folder. Each subfolder is a group
+        public bool RoundRestore { get; set; } = true; // Replay this round, Replay last round and Go back to round, from the game's round backups (mp_backup_round_auto)
+        public string RoundRestorePermission { get; set; } = "@css/generic"; // The flag those need
     }
 
     // Define command settings
