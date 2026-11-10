@@ -15,6 +15,7 @@ namespace GameModeManager.Models
         public string DisplayName { get; set; }
         public string Permission { get; set; } = ""; // From the cfg header ("// permission: ..."). Empty = @css/cvar
         public bool InVotes { get; set; } = true;    // From the cfg header ("// vote: false" keeps it out of player votes)
+        public string Group { get; set; } = "";      // From the cfg header ("// group: ..."): the page it's on. "" = the first page
 
         // Define class constructors
         public Setting(string name)

@@ -76,17 +76,22 @@ namespace GameModeManager.Menus
         }
 
         // Every setting: on/off ones as toggles, value ones as a dropdown. Choosing one changes it.
-        public void OpenChangeMenu(CCSPlayerController player, Action<CCSPlayerController>? back)
+        public void OpenChangeMenu(CCSPlayerController player, Action<CCSPlayerController>? back, string group = "")
         {
             using var _culture = MenuLanguages.For(player);
-            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("admin.change-setting"), back);
+            IMenu? menu = MenuFactory.Api?.GetMenu(group != "" ? group : _localizer.Localize("admin.change-setting"), group != "" ? p => OpenChangeMenu(p, back) : back);
             if (menu == null)
                 return;
 
             // The menu stays open: PMM flips a toggle in place, so several settings can be changed in one go
             menu.PostSelectAction = PostSelectAction.Nothing;
 
-            foreach (var (name, setting, valueSetting) in Sorted(forVotes: false))
+            // Groups ("// group: ..." in a setting's cfg) are pages of their own, before the settings without one
+            if (group == "")
+                foreach (string page in Groups(forVotes: false))
+                    menu.AddMenuOption(page, (p, option) => OpenChangeMenu(p, back, page));
+
+            foreach (var (name, setting, valueSetting) in Sorted(forVotes: false, group))
             {
                 if (valueSetting != null)
                 {
@@ -117,30 +122,34 @@ namespace GameModeManager.Menus
                     }, !CanChange(setting!, !on) || !Allowed(player, PermissionOf(setting!)));
                 }
                 else
-                    menu.AddMenuOption(name, (p, option) => OpenChoiceMenu(p, setting!, false, q => OpenChangeMenu(q, back)), !Allowed(player, PermissionOf(setting!)));
+                    menu.AddMenuOption(name, (p, option) => OpenChoiceMenu(p, setting!, false, q => OpenChangeMenu(q, back, group)), !Allowed(player, PermissionOf(setting!)));
             }
             menu.Open(player);
         }
 
         // !changesetting, and the admin's Start a vote: every setting players can vote on. An on/off one starts a vote on
         // turning it the other way; a value one opens its values.
-        public void OpenVoteMenu(CCSPlayerController player, Action<CCSPlayerController>? back = null)
+        public void OpenVoteMenu(CCSPlayerController player, Action<CCSPlayerController>? back = null, string group = "")
         {
             if (!VotesEnabled)
                 return;
 
             using var _culture = MenuLanguages.For(player);
-            IMenu? menu = MenuFactory.Api?.GetMenu(back != null ? _localizer.Localize("admin.start-vote") : _localizer.Localize("settings.menu-title"), back);
+            IMenu? menu = MenuFactory.Api?.GetMenu(group != "" ? group : back != null ? _localizer.Localize("admin.start-vote") : _localizer.Localize("settings.menu-title"), group != "" ? p => OpenVoteMenu(p, back) : back);
             if (menu == null)
                 return;
 
-            foreach (var (name, setting, valueSetting) in Sorted(forVotes: true))
+            if (group == "")
+                foreach (string page in Groups(forVotes: true))
+                    menu.AddMenuOption(page, (p, option) => OpenVoteMenu(p, back, page));
+
+            foreach (var (name, setting, valueSetting) in Sorted(forVotes: true, group))
             {
                 if (valueSetting != null)
                 {
                     int? active = _states.ActiveValue(valueSetting);
                     string label = active is int index ? $"{name} · {valueSetting.Values[index].Label}" : name;
-                    menu.AddMenuOption(label, (p, option) => OpenValueVoteMenu(p, valueSetting, q => OpenVoteMenu(q, back)));
+                    menu.AddMenuOption(label, (p, option) => OpenValueVoteMenu(p, valueSetting, q => OpenVoteMenu(q, back, group)));
                     continue;
                 }
 
@@ -155,7 +164,7 @@ namespace GameModeManager.Menus
                     }, !CanChange(setting!, !on));
                 }
                 else
-                    menu.AddMenuOption(name, (p, option) => OpenChoiceMenu(p, setting!, true, q => OpenVoteMenu(q, back)));
+                    menu.AddMenuOption(name, (p, option) => OpenChoiceMenu(p, setting!, true, q => OpenVoteMenu(q, back, group)));
             }
             menu.Open(player);
         }
@@ -204,13 +213,26 @@ namespace GameModeManager.Menus
         }
 
         // On/off and value settings together, by name. With forVotes, only the ones players can vote on.
-        private IEnumerable<(string Name, ISetting? Setting, ValueSetting? ValueSetting)> Sorted(bool forVotes)
+        private IEnumerable<(string Name, ISetting? Setting, ValueSetting? ValueSetting)> Sorted(bool forVotes, string group)
         {
             var onOff = _pluginState.Game.Settings.Values.Where(setting => !forVotes || InVotesOf(setting))
                 .Select(setting => (Name: setting.DisplayName, Setting: (ISetting?)setting, ValueSetting: (ValueSetting?)null));
             var values = _pluginState.Game.ValueSettings.Values.Where(setting => !forVotes || setting.InVotes)
                 .Select(setting => (Name: setting.Name, Setting: (ISetting?)null, ValueSetting: (ValueSetting?)setting));
-            return onOff.Concat(values).OrderBy(row => row.Name, StringComparer.OrdinalIgnoreCase);
+            return onOff.Concat(values).Where(row => GroupOf(row.Setting, row.ValueSetting).Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(row => row.Name, StringComparer.OrdinalIgnoreCase);
+        }
+
+        // The groups settings are in, by name. With forVotes, only groups with a setting players can vote on.
+        public IEnumerable<string> Groups(bool forVotes)
+        {
+            var onOff = _pluginState.Game.Settings.Values.Where(setting => !forVotes || InVotesOf(setting)).Select(setting => GroupOf(setting, null));
+            var values = _pluginState.Game.ValueSettings.Values.Where(setting => !forVotes || setting.InVotes).Select(setting => setting.Group);
+            return onOff.Concat(values).Where(group => group != "").Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(group => group, StringComparer.OrdinalIgnoreCase);
+        }
+
+        public static string GroupOf(ISetting? setting, ValueSetting? valueSetting)
+        {
+            return valueSetting?.Group ?? (setting as Setting)?.Group ?? "";
         }
 
         // Define class methods

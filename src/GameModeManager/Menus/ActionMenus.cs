@@ -82,7 +82,7 @@ namespace GameModeManager.Menus
             CfgHeader header = CfgHeader.Read(file);
             string relative = Path.GetRelativePath(root, file).Replace('\\', '/');
             string name = header.Name ?? TitleCase(Path.GetFileNameWithoutExtension(file));
-            _pluginState.Game.Actions.Add(new GameAction(relative, name, group, header.Permission ?? "", header.Vote ?? false));
+            _pluginState.Game.Actions.Add(new GameAction(relative, name, header.Group ?? group, header.Permission ?? "", header.Vote ?? false));
         }
 
         private static string TitleCase(string name)

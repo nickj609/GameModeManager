@@ -20,6 +20,7 @@ namespace GameModeManager.Core
         public string? Permission => Get("permission");
         public string? Setting => Get("setting"); // A value setting's name: files that share it are one setting
         public string? Value => Get("value");     // This file's value of that setting, like "5 minutes"
+        public string? Group => Get("group");     // The page it's on in the settings or actions menu, like "Bots"
         public bool? Vote => Get("vote") is string vote ? !vote.Equals("false", StringComparison.OrdinalIgnoreCase) && vote != "0" : null;
 
         // Define class methods

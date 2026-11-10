@@ -361,12 +361,17 @@ namespace GameModeManager.Core
             return menu;
         }
 
-        private object SettingListMenu(CCSPlayerController player, bool vote)
+        private object SettingListMenu(CCSPlayerController player, bool vote, string group = "")
         {
-            object menu = NewMenu(_localizer.Localize(vote ? "admin.start-vote" : "admin.change-setting"), player);
+            object menu = NewMenu(group != "" ? group : _localizer.Localize(vote ? "admin.start-vote" : "admin.change-setting"), player);
+
+            // Groups ("// group: ..." in a setting's cfg) are pages of their own, before the settings without one
+            if (group == "")
+                foreach (string page in _settingMenus.Groups(vote))
+                    AddSubMenu(menu, page, p => SettingListMenu(p, vote, page));
 
             // Value settings: the row shows the current value, and its page lists the values (the current one greyed out)
-            foreach (ValueSetting valueSetting in _pluginState.Game.ValueSettings.Values.Where(s => !vote || s.InVotes).OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase))
+            foreach (ValueSetting valueSetting in _pluginState.Game.ValueSettings.Values.Where(s => (!vote || s.InVotes) && s.Group.Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase))
             {
                 int? active = _settingStates.ActiveValue(valueSetting);
                 string row = active is int current ? $"{valueSetting.Name}{HintSeparator}{valueSetting.Values[current].Label}" : valueSetting.Name;
@@ -386,14 +391,14 @@ namespace GameModeManager.Core
                             }
                             _settingMenus.SetValue(q, valueSetting, index);
                             Call("LogCommand", c => c.Length == 2 && c[1].ParameterType == typeof(string), q, logged);
-                            Call("OpenMenu", c => c.Length == 2, InLanguage(c => SettingListMenu(c, false))(q), q);
+                            Call("OpenMenu", c => c.Length == 2, InLanguage(c => SettingListMenu(c, false, group))(q), q);
                         }, active == index);
                     }
                     return page;
                 }, !vote && !SettingMenus.Allowed(player, valueSetting.Permission));
             }
 
-            foreach (ISetting setting in _pluginState.Game.Settings.Values.Where(s => !vote || SettingMenus.InVotesOf(s)).OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase))
+            foreach (ISetting setting in _pluginState.Game.Settings.Values.Where(s => (!vote || SettingMenus.InVotesOf(s)) && SettingMenus.GroupOf(s, null).Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
                 // A known state is an ON/OFF row that turns it the other way, or starts a vote on that. Mixed shows as off.
                 SettingState state = _settingStates.Get(setting);
@@ -412,7 +417,7 @@ namespace GameModeManager.Core
                         // The page opens again with the new state, so several can be changed in one go, like the rotation page
                         _settingMenus.ChangeSetting(p, setting, enable);
                         Call("LogCommand", q => q.Length == 2 && q[1].ParameterType == typeof(string), p, logged);
-                        Call("OpenMenu", q => q.Length == 2, InLanguage(q => SettingListMenu(q, false))(p), p);
+                        Call("OpenMenu", q => q.Length == 2, InLanguage(q => SettingListMenu(q, false, group))(p), p);
                     }, !SettingMenus.CanChange(setting, enable) || !vote && !SettingMenus.Allowed(player, SettingMenus.PermissionOf(setting)));
                 }
                 else
