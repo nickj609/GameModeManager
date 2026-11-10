@@ -1,5 +1,4 @@
 // Included libraries
-using GameModeManager.Core;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 

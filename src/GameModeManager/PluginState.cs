@@ -1,7 +1,5 @@
 // Included libraries
-using GameModeManager.Models;
 using CounterStrikeSharp.API;
-using GameModeManager.Contracts;
 using GameModeManager.Shared.Models;
 
 // Declare namespace

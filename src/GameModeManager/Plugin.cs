@@ -1,10 +1,7 @@
 ﻿// Included libraries
-using GameModeManager.Core;
 using GameModeManager.Shared;
-using GameModeManager.Services;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
-using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Core.Capabilities;
 using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
