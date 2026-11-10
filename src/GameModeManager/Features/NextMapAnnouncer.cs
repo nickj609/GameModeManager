@@ -23,15 +23,17 @@ namespace GameModeManager.Features
     {
         // Define class dependencies
         private GG1Internals _gg1;
+        private GameModeEvents _events;
         private StringLocalizer _localizer;
         private MapChooserBridge _mapChooser;
         private ILogger<NextMapAnnouncer> _logger;
         private Config _config = new();
 
         // Define class constructor
-        public NextMapAnnouncer(GG1Internals gg1, MapChooserBridge mapChooser, StringLocalizer localizer, ILogger<NextMapAnnouncer> logger)
+        public NextMapAnnouncer(GG1Internals gg1, MapChooserBridge mapChooser, StringLocalizer localizer, GameModeEvents events, ILogger<NextMapAnnouncer> logger)
         {
             _gg1 = gg1;
+            _events = events;
             _logger = logger;
             _localizer = localizer;
             _mapChooser = mapChooser;
@@ -120,6 +122,7 @@ namespace GameModeManager.Features
             _announcedTick = Server.TickCount;
             bool mode = _mapChooser.IsMode(key);
             string name = _mapChooser.DisplayName(key);
+            _events.RaiseNextMapSet(name);
 
             // After GG1's frame: the messages being stopped are still on their way
             Server.NextFrame(() =>

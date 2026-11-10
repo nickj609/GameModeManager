@@ -18,13 +18,15 @@ namespace GameModeManager.Core
     {
         // Define class dependencies
         private GameRules _gameRules;
+        private GameModeEvents _events;
         private ILogger<RoundBackups> _logger;
 
         // Define class constructor
-        public RoundBackups(GameRules gameRules, ILogger<RoundBackups> logger)
+        public RoundBackups(GameRules gameRules, GameModeEvents events, ILogger<RoundBackups> logger)
         {
             _logger = logger;
             _gameRules = gameRules;
+            _events = events;
         }
 
         // Define class properties
@@ -96,6 +98,7 @@ namespace GameModeManager.Core
 
             _logger.LogInformation("Restoring round {Round} from {File}", backup.Round, backup.File);
             Server.ExecuteCommand($"mp_backup_restore_load_file \"{backup.File}\"");
+            _events.RaiseRoundRestored(backup.Round);
             return true;
         }
 

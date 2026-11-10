@@ -18,14 +18,16 @@ namespace GameModeManager.Core
     {
         // Define class dependencies
         private GG1Internals _gg1;
+        private GameModeEvents _events;
         private PluginState _pluginState;
         private ILogger<MapChooserBridge> _logger;
         private Config _config = new Config();
 
         // Define class constructor
-        public MapChooserBridge(GG1Internals gg1, PluginState pluginState, ILogger<MapChooserBridge> logger)
+        public MapChooserBridge(GG1Internals gg1, PluginState pluginState, GameModeEvents events, ILogger<MapChooserBridge> logger)
         {
             _gg1 = gg1;
+            _events = events;
             _logger = logger;
             _pluginState = pluginState;
         }
@@ -204,6 +206,7 @@ namespace GameModeManager.Core
                 return false;
 
             Server.ExecuteCommand($"setnextmap {EnsureModeEntry(mode)}");
+            _events.RaiseNextMapSet(mode.Name);
             return true;
         }
 
@@ -385,6 +388,7 @@ namespace GameModeManager.Core
                 return false;
 
             Server.ExecuteCommand($"setnextmap {map.Name}");
+            _events.RaiseNextMapSet(map.DisplayName);
             return true;
         }
 

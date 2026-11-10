@@ -28,18 +28,20 @@ namespace GameModeManager.Core
         private GameRules _gameRules;
         private NativeVote _nativeVote;
         private MapChooserBridge _mapChooser;
+        private GameModeEvents _events;
         private PluginState _pluginState;
         private StringLocalizer _localizer;
         private ILogger<VoteService> _logger;
         private Config _config = new Config();
 
         // Define class constructor
-        public VoteService(PluginState pluginState, IStringLocalizer iLocalizer, ILogger<VoteService> logger, GameRules gameRules, NativeVote nativeVote, MapChooserBridge mapChooser)
+        public VoteService(PluginState pluginState, IStringLocalizer iLocalizer, ILogger<VoteService> logger, GameRules gameRules, NativeVote nativeVote, MapChooserBridge mapChooser, GameModeEvents events)
         {
             _logger = logger;
             _gameRules = gameRules;
             _nativeVote = nativeVote;
             _mapChooser = mapChooser;
+            _events = events;
             _pluginState = pluginState;
             _localizer = new StringLocalizer(iLocalizer, "vote.prefix");
         }
@@ -47,6 +49,7 @@ namespace GameModeManager.Core
         // Define class properties
         private ActiveVote? _vote;
         private readonly Dictionary<ulong, DateTime> _lastStarted = new();
+        public bool InProgress => _vote != null;
 
         private class ActiveVote
         {
@@ -364,6 +367,7 @@ namespace GameModeManager.Core
             }
 
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix(passed ? "vote.passed" : "vote.failed", vote.Yes, vote.No, vote.Needed));
+            _events.RaiseVoteFinished(PlainText(vote.Title), passed, vote.Yes, vote.No);
             _logger.LogInformation("Vote \"{Title}\" {Result}: {Yes} yes, {No} no, {Needed} needed{TimeUp}",
                 PlainText(vote.Title), passed ? "passed" : "failed", vote.Yes, vote.No, vote.Needed, timeUp ? " (time up)" : "");
 

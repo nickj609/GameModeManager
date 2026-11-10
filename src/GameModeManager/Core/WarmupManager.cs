@@ -21,14 +21,16 @@ namespace GameModeManager.Core
         // Define class dependencies
         private PluginState _pluginState;
         private StringLocalizer _localizer;
+        private GameModeEvents _events;
         private Config _config = new Config();
         private ILogger<WarmupManager> _logger;
 
         // Define class constructor
-        public WarmupManager(PluginState pluginState, ILogger<WarmupManager> logger, StringLocalizer localizer)
+        public WarmupManager(PluginState pluginState, ILogger<WarmupManager> logger, StringLocalizer localizer, GameModeEvents events)
         {
             _logger = logger;
             _localizer = localizer;
+            _events = events;
             _pluginState = pluginState;
         }
 
@@ -152,6 +154,7 @@ namespace GameModeManager.Core
                 _pluginState.Game.WarmupMode = warmupMode = _pluginState.Game.WarmupModes.Values.ElementAt(Random.Shared.Next(_pluginState.Game.WarmupModes.Count));
 
             _pluginState.Game.WarmupRunning = true;
+            _events.RaiseWarmupStarted(warmupMode);
             _warmupStarted = Server.CurrentTime;
 
             if (_config.Warmup.Time > 0)
@@ -191,6 +194,7 @@ namespace GameModeManager.Core
                     _pluginState.Game.WarmupScheduled = false;
 
                 _pluginState.Game.WarmupRunning = false;
+                _events.RaiseWarmupEnded();
             }
         }
 

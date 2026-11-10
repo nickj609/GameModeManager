@@ -1,10 +1,13 @@
+// Included libraries
+using GameModeManager.Shared.Models;
+
 // Declare namespace
 namespace GameModeManager.Models
 {
     // Define class
     // A cfg in the actions folder: something that runs once, like adding a bot or swapping teams, with no on/off state.
     // A file in a subfolder belongs to that folder's group ("bots/add_ct.cfg" is in "Bots").
-    public class GameAction
+    public class GameAction : IGameAction
     {
         // Define class properties
         public string File { get; }        // Relative to the cfg folder, as exec takes it: "actions/bots/add_ct.cfg"

@@ -1,3 +1,6 @@
+// Included libraries
+using GameModeManager.Shared.Models;
+
 // Declare namespace
 namespace GameModeManager.Models
 {
@@ -5,7 +8,7 @@ namespace GameModeManager.Models
     // A setting with a choice of values, like a round time of 2, 5 or 10 minutes: one cfg per value in the settings folder,
     // tied together by the same "// setting: Round time" header, each with its own "// value: 5 minutes". Shown as one row with
     // a dropdown of its values.
-    public class ValueSetting
+    public class ValueSetting : IValueSetting
     {
         // Define class properties
         public string Name { get; }
@@ -14,6 +17,7 @@ namespace GameModeManager.Models
         public string Group { get; set; } = ""; // From "// group: ..." in any of its files
         public SettingApplies Applies { get; set; } = SettingApplies.Now; // From "// applies: ..." in any of its files
         public List<SettingValue> Values { get; } = new();
+        IReadOnlyList<string> IValueSetting.Values => Values.Select(value => value.Label).ToList();
 
         // Define class constructor
         public ValueSetting(string name)
