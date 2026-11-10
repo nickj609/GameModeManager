@@ -110,6 +110,9 @@ namespace GameModeManager
         public bool Enabled { get; set; } = true; // Enables or disables warmup
         public float Time { get; set; } = 60; // Warmup length in seconds. 0 = whatever mp_warmuptime is
         public bool PerMap { get; set; } = false; // Enables or disables per map warmup
+        public int MinPlayers { get; set; } = 0; // Warmup waits (its timer paused) until this many players are on a team. 0 = it doesn't wait. A mode or map cfg can set it: css_warmup_minplayers <n>
+        public bool Ready { get; set; } = false; // Players type !ready; warmup ends once ReadyPercent of them are. A mode or map cfg can set it: css_warmup_ready <true|false>
+        public int ReadyPercent { get; set; } = 100; // Share of players on a team who must be ready
         public WarmupModeEntry Default { get; set; } = new WarmupModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg" }; // Default warmup mode
         public List<WarmupModeEntry> List { get; set; } = new List<WarmupModeEntry>()
         {

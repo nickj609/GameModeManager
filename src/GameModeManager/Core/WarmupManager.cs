@@ -37,12 +37,17 @@ namespace GameModeManager.Core
         {
             _config = config;
             _pluginState.Game.PerMapWarmup = _config.Warmup.PerMap;
+            _pluginState.Game.WarmupMinPlayers = _config.Warmup.MinPlayers;
+            _pluginState.Game.WarmupReady = _config.Warmup.Ready;
+            _pluginState.Game.WarmupReadyPercent = _config.Warmup.ReadyPercent;
         }
 
         // Define class properties
         private bool _firstPlayerJoined = false;
         private float _warmupStarted;
         private const float StartSettleTime = 1.0f; // Seconds for the warmup's restart to finish before its cfg runs
+        private const string RandomMode = "Random";
+        private bool _random;
 
         // Define on load behavior
         public void OnLoad(Plugin plugin)
@@ -60,8 +65,14 @@ namespace GameModeManager.Core
                     _pluginState.Game.WarmupModes.TryAdd(_warmupMode.Name, _warmupMode);
                 }
 
-                // Set default warmup mode
-                if(_pluginState.Game.WarmupModes.TryGetValue(_config.Warmup.Default.Name, out IMode? warmupMode))
+                // Every other cfg in the warmup folder is a warmup mode too, named by its "// name: ..." header
+                AddFromFolder();
+
+                // Set default warmup mode. "Random" picks one of them each time a warmup starts.
+                _random = _config.Warmup.Default.Name.Equals(RandomMode, StringComparison.OrdinalIgnoreCase);
+                if (_random && _pluginState.Game.WarmupModes.Count > 0)
+                    _pluginState.Game.WarmupMode = _pluginState.Game.WarmupModes.Values.First();
+                else if(_pluginState.Game.WarmupModes.TryGetValue(_config.Warmup.Default.Name, out IMode? warmupMode))
                     _pluginState.Game.WarmupMode = warmupMode;
                 else
                     _logger.LogError($"Unable to find warmup mode {_config.Warmup.Default.Name} in warmup mode list.");
@@ -78,8 +89,41 @@ namespace GameModeManager.Core
         }
         
         // Define class methods
+        // The cfgs in cfg/warmup that Warmup.List doesn't name, each a warmup mode: its "// name: ..." header, else its file name
+        private void AddFromFolder()
+        {
+            string folder = Path.Combine(PluginState.GameController.ConfigDirectory, "warmup");
+            if (!Directory.Exists(folder))
+                return;
+
+            HashSet<string> listed = _config.Warmup.List.Select(entry => entry.Config.Replace('\\', '/')).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            foreach (string file in Directory.GetFiles(folder, "*.cfg").OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
+            {
+                string config = $"warmup/{Path.GetFileName(file)}";
+                if (listed.Contains(config))
+                    continue;
+
+                string name = CfgHeader.Read(file).Name ?? System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Path.GetFileNameWithoutExtension(file).Replace("_", " "));
+                if (_pluginState.Game.WarmupModes.TryAdd(name, new Mode(name, config, new HashSet<IMapGroup>())))
+                    _logger.LogInformation("Warmup mode {Name} from {Config}", name, config);
+            }
+        }
+
         public bool ScheduleWarmup(string modeName)
         {
+            // "none": no warmup on this map or mode. "random": a different warmup mode each time.
+            if (modeName.Equals("none", StringComparison.OrdinalIgnoreCase))
+            {
+                _pluginState.Game.WarmupScheduled = false;
+                return true;
+            }
+            _random = modeName.Equals(RandomMode, StringComparison.OrdinalIgnoreCase) && _pluginState.Game.WarmupModes.Count > 0;
+            if (_random)
+            {
+                _pluginState.Game.WarmupScheduled = true;
+                return true;
+            }
+
             if(_pluginState.Game.WarmupModes.TryGetValue(modeName, out IMode? warmupMode) || _pluginState.Game.Modes.TryGetValue(modeName, out warmupMode))
             {   
                 _pluginState.Game.WarmupMode = warmupMode;
@@ -104,6 +148,9 @@ namespace GameModeManager.Core
         // started, so a restart can't undo it, then players respawn because weapons and spawns only apply on a new spawn.
         public void RunWarmup(IMode warmupMode)
         {
+            if (_random)
+                _pluginState.Game.WarmupMode = warmupMode = _pluginState.Game.WarmupModes.Values.ElementAt(Random.Shared.Next(_pluginState.Game.WarmupModes.Count));
+
             _pluginState.Game.WarmupRunning = true;
             _warmupStarted = Server.CurrentTime;
 
