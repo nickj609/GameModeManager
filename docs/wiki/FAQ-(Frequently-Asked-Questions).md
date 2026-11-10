@@ -44,7 +44,7 @@ Files in the settings folder without a prefix or a `setting:` header are helpers
 
 - **Match:** Friendly fire, Overtime, Halftime side swap, Team balance, Respawn, Kick idle players, and the values Round time, Max rounds and Freeze time
 - **Economy:** Free armor, Buy anywhere, Buying, and the values Buy time, Start money and Max money
-- **Players:** Alltalk, Knife drop, Solid teammates, Free for all, Spectate enemies, and the value Gravity
+- **Players:** Alltalk, Knife drop, Team collision, Free for all, Spectate enemies, and the value Gravity
 - **Movement:** Auto bunny hop, Movement unlock
 - **Bots:** Bots, and the values Bot difficulty and Bot count
 - **Practice:** Grenade trajectory
