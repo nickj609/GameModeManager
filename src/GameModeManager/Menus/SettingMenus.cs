@@ -92,11 +92,15 @@ namespace GameModeManager.Menus
                 {
                     int? active = _states.ActiveValue(valueSetting);
                     string[] choices = valueSetting.Values.Select(value => value.Label).ToArray();
-                    MenuFactory.Api!.AddSelect(menu, name, active is int index ? choices[index] : "", choices, (p, option, chosen) =>
+                    ChatMenuOption row = MenuFactory.Api!.AddSelect(menu, name, active is int index ? choices[index] : "", choices, (p, option, chosen) =>
                     {
                         if (chosen >= 0 && chosen < choices.Length)
                             SetValue(p, valueSetting, chosen);
                     }, !Allowed(player, valueSetting.Permission));
+
+                    // PMM names the row "[value] name" for chat menus. The panorama menu shows the value on the right, so just the name.
+                    if (MenuFactory.Api.GetMenuType(player) == MenuType.PanoramaMenu)
+                        row.Text = name;
                     continue;
                 }
 
