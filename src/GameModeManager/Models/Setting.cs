@@ -13,6 +13,8 @@ namespace GameModeManager.Models
         public string Enable { get; set; }
         public string Disable { get; set; }
         public string DisplayName { get; set; }
+        public string Permission { get; set; } = ""; // From the cfg header ("// permission: ..."). Empty = @css/cvar
+        public bool InVotes { get; set; } = true;    // From the cfg header ("// vote: false" keeps it out of player votes)
 
         // Define class constructors
         public Setting(string name)

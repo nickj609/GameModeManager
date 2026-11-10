@@ -12,6 +12,62 @@ The menus show each setting as on or off. GameModeManager works that out from wh
 
 Lines it can't check, like `say` and `echo`, are skipped. When neither file matches fully (a disable cfg often also runs shared cfgs the current mode sets its own way), the closer match wins, and a tie shows as off. Only a setting whose files set nothing it can check shows Enable and Disable instead. `css_gmm_status` lists those.
 
+
+**Optional header.** Comment lines at the top of a setting's enable file (or its disable file when there's no enable file) can change how it shows. The game skips comments, so the file still works as a normal cfg:
+
+```
+// name: Bunny hop
+// permission: @css/root
+// vote: false
+sv_autobunnyhopping 1
+```
+
+- `name`: the name in menus, instead of one made from the file name.
+- `permission`: the flag needed to change it (default `@css/cvar`, like `!settings`).
+- `vote: false`: players can't vote on it. Admins can still change it.
+
+**Settings with a choice of values.** For a setting like round time, make one cfg per value, without the `enable_`/`disable_` prefix, and give each the same `setting:` name and its own `value:`:
+
+```
+// setting: Round time
+// value: 5 minutes
+mp_roundtime 5
+```
+
+Files that share a `setting:` name are one row with a dropdown of their values, in file name order, so name them to sort the way you want them listed (`roundtime_02.cfg`, `roundtime_05.cfg`, `roundtime_10.cfg`). The current value is the file the server matches best. Any of the files can have `permission:` or `vote: false`. A setting needs at least two values. Set one from chat with `!setting set "Round time" "5 minutes"`.
+
+Files in the settings folder without a prefix or a `setting:` header are helpers that other cfgs run, and aren't shown.
+
+</details>
+
+<details>
+<summary>How do I add actions?</summary>
+<br>
+
+Actions are cfgs that run once and leave nothing to turn off, like adding a bot or swapping teams. Put them in `/csgo/cfg/actions/` (`Actions.Folder` in the config). Each file is a row in `!actions` and in the admin panel's Actions page, and each subfolder is a group with its own page:
+
+```
+cfg/actions/swap_teams.cfg
+cfg/actions/bots/add_ct.cfg
+cfg/actions/bots/add_t.cfg
+cfg/actions/bots/kick_all.cfg
+```
+
+The same optional header works here:
+
+```
+// name: Add bot CT
+// permission: @css/generic
+bot_add_ct
+```
+
+- `name`: the row's name, instead of one made from the file name.
+- `permission`: the flag needed to run it (default `@css/cvar`).
+- `vote: true`: players without that flag can start a vote on it, like "Run Swap Teams?".
+
+The page stays open after an action runs, so you can run it several times in a row. Players only see the actions they can run or vote on.
+
+A setting whose files set no ConVar and load no plugin has no on/off state, so GameModeManager logs a warning for it at startup: if it runs something once, it belongs in the actions folder.
 </details>
 
 <details>

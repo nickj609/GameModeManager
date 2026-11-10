@@ -157,7 +157,8 @@ Their licenses are in their folders, and the links above have their source. Thei
 | `!mode <mode name> [map]` | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**. Add a map from that mode's list to start on it, like **!mode surf surf_beginner**. |    
 | `!warmup` | Displays an admin menu to start, schedule or end warmup.                                                               |
 | `!timelimit <true\|false> <seconds>` | Sets the time limit for the current map.                                                                               |
-| `!setting <enable\|disable> <setting name>` | Enables or disables a custom game setting. For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**. |
+| `!setting <enable\
+| `!setting set <setting name> <value>` | Sets a value setting, like **!setting set "Round time" "5 minutes"**. See the FAQ, "How do I add custom settings?" ||disable> <setting name>` | Enables or disables a custom game setting. For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**. |
 
 </details>
 
@@ -175,6 +176,7 @@ Their licenses are in their folders, and the links above have their source. Thei
 | `!changemap` | Menu of the current mode's maps; picking one starts a yes/no vote to change to it. |
 | `!changemode` | Menu of modes; picking one starts a yes/no vote to change to it.         |
 | `!changesetting` | Menu of settings, each shown as on or off; pick one to start a vote on turning it the other way.     |
+| `!actions` | Menu of actions (cfgs in `cfg/actions/`, like adding a bot). Admins run them; players see only the ones they can run or vote on. |
 
 RTV, nominate (the current mode's maps), next map and time left come from GG1MapChooser: `!rtv`, `!nominate`, `!nextmap`, `!timeleft`.
 

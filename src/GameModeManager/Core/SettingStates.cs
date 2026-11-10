@@ -1,6 +1,7 @@
 // Included libraries
 using System.Reflection;
 using System.Globalization;
+using GameModeManager.Models;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
@@ -20,12 +21,14 @@ namespace GameModeManager.Core
     {
         // Define class dependencies
         private ILogger<SettingStates> _logger;
+        private PluginState _pluginState;
         private Config _config = new();
 
         // Define class constructor
-        public SettingStates(ILogger<SettingStates> logger)
+        public SettingStates(PluginState pluginState, ILogger<SettingStates> logger)
         {
             _logger = logger;
+            _pluginState = pluginState;
         }
 
         // Define class properties
@@ -42,6 +45,8 @@ namespace GameModeManager.Core
 
         private readonly Dictionary<string, Checks> _files = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, (bool On, DateTime Until)> _expected = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, (int Index, DateTime Until)> _expectedValues = new(StringComparer.OrdinalIgnoreCase);
+        private bool _warned;
 
         // What one cfg file sets, with the files it runs
         private class Checks
@@ -62,6 +67,10 @@ namespace GameModeManager.Core
         {
             _files.Clear();
             _expected.Clear();
+            _expectedValues.Clear();
+
+            // A frame later: the map's ConVars are there by then
+            CounterStrikeSharp.API.Server.NextFrame(WarnAboutActions);
         }
 
         // Define class methods
@@ -78,8 +87,8 @@ namespace GameModeManager.Core
                 Checks? disable = setting.Disable != "" ? Read(setting.Disable) : null;
                 List<PluginContextInfo>? plugins = null;
 
-                double? on = enable != null ? Match(enable, disable, ref plugins) : null;
-                double? off = disable != null ? Match(disable, enable, ref plugins) : null;
+                double? on = enable != null ? Match(enable, Others(disable), ref plugins) : null;
+                double? off = disable != null ? Match(disable, Others(enable), ref plugins) : null;
 
                 if (on == null && off == null)
                     return SettingState.Unknown;
@@ -107,14 +116,61 @@ namespace GameModeManager.Core
             _expected[setting.Name] = (on, DateTime.UtcNow.AddSeconds(ExpectSeconds));
         }
 
+        // Which of a value setting's values is in effect: the file the server matches best. null when none can be checked,
+        // or two match equally.
+        public int? ActiveValue(ValueSetting setting)
+        {
+            if (_expectedValues.TryGetValue(setting.Name, out var expected) && DateTime.UtcNow < expected.Until)
+                return expected.Index;
+
+            try
+            {
+                List<Checks> files = setting.Values.Select(value => Read(value.File)).ToList();
+                List<PluginContextInfo>? plugins = null;
+                List<double?> scores = files.Select(file => Match(file, files.Where(other => other != file).ToList(), ref plugins)).ToList();
+
+                double best = scores.Max(score => score ?? -1);
+                if (best <= 0 || scores.Count(score => score == best) > 1)
+                    return null;
+                return scores.IndexOf(best);
+            }
+            catch (Exception error)
+            {
+                _logger.LogWarning("Couldn't read the value of setting {Setting}: {Error}", setting.Name, error.Message);
+                return null;
+            }
+        }
+
+        public void ExpectValue(ValueSetting setting, int index)
+        {
+            _expectedValues[setting.Name] = (index, DateTime.UtcNow.AddSeconds(ExpectSeconds));
+        }
+
+        // A setting whose files set nothing that can be checked is really an action: says so once, at the first map
+        private void WarnAboutActions()
+        {
+            if (_warned)
+                return;
+
+            _warned = true;
+            foreach (ISetting setting in _pluginState.Game.Settings.Values.Where(setting => Get(setting) == SettingState.Unknown))
+                _logger.LogWarning("Setting '{Setting}' sets no ConVar and loads no plugin, so it has no on/off state. If it runs something once (like adding bots), move it to the actions folder ({Folder}).", setting.Name, _config.Actions.Folder);
+        }
+
+        private static List<Checks> Others(Checks? other)
+        {
+            return other != null ? new List<Checks> { other } : new List<Checks>();
+        }
+
         // How much of what this file sets is in effect, from 0 to 1. null when none of it can be checked.
-        private double? Match(Checks mine, Checks? other, ref List<PluginContextInfo>? plugins)
+        private double? Match(Checks mine, List<Checks> others, ref List<PluginContextInfo>? plugins)
         {
             int checkedCount = 0;
             int matched = 0;
             foreach (var (name, value) in mine.ConVars)
             {
-                if (other != null && other.ConVars.TryGetValue(name, out string? otherValue) && SameValue(otherValue, value))
+                // Not one every other file sets to the same value: it doesn't tell them apart
+                if (others.Count > 0 && others.All(other => other.ConVars.TryGetValue(name, out string? otherValue) && SameValue(otherValue, value)))
                     continue;
 
                 ConVar? conVar = ConVar.Find(name);

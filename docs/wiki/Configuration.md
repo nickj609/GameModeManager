@@ -5,7 +5,7 @@
 	
 ```json
 {
-  "Version": 16,
+  "Version": 17,
   "WorkshopAddon": "3831211166",
   "Maps": {
     "Delay": 5,
@@ -44,6 +44,10 @@
   "Settings": {
     "Enabled": true,
     "Folder": "settings"
+  },
+  "Actions": {
+    "Enabled": true,
+    "Folder": "actions"
   },
   "Warmup": {
     "Enabled": true,
@@ -484,6 +488,12 @@ Messages to everyone stay in chat.
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Enabled             | Enables custom game settings.                                                                                                             |
 | Folder              | Default settings folder within `/csgo/cfg/`.                                                                                              |
+
+# Action Settings
+| Setting             | Description                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Enabled             | Enables `!actions` and the admin panel's Actions page. Added in config version 17.                                                      |
+| Folder              | Actions folder within `/csgo/cfg/`. Each cfg in it is an action, and each subfolder a group of them. See the FAQ, "How do I add actions?" |
 
 # Command Settings
 | Setting             | Description                                                                                                                               |

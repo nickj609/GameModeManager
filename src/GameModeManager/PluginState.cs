@@ -63,6 +63,8 @@ namespace GameModeManager
             public Dictionary<string, IMode> Modes = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<string, IMode> WarmupModes = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<string, ISetting> Settings = new(StringComparer.OrdinalIgnoreCase);
+            public Dictionary<string, ValueSetting> ValueSettings = new(StringComparer.OrdinalIgnoreCase); // Settings with a choice of values
+            public List<GameAction> Actions = new(); // The cfgs in the actions folder
             public Dictionary<string, IMapGroup> MapGroups = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<long, IMap> MapsByWorkshopId = new();
             public Dictionary<string, IMap> Maps = DefaultMaps.ToDictionary(m => m.Name, m => m, StringComparer.OrdinalIgnoreCase);

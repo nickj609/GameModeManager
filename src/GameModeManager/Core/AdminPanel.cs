@@ -2,6 +2,7 @@
 using MenuManager;
 using System.Reflection;
 using GameModeManager.Menus;
+using GameModeManager.Models;
 using CounterStrikeSharp.API;
 using GameModeManager.Contracts;
 using CounterStrikeSharp.API.Core;
@@ -29,13 +30,14 @@ namespace GameModeManager.Core
         private PluginState _pluginState;
         private SettingMenus _settingMenus;
         private SettingStates _settingStates;
+        private ActionMenus _actionMenus;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<AdminPanel> _logger;
         private IStringLocalizer _iLocalizer;
 
         // Define class constructor
-        public AdminPanel(PluginState pluginState, MapMenus mapMenus, ModeMenus modeMenus, PlayerMenu playerMenu, MapChooserBridge mapChooser, SettingMenus settingMenus, SettingStates settingStates, StringLocalizer localizer, IStringLocalizer iLocalizer, ILogger<AdminPanel> logger)
+        public AdminPanel(PluginState pluginState, MapMenus mapMenus, ModeMenus modeMenus, PlayerMenu playerMenu, MapChooserBridge mapChooser, SettingMenus settingMenus, SettingStates settingStates, ActionMenus actionMenus, StringLocalizer localizer, IStringLocalizer iLocalizer, ILogger<AdminPanel> logger)
         {
             _logger = logger;
             _mapMenus = mapMenus;
@@ -47,6 +49,7 @@ namespace GameModeManager.Core
             _pluginState = pluginState;
             _settingMenus = settingMenus;
             _settingStates = settingStates;
+            _actionMenus = actionMenus;
         }
 
         // Define class properties
@@ -139,6 +142,8 @@ namespace GameModeManager.Core
                 AddEntry("settings", "admin.game-settings", CvarPermission, SettingsMenu);
             if (_config.Warmup.Enabled)
                 AddEntry("warmup", "admin.warmup", CvarPermission, WarmupMenu);
+            if (_config.Actions.Enabled && _pluginState.Game.Actions.Count > 0)
+                AddEntry("actions", "admin.actions", SectionPermission, p => ActionsMenu(p, null)); // Each action has its own flag
             AddEntry("rotation", "admin.rotation", CvarPermission, RotationMenu);
             _logger.LogInformation("Added Manage game to CS2-SimpleAdmin's menu");
         }
@@ -156,6 +161,7 @@ namespace GameModeManager.Core
                 "modes" => ModesMenu,
                 "settings" => SettingsMenu,
                 "warmup" => WarmupMenu,
+                "actions" => p => ActionsMenu(p, null),
                 _ => null
             };
             if (factory == null)
@@ -358,7 +364,36 @@ namespace GameModeManager.Core
         private object SettingListMenu(CCSPlayerController player, bool vote)
         {
             object menu = NewMenu(_localizer.Localize(vote ? "admin.start-vote" : "admin.change-setting"), player);
-            foreach (ISetting setting in _pluginState.Game.Settings.Values.OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase))
+
+            // Value settings: the row shows the current value, and its page lists the values (the current one greyed out)
+            foreach (ValueSetting valueSetting in _pluginState.Game.ValueSettings.Values.Where(s => !vote || s.InVotes).OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                int? active = _settingStates.ActiveValue(valueSetting);
+                string row = active is int current ? $"{valueSetting.Name}{HintSeparator}{valueSetting.Values[current].Label}" : valueSetting.Name;
+                AddSubMenu(menu, row, p =>
+                {
+                    object page = NewMenu(valueSetting.Name, p);
+                    for (int i = 0; i < valueSetting.Values.Count; i++)
+                    {
+                        int index = i;
+                        string logged = $"{(vote ? "vote" : "css_setting")} set \"{valueSetting.Name}\" \"{valueSetting.Values[index].Label}\"";
+                        AddOption(page, valueSetting.Values[index].Label, q =>
+                        {
+                            if (vote)
+                            {
+                                Act(q, logged, () => _settingMenus.StartValueVote(q, valueSetting, index));
+                                return;
+                            }
+                            _settingMenus.SetValue(q, valueSetting, index);
+                            Call("LogCommand", c => c.Length == 2 && c[1].ParameterType == typeof(string), q, logged);
+                            Call("OpenMenu", c => c.Length == 2, InLanguage(c => SettingListMenu(c, false))(q), q);
+                        }, active == index);
+                    }
+                    return page;
+                }, !vote && !SettingMenus.Allowed(player, valueSetting.Permission));
+            }
+
+            foreach (ISetting setting in _pluginState.Game.Settings.Values.Where(s => !vote || SettingMenus.InVotesOf(s)).OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
                 // A known state is an ON/OFF row that turns it the other way, or starts a vote on that. Mixed shows as off.
                 SettingState state = _settingStates.Get(setting);
@@ -378,7 +413,7 @@ namespace GameModeManager.Core
                         _settingMenus.ChangeSetting(p, setting, enable);
                         Call("LogCommand", q => q.Length == 2 && q[1].ParameterType == typeof(string), p, logged);
                         Call("OpenMenu", q => q.Length == 2, InLanguage(q => SettingListMenu(q, false))(p), p);
-                    }, !SettingMenus.CanChange(setting, enable));
+                    }, !SettingMenus.CanChange(setting, enable) || !vote && !SettingMenus.Allowed(player, SettingMenus.PermissionOf(setting)));
                 }
                 else
                     AddSubMenu(menu, setting.DisplayName, p => SettingMenu(p, setting, vote));
@@ -400,6 +435,36 @@ namespace GameModeManager.Core
                     else
                         _settingMenus.ChangeSetting(p, setting, enable);
                 }), (enable ? setting.Enable : setting.Disable) == "");
+            }
+            return menu;
+        }
+
+        // The actions folder: groups first, then the actions outside a group. An action opens the page again after it runs, so
+        // it can be run several times in a row. One the admin has no flag for is greyed out, unless its header allows a vote.
+        private object ActionsMenu(CCSPlayerController player, string? group)
+        {
+            object menu = NewMenu(group ?? _localizer.Localize("admin.actions"), player);
+            if (group == null)
+            {
+                foreach (string name in _pluginState.Game.Actions.Select(action => action.Group).Where(name => name != "").Distinct())
+                    AddSubMenu(menu, name, p => ActionsMenu(p, name));
+            }
+
+            foreach (GameAction action in _pluginState.Game.Actions.Where(action => action.Group == (group ?? "")))
+            {
+                bool run = _actionMenus.CanRun(player, action);
+                bool vote = _actionMenus.CanVote(player, action);
+                AddOption(menu, action.Name, p =>
+                {
+                    if (vote)
+                    {
+                        Act(p, $"vote action \"{action.File}\"", () => _actionMenus.StartVote(p, action));
+                        return;
+                    }
+                    _actionMenus.Run(p, action);
+                    Call("LogCommand", c => c.Length == 2 && c[1].ParameterType == typeof(string), p, $"exec {action.File}");
+                    Call("OpenMenu", c => c.Length == 2, InLanguage(c => ActionsMenu(c, group))(p), p);
+                }, !run && !vote);
             }
             return menu;
         }
