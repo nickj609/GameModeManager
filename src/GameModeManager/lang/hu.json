@@ -130,6 +130,7 @@
   "admin.actions": "Műveletek",
   "notify.action": "Művelet",
   "actions.none": "Nincs olyan művelet, amit használhatsz.",
+  "action.rounds": "Körök",
   "action.replay-round": "Kör újrajátszása",
   "action.replay-last": "Előző kör újrajátszása",
   "action.restore-round": "Vissza egy körhöz",

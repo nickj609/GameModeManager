@@ -130,6 +130,7 @@
   "admin.actions": "操作",
   "notify.action": "操作",
   "actions.none": "没有你可以使用的操作。",
+  "action.rounds": "回合",
   "action.replay-round": "重打本回合",
   "action.replay-last": "重打上一回合",
   "action.restore-round": "回到某个回合",

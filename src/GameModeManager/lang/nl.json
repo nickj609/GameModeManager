@@ -130,6 +130,7 @@
   "admin.actions": "Acties",
   "notify.action": "Actie",
   "actions.none": "Er zijn geen acties die je kunt gebruiken.",
+  "action.rounds": "Rondes",
   "action.replay-round": "Deze ronde opnieuw",
   "action.replay-last": "Vorige ronde opnieuw",
   "action.restore-round": "Terug naar ronde",

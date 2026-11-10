@@ -451,20 +451,9 @@ namespace GameModeManager.Core
             object menu = NewMenu(group ?? _localizer.Localize("admin.actions"), player);
             if (group == null)
             {
-                // The round rows first: they close the panel, because the match pauses
+                // Rounds first: replaying a round and going back to one. They close the panel, because the match pauses.
                 if (_actionMenus.CanRestore(player))
-                {
-                    List<RoundBackups.Backup> backups = _actionMenus.Backups();
-                    AddOption(menu, _localizer.Localize("action.replay-round"), p => Act(p, "round restore 0", () => _actionMenus.Restore(p, backups[0])), backups.Count < 1);
-                    AddOption(menu, _localizer.Localize("action.replay-last"), p => Act(p, "round restore 1", () => _actionMenus.Restore(p, backups[1])), backups.Count < 2);
-                    AddSubMenu(menu, _localizer.Localize("action.restore-round"), p =>
-                    {
-                        object page = NewMenu(_localizer.Localize("action.restore-round"), p);
-                        foreach (RoundBackups.Backup backup in backups)
-                            AddOption(page, _localizer.Localize("action.round", backup.Round), q => Act(q, $"round restore {backup.File}", () => _actionMenus.Restore(q, backup)));
-                        return page;
-                    }, backups.Count < 1);
-                }
+                    AddSubMenu(menu, _localizer.Localize("action.rounds"), RoundsMenu);
                 foreach (string name in _pluginState.Game.Actions.Select(action => action.Group).Where(name => name != "").Distinct())
                     AddSubMenu(menu, name, p => ActionsMenu(p, name));
             }
@@ -485,6 +474,23 @@ namespace GameModeManager.Core
                     Call("OpenMenu", c => c.Length == 2, InLanguage(c => ActionsMenu(c, group))(p), p);
                 }, !run && !vote);
             }
+            return menu;
+        }
+
+        // Greyed out in warmup or before the first backup
+        private object RoundsMenu(CCSPlayerController player)
+        {
+            object menu = NewMenu(_localizer.Localize("action.rounds"), player);
+            List<RoundBackups.Backup> backups = _actionMenus.Backups();
+            AddOption(menu, _localizer.Localize("action.replay-round"), p => Act(p, "round restore 0", () => _actionMenus.Restore(p, backups[0])), backups.Count < 1);
+            AddOption(menu, _localizer.Localize("action.replay-last"), p => Act(p, "round restore 1", () => _actionMenus.Restore(p, backups[1])), backups.Count < 2);
+            AddSubMenu(menu, _localizer.Localize("action.restore-round"), p =>
+            {
+                object page = NewMenu(_localizer.Localize("action.restore-round"), p);
+                foreach (RoundBackups.Backup backup in backups)
+                    AddOption(page, _localizer.Localize("action.round", backup.Round), q => Act(q, $"round restore {backup.File}", () => _actionMenus.Restore(q, backup)));
+                return page;
+            }, backups.Count < 1);
             return menu;
         }
 

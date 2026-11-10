@@ -130,6 +130,7 @@
   "admin.actions": "Actions",
   "notify.action": "Action",
   "actions.none": "Aucune action ne t'est disponible.",
+  "action.rounds": "Manches",
   "action.replay-round": "Rejouer cette manche",
   "action.replay-last": "Rejouer la manche précédente",
   "action.restore-round": "Revenir à la manche",
