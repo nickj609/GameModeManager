@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using GameModeManager.Contracts;
+using GameModeManager.CrossCutting;
 using Microsoft.Extensions.Logging;
 using GameModeManager.Shared.Models;
 
@@ -131,8 +132,10 @@ namespace GameModeManager.Core
             if (!current.Equals(_pluginState.Game.CurrentMode) || !_config.Rotation.VoteForMode || !ModeChangeDue())
                 return null;
 
+            // Not the last few modes played (Rotation.RecentModes), while at least two others are left
             var pool = new JsonObject();
-            foreach (var (id, mode) in _modeEntries.Where(m => _pools.ContainsKey(m.Value.Name) && RotationModes().Contains(m.Value)))
+            List<IMode> modes = Fresh(RotationModes().Where(mode => _pools.ContainsKey(mode.Name)).ToList(), 2);
+            foreach (var (id, mode) in _modeEntries.Where(m => modes.Contains(m.Value)))
                 AddModeEntry(pool, id, mode, 1);
             return pool.Count >= 2 ? pool : null;
         }
@@ -145,8 +148,9 @@ namespace GameModeManager.Core
             if (current.Maps.Count < 2)
                 return;
 
-            var modes = _modeEntries.Where(m => !m.Value.Equals(current) && _pools.ContainsKey(m.Value.Name) && InVotes(m.Value))
-                .OrderBy(_ => Random.Shared.Next()).Take(_config.MapChooser.ModesInVotes ? 1 : 0);
+            // One not played recently when there is one. GG1 checks its player limits when the vote starts.
+            var candidates = Fresh(_modeEntries.Values.Where(mode => !mode.Equals(current) && _pools.ContainsKey(mode.Name) && InVotes(mode)).ToList(), 1);
+            var modes = _modeEntries.Where(m => candidates.Contains(m.Value)).OrderBy(_ => Random.Shared.Next()).Take(_config.MapChooser.ModesInVotes ? 1 : 0);
 
             foreach (var (id, mode) in modes)
                 AddModeEntry(pool, id, mode, 1);
@@ -159,8 +163,8 @@ namespace GameModeManager.Core
                 ["ws"] = true,
                 ["display"] = mode.Name,
                 ["mapid"] = id,
-                ["minplayers"] = 0,
-                ["maxplayers"] = 0,
+                ["minplayers"] = _config.GameModes.Entry(mode.Name)?.MinPlayers ?? 0, // GG1 leaves it out of votes and nominations outside these
+                ["maxplayers"] = _config.GameModes.Entry(mode.Name)?.MaxPlayers ?? 0,
                 ["weight"] = weight,
             };
         }
@@ -195,6 +199,48 @@ namespace GameModeManager.Core
         public bool InVotes(IMode mode)
         {
             return _config.GameModes.InVotes(mode.Name);
+        }
+
+        // The mode's MinPlayers and MaxPlayers allow the players here now (not bots or spectating HLTV)
+        public bool FitsPlayers(IMode mode)
+        {
+            ModeEntry? entry = _config.GameModes.Entry(mode.Name);
+            if (entry == null || (entry.MinPlayers <= 0 && entry.MaxPlayers <= 0))
+                return true;
+
+            int players = PlayerExtensions.ValidPlayerCount(false);
+            return (entry.MinPlayers <= 0 || players >= entry.MinPlayers) && (entry.MaxPlayers <= 0 || players <= entry.MaxPlayers);
+        }
+
+        // "4-10", "4+" or "1-8": the players a mode is for, for messages
+        public string PlayerRange(IMode mode)
+        {
+            ModeEntry? entry = _config.GameModes.Entry(mode.Name);
+            int min = Math.Max(1, entry?.MinPlayers ?? 0);
+            int max = entry?.MaxPlayers ?? 0;
+            return max > 0 ? $"{min}-{max}" : $"{min}+";
+        }
+
+        // One of the last Rotation.RecentModes modes played before this one
+        public bool RecentlyPlayed(IMode mode)
+        {
+            return _pluginState.Game.RecentModes.Take(_config.Rotation.RecentModes).Contains(mode.Name, StringComparer.OrdinalIgnoreCase);
+        }
+
+        // The modes not played recently, when at least this many are left. Else all of them, so there's always a choice.
+        public List<IMode> Fresh(List<IMode> modes, int atLeast)
+        {
+            List<IMode> fresh = modes.Where(mode => !RecentlyPlayed(mode)).ToList();
+            return fresh.Count >= atLeast ? fresh : modes;
+        }
+
+        // A random mode for a rotation or a random pick: one for this many players if there is one, and not one played
+        // recently if there is one. Null when the list is empty.
+        public IMode? PickRandom(List<IMode> modes)
+        {
+            List<IMode> fitting = modes.Where(FitsPlayers).ToList();
+            List<IMode> candidates = Fresh(fitting.Count > 0 ? fitting : modes, 1);
+            return candidates.Count > 0 ? candidates[Random.Shared.Next(candidates.Count)] : null;
         }
 
         // Sets a mode as GG1's next map, the same result as a mode winning a vote
@@ -255,7 +301,9 @@ namespace GameModeManager.Core
         {
             return _gg1.StartVote(player, size =>
             {
-                var modes = _modeEntries.Values.Where(mode => CanBeNextMode(mode) && InVotes(mode)).OrderBy(_ => Random.Shared.Next()).Take(size).ToList();
+                // Modes for this many players, the ones not played recently first
+                var fitting = _modeEntries.Values.Where(mode => CanBeNextMode(mode) && InVotes(mode) && FitsPlayers(mode)).OrderBy(_ => Random.Shared.Next()).ToList();
+                var modes = fitting.OrderBy(mode => RecentlyPlayed(mode) ? 1 : 0).Take(size).ToList();
                 if (modes.Count < 2 || VoteInProgress() || NextMapChosen())
                     return null;
 

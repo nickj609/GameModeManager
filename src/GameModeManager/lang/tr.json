@@ -36,6 +36,8 @@
   "warmup.start.message": "Isınma modu {GREEN}{0}{DEFAULT} başladı.",
   "warmup.end.message": "Oyun modu {GREEN}{0}{DEFAULT} başladı.",
   "mode.vote.menu-title": "Oyun modu {GOLD}{0}{DEFAULT} olarak değiştirilsin mi?",
+  "mode.players": "{0} oyuncu",
+  "mode.players-only": "{GOLD}{0}{DEFAULT}, {1} oyuncu içindir.",
   "map.vote.menu-title": "Harita {GOLD}{0}{DEFAULT} olarak değiştirilsin mi?",
   "setting.vote.menu-title": "{GOLD}{0}{DEFAULT} ayarı değiştirilsin mi?",
   "settings.menu-title": "Ayar Listesi",

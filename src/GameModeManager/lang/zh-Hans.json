@@ -36,6 +36,8 @@
   "warmup.start.message": "热身模式{GREEN}{0}{DEFAULT}已启动",
   "warmup.end.message": "游戏模式{GREEN}{0}{DEFAULT}已启动",
   "mode.vote.menu-title": "将游戏模式更改为{GOLD}{0}{DEFAULT}吗？",
+  "mode.players": "{0} 名玩家",
+  "mode.players-only": "{GOLD}{0}{DEFAULT} 适用于 {1} 名玩家。",
   "map.vote.menu-title": "将地图更改为 {GOLD}{0}{DEFAULT}？",
   "setting.vote.menu-title": "更改设置{GOLD}{0}{DEFAULT}吗？",
   "settings.menu-title": "设置列表",

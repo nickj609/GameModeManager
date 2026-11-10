@@ -21,6 +21,8 @@ namespace GameModeManager
         public List<string> MapGroups { get; set; } = new List<string>() { "mg_active", "mg_comp" };
         public bool InVotes { get; set; } = true; // false = left out of votes, !nominate, !changemode and random picks. Admins can still choose it
         public bool InRotation { get; set; } = true; // false = mode rotation never picks it. Schedules can still use it
+        public int MinPlayers { get; set; } = 0; // Votes, !nominate and random picks offer it only with at least this many players. 0 = no limit. Admins can still choose it
+        public int MaxPlayers { get; set; } = 0; // ...and at most this many. 0 = no limit
     }
 
     public class WarmupModeEntry
@@ -116,6 +118,7 @@ namespace GameModeManager
         public int ModeInterval { get; set; } = 4; // Changes mode every x map rotations
         public string ModeVote { get; set; } = "random"; // When the mode changes: "random" skips the map vote and picks a mode, "vote" makes every vote on that map list only modes
         public bool CountSkippedMaps { get; set; } = false; // Maps left early (RTV, an admin's map change) count toward ModeInterval too
+        public int RecentModes { get; set; } = 2; // Random mode picks and mode votes skip the last this many modes played, when others are left. 0 = only the current one
         public bool VoteForMode => ModeVote.Equals("vote", StringComparison.OrdinalIgnoreCase);
         public bool ModeSchedules { get; set; } = false; // Enables or disables mode schedules
         public List<ScheduleEntry> Schedule { get; set; } = new List<ScheduleEntry>()
@@ -134,6 +137,7 @@ namespace GameModeManager
 
         public bool InVotes(string mode) => List.FirstOrDefault(entry => entry.Name.Equals(mode, StringComparison.OrdinalIgnoreCase))?.InVotes != false;
         public bool InRotation(string mode) => List.FirstOrDefault(entry => entry.Name.Equals(mode, StringComparison.OrdinalIgnoreCase))?.InRotation != false;
+        public ModeEntry? Entry(string mode) => List.FirstOrDefault(entry => entry.Name.Equals(mode, StringComparison.OrdinalIgnoreCase));
 
         public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
         {
@@ -172,7 +176,7 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-        public int Version { get; set; } = 16;
+        public int Version { get; set; } = 17;
         public string WorkshopAddon { get; set; } = "3831211166"; // Workshop IDs (comma separated) of the addons with the menus' panorama files, added to MultiAddonManager's list. Empty = you load them yourself
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
@@ -304,6 +308,19 @@ namespace GameModeManager
                 logger.LogError("Invalid: Votes MinPlayers and Cooldown cannot be negative.");
                 throw new Exception("Invalid: Votes MinPlayers and Cooldown cannot be negative.");
             }
+
+            // Mode player limits: a wrong one only keeps a mode out of votes, so it's a warning
+            foreach (ModeEntry entry in GameModes.List)
+            {
+                if (entry.MinPlayers < 0 || entry.MaxPlayers < 0 || (entry.MaxPlayers > 0 && entry.MaxPlayers < entry.MinPlayers))
+                {
+                    logger.LogWarning("Mode {Mode}: MinPlayers {Min} and MaxPlayers {Max} don't make sense, so it has no player limit.", entry.Name, entry.MinPlayers, entry.MaxPlayers);
+                    entry.MinPlayers = 0;
+                    entry.MaxPlayers = 0;
+                }
+            }
+            if (Rotation.RecentModes < 0)
+                Rotation.RecentModes = 0;
 
             // Warmup settings
             if (Warmup.Time < 0)

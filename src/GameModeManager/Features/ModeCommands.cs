@@ -70,6 +70,13 @@ namespace GameModeManager.Features
                 {
                     if (!_pluginState.Game.CurrentMode.Equals(_mode))
                     {
+                        // Random picks and mode votes skip the last few modes (Rotation.RecentModes)
+                        List<string> recent = _pluginState.Game.RecentModes;
+                        recent.RemoveAll(name => name.Equals(_mode.Name, StringComparison.OrdinalIgnoreCase));
+                        recent.Insert(0, _pluginState.Game.CurrentMode.Name);
+                        if (recent.Count > 20)
+                            recent.RemoveAt(recent.Count - 1);
+
                         _pluginState.Game.CurrentMode = _mode;
 
                         // GG1MapChooser votes / RTV / nominate from this mode's maps
