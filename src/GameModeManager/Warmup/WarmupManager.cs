@@ -136,9 +136,11 @@ namespace GameModeManager.Warmup
             } 
         }
         
+        // The scheduled warmup, when the map's first player joins. Not while MatchZy is loaded: its matches have their own warmup
+        // and ready-up (an admin can still start one).
         public void StartWarmup(IMode warmupMode)
         {
-            if (_pluginState.Game.WarmupScheduled && !_pluginState.Game.WarmupRunning)
+            if (_pluginState.Game.WarmupScheduled && !_pluginState.Game.WarmupRunning && !LoadedPlugins.IsLoaded(LoadedPlugins.MatchZy))
                 RunWarmup(warmupMode);
         }
 
@@ -243,9 +245,10 @@ namespace GameModeManager.Warmup
 
         // Mode cfgs end the game's warmup with mp_warmup_end, some of them several seconds after the map starts. That must not
         // end this one: EndWarmup clears WarmupRunning before its own mp_warmup_end runs.
+        // MatchZy ends its warmup the same way when everyone is ready, so with MatchZy loaded nothing is held back.
         private HookResult OnWarmupEndCommand(CCSPlayerController? player, CommandInfo command)
         {
-            return _pluginState.Game.WarmupRunning ? HookResult.Handled : HookResult.Continue;
+            return _pluginState.Game.WarmupRunning && !LoadedPlugins.IsLoaded(LoadedPlugins.MatchZy) ? HookResult.Handled : HookResult.Continue;
         }
 
         public HookResult EventWarmupEndHandler(EventWarmupEnd @event, GameEventInfo info)

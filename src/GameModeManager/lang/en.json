@@ -138,6 +138,7 @@
   "action.rounds": "Rounds",
   "action.pause": "Pause match",
   "action.pause-pending": "Cancel pending pause",
+  "action.pause-matchzy": "Pause with .pause",
   "action.unpause": "Unpause match",
   "action.timeout-ct": "CT timeout",
   "action.timeout-t": "T timeout",

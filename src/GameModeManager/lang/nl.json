@@ -138,6 +138,7 @@
   "action.rounds": "Rondes",
   "action.pause": "Wedstrijd pauzeren",
   "action.pause-pending": "Pauze annuleren",
+  "action.pause-matchzy": "Pauze met .pause",
   "action.unpause": "Wedstrijd hervatten",
   "action.timeout-ct": "CT-time-out",
   "action.timeout-t": "T-time-out",

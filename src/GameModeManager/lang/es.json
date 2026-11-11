@@ -138,6 +138,7 @@
   "action.rounds": "Rondas",
   "action.pause": "Pausar partida",
   "action.pause-pending": "Cancelar pausa",
+  "action.pause-matchzy": "Pausa con .pause",
   "action.unpause": "Reanudar partida",
   "action.timeout-ct": "Tiempo muerto CT",
   "action.timeout-t": "Tiempo muerto T",

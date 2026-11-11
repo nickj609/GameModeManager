@@ -26,10 +26,27 @@ namespace GameModeManager.Actions
         // Define class properties
         private bool _pausePending;
         private bool _timeoutPending;
+        private PauseState? _expected;     // What this just asked the game for: mp_pause_match and the rest only run next frame
+        private DateTime _expectedUntil;   // After that, the game's own state counts again (it may have refused)
 
         public enum PauseState { Running, Pending, Paused }
 
-        public PauseState State => _gameRules.MatchPaused ? PauseState.Paused : _pausePending ? PauseState.Pending : PauseState.Running;
+        // Read from the game each time, so a pause from the console, a round restore or another plugin shows too. Right after
+        // this asked for a change, the page that opens again shows that change until the game has made it.
+        public PauseState State
+        {
+            get
+            {
+                PauseState actual = _gameRules.MatchPaused ? PauseState.Paused : _pausePending ? PauseState.Pending : PauseState.Running;
+                if (_expected is PauseState expected && expected != actual && DateTime.UtcNow < _expectedUntil)
+                    return expected;
+                _expected = null;
+                return actual;
+            }
+        }
+
+        // MatchZy has its own pauses (both teams unpause) and timeouts: while it's loaded, the Rounds page leaves them to it
+        public static bool LeftToMatchZy => LoadedPlugins.IsLoaded(LoadedPlugins.MatchZy);
 
         // A timeout can be called when the match isn't paused or about to be, and no timeout is running or waiting
         public bool CanCallTimeout => State == PauseState.Running && !_gameRules.TimeoutRunning && !_timeoutPending && !_gameRules.WarmupRunning;
@@ -54,6 +71,7 @@ namespace GameModeManager.Actions
         {
             _pausePending = false;
             _timeoutPending = false;
+            _expected = null;
         }
 
         // Define class methods
@@ -64,6 +82,7 @@ namespace GameModeManager.Actions
 
             bool now = _gameRules.FreezePeriod;
             _pausePending = !now;
+            Expect(now ? PauseState.Paused : PauseState.Pending);
             Server.ExecuteCommand("mp_pause_match");
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix(now ? "pause.message" : "pause.pending-message", player.PlayerName));
         }
@@ -75,6 +94,7 @@ namespace GameModeManager.Actions
                 return;
 
             _pausePending = false;
+            Expect(PauseState.Running);
             Server.ExecuteCommand("mp_unpause_match");
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix("unpause.message", player.PlayerName));
         }
@@ -84,9 +104,16 @@ namespace GameModeManager.Actions
             if (!CanCallTimeout)
                 return;
 
-            _timeoutPending = !_gameRules.FreezePeriod;
+            // Counted as waiting until the round starts, so a second one can't be called before the game shows the first
+            _timeoutPending = true;
             Server.ExecuteCommand(counterTerrorists ? "timeout_ct_start" : "timeout_terrorist_start");
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix("timeout.message", player.PlayerName, counterTerrorists ? "CT" : "T"));
+        }
+
+        private void Expect(PauseState state)
+        {
+            _expected = state;
+            _expectedUntil = DateTime.UtcNow.AddSeconds(2);
         }
 
         // The pause row's text for the current state

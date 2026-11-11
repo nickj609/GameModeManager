@@ -138,6 +138,7 @@
   "action.rounds": "Rauntlar",
   "action.pause": "Maçı duraklat",
   "action.pause-pending": "Duraklatmayı iptal et",
+  "action.pause-matchzy": "Duraklat: .pause",
   "action.unpause": "Maçı devam ettir",
   "action.timeout-ct": "CT mola",
   "action.timeout-t": "T mola",

@@ -76,6 +76,14 @@ namespace GameModeManager.Warmup
         // Define class methods
         private void Check()
         {
+            // MatchZy runs its own warmup, ready-up and warmup timer: hands off, and the timer isn't touched
+            if (LoadedPlugins.IsLoaded(LoadedPlugins.MatchZy))
+            {
+                _ready.Clear();
+                _paused = false;
+                return;
+            }
+
             if (!_pluginState.Game.WarmupRunning)
             {
                 _ready.Clear();
@@ -149,8 +157,11 @@ namespace GameModeManager.Warmup
         }
 
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        // MatchZy has !ready and !unready too: while it's loaded they're its, so these say nothing
         public void OnPlayerReady(CCSPlayerController? player, CommandInfo command)
         {
+            if (LoadedPlugins.IsLoaded(LoadedPlugins.MatchZy))
+                return;
             if (!Usable(player) || !_ready.Add(player!.Slot))
                 return;
 
@@ -161,6 +172,8 @@ namespace GameModeManager.Warmup
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnPlayerUnready(CCSPlayerController? player, CommandInfo command)
         {
+            if (LoadedPlugins.IsLoaded(LoadedPlugins.MatchZy))
+                return;
             if (!Usable(player) || !_ready.Remove(player!.Slot))
                 return;
 

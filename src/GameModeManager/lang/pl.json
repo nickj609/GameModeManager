@@ -138,6 +138,7 @@
   "action.rounds": "Rundy",
   "action.pause": "Wstrzymaj mecz",
   "action.pause-pending": "Anuluj pauzę",
+  "action.pause-matchzy": "Pauza: .pause",
   "action.unpause": "Wznów mecz",
   "action.timeout-ct": "Przerwa CT",
   "action.timeout-t": "Przerwa T",

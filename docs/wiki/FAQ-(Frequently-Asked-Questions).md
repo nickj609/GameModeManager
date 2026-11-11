@@ -86,11 +86,13 @@ The page stays open after an action runs, so you can run it several times in a r
 
 The Actions pages also have a built-in Rounds page, for admins with `@css/generic` (`Actions.RoundsPermission`):
 
-- **Pause match**: one row that shows the match's state. CS2 only stops a match in freeze time, so mid-round it says "Pause at next round" (pick it again to cancel), then "Unpause match".
+- **Pause match**: one row that shows the match's state. CS2 only stops a match in freeze time, so mid-round it says "Cancel pending pause" until the next round, then "Unpause match". It reads the game's state, so a pause from the console, a round restore or another plugin shows too. It's greyed out during a timeout.
 - **CT timeout** and **T timeout**, greyed out while a pause or a timeout is running or waiting, so they can't be stacked.
 - **Replay this round**, **Replay last round** and **Go back to round** (this map's rounds). They use the game's round backups, so the match goes back to the start of that round with its scores and everyone's money, and the game pauses it until an admin unpauses.
 
 Turn the page off with `Actions.Rounds: false`.
+
+**With MatchZy.** Kus's competitive and practice modes load MatchZy, which has its own pauses (both teams unpause), timeouts, ready-up and warmup. While it's loaded, GameModeManager leaves those to it: the pause and timeout rows become one greyed-out "Pause with .pause" row, `!ready` and `!unready` are MatchZy's, the scheduled warmup doesn't start, the warmup timer isn't touched, and `mp_warmup_end` isn't held back. An admin can still start a GameModeManager warmup. The replay rows stay: they use the game's round backups, which MatchZy writes too.
 
 A setting whose files set no ConVar and load no plugin has no on/off state, so GameModeManager logs a warning for it at startup: if it runs something once, it belongs in the actions folder.
 </details>

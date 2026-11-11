@@ -138,6 +138,7 @@
   "action.rounds": "Раунди",
   "action.pause": "Пауза матчу",
   "action.pause-pending": "Скасувати паузу",
+  "action.pause-matchzy": "Пауза: .pause",
   "action.unpause": "Продовжити матч",
   "action.timeout-ct": "Тайм-аут CT",
   "action.timeout-t": "Тайм-аут T",

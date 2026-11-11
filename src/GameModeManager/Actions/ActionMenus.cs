@@ -164,6 +164,14 @@ namespace GameModeManager.Actions
 
         private void AddRoundRows(IMenu menu, CCSPlayerController player)
         {
+            // With MatchZy loaded, its own .pause, .unpause and .tac run pauses and timeouts: one greyed-out row says so
+            if (MatchPause.LeftToMatchZy)
+            {
+                MenuActions.Add(menu, _localizer.Localize("action.pause-matchzy"), (p, option) => { }, true);
+                AddBackupRows(menu);
+                return;
+            }
+
             // Pause or unpause (or cancel a pause waiting for the next round), then the timeouts. The page opens again with the new state.
             MenuActions.Add(menu, _matchPause.PauseLabel(), (p, option) =>
             {
@@ -179,6 +187,11 @@ namespace GameModeManager.Actions
                 }, !_matchPause.CanCallTimeout);
             }
 
+            AddBackupRows(menu);
+        }
+
+        private void AddBackupRows(IMenu menu)
+        {
             List<RoundBackups.Backup> backups = Backups();
             MenuActions.Add(menu, _localizer.Localize("action.replay-round"), (p, option) => Restore(p, backups[0]), backups.Count < 1);
             MenuActions.Add(menu, _localizer.Localize("action.replay-last"), (p, option) => Restore(p, backups[1]), backups.Count < 2);
@@ -197,9 +210,10 @@ namespace GameModeManager.Actions
             menu.Open(player);
         }
 
-        // The pause and timeout rows, for the admin panel's Rounds page too. Pausing in warmup does nothing, so it's greyed out then.
+        // The pause and timeout rows, for the admin panel's Rounds page too. Pausing in warmup does nothing, and a timeout is
+        // already a pause, so it's greyed out then (unpausing stays possible).
         public MatchPause MatchPause => _matchPause;
-        public bool PauseUnavailable => _gameRules.WarmupRunning && _matchPause.State == MatchPause.PauseState.Running;
+        public bool PauseUnavailable => (_gameRules.WarmupRunning || _gameRules.TimeoutRunning) && _matchPause.State == MatchPause.PauseState.Running;
 
         // This map's round backups, the newest first; none in warmup
         public List<RoundBackups.Backup> Backups()

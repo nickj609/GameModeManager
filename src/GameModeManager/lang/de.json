@@ -138,6 +138,7 @@
   "action.rounds": "Runden",
   "action.pause": "Match pausieren",
   "action.pause-pending": "Pause abbrechen",
+  "action.pause-matchzy": "Pause mit .pause",
   "action.unpause": "Match fortsetzen",
   "action.timeout-ct": "CT-Auszeit",
   "action.timeout-t": "T-Auszeit",

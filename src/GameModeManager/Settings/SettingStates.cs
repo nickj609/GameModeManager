@@ -84,7 +84,7 @@ namespace GameModeManager.Settings
             {
                 Checks? enable = setting.Enable != "" ? Read(setting.Enable) : null;
                 Checks? disable = setting.Disable != "" ? Read(setting.Disable) : null;
-                List<PluginContextInfo>? plugins = null;
+                List<LoadedPlugins.Info>? plugins = null;
 
                 double? on = enable != null ? Match(enable, Others(disable), ref plugins) : null;
                 double? off = disable != null ? Match(disable, Others(enable), ref plugins) : null;
@@ -125,7 +125,7 @@ namespace GameModeManager.Settings
             try
             {
                 List<Checks> files = setting.Values.Select(value => Read(value.File)).ToList();
-                List<PluginContextInfo>? plugins = null;
+                List<LoadedPlugins.Info>? plugins = null;
                 List<double?> scores = files.Select(file => Match(file, files.Where(other => other != file).ToList(), ref plugins)).ToList();
 
                 double best = scores.Max(score => score ?? -1);
@@ -178,7 +178,7 @@ namespace GameModeManager.Settings
         }
 
         // How much of what this file sets is in effect, from 0 to 1. null when none of it can be checked.
-        private double? Match(Checks mine, List<Checks> others, ref List<PluginContextInfo>? plugins)
+        private double? Match(Checks mine, List<Checks> others, ref List<LoadedPlugins.Info>? plugins)
         {
             int checkedCount = 0;
             int matched = 0;
@@ -199,7 +199,7 @@ namespace GameModeManager.Settings
 
             foreach (var (name, loaded) in mine.Plugins)
             {
-                plugins ??= LoadedPlugins();
+                plugins ??= LoadedPluginList();
                 if (plugins == null)
                     break; // CounterStrikeSharp changed: plugin lines can't be checked
 
@@ -335,35 +335,12 @@ namespace GameModeManager.Settings
         }
 
         // Define plugin list methods
-        // A plugin CounterStrikeSharp has loaded now: its name and its file's name
-        private record PluginContextInfo(string ModuleName, string FileName)
+        // null when CounterStrikeSharp's plugin list can't be read: plugin lines are then skipped
+        private List<LoadedPlugins.Info>? LoadedPluginList()
         {
-            public bool Matches(string name) => name.Equals(ModuleName, StringComparison.OrdinalIgnoreCase) || name.Equals(FileName, StringComparison.OrdinalIgnoreCase);
-        }
-
-        // CounterStrikeSharp keeps its plugin list to itself (Application._pluginManager), so it's read through reflection.
-        // null when that changes: plugin lines are then skipped.
-        private List<PluginContextInfo>? LoadedPlugins()
-        {
-            const BindingFlags Any = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
             try
             {
-                object? manager = typeof(Application).GetField("_pluginManager", Any)?.GetValue(Application.Instance);
-                if (manager?.GetType().GetMethod("GetLoadedPlugins")?.Invoke(manager, null) is not System.Collections.IEnumerable contexts)
-                    return null;
-
-                List<PluginContextInfo> loaded = new();
-                foreach (object context in contexts)
-                {
-                    Type type = context.GetType();
-                    if (type.GetProperty("State")?.GetValue(context)?.ToString() != "Loaded")
-                        continue;
-
-                    string moduleName = (type.GetProperty("Plugin")?.GetValue(context) as IPlugin)?.ModuleName ?? "";
-                    string filePath = type.GetProperty("FilePath")?.GetValue(context) as string ?? "";
-                    loaded.Add(new PluginContextInfo(moduleName, Path.GetFileNameWithoutExtension(filePath)));
-                }
-                return loaded;
+                return LoadedPlugins.Read();
             }
             catch (Exception error)
             {

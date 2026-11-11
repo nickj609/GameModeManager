@@ -138,6 +138,7 @@
   "action.rounds": "Körök",
   "action.pause": "Meccs szüneteltetése",
   "action.pause-pending": "Szünet visszavonása",
+  "action.pause-matchzy": "Szünet: .pause",
   "action.unpause": "Meccs folytatása",
   "action.timeout-ct": "CT időkérés",
   "action.timeout-t": "T időkérés",

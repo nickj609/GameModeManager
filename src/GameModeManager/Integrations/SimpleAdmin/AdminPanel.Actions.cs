@@ -52,8 +52,29 @@ namespace GameModeManager.Integrations.SimpleAdmin
         {
             object menu = NewMenu(_localizer.Localize("action.rounds"), player);
 
-            // Pause or unpause (or cancel a pause waiting for the next round), then the timeouts. The page opens again with the new state.
+            // With MatchZy loaded, its own .pause, .unpause and .tac run pauses and timeouts: one greyed-out row says so
             MatchPause pause = _actionMenus.MatchPause;
+            if (MatchPause.LeftToMatchZy)
+                AddOption(menu, _localizer.Localize("action.pause-matchzy"), p => { }, true);
+            else
+                AddPauseRows(menu, pause);
+
+            List<RoundBackups.Backup> backups = _actionMenus.Backups();
+            AddOption(menu, _localizer.Localize("action.replay-round"), p => Act(p, "round restore 0", () => _actionMenus.Restore(p, backups[0])), backups.Count < 1);
+            AddOption(menu, _localizer.Localize("action.replay-last"), p => Act(p, "round restore 1", () => _actionMenus.Restore(p, backups[1])), backups.Count < 2);
+            AddSubMenu(menu, _localizer.Localize("action.restore-round"), p =>
+            {
+                object page = NewMenu(_localizer.Localize("action.restore-round"), p);
+                foreach (RoundBackups.Backup backup in backups)
+                    AddOption(page, _localizer.Localize("action.round", backup.Round), q => Act(q, $"round restore {backup.File}", () => _actionMenus.Restore(q, backup)));
+                return page;
+            }, backups.Count < 1);
+            return menu;
+        }
+
+        private void AddPauseRows(object menu, MatchPause pause)
+        {
+            // Pause or unpause (or cancel a pause waiting for the next round), then the timeouts. The page opens again with the new state.
             AddOption(menu, pause.PauseLabel(), p =>
             {
                 pause.Toggle(p);
@@ -69,18 +90,6 @@ namespace GameModeManager.Integrations.SimpleAdmin
                     Call("OpenMenu", c => c.Length == 2, InLanguage(RoundsMenu)(p), p);
                 }, !pause.CanCallTimeout);
             }
-
-            List<RoundBackups.Backup> backups = _actionMenus.Backups();
-            AddOption(menu, _localizer.Localize("action.replay-round"), p => Act(p, "round restore 0", () => _actionMenus.Restore(p, backups[0])), backups.Count < 1);
-            AddOption(menu, _localizer.Localize("action.replay-last"), p => Act(p, "round restore 1", () => _actionMenus.Restore(p, backups[1])), backups.Count < 2);
-            AddSubMenu(menu, _localizer.Localize("action.restore-round"), p =>
-            {
-                object page = NewMenu(_localizer.Localize("action.restore-round"), p);
-                foreach (RoundBackups.Backup backup in backups)
-                    AddOption(page, _localizer.Localize("action.round", backup.Round), q => Act(q, $"round restore {backup.File}", () => _actionMenus.Restore(q, backup)));
-                return page;
-            }, backups.Count < 1);
-            return menu;
         }
     }
 }

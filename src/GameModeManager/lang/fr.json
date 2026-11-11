@@ -138,6 +138,7 @@
   "action.rounds": "Manches",
   "action.pause": "Mettre en pause",
   "action.pause-pending": "Annuler la pause",
+  "action.pause-matchzy": "Pause avec .pause",
   "action.unpause": "Reprendre le match",
   "action.timeout-ct": "Temps mort CT",
   "action.timeout-t": "Temps mort T",

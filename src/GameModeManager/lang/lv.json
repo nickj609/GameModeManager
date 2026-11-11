@@ -138,6 +138,7 @@
   "action.rounds": "Raundi",
   "action.pause": "Apturēt spēli",
   "action.pause-pending": "Atcelt pauzi",
+  "action.pause-matchzy": "Pauze ar .pause",
   "action.unpause": "Turpināt spēli",
   "action.timeout-ct": "CT pārtraukums",
   "action.timeout-t": "T pārtraukums",

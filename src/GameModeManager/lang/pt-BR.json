@@ -138,6 +138,7 @@
   "action.rounds": "Rodadas",
   "action.pause": "Pausar partida",
   "action.pause-pending": "Cancelar pausa",
+  "action.pause-matchzy": "Pausa com .pause",
   "action.unpause": "Retomar partida",
   "action.timeout-ct": "Tempo técnico CT",
   "action.timeout-t": "Tempo técnico T",

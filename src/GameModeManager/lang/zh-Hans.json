@@ -138,6 +138,7 @@
   "action.rounds": "回合",
   "action.pause": "暂停比赛",
   "action.pause-pending": "取消暂停",
+  "action.pause-matchzy": "暂停：.pause",
   "action.unpause": "继续比赛",
   "action.timeout-ct": "CT 暂停",
   "action.timeout-t": "T 暂停",
