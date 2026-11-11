@@ -68,6 +68,11 @@ namespace GameModeManager.Settings
         public void OnMapStart(string mapName)
         {
             _newMap = true;
+
+            // The map change stopped the timers waiting for admins to close their menu (and a new map needs no restart), so
+            // forget them: a slot left in the list would never be asked again
+            _waitingForClose.Clear();
+            _askInAdminPanel.Clear();
         }
 
         // Define load method
