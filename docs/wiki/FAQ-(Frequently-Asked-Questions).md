@@ -40,7 +40,7 @@ sv_autobunnyhopping 1
 mp_roundtime 5
 ```
 
-Files that share a `setting:` name are one row with a dropdown of their values, in file name order, so name them to sort the way you want them listed (`roundtime_02.cfg`, `roundtime_05.cfg`, `roundtime_10.cfg`). The current value is the file the server matches best. Any of the files can have `permission:` or `vote: false`. A setting needs at least two values. Set one from chat with `!setting set "Round time" "5 minutes"`.
+Files that share a `setting:` name are one row with a dropdown of their values, in file name order, so name them to sort the way you want them listed (`roundtime_02.cfg`, `roundtime_05.cfg`, `roundtime_10.cfg`). The current value is the file the server matches best. When none matches (Kus's Start money is 800, between the files' values), the row shows the live value of the ConVar every file sets, so it's never blank. Any of the files can have `permission:` or `vote: false`. A setting needs at least two values. Set one from chat with `!setting set "Round time" "5 minutes"`.
 
 Files in the settings folder without a prefix or a `setting:` header are helpers that other cfgs run, and aren't shown.
 
@@ -51,9 +51,9 @@ Files in the settings folder without a prefix or a `setting:` header are helpers
 - **Players:** Alltalk, Knife drop, Team collision, Free for all, Spectate enemies, and the value Gravity
 - **Movement:** Auto bunny hop, Movement unlock
 - **Bots:** Bots, and the values Bot difficulty and Bot count
-- **Practice:** Grenade trajectory
-- **Fun:** Scoutz
+- **Practice:** Grenade trajectory, and these, which leave `sv_cheats` on (an admin confirms first, and players can't vote on them): Cheats (`sv_cheats` itself: turning it off ends every cheat at once), Infinite ammo, Bullet impacts, Bots stand still, Bots don't shoot, Bots ignore players
 
+**Leaving a cfg out.** `Settings.Hidden` in `GameModeManager.json` lists settings to leave out, by their name or their file name without `enable_`/`disable_`: `"Hidden": [ "surf", "course" ]`. For cfgs in the settings folder that are really modes, like Kus's `enable_surf.cfg`.
 </details>
 
 <details>

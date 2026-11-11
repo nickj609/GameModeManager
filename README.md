@@ -10,7 +10,10 @@ Tired of manually managing game modes, settings, and maps?
 
 GameModeManager simplifies server administration for Counter-Strike 2 by providing:
 
-- **Admin menus** for modes, maps, settings and warmup. If [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin) is installed, its admin menu gets them too (optional).
+- **Admin menus** for modes, maps, settings, actions and warmup. If [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin) is installed, its admin menu gets them too (optional).
+- **Settings and actions from your own cfg files**: on/off settings, settings with a choice of values (Round time, Bot count), and one-off actions (Add bot CT, Swap teams). A comment header names and groups them, and each menu shows what's on now. Settings that need a restart or the next round offer to apply now, and ones that turn `sv_cheats` on ask first.
+- **Rounds page**: pause and unpause, team timeouts, and replaying or going back to a round from the game's backups.
+- **Works with [MatchZy](https://github.com/shobhit-pathak/MatchZy) and SharpTimer**: a `!matchzy` menu, MatchZy's own pause and restore during a match, and settings that would clash are hidden while it's loaded.
 - **Customizable rotation** of maps and game modes, with mode schedules.
 - **Player voting** for settings and game modes.
 - **Per-mode map pools** for [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser): RTV, nominate and map votes only offer the current mode's maps.
@@ -98,7 +101,12 @@ If you use [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin), its a
 | Manage game | Rotation |
 | :-: | :-: |
 | ![Manage game section of the admin menu](docs/images/admin.png) | ![Rotation page of the admin menu](docs/images/admin-rotation.png) |
-| Change or vote on maps and modes, turn settings on and off, and control warmup. | Turn map rotation, mode rotation, and RTV and nominate on or off, and choose how often modes change. These changes last until the server restarts. |
+| Change or vote on maps and modes, turn settings on and off, run actions, and control warmup. While MatchZy is loaded, a MatchZy entry is added. | Turn map rotation, mode rotation, and RTV and nominate on or off, and choose how often modes change. These changes last until the server restarts. |
+
+| Rounds |
+| :-: |
+| ![Rounds page of the admin menu](docs/images/admin-rounds.png) |
+| Pause and unpause, team timeouts, and replaying or going back to a round, under Actions. |
 
 - **Polls:** with SimpleAdmin, `!vote` asks players a question. One or two words make a yes/no vote, and with more, the first is the question and the rest are its answers: `!vote "Best map?" Mirage Inferno Nuke`.
 - **To get the red panel shown here:** install the optional [PMM_SimpleAdmin](https://github.com/RRimmer/PMM_SimpleAdmin) plugin, which isn't in the zip, then restart the server fully. Its menu files are already in GameModeManager's Workshop addon, so players don't need anything extra. Without it, the same items appear in SimpleAdmin's normal menus.
@@ -142,6 +150,7 @@ Their licenses are in their folders, and the links above have their source. Thei
 | `css_mapvote_auto <true\|false>` | Turns the automatic end-of-map vote on or off for the current mode (for mode cfgs).                      |
 | `css_mapvote_extend <true\|false>` | Offers "extend map" in map votes or not for the current mode (for mode cfgs).                            |
 | `css_mapvote_rtv <true\|false>` | Turns `!rtv` and `!nominate` on or off for the current mode. Put it in the mode's `<mode>_settings.cfg`. A new mode starts with it on. |
+| `css_replace_bots` | For a setting's cfg: kicks the bots and adds the same number back, so settings that only apply to new bots (like `bot_difficulty`) apply to all of them. |
 | `css_gmm_status` | Shows what GameModeManager found on the server: plugins, map list, Workshop addon and settings. Include it in bug reports. |
 
 </details>
@@ -159,8 +168,8 @@ Their licenses are in their folders, and the links above have their source. Thei
 | `!mode <mode name> [map]` | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**. Add a map from that mode's list to start on it, like **!mode surf surf_beginner**. |    
 | `!warmup` | Displays an admin menu to start, schedule or end warmup.                                                               |
 | `!timelimit <true\|false> <seconds>` | Sets the time limit for the current map.                                                                               |
-| `!setting <enable\
-| `!setting set <setting name> <value>` | Sets a value setting, like **!setting set "Round time" "5 minutes"**. See the FAQ, "How do I add custom settings?" ||disable> <setting name>` | Enables or disables a custom game setting. For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**. |
+| `!setting <enable\|disable> <setting name>` | Enables or disables a custom game setting. For example, for **enable_movement_unlock.cfg** you would do **!setting enable movement_unlock**. |
+| `!setting set <setting name> <value>` | Sets a value setting, like **!setting set "Round time" "5 minutes"**. See the FAQ, "How do I add custom settings?" |
 
 </details>
 
@@ -179,7 +188,8 @@ Their licenses are in their folders, and the links above have their source. Thei
 | `!changemode` | Menu of modes; picking one starts a yes/no vote to change to it.         |
 | `!changesetting` | Menu of settings, each shown as on or off; pick one to start a vote on turning it the other way.     |
 | `!ready` / `!unready` | In a warmup with ready-up (`Warmup.Ready`): says you're ready, or not any more. The warmup ends once enough players are. |
-| `!actions` | Menu of actions: replaying a round, and the cfgs in `cfg/actions/`, like adding a bot. Admins run them; players see only the ones they can run or vote on. |
+| `!actions` | Menu of actions: the Rounds page (pause, timeouts, replaying a round) and the cfgs in `cfg/actions/`, like adding a bot. Admins run them; players see only the ones they can run or vote on. |
+| `!matchzy` | While [MatchZy](https://github.com/shobhit-pathak/MatchZy) is loaded: its practice tools in practice, your match commands otherwise (ready, pause, timeouts, coach), and Match controls for admins with `@css/config`. |
 
 RTV, nominate (the current mode's maps), next map and time left come from GG1MapChooser: `!rtv`, `!nominate`, `!nextmap`, `!timeleft`.
 

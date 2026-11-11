@@ -43,7 +43,8 @@
   },
   "Settings": {
     "Enabled": true,
-    "Folder": "settings"
+    "Folder": "settings",
+    "Hidden": []
   },
   "Actions": {
     "Enabled": true,
@@ -496,6 +497,7 @@ Messages to everyone stay in chat.
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Enabled             | Enables custom game settings.                                                                                                             |
 | Folder              | Default settings folder within `/csgo/cfg/`.                                                                                              |
+| Hidden              | Settings left out, by name or by file name without `enable_`/`disable_`, like `[ "surf", "course" ]`: cfgs in the settings folder that are really modes. |
 
 # Action Settings
 | Setting             | Description                                                                                                                               |

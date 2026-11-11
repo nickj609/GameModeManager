@@ -31,6 +31,7 @@ $pictures = @(
     @("scenes.html#vote", "screenshots\5_vote.png", "vote.png"),
     @("scenes.html#admin", "screenshots\6_admin.png", "admin.png"),
     @("scenes.html#rotation", "screenshots\7_rotation.png", "admin-rotation.png"),
+    @("scenes.html#rounds", "screenshots\8_rounds.png", "admin-rounds.png"),
     @("scenes.html#native", "", "vote-native.png"),   # the game's own vote panel, not the addon's: README only
     @("thumbnail.html", "thumbnail.png", "")
 )
