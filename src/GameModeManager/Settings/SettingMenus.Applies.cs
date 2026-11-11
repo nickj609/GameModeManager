@@ -135,7 +135,7 @@ namespace GameModeManager.Settings
                 names.Add(name);
         }
 
-        // "Changes need a match restart": Restart the match now, or Later, which tells everyone the changes wait for a restart
+        // "Changes need a match restart": Restart now, or Restart later, which tells everyone the changes wait for a restart
         // In the menu the change came from: the admin panel's own page, else a PanoramaMenu one
         private void OpenRestartMenu(CCSPlayerController player, string names, bool inAdminPanel)
         {
