@@ -31,26 +31,41 @@ namespace GameModeManager.Integrations.SimpleAdmin
         private object MatchZyMenu(CCSPlayerController player)
         {
             object menu = NewMenu(_localizer.Localize("matchzy.title"), player);
-            AddMatchZyRows(menu, _matchZyMenus.Rows(player));
+            AddMatchZyRows(menu, _matchZyMenus.Rows(player), MatchZyMenu);
             return menu;
         }
 
-        // A toggle shows (ON) or (OFF) and opens the page again with the new state; a page opens its own; any other row closes
-        // the panel, since MatchZy answers in chat
-        private void AddMatchZyRows(object menu, List<MatchZyMenus.Row> rows)
+        // A section (Match, Practice tools, Match controls), built again from MatchZy's state now
+        private object MatchZySection(CCSPlayerController player, string key)
+        {
+            MatchZyMenus.Row? row = Find(_matchZyMenus.Rows(player), key);
+            object menu = NewMenu(row != null ? _matchZyMenus.TextOf(row) : _localizer.Localize("matchzy.title"), player);
+            if (row?.Page is List<MatchZyMenus.Row> page)
+                AddMatchZyRows(menu, page, p => MatchZySection(p, key));
+            return menu;
+        }
+
+        private static MatchZyMenus.Row? Find(List<MatchZyMenus.Row> rows, string key)
+        {
+            foreach (MatchZyMenus.Row row in rows)
+            {
+                if (row.Key == key)
+                    return row;
+                if (row.Page != null && Find(row.Page, key) is MatchZyMenus.Row found)
+                    return found;
+            }
+            return null;
+        }
+
+        // A toggle shows (ON) or (OFF) and opens its page again with the new state; a section opens its own page; any other
+        // row closes the panel, since MatchZy answers in chat
+        private void AddMatchZyRows(object menu, List<MatchZyMenus.Row> rows, Func<CCSPlayerController, object> reopen)
         {
             foreach (MatchZyMenus.Row row in rows)
             {
                 string text = _matchZyMenus.TextOf(row);
-                if (row.Page is List<MatchZyMenus.Row> page)
-                {
-                    AddSubMenu(menu, text, p =>
-                    {
-                        object sub = NewMenu(text, p);
-                        AddMatchZyRows(sub, page);
-                        return sub;
-                    }, row.Disabled);
-                }
+                if (row.Page != null)
+                    AddSubMenu(menu, text, p => MatchZySection(p, row.Key), row.Disabled);
                 else if (row.On is bool on)
                 {
                     AddOption(menu, $"({(on ? "ON" : "OFF")}) [{text}]", p =>
@@ -61,7 +76,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
                         _plugin?.AddTimer(0.2f, () =>
                         {
                             if (p.IsValid)
-                                Call("OpenMenu", c => c.Length == 2, InLanguage(MatchZyMenu)(p), p);
+                                Call("OpenMenu", c => c.Length == 2, InLanguage(reopen)(p), p);
                         });
                     }, row.Disabled);
                 }

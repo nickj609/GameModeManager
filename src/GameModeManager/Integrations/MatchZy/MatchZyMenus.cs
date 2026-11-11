@@ -42,35 +42,26 @@ namespace GameModeManager.Integrations.MatchZy
             return AdminManager.PlayerHasPermissions(player, MatchZyMatch.Permission);
         }
 
-        // The rows for this player and MatchZy's phase now. Texts are looked up by whoever draws them, in the player's language.
+        // The page's sections for this player and MatchZy's phase now: Match (the player's own commands), Practice tools
+        // (greyed out outside practice) and, for admins, Match controls. Texts are looked up by whoever draws them, in the
+        // player's language.
         public List<Row> Rows(CCSPlayerController player)
         {
-            bool admin = IsAdmin(player);
-            if (MatchZyMatch.Practice)
+            bool practice = MatchZyMatch.Practice;
+            List<Row> rows = new()
             {
-                List<Row> practice = new();
-                if (admin)
-                    practice.Add(new("matchzy.exit-practice", p => MatchZyMatch.Run("css_exitprac")));
-                practice.AddRange(new Row[]
-                {
-                    new("matchzy.bot", p => MatchZyMatch.RunAs(p, "css_bot")),
-                    new("matchzy.crouch-bot", p => MatchZyMatch.RunAs(p, "css_crouchbot")),
-                    new("matchzy.clear", p => MatchZyMatch.RunAs(p, "css_clear")),
-                    new("matchzy.break", p => MatchZyMatch.RunAs(p, "css_break")),
-                    new("matchzy.fast-forward", p => MatchZyMatch.RunAs(p, "css_ff")),
-                    new("matchzy.show-spawns", p => MatchZyMatch.RunAs(p, "css_showspawns")),
-                    new("matchzy.hide-spawns", p => MatchZyMatch.RunAs(p, "css_hidespawns")),
-                    new("matchzy.impacts", p => MatchZyMatch.RunAs(p, "css_impacts")),
-                    new("matchzy.noflash", p => MatchZyMatch.RunAs(p, "css_noflash")),
-                    new("matchzy.god", p => MatchZyMatch.RunAs(p, "css_god")),
-                    new("matchzy.dry-run", p => MatchZyMatch.RunAs(p, "css_dryrun"))
-                });
-                return practice;
-            }
+                new("matchzy.match", null, Disabled: practice, Page: PlayerCommands(player)),
+                new("matchzy.practice-tools", null, Disabled: !practice, Page: PracticeTools())
+            };
+            if (IsAdmin(player))
+                rows.Add(new("matchzy.controls", null, Page: MatchControls(practice)));
+            return rows;
+        }
 
-            // The player's own commands. Ready, pauses and timeouts belong to a team, so a spectator gets them greyed out.
+        // The player's own match commands. Ready, pauses and timeouts belong to a team, so a spectator gets them greyed out.
+        private static List<Row> PlayerCommands(CCSPlayerController player)
+        {
             bool onTeam = player.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist;
-            bool live = MatchZyMatch.Live;
             bool paused = MatchZyMatch.Paused;
             List<Row> rows = new();
             if (MatchZyMatch.ReadyUp)
@@ -78,7 +69,7 @@ namespace GameModeManager.Integrations.MatchZy
                 bool ready = MatchZyMatch.IsReady(player);
                 rows.Add(new("matchzy.ready-me", p => MatchZyMatch.RunAs(p, ready ? "css_unready" : "css_ready"), ready, !onTeam));
             }
-            if (live)
+            if (MatchZyMatch.Live)
             {
                 rows.Add(new(paused ? "matchzy.unpause" : "matchzy.pause", p => MatchZyMatch.RunAs(p, paused ? "css_unpause" : "css_pause"), Disabled: !onTeam));
                 rows.Add(new("matchzy.tech", p => MatchZyMatch.RunAs(p, "css_tech"), Disabled: !onTeam || paused));
@@ -87,35 +78,50 @@ namespace GameModeManager.Integrations.MatchZy
             rows.Add(new("matchzy.coach-t", p => MatchZyMatch.RunAs(p, "css_coach t")));
             rows.Add(new("matchzy.coach-ct", p => MatchZyMatch.RunAs(p, "css_coach ct")));
             rows.Add(new("matchzy.uncoach", p => MatchZyMatch.RunAs(p, "css_uncoach")));
-
-            if (admin)
-            {
-                rows.Add(new("matchzy.controls", null, Page: MatchControls()));
-                rows.Add(new("matchzy.practice-off", null, Disabled: true));
-            }
             return rows;
         }
 
-        // Admins only: the match itself
-        private static List<Row> MatchControls()
+        // MatchZy's practice commands, for everyone. They run as the player, so a bot goes where they stand.
+        private static List<Row> PracticeTools()
+        {
+            return new()
+            {
+                new("matchzy.bot", p => MatchZyMatch.RunAs(p, "css_bot")),
+                new("matchzy.crouch-bot", p => MatchZyMatch.RunAs(p, "css_crouchbot")),
+                new("matchzy.clear", p => MatchZyMatch.RunAs(p, "css_clear")),
+                new("matchzy.break", p => MatchZyMatch.RunAs(p, "css_break")),
+                new("matchzy.fast-forward", p => MatchZyMatch.RunAs(p, "css_ff")),
+                new("matchzy.show-spawns", p => MatchZyMatch.RunAs(p, "css_showspawns")),
+                new("matchzy.hide-spawns", p => MatchZyMatch.RunAs(p, "css_hidespawns")),
+                new("matchzy.impacts", p => MatchZyMatch.RunAs(p, "css_impacts")),
+                new("matchzy.noflash", p => MatchZyMatch.RunAs(p, "css_noflash")),
+                new("matchzy.god", p => MatchZyMatch.RunAs(p, "css_god")),
+                new("matchzy.dry-run", p => MatchZyMatch.RunAs(p, "css_dryrun"))
+            };
+        }
+
+        // Admins only: the match itself, and switching practice mode on or off. In practice, only Exit practice applies.
+        private static List<Row> MatchControls(bool practice)
         {
             bool live = MatchZyMatch.Live;
+            bool off = live || practice;
             List<Row> rows = new()
             {
-                new("matchzy.start", p => MatchZyMatch.Run("css_start"), Disabled: live),
-                new("matchzy.restart", p => MatchZyMatch.Run("css_restart")),
-                new("matchzy.end", p => MatchZyMatch.Run("css_endmatch"))
+                practice ? new("matchzy.exit-practice", p => MatchZyMatch.Run("css_exitprac"))
+                         : new("matchzy.practice", p => MatchZyMatch.Run("css_prac"), Disabled: live),
+                new("matchzy.start", p => MatchZyMatch.Run("css_start"), Disabled: off),
+                new("matchzy.restart", p => MatchZyMatch.Run("css_restart"), Disabled: practice),
+                new("matchzy.end", p => MatchZyMatch.Run("css_endmatch"), Disabled: practice)
             };
             if (MatchZyMatch.Veto)
                 rows.Add(new("matchzy.skip-veto", p => MatchZyMatch.Run("css_skipveto")));
 
             // Toggles MatchZy reads when the match goes live, so the knife round is greyed out once it has
-            rows.Add(new("matchzy.knife", p => MatchZyMatch.Run("css_roundknife"), MatchZyMatch.KnifeRound, live));
-            rows.Add(new("matchzy.playout", p => MatchZyMatch.Run("css_playout"), MatchZyMatch.Playout));
+            rows.Add(new("matchzy.knife", p => MatchZyMatch.Run("css_roundknife"), MatchZyMatch.KnifeRound, off));
+            rows.Add(new("matchzy.playout", p => MatchZyMatch.Run("css_playout"), MatchZyMatch.Playout, practice));
             rows.Add(new("matchzy.whitelist", p => MatchZyMatch.Run("css_whitelist"), MatchZyMatch.Whitelist));
-            rows.Add(new("matchzy.ready", null, Disabled: live, Page: ReadyCounts.Select(count =>
+            rows.Add(new("matchzy.ready", null, Disabled: off, Page: ReadyCounts.Select(count =>
                 new Row(count == 0 ? "matchzy.ready-all" : "", p => MatchZyMatch.Run($"css_readyrequired {count}"), Text: count == 0 ? "" : count.ToString())).ToList()));
-            rows.Add(new("matchzy.practice", p => MatchZyMatch.Run("css_prac"), Disabled: live));
             return rows;
         }
 
