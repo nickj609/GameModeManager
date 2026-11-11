@@ -78,11 +78,17 @@ bot_add_ct
 - `vote: true`: players without that flag can start a vote on it, like "Run Swap Teams?".
 - `group: Bots`: puts it on a page of its own in `!actions`, with the other actions of that group. A subfolder works too: `actions/bots/add_ct.cfg` is in the Bots group unless its header says otherwise.
 
-**Actions that come with GameModeManager**, in `cfg/actions/`: Pause match, Unpause match, CT timeout and T timeout (Match); Swap teams and Scramble teams (Teams); Add bot CT, Add bot T, Kick CT bots, Kick T bots and Kick all bots (Bots). Restarting a round or the game is in CS2-SimpleAdmin's Server Manage menu, so it isn't repeated here.
+**Actions that come with GameModeManager**, in `cfg/actions/`: Swap teams and Scramble teams (Teams); Add bot CT, Add bot T, Kick CT bots, Kick T bots and Kick all bots (Bots). Restarting a round or the game is in CS2-SimpleAdmin's Server Manage menu, so it isn't repeated here.
 
 The page stays open after an action runs, so you can run it several times in a row. Players only see the actions they can run or vote on.
 
-The Actions pages also have a built-in Rounds page, for admins with `@css/generic` (`Actions.RoundRestorePermission`): **Replay this round**, **Replay last round** and **Go back to round**, which list this map's rounds. They use the game's round backups, so the match goes back to the start of that round with its scores and everyone's money, and the game pauses it until an admin unpauses (`mp_unpause_match`). Turn them off with `Actions.RoundRestore: false`.
+The Actions pages also have a built-in Rounds page, for admins with `@css/generic` (`Actions.RoundsPermission`):
+
+- **Pause match**: one row that shows the match's state. CS2 only stops a match in freeze time, so mid-round it says "Pause at next round" (pick it again to cancel), then "Unpause match".
+- **CT timeout** and **T timeout**, greyed out while a pause or a timeout is running or waiting, so they can't be stacked.
+- **Replay this round**, **Replay last round** and **Go back to round** (this map's rounds). They use the game's round backups, so the match goes back to the start of that round with its scores and everyone's money, and the game pauses it until an admin unpauses.
+
+Turn the page off with `Actions.Rounds: false`.
 
 A setting whose files set no ConVar and load no plugin has no on/off state, so GameModeManager logs a warning for it at startup: if it runs something once, it belongs in the actions folder.
 </details>

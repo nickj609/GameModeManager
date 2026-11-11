@@ -25,16 +25,18 @@ namespace GameModeManager.Actions
         private VoteService _voteService;
         private ILogger<ActionMenus> _logger;
         private RoundBackups _roundBackups;
+        private MatchPause _matchPause;
         private GameRules _gameRules;
         private GameModeEvents _events;
         private Config _config = new();
 
         // Define class constructor
-        public ActionMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, RoundBackups roundBackups, GameRules gameRules, GameModeEvents events, ILogger<ActionMenus> logger)
+        public ActionMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, RoundBackups roundBackups, MatchPause matchPause, GameRules gameRules, GameModeEvents events, ILogger<ActionMenus> logger)
         {
             _gameRules = gameRules;
             _events = events;
             _roundBackups = roundBackups;
+            _matchPause = matchPause;
             _logger = logger;
             _localizer = localizer;
             _voteService = voteService;
@@ -162,6 +164,21 @@ namespace GameModeManager.Actions
 
         private void AddRoundRows(IMenu menu, CCSPlayerController player)
         {
+            // Pause or unpause (or cancel a pause waiting for the next round), then the timeouts. The page opens again with the new state.
+            MenuActions.Add(menu, _matchPause.PauseLabel(), (p, option) =>
+            {
+                _matchPause.Toggle(p);
+                OpenRoundsPage(p);
+            }, PauseUnavailable);
+            foreach (bool counterTerrorists in new[] { true, false })
+            {
+                MenuActions.Add(menu, _localizer.Localize(counterTerrorists ? "action.timeout-ct" : "action.timeout-t"), (p, option) =>
+                {
+                    _matchPause.Timeout(p, counterTerrorists);
+                    OpenRoundsPage(p);
+                }, !_matchPause.CanCallTimeout);
+            }
+
             List<RoundBackups.Backup> backups = Backups();
             MenuActions.Add(menu, _localizer.Localize("action.replay-round"), (p, option) => Restore(p, backups[0]), backups.Count < 1);
             MenuActions.Add(menu, _localizer.Localize("action.replay-last"), (p, option) => Restore(p, backups[1]), backups.Count < 2);
@@ -180,6 +197,10 @@ namespace GameModeManager.Actions
             menu.Open(player);
         }
 
+        // The pause and timeout rows, for the admin panel's Rounds page too. Pausing in warmup does nothing, so it's greyed out then.
+        public MatchPause MatchPause => _matchPause;
+        public bool PauseUnavailable => _gameRules.WarmupRunning && _matchPause.State == MatchPause.PauseState.Running;
+
         // This map's round backups, the newest first; none in warmup
         public List<RoundBackups.Backup> Backups()
         {
@@ -189,7 +210,7 @@ namespace GameModeManager.Actions
         // Define class methods
         public bool CanRestore(CCSPlayerController player)
         {
-            return _config.Actions.RoundRestore && SettingMenus.Allowed(player, _config.Actions.RoundRestorePermission);
+            return _config.Actions.Rounds && SettingMenus.Allowed(player, _config.Actions.RoundsPermission);
         }
 
         public void Restore(CCSPlayerController player, RoundBackups.Backup backup)

@@ -91,8 +91,8 @@ namespace GameModeManager
     {
         public bool Enabled { get; set; } = true; // !actions and the admin panel's Actions page, from the cfgs in Folder
         public string Folder { get; set; } = "actions"; // In the cfg folder. Each subfolder is a group
-        public bool RoundRestore { get; set; } = true; // Replay this round, Replay last round and Go back to round, from the game's round backups (mp_backup_round_auto)
-        public string RoundRestorePermission { get; set; } = "@css/generic"; // The flag those need
+        public bool Rounds { get; set; } = true; // The Actions menu's Rounds page: pause and unpause, timeouts, and replaying or going back to a round (the game's round backups)
+        public string RoundsPermission { get; set; } = "@css/generic"; // The flag the Rounds page needs
     }
 
     // Define command settings

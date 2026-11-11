@@ -15,6 +15,9 @@ namespace GameModeManager.Common
         public bool WarmupRunning => _gameRules?.WarmupPeriod ?? false;
         public int TotalRoundsPlayed => _gameRules?.TotalRoundsPlayed ?? 0;
         public bool HasMatchStarted => _gameRules?.HasMatchStarted ?? false;
+        public bool FreezePeriod => _gameRules?.FreezePeriod ?? false;
+        public bool MatchPaused => _gameRules?.MatchWaitingForResume ?? false;
+        public bool TimeoutRunning => (_gameRules?.TerroristTimeOutActive ?? false) || (_gameRules?.CTTimeOutActive ?? false);
         
         // Define on load behavior
         public void OnLoad(Plugin plugin)

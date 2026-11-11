@@ -48,8 +48,8 @@
   "Actions": {
     "Enabled": true,
     "Folder": "actions",
-    "RoundRestore": true,
-    "RoundRestorePermission": "@css/generic"
+    "Rounds": true,
+    "RoundsPermission": "@css/generic"
   },
   "Warmup": {
     "Enabled": true,
@@ -502,8 +502,8 @@ Messages to everyone stay in chat.
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Enabled             | Enables `!actions` and the admin panel's Actions page. Added in config version 17.                                                      |
 | Folder              | Actions folder within `/csgo/cfg/`. Each cfg in it is an action, and each subfolder a group of them. See the FAQ, "How do I add actions?" |
-| RoundRestore        | Adds Replay this round, Replay last round and Go back to round to the Actions pages, using the game's round backups (`mp_backup_round_auto 1`, on by default). The match goes back to the start of that round: the round, both scores and every player's money. The game pauses the match after (`mp_backup_restore_load_autopause`). Added in config version 17. |
-| RoundRestorePermission | The flag those rows need. Default `@css/generic`.                                                                                       |
+| Rounds              | Adds a Rounds page to the Actions menus: **Pause match** (one row that shows "Pause at next round" while CS2 waits for freeze time, and "Unpause match" once paused), **CT timeout** and **T timeout** (greyed out while a pause or timeout is running or waiting), and **Replay this round**, **Replay last round** and **Go back to round** from the game's round backups (`mp_backup_round_auto 1`). Going back restores the round, both scores and every player's money, and the game pauses the match after. Added in config version 17. |
+| RoundsPermission    | The flag the Rounds page needs. Default `@css/generic`.                                                                                 |
 
 # Command Settings
 | Setting             | Description                                                                                                                               |

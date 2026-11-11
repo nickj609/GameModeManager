@@ -51,6 +51,25 @@ namespace GameModeManager.Integrations.SimpleAdmin
         private object RoundsMenu(CCSPlayerController player)
         {
             object menu = NewMenu(_localizer.Localize("action.rounds"), player);
+
+            // Pause or unpause (or cancel a pause waiting for the next round), then the timeouts. The page opens again with the new state.
+            MatchPause pause = _actionMenus.MatchPause;
+            AddOption(menu, pause.PauseLabel(), p =>
+            {
+                pause.Toggle(p);
+                Call("LogCommand", c => c.Length == 2 && c[1].ParameterType == typeof(string), p, "pause toggle");
+                Call("OpenMenu", c => c.Length == 2, InLanguage(RoundsMenu)(p), p);
+            }, _actionMenus.PauseUnavailable);
+            foreach (bool counterTerrorists in new[] { true, false })
+            {
+                AddOption(menu, _localizer.Localize(counterTerrorists ? "action.timeout-ct" : "action.timeout-t"), p =>
+                {
+                    pause.Timeout(p, counterTerrorists);
+                    Call("LogCommand", c => c.Length == 2 && c[1].ParameterType == typeof(string), p, counterTerrorists ? "timeout_ct_start" : "timeout_terrorist_start");
+                    Call("OpenMenu", c => c.Length == 2, InLanguage(RoundsMenu)(p), p);
+                }, !pause.CanCallTimeout);
+            }
+
             List<RoundBackups.Backup> backups = _actionMenus.Backups();
             AddOption(menu, _localizer.Localize("action.replay-round"), p => Act(p, "round restore 0", () => _actionMenus.Restore(p, backups[0])), backups.Count < 1);
             AddOption(menu, _localizer.Localize("action.replay-last"), p => Act(p, "round restore 1", () => _actionMenus.Restore(p, backups[1])), backups.Count < 2);

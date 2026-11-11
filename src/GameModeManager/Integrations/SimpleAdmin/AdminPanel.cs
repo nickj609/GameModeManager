@@ -141,7 +141,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
                 AddEntry("settings", "admin.game-settings", CvarPermission, SettingsMenu);
             if (_config.Warmup.Enabled)
                 AddEntry("warmup", "admin.warmup", CvarPermission, WarmupMenu);
-            if (_config.Actions.Enabled && (_pluginState.Game.Actions.Count > 0 || _config.Actions.RoundRestore))
+            if (_config.Actions.Enabled && (_pluginState.Game.Actions.Count > 0 || _config.Actions.Rounds))
                 AddEntry("actions", "admin.actions", SectionPermission, p => ActionsMenu(p, null)); // Each action has its own flag
             AddEntry("rotation", "admin.rotation", CvarPermission, RotationMenu);
             _logger.LogInformation("Added Manage game to CS2-SimpleAdmin's menu");
