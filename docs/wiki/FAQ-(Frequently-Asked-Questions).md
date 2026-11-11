@@ -43,7 +43,7 @@ mp_roundtime 5
 
 Files that share a `setting:` name are one row with a dropdown of their values, in file name order, so name them to sort the way you want them listed (`roundtime_02.cfg`, `roundtime_05.cfg`, `roundtime_10.cfg`). The current value is the file the server matches best. When none matches (Kus's Start money is 800, between the files' values), the row shows the live value of the ConVar every file sets, so it's never blank. Any of the files can have `permission:` or `vote: false`. A setting needs at least two values. Set one from chat with `!setting set "Round time" "5 minutes"`.
 
-Files in the settings folder without a prefix or a `setting:` header are helpers that other cfgs run, and aren't shown.
+Files in the settings folder without a prefix or a `setting:` header are helpers that other cfgs run, and aren't shown. So is a `disable_` file with no `enable_` file next to it (like the warmups' `disable_drop_weapons.cfg`): there would be nothing to turn back on.
 
 **Settings that come with GameModeManager.** The release has these in `cfg/settings/`, each with a header. A server keeps its own files, so updating only adds the ones it doesn't have:
 

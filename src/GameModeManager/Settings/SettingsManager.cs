@@ -79,6 +79,11 @@ namespace GameModeManager.Settings
                     AddValue(fileName, settingName, header);
             }
 
+            // Only a disable_ file is a helper other cfgs run (warmups run disable_drop_weapons.cfg; Kus's
+            // disable_map_voting.cfg keeps CS2's own map vote off for GG1MapChooser), not a setting: nothing to turn back on
+            foreach (string name in _pluginState.Game.Settings.Where(pair => pair.Value is Setting { Enable: "" }).Select(pair => pair.Key).ToList())
+                _pluginState.Game.Settings.Remove(name);
+
             // The header of the enable file, or of the disable file when there's no enable file
             foreach (Setting setting in _pluginState.Game.Settings.Values.OfType<Setting>())
             {
