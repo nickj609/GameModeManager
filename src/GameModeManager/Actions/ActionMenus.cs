@@ -82,7 +82,7 @@ namespace GameModeManager.Actions
             ConfigMetadata header = ConfigMetadata.Read(file);
             string relative = Path.GetRelativePath(root, file).Replace('\\', '/');
             string name = header.Name ?? TitleCase(Path.GetFileNameWithoutExtension(file));
-            _pluginState.Game.Actions.Add(new GameAction(relative, name, header.Group ?? group, header.Permission ?? "", header.Vote ?? false, header.Conflicts ?? ""));
+            _pluginState.Game.Actions.Add(new GameAction(relative, name, header.Group ?? group, header.Permission ?? "", header.Vote ?? false, header.Conflicts ?? "", header.Requires ?? ""));
         }
 
         private static string TitleCase(string name)
@@ -252,8 +252,9 @@ namespace GameModeManager.Actions
             PlayerFeedback.Notify(player, _localizer, "notify.action", MenuNotice.Success, "admin.done.restore", backup.Round);
         }
 
-        // An action that clashes with a loaded plugin ("// conflicts: MatchZy") isn't offered: that plugin has its own
-        public static bool Hidden(GameAction action) => LoadedPlugins.AnyLoaded(action.Conflicts);
+        // An action that clashes with a loaded plugin ("// conflicts: MatchZy") isn't offered: that plugin has its own. Nor
+        // one that needs a plugin that isn't loaded ("// requires: CS2-SimpleAdmin_FunCommands").
+        public static bool Hidden(GameAction action) => LoadedPlugins.AnyLoaded(action.Conflicts) || !LoadedPlugins.AllLoaded(action.Requires);
 
         public bool CanRun(CCSPlayerController player, GameAction action)
         {

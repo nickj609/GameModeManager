@@ -29,8 +29,8 @@ namespace GameModeManager.Settings
         }
 
         // A setting that clashes with a loaded plugin ("// conflicts: MatchZy") isn't in the menus: that plugin has its own
-        public static bool Hidden(ISetting setting) => setting is Setting own && LoadedPlugins.AnyLoaded(own.Conflicts);
-        public static bool Hidden(ValueSetting setting) => LoadedPlugins.AnyLoaded(setting.Conflicts);
+        public static bool Hidden(ISetting setting) => setting is Setting own && (LoadedPlugins.AnyLoaded(own.Conflicts) || !LoadedPlugins.AllLoaded(own.Requires));
+        public static bool Hidden(ValueSetting setting) => LoadedPlugins.AnyLoaded(setting.Conflicts) || !LoadedPlugins.AllLoaded(setting.Requires);
 
         public static bool InVotesOf(ISetting setting)
         {

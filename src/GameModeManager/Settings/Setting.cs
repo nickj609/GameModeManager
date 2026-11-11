@@ -16,6 +16,7 @@ namespace GameModeManager.Settings
         public string Permission { get; set; } = ""; // From the cfg header ("// permission: ..."). Empty = @css/cvar
         public bool InVotes { get; set; } = true;    // From the cfg header ("// vote: false" keeps it out of player votes)
         public string Conflicts { get; set; } = "";  // From the cfg header ("// conflicts: MatchZy"): hidden while one is loaded
+        public string Requires { get; set; } = "";   // From the cfg header ("// requires: SomePlugin"): hidden unless all are loaded
         public string Group { get; set; } = "";      // From the cfg header ("// group: ..."): the page it's on. "" = the first page
         public SettingApplies Applies { get; set; } = SettingApplies.Now; // From the cfg header ("// applies: ...")
 

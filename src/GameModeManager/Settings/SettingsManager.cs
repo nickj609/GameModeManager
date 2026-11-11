@@ -90,6 +90,7 @@ namespace GameModeManager.Settings
                 setting.Group = header.Group ?? "";
                 setting.Applies = SettingAppliesText.Parse(header.Applies);
                 setting.Conflicts = header.Conflicts ?? "";
+                setting.Requires = header.Requires ?? "";
             }
 
             foreach (ValueSetting setting in _pluginState.Game.ValueSettings.Values.Where(s => s.Values.Count < 2).ToList())
@@ -133,6 +134,8 @@ namespace GameModeManager.Settings
                 setting.Applies = SettingAppliesText.Parse(header.Applies);
             if (header.Conflicts != null)
                 setting.Conflicts = header.Conflicts;
+            if (header.Requires != null)
+                setting.Requires = header.Requires;
 
             string label = header.Value ?? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Path.GetFileNameWithoutExtension(fileName).Replace("_", " "));
             setting.Values.Add(new SettingValue(fileName, label));

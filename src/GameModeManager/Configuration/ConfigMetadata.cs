@@ -23,6 +23,7 @@ namespace GameModeManager.Configuration
         public string? Group => Get("group");     // The page it's on in the settings or actions menu, like "Bots"
         public string? Applies => Get("applies"); // When a change takes effect: "next round", "restart" or "map change"
         public string? Conflicts => Get("conflicts"); // Plugins it clashes with, like "MatchZy": hidden from the menus while one is loaded
+        public string? Requires => Get("requires");   // Plugins it needs, like "CS2-SimpleAdmin_FunCommands": hidden from the menus unless all are loaded
         public bool? Vote => Get("vote") is string vote ? !vote.Equals("false", StringComparison.OrdinalIgnoreCase) && vote != "0" : null;
 
         // Define class methods

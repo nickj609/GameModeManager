@@ -56,6 +56,12 @@ namespace GameModeManager.Common
             return names.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(IsLoaded);
         }
 
+        // A setting or action's "// requires: SomePlugin, Other": every one is loaded (true when it names none)
+        public static bool AllLoaded(string names)
+        {
+            return names.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).All(IsLoaded);
+        }
+
         // That plugin, when it's loaded
         public static IPlugin? Find(string name)
         {
