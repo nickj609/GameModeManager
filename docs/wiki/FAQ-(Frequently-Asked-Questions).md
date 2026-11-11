@@ -43,13 +43,13 @@ mp_roundtime 5
 
 Files that share a `setting:` name are one row with a dropdown of their values, in file name order, so name them to sort the way you want them listed (`roundtime_02.cfg`, `roundtime_05.cfg`, `roundtime_10.cfg`). The current value is the file the server matches best. When none matches (Kus's Start money is 800, between the files' values), the row shows the live value of the ConVar every file sets, so it's never blank. Any of the files can have `permission:` or `vote: false`. A setting needs at least two values. Set one from chat with `!setting set "Round time" "5 minutes"`.
 
-Files in the settings folder without a prefix or a `setting:` header are helpers that other cfgs run, and aren't shown. So is a `disable_` file with no `enable_` file next to it (like the warmups' `disable_drop_weapons.cfg`): there would be nothing to turn back on.
+Files in the settings folder without a prefix or a `setting:` header are helpers that other cfgs run, and aren't shown. So is a `disable_` file with no `enable_` file next to it (like Kus's `disable_map_voting.cfg`): there would be nothing to turn back on.
 
 **Settings that come with GameModeManager.** The release has these in `cfg/settings/`, each with a header. A server keeps its own files, so updating only adds the ones it doesn't have:
 
 - **Match:** Friendly fire, Overtime, Halftime side swap, Team balance, Respawn, Kick idle players, and the values Round time, Max rounds and Freeze time
 - **Economy:** Free armor, Buy anywhere, Buying, and the values Buy time, Start money and Max money
-- **Players:** Alltalk, Knife drop, Team collision, Free for all, Spectate enemies, and the value Gravity
+- **Players:** Alltalk, Drop weapons, Knife drop, Team collision, Free for all, Spectate enemies, and the value Gravity
 - **Movement:** Auto bunny hop, Movement unlock
 - **Bots:** Bots, and the values Bot difficulty and Bot count
 - **Practice:** Grenade trajectory, and these, which leave `sv_cheats` on (an admin confirms first, and players can't vote on them): Cheats (`sv_cheats` itself: turning it off ends every cheat at once), Infinite ammo, Bullet impacts, Bots stand still, Bots don't shoot, Bots ignore players
