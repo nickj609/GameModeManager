@@ -164,7 +164,7 @@
   "setting.applies-map": "{GOLD}{0}{DEFAULT} geldt na een mapwissel.",
   "setting.applies-restart": "{GOLD}{0}{DEFAULT} geldt nadat de wedstrijd herstart.",
   "setting.now-in-effect": "Nu actief: {GOLD}{0}{DEFAULT}.",
-  "setting.restart-title": "{0} vereist een herstart van de wedstrijd",
+  "setting.restart-title": "Wijzigingen vereisen een herstart van de wedstrijd",
   "setting.restart-now": "Wedstrijd nu herstarten",
   "setting.restart-later": "Later (bij de volgende herstart)",
   "setting.cheats-title": "sv_cheats aanzetten?",

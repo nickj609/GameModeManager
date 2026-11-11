@@ -164,7 +164,7 @@
   "setting.applies-map": "{GOLD}{0}{DEFAULT} harita değişince geçerli olur.",
   "setting.applies-restart": "{GOLD}{0}{DEFAULT} maç yeniden başlayınca geçerli olur.",
   "setting.now-in-effect": "Artık geçerli: {GOLD}{0}{DEFAULT}.",
-  "setting.restart-title": "{0} için maçın yeniden başlatılması gerekiyor",
+  "setting.restart-title": "Değişiklikler için maçın yeniden başlatılması gerekiyor",
   "setting.restart-now": "Maçı şimdi yeniden başlat",
   "setting.restart-later": "Sonra (bir sonraki yeniden başlatmada)",
   "setting.cheats-title": "sv_cheats açılsın mı?",

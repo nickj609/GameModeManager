@@ -164,7 +164,7 @@
   "setting.applies-map": "{GOLD}{0}{DEFAULT} s'applique après un changement de carte.",
   "setting.applies-restart": "{GOLD}{0}{DEFAULT} s'applique après le redémarrage du match.",
   "setting.now-in-effect": "Maintenant actif : {GOLD}{0}{DEFAULT}.",
-  "setting.restart-title": "{0} nécessite un redémarrage du match",
+  "setting.restart-title": "Les changements nécessitent un redémarrage du match",
   "setting.restart-now": "Redémarrer le match maintenant",
   "setting.restart-later": "Plus tard (au prochain redémarrage)",
   "setting.cheats-title": "Activer sv_cheats ?",

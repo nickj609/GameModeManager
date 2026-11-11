@@ -164,7 +164,7 @@
   "setting.applies-map": "{GOLD}{0}{DEFAULT} działa po zmianie mapy.",
   "setting.applies-restart": "{GOLD}{0}{DEFAULT} działa po restarcie meczu.",
   "setting.now-in-effect": "Teraz obowiązuje: {GOLD}{0}{DEFAULT}.",
-  "setting.restart-title": "{0} wymaga restartu meczu",
+  "setting.restart-title": "Zmiany wymagają restartu meczu",
   "setting.restart-now": "Zrestartuj mecz teraz",
   "setting.restart-later": "Później (przy następnym restarcie)",
   "setting.cheats-title": "Włączyć sv_cheats?",

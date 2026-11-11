@@ -164,7 +164,7 @@
   "setting.applies-map": "{GOLD}{0}{DEFAULT} applies after a map change.",
   "setting.applies-restart": "{GOLD}{0}{DEFAULT} applies after the match restarts.",
   "setting.now-in-effect": "Now in effect: {GOLD}{0}{DEFAULT}.",
-  "setting.restart-title": "{0} needs a match restart",
+  "setting.restart-title": "Changes need a match restart",
   "setting.restart-now": "Restart the match now",
   "setting.restart-later": "Later (after the next restart)",
   "setting.cheats-title": "Turn on sv_cheats?",

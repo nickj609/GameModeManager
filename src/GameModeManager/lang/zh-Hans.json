@@ -164,7 +164,7 @@
   "setting.applies-map": "{GOLD}{0}{DEFAULT}将在换图后生效。",
   "setting.applies-restart": "{GOLD}{0}{DEFAULT}将在比赛重新开始后生效。",
   "setting.now-in-effect": "现已生效：{GOLD}{0}{DEFAULT}。",
-  "setting.restart-title": "{0} 需要重新开始比赛",
+  "setting.restart-title": "更改需要重新开始比赛",
   "setting.restart-now": "立即重新开始比赛",
   "setting.restart-later": "稍后（下次重新开始时生效）",
   "setting.cheats-title": "开启 sv_cheats？",

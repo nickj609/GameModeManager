@@ -164,7 +164,7 @@
   "setting.applies-map": "{GOLD}{0}{DEFAULT} stājas spēkā pēc kartes maiņas.",
   "setting.applies-restart": "{GOLD}{0}{DEFAULT} stājas spēkā pēc spēles restartēšanas.",
   "setting.now-in-effect": "Tagad spēkā: {GOLD}{0}{DEFAULT}.",
-  "setting.restart-title": "{0} vajag spēles restartu",
+  "setting.restart-title": "Izmaiņām vajag spēles restartu",
   "setting.restart-now": "Restartēt spēli tagad",
   "setting.restart-later": "Vēlāk (pēc nākamā restarta)",
   "setting.cheats-title": "Ieslēgt sv_cheats?",

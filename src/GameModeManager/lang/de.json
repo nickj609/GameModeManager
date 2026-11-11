@@ -164,7 +164,7 @@
   "setting.applies-map": "{GOLD}{0}{DEFAULT} gilt nach einem Kartenwechsel.",
   "setting.applies-restart": "{GOLD}{0}{DEFAULT} gilt nach einem Neustart des Matches.",
   "setting.now-in-effect": "Jetzt aktiv: {GOLD}{0}{DEFAULT}.",
-  "setting.restart-title": "{0} braucht einen Match-Neustart",
+  "setting.restart-title": "Änderungen brauchen einen Match-Neustart",
   "setting.restart-now": "Match jetzt neu starten",
   "setting.restart-later": "Später (beim nächsten Neustart)",
   "setting.cheats-title": "sv_cheats einschalten?",

@@ -164,7 +164,7 @@
   "setting.applies-map": "{GOLD}{0}{DEFAULT} действует после смены карты.",
   "setting.applies-restart": "{GOLD}{0}{DEFAULT} действует после перезапуска матча.",
   "setting.now-in-effect": "Теперь действует: {GOLD}{0}{DEFAULT}.",
-  "setting.restart-title": "Для {0} нужен перезапуск матча",
+  "setting.restart-title": "Для изменений нужен перезапуск матча",
   "setting.restart-now": "Перезапустить матч сейчас",
   "setting.restart-later": "Позже (при следующем перезапуске)",
   "setting.cheats-title": "Включить sv_cheats?",

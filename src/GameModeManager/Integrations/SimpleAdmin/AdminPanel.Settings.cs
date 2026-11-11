@@ -97,7 +97,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
             return menu;
         }
 
-        // A yes/no question in the panel, about a setting changed here: "Start money needs a match restart", "Turn on
+        // A yes/no question in the panel, about a setting changed here: "Changes need a match restart", "Turn on
         // sv_cheats?". The labels come already in the admin's language. False when the panel isn't there.
         private bool OpenQuestionPage(CCSPlayerController player, string title, string yes, string no, Action onYes, Action onNo)
         {

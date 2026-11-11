@@ -164,7 +164,7 @@
   "setting.applies-map": "{GOLD}{0}{DEFAULT} vale após uma troca de mapa.",
   "setting.applies-restart": "{GOLD}{0}{DEFAULT} vale quando a partida reiniciar.",
   "setting.now-in-effect": "Agora em vigor: {GOLD}{0}{DEFAULT}.",
-  "setting.restart-title": "{0} precisa reiniciar a partida",
+  "setting.restart-title": "As mudanças precisam reiniciar a partida",
   "setting.restart-now": "Reiniciar a partida agora",
   "setting.restart-later": "Depois (no próximo reinício)",
   "setting.cheats-title": "Ativar sv_cheats?",

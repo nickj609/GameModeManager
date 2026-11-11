@@ -135,7 +135,7 @@ namespace GameModeManager.Settings
                 names.Add(name);
         }
 
-        // "Start money needs a match restart": Restart the match now, or Later, which tells everyone the changes wait for a restart
+        // "Changes need a match restart": Restart the match now, or Later, which tells everyone the changes wait for a restart
         // In the menu the change came from: the admin panel's own page, else a PanoramaMenu one
         private void OpenRestartMenu(CCSPlayerController player, string names, bool inAdminPanel)
         {
@@ -150,13 +150,13 @@ namespace GameModeManager.Settings
             {
                 using (MenuLanguages.For(player))
                 {
-                    if (AdminPanelQuestion?.Invoke(player, _localizer.Localize("setting.restart-title", names), _localizer.Localize("setting.restart-now"), _localizer.Localize("setting.restart-later"), restart, later) == true)
+                    if (AdminPanelQuestion?.Invoke(player, _localizer.Localize("setting.restart-title"), _localizer.Localize("setting.restart-now"), _localizer.Localize("setting.restart-later"), restart, later) == true)
                         return;
                 }
             }
 
             using var _culture = MenuLanguages.For(player);
-            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("setting.restart-title", names));
+            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("setting.restart-title"));
             if (menu == null)
             {
                 later();

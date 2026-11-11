@@ -164,7 +164,7 @@
   "setting.applies-map": "{GOLD}{0}{DEFAULT} pályaváltás után érvényes.",
   "setting.applies-restart": "{GOLD}{0}{DEFAULT} a meccs újraindítása után érvényes.",
   "setting.now-in-effect": "Mostantól érvényes: {GOLD}{0}{DEFAULT}.",
-  "setting.restart-title": "{0} a meccs újraindítása után lép életbe",
+  "setting.restart-title": "A változásokhoz újra kell indítani a meccset",
   "setting.restart-now": "Meccs újraindítása most",
   "setting.restart-later": "Később (a következő újraindításkor)",
   "setting.cheats-title": "Bekapcsolod az sv_cheats-et?",
