@@ -38,7 +38,8 @@ namespace GameModeManager.Integrations.SimpleAdmin
             foreach (ValueSetting valueSetting in _pluginState.Game.ValueSettings.Values.Where(s => !SettingMenus.Hidden(s) && (!vote || _settingMenus.Votable(s)) && s.Group.Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase))
             {
                 int? active = _settingStates.ActiveValue(valueSetting);
-                string row = active is int current ? $"{valueSetting.Name}{HintSeparator}{valueSetting.Values[current].Label}" : valueSetting.Name;
+                string? currentText = _settingStates.CurrentText(valueSetting);
+                string row = currentText != null ? $"{valueSetting.Name}{HintSeparator}{currentText}" : valueSetting.Name;
                 AddSubMenu(menu, row, p =>
                 {
                     object page = NewMenu(valueSetting.Name, p);

@@ -140,6 +140,35 @@ namespace GameModeManager.Settings
             }
         }
 
+        // What a value setting's row shows: the value whose file matches the server now, else the live value of the ConVar
+        // every one of its files sets (Start money at 800 when the files are $4,000 and $16,000), so it's never blank
+        // while the server has a value. Null when there's nothing to show.
+        public string? CurrentText(ValueSetting setting)
+        {
+            if (ActiveValue(setting) is int index)
+                return setting.Values[index].Label;
+
+            try
+            {
+                List<Checks> files = setting.Values.Select(value => Read(value.File)).ToList();
+                if (files.Count == 0)
+                    return null;
+                string? name = files[0].ConVars.Keys.FirstOrDefault(key => !key.Equals("sv_cheats", StringComparison.OrdinalIgnoreCase) && files.All(file => file.ConVars.ContainsKey(key)));
+                string? value = name != null ? ConVar.Find(name)?.StringValue : null;
+                if (string.IsNullOrWhiteSpace(value))
+                    return null;
+
+                // 20.000000 reads as 20
+                return double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double number)
+                    ? number.ToString("0.##", CultureInfo.InvariantCulture)
+                    : value;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         // Turning it on (or setting this value) leaves sv_cheats on, so every player can use cheat commands until it's turned off
         public bool TurnsOnCheats(ISetting setting)
         {

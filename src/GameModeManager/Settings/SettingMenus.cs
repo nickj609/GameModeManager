@@ -128,9 +128,8 @@ namespace GameModeManager.Settings
             {
                 if (valueSetting != null)
                 {
-                    int? active = _states.ActiveValue(valueSetting);
                     string[] choices = valueSetting.Values.Select(value => value.Label).ToArray();
-                    ChatMenuOption row = MenuFactory.Api!.AddSelect(menu, name, active is int index ? choices[index] : "", choices, (p, option, chosen) =>
+                    ChatMenuOption row = MenuFactory.Api!.AddSelect(menu, name, _states.CurrentText(valueSetting) ?? "", choices, (p, option, chosen) =>
                     {
                         if (chosen >= 0 && chosen < choices.Length)
                             ConfirmCheats(p, valueSetting.Name, _states.TurnsOnCheats(valueSetting, chosen), () => SetValue(p, valueSetting, chosen, q => OpenChangeMenu(q, back, group)), q => OpenChangeMenu(q, back, group));
@@ -186,8 +185,8 @@ namespace GameModeManager.Settings
             {
                 if (valueSetting != null)
                 {
-                    int? active = _states.ActiveValue(valueSetting);
-                    string label = active is int index ? $"{name} · {valueSetting.Values[index].Label}" : name;
+                    string? current = _states.CurrentText(valueSetting);
+                    string label = current != null ? $"{name} · {current}" : name;
                     menu.AddMenuOption(label, (p, option) => OpenValueVoteMenu(p, valueSetting, q => OpenVoteMenu(q, back, group)));
                     continue;
                 }
