@@ -49,7 +49,13 @@ namespace GameModeManager.Modes
         public void OnLoad(Plugin plugin)
         {
             if (_config.Commands.Mode)
+            {
                 plugin.AddCommand("css_mode", "Changes the game mode.", OnModeCommand);
+                // Before SharpTimer's !mode, while it's loaded
+                plugin.AddCommandListener("say", OnChatBeforeOthers, HookMode.Pre);
+                plugin.AddCommandListener("say_team", OnChatBeforeOthers, HookMode.Pre);
+                plugin.AddCommandListener("css_mode", OnModeBeforeOthers, HookMode.Pre);
+            }
 
             if (_config.Commands.Modes)
                 plugin.AddCommand("css_modes", "Shows a list of game modes.", OnModesCommand);
@@ -101,17 +107,65 @@ namespace GameModeManager.Modes
             for (int i = 1; i < command.ArgCount; i++)
                 _args.Add(command.ArgByIndex(i));
 
-            // The whole text is a mode, or the last word is a map of the mode before it. Mode names can have spaces.
-            string? _mapName = null;
-            if (!_pluginState.Game.Modes.TryGetValue(string.Join(" ", _args), out IMode? _mode) && _args.Count > 1)
-            {
-                if (_pluginState.Game.Modes.TryGetValue(string.Join(" ", _args.Take(_args.Count - 1)), out _mode))
-                    _mapName = _args[^1];
-            }
+            // SharpTimer has a !mode too, for its movement modes: while it's loaded, a word that isn't one of these modes is its
+            // to answer. (One that is never gets here: OnModeBeforeOthers took it.)
+            if (SharpTimerPlugin.Loaded && FindMode(_args).Mode == null)
+                return;
 
+            ChangeMode(player, _args, (key, args) => PlayerFeedback.Reply(command, player, _localizer, "notify.mode", MenuNotice.Warning, key, args));
+        }
+
+        // !mode before other plugins see it, while SharpTimer is loaded: an admin's !mode with one of these modes changes the
+        // mode here and stops there, so SharpTimer doesn't also say the mode doesn't exist. Anything else goes on to SharpTimer.
+        private HookResult OnChatBeforeOthers(CCSPlayerController? player, CommandInfo command)
+        {
+            string text = command.GetArg(1).Trim();
+            if (text.Length < 2 || (text[0] != '!' && text[0] != '/'))
+                return HookResult.Continue;
+
+            List<string> words = text[1..].Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+            if (words.Count < 2 || !words[0].Equals("mode", StringComparison.OrdinalIgnoreCase))
+                return HookResult.Continue;
+            return TakeMode(player, words.Skip(1).ToList());
+        }
+
+        private HookResult OnModeBeforeOthers(CCSPlayerController? player, CommandInfo command)
+        {
+            List<string> args = new();
+            for (int i = 1; i < command.ArgCount; i++)
+                args.Add(command.ArgByIndex(i));
+            return TakeMode(player, args);
+        }
+
+        private HookResult TakeMode(CCSPlayerController? player, List<string> args)
+        {
+            if (!SharpTimerPlugin.Loaded || player == null || !AdminManager.PlayerHasPermissions(player, "@css/changemap") || FindMode(args).Mode == null)
+                return HookResult.Continue;
+
+            Server.NextFrame(() =>
+            {
+                if (player.IsValid)
+                    ChangeMode(player, args, (key, values) => PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, key, values));
+            });
+            return HookResult.Handled;
+        }
+
+        // The whole text is a mode, or the last word is a map of the mode before it. Mode names can have spaces.
+        private (IMode? Mode, string? MapName) FindMode(List<string> args)
+        {
+            if (_pluginState.Game.Modes.TryGetValue(string.Join(" ", args), out IMode? mode))
+                return (mode, null);
+            if (args.Count > 1 && _pluginState.Game.Modes.TryGetValue(string.Join(" ", args.Take(args.Count - 1)), out mode))
+                return (mode, args[^1]);
+            return (null, null);
+        }
+
+        private void ChangeMode(CCSPlayerController? player, List<string> args, Action<string, object[]> warn)
+        {
+            var (_mode, _mapName) = FindMode(args);
             if (_mode == null)
             {
-                PlayerFeedback.Reply(command, player, _localizer, "notify.mode", MenuNotice.Warning, "changemode.mode-not-found", string.Join(" ", _args));
+                warn("changemode.mode-not-found", new object[] { string.Join(" ", args) });
                 return;
             }
 
@@ -130,7 +184,7 @@ namespace GameModeManager.Modes
             IMap? _map = FindMap(_mode, _mapName);
             if (_map == null)
             {
-                PlayerFeedback.Reply(command, player, _localizer, "notify.mode", MenuNotice.Warning, "changemode.map-not-found", _mapName, _mode.Name);
+                warn("changemode.map-not-found", new object[] { _mapName, _mode.Name });
                 return;
             }
 

@@ -187,6 +187,9 @@ namespace GameModeManager.Rotation
             }
 
             // Display Countdown
+            // SharpTimer's HUD would sit under the countdown
+            SharpTimerPlugin.HideHud();
+
             _pluginState.Game.CountdownRunning = true;
             new CountdownTimer(delay, () =>
             {
@@ -213,6 +216,7 @@ namespace GameModeManager.Rotation
             if (_countdownShown)
                 return;
             _countdownShown = true;
+            SharpTimerPlugin.HideHud();
             new CountdownTimer(MapChooserDelay, () => { }, CountdownText);
         }
         private bool _countdownShown;

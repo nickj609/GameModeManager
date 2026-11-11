@@ -16,3 +16,4 @@ global using GameModeManager.Integrations.GG1MapChooser;
 global using GameModeManager.Integrations.SimpleAdmin;
 global using GameModeManager.Integrations.MultiAddonManager;
 global using GameModeManager.Integrations.MatchZy;
+global using GameModeManager.Integrations.SharpTimer;
