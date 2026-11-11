@@ -36,6 +36,17 @@ namespace GameModeManager.Settings
             _config = config;
         }
 
+        // Settings.Hidden: by its name in the cfg header, or by its file name
+        private bool Hidden(string name, string file)
+        {
+            if (_config.Settings.Hidden.Count == 0)
+                return false;
+            // The name is in the enable file's header, so its disable file goes with it
+            string enable = Path.Combine(Path.GetDirectoryName(file)!, $"enable_{name}.cfg");
+            string? display = ConfigMetadata.Read(File.Exists(enable) ? enable : file).Name;
+            return _config.Settings.Hidden.Any(hidden => hidden.Equals(name, StringComparison.OrdinalIgnoreCase) || (display != null && hidden.Equals(display, StringComparison.OrdinalIgnoreCase)));
+        }
+
         // Define on load behavior
         public void OnLoad(Plugin plugin)
         {
@@ -60,6 +71,8 @@ namespace GameModeManager.Settings
             {
                 string fileName = Path.GetFileName(file);
                 Match prefix = Prefix.Match(Path.GetFileNameWithoutExtension(file));
+                if (prefix.Success && Hidden(Path.GetFileNameWithoutExtension(file)[prefix.Length..], file))
+                    continue;
                 if (prefix.Success)
                     AddOnOff(fileName, Path.GetFileNameWithoutExtension(file)[prefix.Length..], prefix.Value.StartsWith("enable", StringComparison.OrdinalIgnoreCase));
                 else if (ConfigMetadata.Read(file) is { Setting: string settingName } header)

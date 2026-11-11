@@ -84,6 +84,7 @@ namespace GameModeManager
     {
         public bool Enabled { get; set; } = true; // Enable game settings
         public string Folder { get; set; } = "settings"; // Default settings folder
+        public List<string> Hidden { get; set; } = new(); // Settings left out, by name ("Surf") or file name without enable_/disable_ ("surf"): cfgs in the folder that are really modes
     }
 
     // Define action settings

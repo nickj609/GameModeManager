@@ -37,7 +37,7 @@ namespace GameModeManager.Settings
         // Values that never stay as a cfg sets them: they trigger something and go back
         private static readonly HashSet<string> Ignored = new(StringComparer.OrdinalIgnoreCase)
         {
-            "mp_restartgame", "mp_restartgame_immediate", "mp_warmup_start", "mp_warmup_end", "sv_cheats"
+            "mp_restartgame", "mp_restartgame_immediate", "mp_warmup_start", "mp_warmup_end"
         };
         private static readonly Regex DelayedCommand = new(@"^\s*exec_after_delay\s+\S+\s+(.+)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -269,7 +269,11 @@ namespace GameModeManager.Settings
                     checks.Plugins[plugin] = false;
             }
             else if (name.Equals("sv_cheats", StringComparison.OrdinalIgnoreCase))
+            {
+                // Checked like any ConVar (the Cheats setting is sv_cheats itself), and remembered: a setting that leaves it on asks first
                 checks.LeavesCheatsOn = words[1] is "1" || words[1].Equals("true", StringComparison.OrdinalIgnoreCase);
+                checks.ConVars[name] = words[1];
+            }
             else if (!Ignored.Contains(name))
                 checks.ConVars[name] = words[1]; // The last value a file sets is the one that stays
         }
