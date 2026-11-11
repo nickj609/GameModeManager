@@ -40,14 +40,14 @@ namespace GameModeManager.Settings
 
         // Turns a setting on or off. For one that applies after a restart, asks the admin whether to restart now and returns
         // true: then the caller doesn't reopen its own page, because "Not now" goes back through reopen.
-        public bool ChangeSetting(CCSPlayerController player, ISetting setting, bool enable, Action<CCSPlayerController>? reopen = null)
+        public bool ChangeSetting(CCSPlayerController player, ISetting setting, bool enable, Action<CCSPlayerController>? reopen = null, bool fromAdminPanel = false)
         {
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix(enable ? "enable.changesetting.message" : "disable.changesetting.message", player.PlayerName, setting.DisplayName));
             PlayerFeedback.Notify(player, _localizer, "notify.setting", MenuNotice.Success, enable ? "admin.done.setting-enabled" : "admin.done.setting-disabled", setting.DisplayName);
             _states.Expect(setting, enable);
             Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}");
             _events.RaiseSettingChanged(setting, enable);
-            return AfterChange(player, setting.DisplayName, AppliesOf(setting), reopen);
+            return AfterChange(player, setting.DisplayName, AppliesOf(setting), reopen, fromAdminPanel);
         }
 
         public void StartVote(CCSPlayerController player, ISetting setting, bool enable)
@@ -62,7 +62,7 @@ namespace GameModeManager.Settings
             });
         }
 
-        public bool SetValue(CCSPlayerController player, ValueSetting setting, int index, Action<CCSPlayerController>? reopen = null)
+        public bool SetValue(CCSPlayerController player, ValueSetting setting, int index, Action<CCSPlayerController>? reopen = null, bool fromAdminPanel = false)
         {
             string label = setting.Values[index].Label;
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setvalue.changesetting.message", player.PlayerName, setting.Name, label));
@@ -70,7 +70,7 @@ namespace GameModeManager.Settings
             _states.ExpectValue(setting, index);
             Server.ExecuteCommand($"exec {_config.Settings.Folder}/{setting.Values[index].File}");
             _events.RaiseValueSettingChanged(setting, label);
-            return AfterChange(player, setting.Name, setting.Applies, reopen);
+            return AfterChange(player, setting.Name, setting.Applies, reopen, fromAdminPanel);
         }
 
         public void StartValueVote(CCSPlayerController player, ValueSetting setting, int index)

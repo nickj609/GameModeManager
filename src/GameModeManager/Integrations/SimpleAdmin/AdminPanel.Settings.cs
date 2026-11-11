@@ -55,7 +55,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
                             }
                             Call("LogCommand", c => c.Length == 2 && c[1].ParameterType == typeof(string), q, logged);
                             // A setting that needs a restart asks first; "Not now" comes back to this page
-                            if (!_settingMenus.SetValue(q, valueSetting, index, ReopenSettings(group)))
+                            if (!_settingMenus.SetValue(q, valueSetting, index, ReopenSettings(group), fromAdminPanel: true))
                                 ReopenSettings(group)(q);
                         }, active == index);
                     }
@@ -81,7 +81,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
 
                         // The page opens again with the new state, so several can be changed in one go, like the rotation page
                         Call("LogCommand", q => q.Length == 2 && q[1].ParameterType == typeof(string), p, logged);
-                        if (!_settingMenus.ChangeSetting(p, setting, enable, ReopenSettings(group)))
+                        if (!_settingMenus.ChangeSetting(p, setting, enable, ReopenSettings(group), fromAdminPanel: true))
                             ReopenSettings(group)(p);
                     }, !SettingMenus.CanChange(setting, enable) || !vote && !SettingMenus.Allowed(player, SettingMenus.PermissionOf(setting)));
                 }
@@ -89,6 +89,26 @@ namespace GameModeManager.Integrations.SimpleAdmin
                     AddSubMenu(menu, setting.DisplayName, p => SettingMenu(p, setting, vote));
             }
             return menu;
+        }
+
+        // "Restart the match now?" in the panel, for settings changed here that need a restart. False when the panel isn't there.
+        private bool OpenRestartPage(CCSPlayerController player, string names, Action restart, Action later)
+        {
+            if (_api == null)
+                return false;
+
+            using (MenuLanguages.For(player))
+            {
+                object page = NewMenu(_localizer.Localize("setting.restart-title"), player);
+                AddOption(page, _localizer.Localize("setting.restart-now"), p => Act(p, "mp_restartgame 1", restart));
+                AddOption(page, _localizer.Localize("setting.restart-later"), p =>
+                {
+                    MenuFactory.Api?.CloseMenu(p);
+                    later();
+                });
+                Call("OpenMenu", c => c.Length == 2, page, player);
+            }
+            return true;
         }
 
         // Opens the settings page again, with the new state

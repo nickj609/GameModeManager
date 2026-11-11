@@ -62,7 +62,7 @@ namespace GameModeManager.Settings
         }
 
         // After an admin's change: says when it applies, or, for one that needs a restart, asks whether to restart now
-        private bool AfterChange(CCSPlayerController player, string name, SettingApplies applies, Action<CCSPlayerController>? reopen)
+        private bool AfterChange(CCSPlayerController player, string name, SettingApplies applies, Action<CCSPlayerController>? reopen, bool fromAdminPanel = false)
         {
             switch (applies)
             {
@@ -76,7 +76,7 @@ namespace GameModeManager.Settings
                     return false;
                 case SettingApplies.Restart:
                     Pending(SettingApplies.Restart, name);
-                    WatchForClose(player, name);
+                    WatchForClose(player, name, fromAdminPanel);
                     return false;
                 default:
                     return false;
@@ -106,7 +106,7 @@ namespace GameModeManager.Settings
 
         // An admin who changed a setting that needs a restart is asked once, when they close the menu, so several can be
         // changed first. Not asked when the match restarted in the meantime (OnMatchStart clears the list).
-        private void WatchForClose(CCSPlayerController player, string name)
+        private void WatchForClose(CCSPlayerController player, string name, bool fromAdminPanel)
         {
             if (!_waitingForClose.TryGetValue(player.Slot, out List<string>? names))
             {
@@ -126,34 +126,46 @@ namespace GameModeManager.Settings
                     timer?.Kill();
                     _waitingForClose.Remove(player.Slot);
                     if (waiting.Count > 0)
-                        OpenRestartMenu(player, string.Join(", ", waiting));
+                        OpenRestartMenu(player, string.Join(", ", waiting), _askInAdminPanel.Remove(player.Slot));
                 }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
             }
+            if (fromAdminPanel)
+                _askInAdminPanel.Add(player.Slot);
             if (!names.Contains(name))
                 names.Add(name);
         }
 
         // "Restart the match now?" Restart now, or Not now, which tells everyone the changes wait for a restart
-        private void OpenRestartMenu(CCSPlayerController player, string names)
+        // In the menu the change came from: the admin panel's own page, else a PanoramaMenu one
+        private void OpenRestartMenu(CCSPlayerController player, string names, bool inAdminPanel)
         {
+            Action restart = () =>
+            {
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restart.message", player.PlayerName, names));
+                Server.ExecuteCommand("mp_restartgame 1");
+            };
+            Action later = () => Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setting.applies-restart", names));
+
+            if (inAdminPanel && AdminPanelRestartPage?.Invoke(player, names, restart, later) == true)
+                return;
+
             using var _culture = MenuLanguages.For(player);
             IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("setting.restart-title"));
             if (menu == null)
             {
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setting.applies-restart", names));
+                later();
                 return;
             }
 
             MenuActions.Add(menu, _localizer.Localize("setting.restart-now"), (p, option) =>
             {
                 MenuFactory.Api?.CloseMenu(p);
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restart.message", p.PlayerName, names));
-                Server.ExecuteCommand("mp_restartgame 1");
+                restart();
             });
             MenuActions.Add(menu, _localizer.Localize("setting.restart-later"), (p, option) =>
             {
                 MenuFactory.Api?.CloseMenu(p);
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setting.applies-restart", names));
+                later();
             });
             menu.Open(player);
         }

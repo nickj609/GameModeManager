@@ -42,7 +42,11 @@ namespace GameModeManager.Settings
         private readonly Dictionary<SettingApplies, List<string>> _pending = new(); // Changes waiting to take effect, announced when they do
         private bool _newMap;
         private readonly Dictionary<int, List<string>> _waitingForClose = new(); // By player slot: restart settings changed while their menu is open
+        private readonly HashSet<int> _askInAdminPanel = new(); // By player slot: the change came from the admin panel, so ask there
         private Plugin? _plugin;
+
+        // The admin panel's own "Restart the match now?" page, when CS2-SimpleAdmin is there: (player, settings, restart, not now) -> shown
+        public Func<CCSPlayerController, string, Action, Action, bool>? AdminPanelRestartPage;
         public bool VotesEnabled => _config.Votes.Enabled && _config.Votes.GameSettings;
         public const string DefaultPermission = "@css/cvar"; // The flag !settings needs
 
