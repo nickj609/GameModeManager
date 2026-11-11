@@ -35,7 +35,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
                     AddSubMenu(menu, page, p => SettingListMenu(p, vote, page));
 
             // Value settings: the row shows the current value, and its page lists the values (the current one greyed out)
-            foreach (ValueSetting valueSetting in _pluginState.Game.ValueSettings.Values.Where(s => (!vote || s.InVotes) && s.Group.Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase))
+            foreach (ValueSetting valueSetting in _pluginState.Game.ValueSettings.Values.Where(s => (!vote || _settingMenus.Votable(s)) && s.Group.Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase))
             {
                 int? active = _settingStates.ActiveValue(valueSetting);
                 string row = active is int current ? $"{valueSetting.Name}{HintSeparator}{valueSetting.Values[current].Label}" : valueSetting.Name;
@@ -54,16 +54,19 @@ namespace GameModeManager.Integrations.SimpleAdmin
                                 return;
                             }
                             Call("LogCommand", c => c.Length == 2 && c[1].ParameterType == typeof(string), q, logged);
-                            // A setting that needs a restart asks first; "Not now" comes back to this page
-                            if (!_settingMenus.SetValue(q, valueSetting, index, ReopenSettings(group), fromAdminPanel: true))
-                                ReopenSettings(group)(q);
+                            // A value that leaves sv_cheats on asks first; one that needs a restart asks after; "Not now" comes back to this page
+                            _settingMenus.ConfirmCheats(q, valueSetting.Name, _settingStates.TurnsOnCheats(valueSetting, index), () =>
+                            {
+                                if (!_settingMenus.SetValue(q, valueSetting, index, ReopenSettings(group), fromAdminPanel: true))
+                                    ReopenSettings(group)(q);
+                            }, ReopenSettings(group), fromAdminPanel: true);
                         }, active == index);
                     }
                     return page;
                 }, !vote && !SettingMenus.Allowed(player, valueSetting.Permission));
             }
 
-            foreach (ISetting setting in _pluginState.Game.Settings.Values.Where(s => (!vote || SettingMenus.InVotesOf(s)) && SettingMenus.GroupOf(s, null).Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase))
+            foreach (ISetting setting in _pluginState.Game.Settings.Values.Where(s => (!vote || _settingMenus.Votable(s)) && SettingMenus.GroupOf(s, null).Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
                 // A known state is an ON/OFF row that turns it the other way, or starts a vote on that. Mixed shows as off.
                 SettingState state = _settingStates.Get(setting);
@@ -81,8 +84,11 @@ namespace GameModeManager.Integrations.SimpleAdmin
 
                         // The page opens again with the new state, so several can be changed in one go, like the rotation page
                         Call("LogCommand", q => q.Length == 2 && q[1].ParameterType == typeof(string), p, logged);
-                        if (!_settingMenus.ChangeSetting(p, setting, enable, ReopenSettings(group), fromAdminPanel: true))
-                            ReopenSettings(group)(p);
+                        _settingMenus.ConfirmCheats(p, setting.DisplayName, enable && _settingStates.TurnsOnCheats(setting), () =>
+                        {
+                            if (!_settingMenus.ChangeSetting(p, setting, enable, ReopenSettings(group), fromAdminPanel: true))
+                                ReopenSettings(group)(p);
+                        }, ReopenSettings(group), fromAdminPanel: true);
                     }, !SettingMenus.CanChange(setting, enable) || !vote && !SettingMenus.Allowed(player, SettingMenus.PermissionOf(setting)));
                 }
                 else
@@ -92,22 +98,21 @@ namespace GameModeManager.Integrations.SimpleAdmin
         }
 
         // "Restart the match now?" in the panel, for settings changed here that need a restart. False when the panel isn't there.
-        private bool OpenRestartPage(CCSPlayerController player, string names, Action restart, Action later)
+        // A yes/no question in the panel, about a setting changed here: "Restart the match now?", "Turn on sv_cheats?". The
+        // labels come already in the admin's language. False when the panel isn't there.
+        private bool OpenQuestionPage(CCSPlayerController player, string title, string yes, string no, Action onYes, Action onNo)
         {
             if (_api == null)
                 return false;
 
-            using (MenuLanguages.For(player))
+            object page = NewMenu(title, player);
+            AddOption(page, yes, p => Act(p, title, onYes));
+            AddOption(page, no, p =>
             {
-                object page = NewMenu(_localizer.Localize("setting.restart-title"), player);
-                AddOption(page, _localizer.Localize("setting.restart-now"), p => Act(p, "mp_restartgame 1", restart));
-                AddOption(page, _localizer.Localize("setting.restart-later"), p =>
-                {
-                    MenuFactory.Api?.CloseMenu(p);
-                    later();
-                });
-                Call("OpenMenu", c => c.Length == 2, page, player);
-            }
+                MenuFactory.Api?.CloseMenu(p);
+                onNo();
+            });
+            Call("OpenMenu", c => c.Length == 2, page, player);
             return true;
         }
 
@@ -129,7 +134,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
                     if (vote)
                         _settingMenus.StartVote(p, setting, enable);
                     else
-                        _settingMenus.ChangeSetting(p, setting, enable);
+                        _settingMenus.ConfirmCheats(p, setting.DisplayName, enable && _settingStates.TurnsOnCheats(setting), () => _settingMenus.ChangeSetting(p, setting, enable), null, fromAdminPanel: true);
                 }), (enable ? setting.Enable : setting.Disable) == "");
             }
             return menu;

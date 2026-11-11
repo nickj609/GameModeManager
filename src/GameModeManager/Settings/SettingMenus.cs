@@ -45,8 +45,8 @@ namespace GameModeManager.Settings
         private readonly HashSet<int> _askInAdminPanel = new(); // By player slot: the change came from the admin panel, so ask there
         private Plugin? _plugin;
 
-        // The admin panel's own "Restart the match now?" page, when CS2-SimpleAdmin is there: (player, settings, restart, not now) -> shown
-        public Func<CCSPlayerController, string, Action, Action, bool>? AdminPanelRestartPage;
+        // A yes/no page in the admin panel, when CS2-SimpleAdmin is there: (player, title, yes, no, on yes, on no) -> shown
+        public Func<CCSPlayerController, string, string, string, Action, Action, bool>? AdminPanelQuestion;
         public bool VotesEnabled => _config.Votes.Enabled && _config.Votes.GameSettings;
         public const string DefaultPermission = "@css/cvar"; // The flag !settings needs
 
@@ -122,7 +122,7 @@ namespace GameModeManager.Settings
                     ChatMenuOption row = MenuFactory.Api!.AddSelect(menu, name, active is int index ? choices[index] : "", choices, (p, option, chosen) =>
                     {
                         if (chosen >= 0 && chosen < choices.Length)
-                            SetValue(p, valueSetting, chosen, q => OpenChangeMenu(q, back, group));
+                            ConfirmCheats(p, valueSetting.Name, _states.TurnsOnCheats(valueSetting, chosen), () => SetValue(p, valueSetting, chosen, q => OpenChangeMenu(q, back, group)), q => OpenChangeMenu(q, back, group));
                     }, !Allowed(player, valueSetting.Permission));
 
                     // PMM names the row "[value] name" for chat menus. The panorama menu shows the value on the right, so just the name.
@@ -139,6 +139,12 @@ namespace GameModeManager.Settings
                     {
                         if (!CanChange(setting!, !on))
                             return;
+                        // Turning on a setting that leaves sv_cheats on asks first; the page opens again either way
+                        if (!on && _states.TurnsOnCheats(setting!))
+                        {
+                            ConfirmCheats(p, name, true, () => ChangeSetting(p, setting!, true, q => OpenChangeMenu(q, back, group)), q => OpenChangeMenu(q, back, group));
+                            return;
+                        }
                         on = !on;
                         ChangeSetting(p, setting!, on, q => OpenChangeMenu(q, back, group));
                     }, !CanChange(setting!, !on) || !Allowed(player, PermissionOf(setting!)));
@@ -207,7 +213,7 @@ namespace GameModeManager.Settings
                     if (vote)
                         StartVote(p, setting, enable);
                     else
-                        ChangeSetting(p, setting, enable);
+                        ConfirmCheats(p, setting.DisplayName, enable && _states.TurnsOnCheats(setting), () => ChangeSetting(p, setting, enable), back);
                 }, !CanChange(setting, enable));
             }
             menu.Open(player);
@@ -237,9 +243,9 @@ namespace GameModeManager.Settings
         // On/off and value settings together, by name. With forVotes, only the ones players can vote on.
         private IEnumerable<(string Name, ISetting? Setting, ValueSetting? ValueSetting)> Sorted(bool forVotes, string group)
         {
-            var onOff = _pluginState.Game.Settings.Values.Where(setting => !forVotes || InVotesOf(setting))
+            var onOff = _pluginState.Game.Settings.Values.Where(setting => !forVotes || Votable(setting))
                 .Select(setting => (Name: setting.DisplayName, Setting: (ISetting?)setting, ValueSetting: (ValueSetting?)null));
-            var values = _pluginState.Game.ValueSettings.Values.Where(setting => !forVotes || setting.InVotes)
+            var values = _pluginState.Game.ValueSettings.Values.Where(setting => !forVotes || Votable(setting))
                 .Select(setting => (Name: setting.Name, Setting: (ISetting?)null, ValueSetting: (ValueSetting?)setting));
             return onOff.Concat(values).Where(row => GroupOf(row.Setting, row.ValueSetting).Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(row => row.Name, StringComparer.OrdinalIgnoreCase);
         }
@@ -247,8 +253,8 @@ namespace GameModeManager.Settings
         // The groups settings are in, by name. With forVotes, only groups with a setting players can vote on.
         public IEnumerable<string> Groups(bool forVotes)
         {
-            var onOff = _pluginState.Game.Settings.Values.Where(setting => !forVotes || InVotesOf(setting)).Select(setting => GroupOf(setting, null));
-            var values = _pluginState.Game.ValueSettings.Values.Where(setting => !forVotes || setting.InVotes).Select(setting => setting.Group);
+            var onOff = _pluginState.Game.Settings.Values.Where(setting => !forVotes || Votable(setting)).Select(setting => GroupOf(setting, null));
+            var values = _pluginState.Game.ValueSettings.Values.Where(setting => !forVotes || Votable(setting)).Select(setting => setting.Group);
             return onOff.Concat(values).Where(group => group != "").Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(group => group, StringComparer.OrdinalIgnoreCase);
         }
 

@@ -146,8 +146,14 @@ namespace GameModeManager.Settings
             };
             Action later = () => Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setting.applies-restart", names));
 
-            if (inAdminPanel && AdminPanelRestartPage?.Invoke(player, names, restart, later) == true)
-                return;
+            if (inAdminPanel)
+            {
+                using (MenuLanguages.For(player))
+                {
+                    if (AdminPanelQuestion?.Invoke(player, _localizer.Localize("setting.restart-title"), _localizer.Localize("setting.restart-now"), _localizer.Localize("setting.restart-later"), restart, later) == true)
+                        return;
+                }
+            }
 
             using var _culture = MenuLanguages.For(player);
             IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("setting.restart-title"));

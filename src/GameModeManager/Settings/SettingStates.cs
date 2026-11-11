@@ -51,6 +51,7 @@ namespace GameModeManager.Settings
         {
             public Dictionary<string, string> ConVars = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<string, bool> Plugins = new(StringComparer.OrdinalIgnoreCase); // Name or file name, loaded
+            public bool LeavesCheatsOn; // The last sv_cheats it sets (through exec too) is 1: cheats stay on for everyone
         }
 
         // Load config
@@ -137,6 +138,22 @@ namespace GameModeManager.Settings
                 _logger.LogWarning("Couldn't read the value of setting {Setting}: {Error}", setting.Name, error.Message);
                 return null;
             }
+        }
+
+        // Turning it on (or setting this value) leaves sv_cheats on, so every player can use cheat commands until it's turned off
+        public bool TurnsOnCheats(ISetting setting)
+        {
+            return setting.Enable != "" && Read(setting.Enable).LeavesCheatsOn;
+        }
+
+        public bool TurnsOnCheats(ValueSetting setting, int index)
+        {
+            return Read(setting.Values[index].File).LeavesCheatsOn;
+        }
+
+        public bool TurnsOnCheats(ValueSetting setting)
+        {
+            return setting.Values.Any(value => Read(value.File).LeavesCheatsOn);
         }
 
         public void ExpectValue(ValueSetting setting, int index)
@@ -251,6 +268,8 @@ namespace GameModeManager.Settings
                 else if (action is "unload" or "stop")
                     checks.Plugins[plugin] = false;
             }
+            else if (name.Equals("sv_cheats", StringComparison.OrdinalIgnoreCase))
+                checks.LeavesCheatsOn = words[1] is "1" || words[1].Equals("true", StringComparison.OrdinalIgnoreCase);
             else if (!Ignored.Contains(name))
                 checks.ConVars[name] = words[1]; // The last value a file sets is the one that stays
         }

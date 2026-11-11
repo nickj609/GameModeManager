@@ -93,8 +93,8 @@ namespace GameModeManager.Integrations.SimpleAdmin
                 _apiType!.GetEvent("OnSimpleAdminReady")?.AddEventHandler(_api, _readyHandler);
                 Register();
 
-                // A setting that needs a restart, changed in this panel, asks there too
-                _settingMenus.AdminPanelRestartPage = OpenRestartPage;
+                // Questions about a setting changed in this panel (restart now? turn on sv_cheats?) are asked here too
+                _settingMenus.AdminPanelQuestion = OpenQuestionPage;
             }
             catch (Exception ex)
             {

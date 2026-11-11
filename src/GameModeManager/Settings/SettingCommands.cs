@@ -75,7 +75,7 @@ namespace GameModeManager.Settings
                 if (_index < 0)
                     PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "setting.value-not-found", _valueSetting.Name, _value);
                 else
-                    _settingMenus.SetValue(player, _valueSetting, _index);
+                    _settingMenus.ConfirmCheats(player, _valueSetting.Name, _settingMenus.TurnsOnCheats(_valueSetting, _index), () => _settingMenus.SetValue(player, _valueSetting, _index), null);
                 return;
             }
 
@@ -94,7 +94,7 @@ namespace GameModeManager.Settings
             {
                 bool _enable = _status.Equals("enable", StringComparison.OrdinalIgnoreCase);
                 if (SettingMenus.CanChange(_setting, _enable))
-                    _settingMenus.ChangeSetting(player, _setting, _enable);
+                    _settingMenus.ConfirmCheats(player, _setting.DisplayName, _enable && _settingMenus.TurnsOnCheats(_setting), () => _settingMenus.ChangeSetting(player, _setting, _enable), null);
                 else
                     PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "setting.unexpected-argument", _status);
             }

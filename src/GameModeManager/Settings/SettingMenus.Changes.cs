@@ -84,6 +84,59 @@ namespace GameModeManager.Settings
             });
         }
 
+        // Define sv_cheats methods
+        public bool TurnsOnCheats(ISetting setting) => _states.TurnsOnCheats(setting);
+        public bool TurnsOnCheats(ValueSetting setting, int index) => _states.TurnsOnCheats(setting, index);
+
+        // Players can vote on it: its header allows it, and it doesn't leave sv_cheats on (that's for an admin to decide)
+        public bool Votable(ISetting setting)
+        {
+            return InVotesOf(setting) && !_states.TurnsOnCheats(setting);
+        }
+
+        public bool Votable(ValueSetting setting)
+        {
+            return setting.InVotes && !_states.TurnsOnCheats(setting);
+        }
+
+        // A change that leaves sv_cheats on asks first, in the menu it came from, and says what it means: every player can
+        // use cheat commands. Yes applies it; No goes back. Without needed, it just applies.
+        public void ConfirmCheats(CCSPlayerController player, string name, bool needed, Action apply, Action<CCSPlayerController>? back, bool fromAdminPanel = false)
+        {
+            if (!needed)
+            {
+                apply();
+                return;
+            }
+
+            PlayerFeedback.Notify(player, _localizer, "notify.setting", MenuNotice.Warning, "setting.cheats-warning", name);
+            Action no = () =>
+            {
+                if (back != null)
+                    back(player);
+                else
+                    MenuFactory.Api?.CloseMenu(player);
+            };
+
+            using var _culture = MenuLanguages.For(player);
+            string title = _localizer.Localize("setting.cheats-title");
+            string yes = _localizer.Localize("setting.cheats-yes");
+            string cancel = _localizer.Localize("setting.cheats-no");
+            if (fromAdminPanel && AdminPanelQuestion?.Invoke(player, title, yes, cancel, apply, no) == true)
+                return;
+
+            IMenu? menu = MenuFactory.Api?.GetMenu(title, back);
+            if (menu == null)
+                return;
+            MenuActions.Add(menu, yes, (p, option) =>
+            {
+                MenuFactory.Api?.CloseMenu(p);
+                apply();
+            });
+            MenuActions.Add(menu, cancel, (p, option) => no());
+            menu.Open(player);
+        }
+
         // Define API methods
         // A change from another plugin (game_mode:api): no admin to name or ask, so players are only told when it applies.
         // One that needs a restart waits for the plugin to restart the match.

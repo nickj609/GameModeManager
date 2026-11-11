@@ -28,6 +28,8 @@ sv_autobunnyhopping 1
 - `group: Match`: puts it on a page of its own in the settings menus, with the other settings of that group. Settings without a group are on the first page.
 - `applies: next round`, `applies: restart` or `applies: map change`: for a setting the game only reads at that point. Chat says so when it changes, and "Now in effect: ..." when it does. For `restart`, the admin is asked "Restart the match now?" once they close the menu, unless the match restarted in the meantime, so several settings can be changed first. A player vote on it asks "... and restart the match?" and restarts when it passes.
 
+**Settings that leave sv_cheats on.** A setting whose enable cfg ends with `sv_cheats 1` (for a practice or fun setting) gets a confirmation before an admin turns it on, because every player can then use cheat commands like noclip and god mode, and it's kept out of player votes. GameModeManager finds these by reading the cfg; no header is needed. A cfg doesn't need `sv_cheats 1` ... `sv_cheats 0` around ConVars that aren't cheats (most aren't), and a cheat ConVar set that way doesn't stay on: CS2 resets it when `sv_cheats` goes back off.
+
 **Settings with a choice of values.** For a setting like round time, make one cfg per value, without the `enable_`/`disable_` prefix, and give each the same `setting:` name and its own `value:`:
 
 ```
