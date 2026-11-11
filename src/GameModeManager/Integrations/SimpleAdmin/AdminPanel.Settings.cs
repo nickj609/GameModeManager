@@ -97,9 +97,8 @@ namespace GameModeManager.Integrations.SimpleAdmin
             return menu;
         }
 
-        // "Restart the match now?" in the panel, for settings changed here that need a restart. False when the panel isn't there.
-        // A yes/no question in the panel, about a setting changed here: "Restart the match now?", "Turn on sv_cheats?". The
-        // labels come already in the admin's language. False when the panel isn't there.
+        // A yes/no question in the panel, about a setting changed here: "Start money needs a match restart", "Turn on
+        // sv_cheats?". The labels come already in the admin's language. False when the panel isn't there.
         private bool OpenQuestionPage(CCSPlayerController player, string title, string yes, string no, Action onYes, Action onNo)
         {
             if (_api == null)
