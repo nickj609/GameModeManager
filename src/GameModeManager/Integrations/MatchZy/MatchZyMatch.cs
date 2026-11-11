@@ -27,6 +27,27 @@ namespace GameModeManager.Integrations.MatchZy
         public static bool Playout => Field("isPlayOutEnabled");
         public static bool Whitelist => Field("isWhitelistRequired");
 
+        public static bool Paused => Field("isPaused");
+        public static bool ReadyUp => Field("readyAvailable"); // Before the match, while players ready up
+
+        // Whether MatchZy has this player as ready (its playerReadyStatus, by user id). False when it can't be read.
+        public static bool IsReady(CCSPlayerController player)
+        {
+            IPlugin? plugin = LoadedPlugins.Find(LoadedPlugins.MatchZy);
+            if (plugin == null || player.UserId is not int userId)
+                return false;
+            try
+            {
+                const BindingFlags Any = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+                if (plugin.GetType().GetField("playerReadyStatus", Any)?.GetValue(plugin) is System.Collections.IDictionary ready && ready.Contains(userId))
+                    return ready[userId] is true;
+            }
+            catch (Exception)
+            {
+            }
+            return false;
+        }
+
         // A command for the match, from the server console, which MatchZy takes as an admin's
         public static void Run(string command) => Server.ExecuteCommand(command);
 

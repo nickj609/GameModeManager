@@ -169,6 +169,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
                 "settings" => SettingsMenu,
                 "warmup" => WarmupMenu,
                 "actions" => p => ActionsMenu(p, null),
+                "matchzy" => MatchZyMenu,
                 _ => null
             };
             if (factory == null)

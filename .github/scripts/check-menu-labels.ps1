@@ -25,7 +25,7 @@ $rowCall = '(MenuActions\.Add|AddOption|AddSubMenu|AddMenuOption|AddToggle|AddSe
 $choice = '\(\s*_localizer\.Localize\("([a-z0-9.\-]+)"\)\s*,'
 
 # Row texts the source builds in ways the patterns don't see (a variable, an interpolated key)
-$extra = @("setting.cheats-yes", "setting.cheats-no", "menu.enable", "menu.disable", "matchzy.ready-all")
+$extra = @("setting.cheats-yes", "setting.cheats-no", "menu.enable", "menu.disable", "matchzy.ready-all", "matchzy.pause", "matchzy.unpause")
 
 $keys = @{}
 foreach ($key in $extra) { $keys[$key] = "(listed in this script)" }

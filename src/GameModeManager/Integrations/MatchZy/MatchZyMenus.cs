@@ -3,16 +3,22 @@ using MenuManager;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Utils;
 
 // Declare namespace
 namespace GameModeManager.Integrations.MatchZy
 {
     // Define class
-    // The MatchZy page, while MatchZy is loaded: in the Actions menu (!actions) and in the admin panel's Manage game. It shows
-    // what fits MatchZy's phase: the match controls, or the practice tools in practice. Pauses and round restores are on
-    // the Rounds page. Left out: commands that belong on a key (rethrow, throwindex, timer, last, back), ones that need typed
-    // input (nades, spawn numbers, team names), and ones GameModeManager already has as a setting or action (team collision,
-    // grenade trajectory, kick bots) or that would change the map behind its back (.map).
+    // The MatchZy page, while MatchZy is loaded: !matchzy, and Manage game > MatchZy in the admin panel. It shows what fits
+    // the player and MatchZy's phase:
+    //   - In practice: MatchZy's practice tools, for everyone (they're its player commands). Admins also get Exit practice.
+    //   - Otherwise: the player's own match commands (ready, pause, timeouts, coach), greyed out for a spectator where they
+    //     need a team. Admins also get Match controls (start, restart, end, veto, knife round, ...), which work from anywhere,
+    //     and a greyed-out "Practice mode is off".
+    // Player commands run as that player; match controls from the server console, which MatchZy takes as an admin's. Pauses
+    // and round restores for admins are on the Rounds page. Left out: commands that belong on a key (rethrow, throwindex,
+    // timer, last, back), ones that need typed input (nades, spawn numbers, team names), ones GameModeManager already has as
+    // a setting or action (team collision, grenade trajectory, kick bots), and .map, which would change the map behind its back.
     public class MatchZyMenus : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
@@ -31,19 +37,22 @@ namespace GameModeManager.Integrations.MatchZy
         private static readonly int[] ReadyCounts = { 0, 2, 4, 6, 10 };
 
         // Define class methods
-        public bool Available(CCSPlayerController player)
+        public static bool IsAdmin(CCSPlayerController player)
         {
-            return MatchZyMatch.Loaded && AdminManager.PlayerHasPermissions(player, MatchZyMatch.Permission);
+            return AdminManager.PlayerHasPermissions(player, MatchZyMatch.Permission);
         }
 
-        // The rows for MatchZy's phase now. Texts are looked up by whoever draws them, in the player's language.
-        public List<Row> Rows()
+        // The rows for this player and MatchZy's phase now. Texts are looked up by whoever draws them, in the player's language.
+        public List<Row> Rows(CCSPlayerController player)
         {
+            bool admin = IsAdmin(player);
             if (MatchZyMatch.Practice)
             {
-                return new()
+                List<Row> practice = new();
+                if (admin)
+                    practice.Add(new("matchzy.exit-practice", p => MatchZyMatch.Run("css_exitprac")));
+                practice.AddRange(new Row[]
                 {
-                    new("matchzy.exit-practice", p => MatchZyMatch.Run("css_exitprac")),
                     new("matchzy.bot", p => MatchZyMatch.RunAs(p, "css_bot")),
                     new("matchzy.crouch-bot", p => MatchZyMatch.RunAs(p, "css_crouchbot")),
                     new("matchzy.clear", p => MatchZyMatch.RunAs(p, "css_clear")),
@@ -55,9 +64,41 @@ namespace GameModeManager.Integrations.MatchZy
                     new("matchzy.noflash", p => MatchZyMatch.RunAs(p, "css_noflash")),
                     new("matchzy.god", p => MatchZyMatch.RunAs(p, "css_god")),
                     new("matchzy.dry-run", p => MatchZyMatch.RunAs(p, "css_dryrun"))
-                };
+                });
+                return practice;
             }
 
+            // The player's own commands. Ready, pauses and timeouts belong to a team, so a spectator gets them greyed out.
+            bool onTeam = player.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist;
+            bool live = MatchZyMatch.Live;
+            bool paused = MatchZyMatch.Paused;
+            List<Row> rows = new();
+            if (MatchZyMatch.ReadyUp)
+            {
+                bool ready = MatchZyMatch.IsReady(player);
+                rows.Add(new("matchzy.ready-me", p => MatchZyMatch.RunAs(p, ready ? "css_unready" : "css_ready"), ready, !onTeam));
+            }
+            if (live)
+            {
+                rows.Add(new(paused ? "matchzy.unpause" : "matchzy.pause", p => MatchZyMatch.RunAs(p, paused ? "css_unpause" : "css_pause"), Disabled: !onTeam));
+                rows.Add(new("matchzy.tech", p => MatchZyMatch.RunAs(p, "css_tech"), Disabled: !onTeam || paused));
+                rows.Add(new("matchzy.tactical", p => MatchZyMatch.RunAs(p, "css_tac"), Disabled: !onTeam || paused));
+            }
+            rows.Add(new("matchzy.coach-t", p => MatchZyMatch.RunAs(p, "css_coach t")));
+            rows.Add(new("matchzy.coach-ct", p => MatchZyMatch.RunAs(p, "css_coach ct")));
+            rows.Add(new("matchzy.uncoach", p => MatchZyMatch.RunAs(p, "css_uncoach")));
+
+            if (admin)
+            {
+                rows.Add(new("matchzy.controls", null, Page: MatchControls()));
+                rows.Add(new("matchzy.practice-off", null, Disabled: true));
+            }
+            return rows;
+        }
+
+        // Admins only: the match itself
+        private static List<Row> MatchControls()
+        {
             bool live = MatchZyMatch.Live;
             List<Row> rows = new()
             {
@@ -68,7 +109,7 @@ namespace GameModeManager.Integrations.MatchZy
             if (MatchZyMatch.Veto)
                 rows.Add(new("matchzy.skip-veto", p => MatchZyMatch.Run("css_skipveto")));
 
-            // Toggles MatchZy reads when the match goes live, so they're greyed out once it has
+            // Toggles MatchZy reads when the match goes live, so the knife round is greyed out once it has
             rows.Add(new("matchzy.knife", p => MatchZyMatch.Run("css_roundknife"), MatchZyMatch.KnifeRound, live));
             rows.Add(new("matchzy.playout", p => MatchZyMatch.Run("css_playout"), MatchZyMatch.Playout));
             rows.Add(new("matchzy.whitelist", p => MatchZyMatch.Run("css_whitelist"), MatchZyMatch.Whitelist));
@@ -84,10 +125,10 @@ namespace GameModeManager.Integrations.MatchZy
         }
 
         // GameModeManager's own menu. A toggle flips in place; any other row closes the menu, since MatchZy answers in chat.
-        public void Open(CCSPlayerController player, Action<CCSPlayerController>? back)
+        public void Open(CCSPlayerController player)
         {
             using var _culture = MenuLanguages.For(player);
-            OpenPage(player, _localizer.Localize("matchzy.title"), Rows(), back);
+            OpenPage(player, _localizer.Localize("matchzy.title"), Rows(player), null);
         }
 
         private void OpenPage(CCSPlayerController player, string title, List<Row> rows, Action<CCSPlayerController>? back)
@@ -101,7 +142,7 @@ namespace GameModeManager.Integrations.MatchZy
             {
                 string text = TextOf(row);
                 if (row.Page is List<Row> page)
-                    menu.AddMenuOption(text, (p, option) => OpenPage(p, text, page, q => Open(q, back)), row.Disabled);
+                    menu.AddMenuOption(text, (p, option) => OpenPage(p, text, page, Open), row.Disabled);
                 else if (row.On is bool on)
                     MenuFactory.Api!.AddToggle(menu, text, on, (p, option) => row.Run?.Invoke(p), row.Disabled);
                 else
@@ -109,7 +150,7 @@ namespace GameModeManager.Integrations.MatchZy
                     {
                         MenuFactory.Api?.CloseMenu(p);
                         row.Run?.Invoke(p);
-                    }, row.Disabled);
+                    }, row.Disabled || row.Run == null);
             }
             menu.Open(player);
         }

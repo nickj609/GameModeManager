@@ -31,7 +31,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
         private object MatchZyMenu(CCSPlayerController player)
         {
             object menu = NewMenu(_localizer.Localize("matchzy.title"), player);
-            AddMatchZyRows(menu, _matchZyMenus.Rows());
+            AddMatchZyRows(menu, _matchZyMenus.Rows(player));
             return menu;
         }
 
@@ -66,7 +66,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
                     }, row.Disabled);
                 }
                 else
-                    AddOption(menu, text, p => Act(p, $"matchzy {row.Key} {row.Text}".Trim(), () => row.Run?.Invoke(p)), row.Disabled);
+                    AddOption(menu, text, p => Act(p, $"matchzy {row.Key} {row.Text}".Trim(), () => row.Run?.Invoke(p)), row.Disabled || row.Run == null);
             }
         }
     }

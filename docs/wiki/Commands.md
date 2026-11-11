@@ -36,6 +36,7 @@ The commands below can be run by the server, such as within your mode configurat
 | !settings                                 | Displays an admin menu of custom game settings, each shown as on or off: pick one to turn it the other way, or start a vote on that.                              |
 | !mode <mode name> [map]                   | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**. Add a map from that mode's list to start on it, like **!mode surf surf_beginner**. |
 | !warmup                                   | Displays an admin menu to start, schedule or end warmup.                                                               |
+| !matchzy                                  | While MatchZy is loaded: its practice tools in practice, else your match commands (ready, pause, timeouts, coach), plus Match controls for admins with `@css/config`. |
 | !timelimit <true\|false> <seconds>        | Sets the time limit for the current map.                                                                               |
 | !setting <enable\
 | !setting set <setting name> <value> | Sets a value setting, like **!setting set "Round time" "5 minutes"**. See the FAQ, "How do I add custom settings?" ||disable> <setting name> | Enables or disables a custom game setting. For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**. |
