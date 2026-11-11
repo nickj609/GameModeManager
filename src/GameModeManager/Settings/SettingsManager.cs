@@ -62,14 +62,14 @@ namespace GameModeManager.Settings
                 Match prefix = Prefix.Match(Path.GetFileNameWithoutExtension(file));
                 if (prefix.Success)
                     AddOnOff(fileName, Path.GetFileNameWithoutExtension(file)[prefix.Length..], prefix.Value.StartsWith("enable", StringComparison.OrdinalIgnoreCase));
-                else if (CfgHeader.Read(file) is { Setting: string settingName } header)
+                else if (ConfigMetadata.Read(file) is { Setting: string settingName } header)
                     AddValue(fileName, settingName, header);
             }
 
             // The header of the enable file, or of the disable file when there's no enable file
             foreach (Setting setting in _pluginState.Game.Settings.Values.OfType<Setting>())
             {
-                CfgHeader header = CfgHeader.Read(Path.Combine(folder, setting.Enable != "" ? setting.Enable : setting.Disable));
+                ConfigMetadata header = ConfigMetadata.Read(Path.Combine(folder, setting.Enable != "" ? setting.Enable : setting.Disable));
                 if (header.Name != null)
                     setting.DisplayName = header.Name;
                 setting.Permission = header.Permission ?? "";
@@ -100,7 +100,7 @@ namespace GameModeManager.Settings
                 setting.Disable = fileName;
         }
 
-        private void AddValue(string fileName, string settingName, CfgHeader header)
+        private void AddValue(string fileName, string settingName, ConfigMetadata header)
         {
             if (!_pluginState.Game.ValueSettings.TryGetValue(settingName, out ValueSetting? setting))
             {

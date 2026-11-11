@@ -77,7 +77,7 @@ namespace GameModeManager.Actions
 
         private void Add(string file, string group, string root)
         {
-            CfgHeader header = CfgHeader.Read(file);
+            ConfigMetadata header = ConfigMetadata.Read(file);
             string relative = Path.GetRelativePath(root, file).Replace('\\', '/');
             string name = header.Name ?? TitleCase(Path.GetFileNameWithoutExtension(file));
             _pluginState.Game.Actions.Add(new GameAction(relative, name, header.Group ?? group, header.Permission ?? "", header.Vote ?? false));

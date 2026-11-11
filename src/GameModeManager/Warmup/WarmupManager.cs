@@ -102,7 +102,7 @@ namespace GameModeManager.Warmup
                 if (listed.Contains(config))
                     continue;
 
-                string name = CfgHeader.Read(file).Name ?? System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Path.GetFileNameWithoutExtension(file).Replace("_", " "));
+                string name = ConfigMetadata.Read(file).Name ?? System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Path.GetFileNameWithoutExtension(file).Replace("_", " "));
                 if (_pluginState.Game.WarmupModes.TryAdd(name, new Mode(name, config, new HashSet<IMapGroup>())))
                     _logger.LogInformation("Warmup mode {Name} from {Config}", name, config);
             }

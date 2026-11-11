@@ -10,7 +10,7 @@ namespace GameModeManager.Configuration
     //   // permission: @css/generic
     //   // vote: true
     // Only comment lines before the file's first command are read. Keys are case-insensitive; unknown ones are ignored.
-    public class CfgHeader
+    public class ConfigMetadata
     {
         // Define class properties
         private static readonly Regex Line = new(@"^\s*//\s*([A-Za-z]+)\s*:\s*(.*?)\s*$", RegexOptions.Compiled);
@@ -25,9 +25,9 @@ namespace GameModeManager.Configuration
         public bool? Vote => Get("vote") is string vote ? !vote.Equals("false", StringComparison.OrdinalIgnoreCase) && vote != "0" : null;
 
         // Define class methods
-        public static CfgHeader Read(string path)
+        public static ConfigMetadata Read(string path)
         {
-            CfgHeader header = new();
+            ConfigMetadata header = new();
             if (!File.Exists(path))
                 return header;
 
