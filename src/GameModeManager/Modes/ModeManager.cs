@@ -12,12 +12,14 @@ namespace GameModeManager.Modes
     {
         // Define class dependencies
         private PluginState _pluginState;
+        private MapGroupManager _mapGroupManager;
         private ILogger<ModeManager> _logger;
         private Config _config = new Config();
 
         // Define class constructor
-        public ModeManager(PluginState pluginState, ILogger<ModeManager> logger)
+        public ModeManager(PluginState pluginState, MapGroupManager mapGroupManager, ILogger<ModeManager> logger)
         {
+            _mapGroupManager = mapGroupManager;
             _logger = logger;
             _pluginState = pluginState;
         }
@@ -42,6 +44,9 @@ namespace GameModeManager.Modes
 
         public void OnLoad(Plugin plugin)
         {
+            // The modes are built from the map groups: load them now if MapGroupManager hasn't yet
+            _mapGroupManager.Load();
+
             foreach (ModeEntry _mode in _config.GameModes.List)
             {
                 HashSet<IMapGroup> mapGroups = new HashSet<IMapGroup>();

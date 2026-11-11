@@ -30,8 +30,21 @@ namespace GameModeManager.Maps
         }
         
         // Define on load behavior
+        // ModeManager needs the map groups first, so it calls Load itself: the result doesn't depend on which service loads first
         public void OnLoad(Plugin plugin)
         {
+            Load();
+        }
+
+        // Define class methods
+        private bool _loaded;
+
+        public void Load()
+        {
+            if (_loaded)
+                return;
+            _loaded = true;
+
             // Read file content
             string fileContent = string.Empty;
             try
