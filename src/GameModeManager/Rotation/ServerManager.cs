@@ -59,20 +59,33 @@ namespace GameModeManager.Rotation
             _holdTimer = null;
             _holdTimedOut = false;
             _pluginState.Game.CountdownRunning = false;
+            _countdownShown = false;
 
-            // GG1MapChooser counts down 5 seconds before its command: hold players from when it decides
+            // GG1MapChooser counts down 5 seconds before its command: hold players from when it decides, and show the countdown
             new Timer(0.5f, () =>
             {
                 if (!_holdTimedOut && _mapChooser.MapChanging() == true)
+                {
                     HoldPlayers();
+                    ShowCountdown();
+                }
             }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         // Define command handlers
         private HookResult OnMapChangeCommand(CCSPlayerController? player, CommandInfo command)
         {
+            // The server's first map command comes before the game is ready, with nobody to hold
             if (player == null)
-                HoldPlayers();
+            {
+                try
+                {
+                    HoldPlayers();
+                }
+                catch (NativeException)
+                {
+                }
+            }
 
             return HookResult.Continue;
         }
@@ -166,9 +179,16 @@ namespace GameModeManager.Rotation
 
             HoldPlayers();
 
+            // No delay: GG1MapChooser has already counted down its own 5 seconds (ShowCountdown), so change now
+            if (delay <= 0)
+            {
+                change();
+                return;
+            }
+
             // Display Countdown
             _pluginState.Game.CountdownRunning = true;
-            CountdownTimer timer = new CountdownTimer(delay, () =>
+            new CountdownTimer(delay, () =>
             {
                 // Change map
                 change();
@@ -176,12 +196,26 @@ namespace GameModeManager.Rotation
                 // Disable countdown flag
                 _pluginState.Game.CountdownRunning = false;
 
-            }, (player, seconds) =>
-            {
-                using (MenuLanguages.For(player))
-                    return _localizer.Localize("map.changing-in", seconds);
-            });
+            }, CountdownText);
         }
+
+        private string CountdownText(CCSPlayerController player, int seconds)
+        {
+            using (MenuLanguages.For(player))
+                return _localizer.Localize("map.changing-in", seconds);
+        }
+
+        // The countdown on screen for a map change GG1MapChooser makes: it waits 5 seconds (its ChangeMapInFive) before its
+        // command, and shows nothing itself. Only the text: the change is GG1's, so nothing runs at the end.
+        private const int MapChooserDelay = 5;
+        private void ShowCountdown()
+        {
+            if (_countdownShown)
+                return;
+            _countdownShown = true;
+            new CountdownTimer(MapChooserDelay, () => { }, CountdownText);
+        }
+        private bool _countdownShown;
 
         public void ChangeMode(IMode mode)
         {
