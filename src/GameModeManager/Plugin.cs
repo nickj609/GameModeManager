@@ -1,10 +1,7 @@
 ﻿// Included libraries
-using GameModeManager.Core;
 using GameModeManager.Shared;
-using GameModeManager.Services;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
-using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Core.Capabilities;
 using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
@@ -28,7 +25,7 @@ namespace GameModeManager
     {
         // Define plugin properties
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "2.3.1";
+        public override string ModuleVersion => "2.4.0";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         

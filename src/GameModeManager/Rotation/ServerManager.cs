@@ -1,0 +1,349 @@
+// Included libraries
+using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
+using Microsoft.Extensions.Logging;
+using GameModeManager.Shared.Models;
+using CounterStrikeSharp.API.Modules.Commands;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
+using TimerFlags = CounterStrikeSharp.API.Modules.Timers.TimerFlags;
+using CountdownTimer = GameModeManager.Common.CountdownTimer;
+
+// Declare namespace
+namespace GameModeManager.Rotation
+{
+    // Define class
+    public class ServerManager : IPluginDependency<Plugin, Config>
+    {
+        // Define class dependencies
+        private PluginState _pluginState;
+        private StringLocalizer _localizer;
+        private Config _config = new Config();
+        private ILogger<ServerManager> _logger;
+        private MapChooserBridge _mapChooser;
+        private GameModeEvents _events;
+
+        // Define class constructor
+        public ServerManager(PluginState pluginState, ILogger<ServerManager> logger, StringLocalizer localizer, MapChooserBridge mapChooser, GameModeEvents events)
+        {
+            _logger = logger;
+            _mapChooser = mapChooser;
+            _events = events;
+            _localizer = localizer;
+            _pluginState = pluginState;
+        }
+
+        // Define class properties
+        private Timer? _holdTimer;
+        private float _holdStarted;
+        private bool _holdTimedOut;
+        private const float HoldLimit = 180f; // Longest a map change holds players: host_workshop_map keeps the old map running while it downloads
+        private bool MapChanging => _holdTimer != null || _pluginState.Game.CountdownRunning;
+
+        // Load config
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
+        // Define on load behavior
+        // Every map change ends in one of these commands, whoever started it, so they start the hold too
+        public void OnLoad(Plugin plugin)
+        {
+            foreach (string command in new[] { "map", "changelevel", "host_workshop_map", "ds_workshop_changelevel" })
+                plugin.AddCommandListener(command, OnMapChangeCommand, HookMode.Pre);
+        }
+
+        // Define on map start behavior
+        public void OnMapStart(string map)
+        {
+            _holdTimer = null;
+            _holdTimedOut = false;
+            _pluginState.Game.CountdownRunning = false;
+            _countdownShown = false;
+
+            // GG1MapChooser counts down 5 seconds before its command: hold players from when it decides, and show the countdown
+            new Timer(0.5f, () =>
+            {
+                if (!_holdTimedOut && _mapChooser.MapChanging() == true)
+                {
+                    HoldPlayers();
+                    ShowCountdown();
+                }
+            }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+        }
+
+        // Define command handlers
+        private HookResult OnMapChangeCommand(CCSPlayerController? player, CommandInfo command)
+        {
+            // The server's first map command comes before the game is ready, with nobody to hold
+            if (player == null)
+            {
+                try
+                {
+                    HoldPlayers();
+                }
+                catch (NativeException)
+                {
+                }
+            }
+
+            return HookResult.Continue;
+        }
+
+        // Define class methods
+        // The one place players get frozen for a map change. They stay frozen until the map ends: a new round, a respawn
+        // or a closing menu would otherwise free them while a workshop map downloads.
+        public void HoldPlayers()
+        {
+            if (_holdTimer != null)
+                return;
+
+            // Warmup ends with the map. Its cfg unloaded the mode's plugins, so put the mode back for the next map.
+            if (_pluginState.Game.WarmupRunning)
+            {
+                _pluginState.Game.WarmupRunning = false;
+                Server.ExecuteCommand($"exec {_pluginState.Game.CurrentMode.Config}");
+            }
+
+            if (_config.Warmup.PerMap)
+            {
+                _pluginState.Game.WarmupScheduled = false;
+                ResetWarmupOptions(); // The next map's cfg sets its own
+            }
+
+            Server.ExecuteCommand("bot_kick");
+            PlayerExtensions.FreezePlayers();
+
+            _holdStarted = Server.CurrentTime;
+            _holdTimer = new Timer(0.5f, () =>
+            {
+                if (Server.CurrentTime - _holdStarted < HoldLimit)
+                {
+                    PlayerExtensions.FreezePlayers();
+                    return;
+                }
+
+                _logger.LogError("The map did not change within {Limit} seconds: unfreezing players.", HoldLimit);
+                _holdTimedOut = true;
+                _holdTimer?.Kill();
+                _holdTimer = null;
+                PlayerExtensions.UnfreezePlayers();
+            }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+        }
+
+        public void ChangeMap(IMap nextMap, int delay)
+        {
+            ChangeMap(delay, () => RunMapCommand(nextMap));
+        }
+
+        private void RunMapCommand(IMap nextMap)
+        {
+            _events.RaiseMapChanging(nextMap.Name);
+            if (Server.IsMapValid(nextMap.Name))
+                Server.ExecuteCommand($"changelevel \"{nextMap.Name}\"");
+            else if (nextMap.WorkshopId != -1)
+                Server.ExecuteCommand($"host_workshop_map \"{nextMap.WorkshopId}\"");
+            else
+                Server.ExecuteCommand($"ds_workshop_changelevel \"{nextMap.Name}\"");
+        }
+
+        // A map of the current mode, changed by GG1MapChooser so its recently played list knows about it
+        public void ChangeMapInPool(IMap map)
+        {
+            if (_mapChooser.Available)
+                ChangeMap(_config.Maps.Delay, () =>
+                {
+                    _mapChooser.ChangeToMap(map);
+
+                    // GG1 does nothing if the name doesn't match one map in its list, which would leave players frozen
+                    new Timer(2.0f, () =>
+                    {
+                        if (_mapChooser.MapChanging() == false)
+                        {
+                            _logger.LogWarning("GG1MapChooser didn't change to {Map}: changing to it directly.", map.Name);
+                            RunMapCommand(map);
+                        }
+                    }, TimerFlags.STOP_ON_MAPCHANGE);
+                });
+            else
+                ChangeMap(map, _config.Maps.Delay);
+        }
+
+        private void ChangeMap(int delay, Action change)
+        {
+            if (_pluginState.Game.CountdownRunning)
+            {
+                _logger.LogInformation("A map change is already counting down: this request is ignored.");
+                return;
+            }
+
+            HoldPlayers();
+
+            // No delay: GG1MapChooser has already counted down its own 5 seconds (ShowCountdown), so change now
+            if (delay <= 0)
+            {
+                change();
+                return;
+            }
+
+            // Display Countdown
+            // SharpTimer's HUD would sit under the countdown
+            SharpTimerPlugin.HideHud();
+
+            _pluginState.Game.CountdownRunning = true;
+            new CountdownTimer(delay, () =>
+            {
+                // Change map
+                change();
+
+                // Disable countdown flag
+                _pluginState.Game.CountdownRunning = false;
+
+            }, CountdownText);
+        }
+
+        private string CountdownText(CCSPlayerController player, int seconds)
+        {
+            using (MenuLanguages.For(player))
+                return _localizer.Localize("map.changing-in", seconds);
+        }
+
+        // The countdown on screen for a map change GG1MapChooser makes: it waits 5 seconds (its ChangeMapInFive) before its
+        // command, and shows nothing itself. Only the text: the change is GG1's, so nothing runs at the end.
+        private const int MapChooserDelay = 5;
+        private void ShowCountdown()
+        {
+            if (_countdownShown)
+                return;
+            _countdownShown = true;
+            SharpTimerPlugin.HideHud();
+            new CountdownTimer(MapChooserDelay, () => { }, CountdownText);
+        }
+        private bool _countdownShown;
+
+        public void ChangeMode(IMode mode)
+        {
+            ChangeMode(mode, _config.Maps.Delay);
+        }
+
+        // A map from the mode's own list, picked by !mode <mode> <map>
+        public void ChangeMode(IMode mode, IMap map)
+        {
+            ChangeMode(mode, _config.Maps.Delay, map);
+        }
+
+        public void ChangeMode(IMode mode, int delay, IMap? map = null)
+        {
+            _logger.LogInformation($"Current mode: {_pluginState.Game.CurrentMode.Name}");
+            _logger.LogInformation($"New mode: {mode.Name}");
+
+            ChangeMap(delay, () =>
+            {
+                // The new mode's cfg sets its own warmup waiting and ready-up, else the config's apply
+                ResetWarmupOptions();
+
+                // Execute mode config. Not before the countdown: its settings and restarts would hit the map being left.
+                Server.ExecuteCommand($"exec {mode.Config}");
+
+                // The map asked for, else the default map, else a random map
+                IMap nextMap;
+                if (map != null)
+                    nextMap = map;
+                else if (mode.DefaultMap == null)
+                    nextMap = GetRandomMap(mode);
+                else
+                    nextMap = mode.DefaultMap;
+
+                // The cfg runs first: its game_type and game_mode apply when the next map loads
+                new Timer(0.25f, () => RunMapCommand(nextMap), TimerFlags.STOP_ON_MAPCHANGE);
+            });
+        }
+
+        // GG1MapChooser picks the next map (its vote, else random from the mode's pool); GameModeManager only
+        // decides when, and rotates the mode when it's due
+        public void TriggerRotation()
+        {
+            // Rotation off: GameModeManager leaves the map alone (GG1's own WinDrawSettings can change it instead)
+            if (!_pluginState.Game.RotationsEnabled)
+                return;
+
+            // The win panel, the time limit and the empty server timer can all ask for the same change
+            if (MapChanging)
+                return;
+
+            bool modeDue = _mapChooser.ModeChangeDue();
+            _pluginState.Game.MapRotations++;
+            _pluginState.Game.RotationStarted = true;
+
+            // A rotation has to end up somewhere else: not the current mode, and not a mode with no maps.
+            // ModeVote "vote": GG1's pool is only modes on this map, so its winner (or random pick) is the new mode.
+            List<IMode> modes = _mapChooser.RotationModes();
+            if (!modeDue || modes.Count == 0 || _mapChooser.ModesOnly)
+            {
+                ChangeMap(_config.Maps.Delay, ChangeToNextMap);
+                return;
+            }
+
+            IMode nextMode = _mapChooser.PickRandom(modes)!; // For this many players, and not played recently, when it can
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("rotation.change-mode", nextMode.Name));
+            ChangeMode(nextMode);
+        }
+
+        private void ChangeToNextMap()
+        {
+            // GG1 skips the change while its vote runs, which would leave the server sitting on the win panel
+            if (_mapChooser.VoteInProgress())
+            {
+                new Timer(1.0f, ChangeToNextMap, TimerFlags.STOP_ON_MAPCHANGE);
+                return;
+            }
+
+            _mapChooser.ChangeToNextMap();
+
+            // GG1 does nothing when it has no map to give (all played recently, invalid mapcycle), or isn't installed
+            new Timer(2.0f, () =>
+            {
+                if (_mapChooser.Available && _mapChooser.MapChanging() != false)
+                    return;
+
+                // A modes-only pool means the mode is changing: a random one of the rotation's modes
+                List<IMode> modes = _mapChooser.RotationModes();
+                if (_mapChooser.ModesOnly && modes.Count > 0)
+                {
+                    IMode nextMode = _mapChooser.PickRandom(modes)!;
+                    _logger.LogWarning("GG1MapChooser has no next mode: changing to {Mode}.", nextMode.Name);
+                    ChangeMode(nextMode, 0);
+                    return;
+                }
+
+                IMap nextMap = GetRandomMap(_pluginState.Game.CurrentMode);
+                _logger.LogWarning("GG1MapChooser has no next map: changing to {Map}.", nextMap.Name);
+                RunMapCommand(nextMap);
+            }, TimerFlags.STOP_ON_MAPCHANGE);
+        }
+
+        public void TriggerScheduleChange(ScheduleEntry state)
+        {
+            if (_pluginState.Game.Modes.TryGetValue(state.Mode, out IMode? _mode) && !_pluginState.Game.CurrentMode.Equals(_mode))
+                ChangeMode(_mode);
+        }
+
+        // Warmup.MinPlayers, Ready and ReadyPercent from the config, before a mode or map cfg sets its own
+        public void ResetWarmupOptions()
+        {
+            _pluginState.Game.WarmupMinPlayers = _config.Warmup.MinPlayers;
+            _pluginState.Game.WarmupReady = _config.Warmup.Ready;
+            _pluginState.Game.WarmupReadyPercent = _config.Warmup.ReadyPercent;
+        }
+
+        public IMap GetRandomMap(IMode mode)
+        {
+            if (mode.Maps.Count == 0)
+            {
+                _logger.LogError($"Mode '{mode.Name}' has no maps; staying on the current map.");
+                return _pluginState.Game.CurrentMap;
+            }
+            return mode.Maps.ElementAt(new Random().Next(0, mode.Maps.Count));
+        }
+    }
+}

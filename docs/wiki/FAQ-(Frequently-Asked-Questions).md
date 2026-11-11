@@ -4,6 +4,105 @@
 
 To add custom settings, create two configuration files with the `enable_` and `disable_ prefix` (i.e. **enable_autobhop.cfg**, **disable_autobhop.cfg**). Then, put those files in the `/csgo/cfg/settings/` folder. This is the default settings folder. You can change this folder in the configuration settings.
 
+The menus show each setting as on or off. GameModeManager works that out from what the two files set, compared with the server right now:
+
+- **ConVars** like `sv_autobunnyhopping 1`. A ConVar both files set to the same value doesn't count.
+- **Plugins** loaded or unloaded with `css_plugins load "plugins/disabled/RollTheDice/RollTheDice.dll"` or `css_plugins unload "Roll The Dice"`.
+- Lines inside `exec other.cfg` and `exec_after_delay <seconds> <command>` count too.
+
+Lines it can't check, like `say` and `echo`, are skipped. When neither file matches fully (a disable cfg often also runs shared cfgs the current mode sets its own way), the closer match wins, and a tie shows as off. Only a setting whose files set nothing it can check shows Enable and Disable instead. `css_gmm_status` lists those.
+
+
+**Optional header.** Comment lines at the top of a setting's enable file (or its disable file when there's no enable file) can change how it shows. The game skips comments, so the file still works as a normal cfg:
+
+```
+// name: Bunny hop
+// permission: @css/root
+// vote: false
+sv_autobunnyhopping 1
+```
+
+- `name`: the name in menus, instead of one made from the file name.
+- `permission`: the flag needed to change it (default `@css/cvar`, like `!settings`).
+- `vote: false`: players can't vote on it. Admins can still change it.
+- `group: Match`: puts it on a page of its own in the settings menus, with the other settings of that group. Settings without a group are on the first page.
+- `conflicts: MatchZy`: hidden from the menus while that plugin is loaded (several, separated by commas), for a setting or action the plugin does its own way. Works in action cfgs too. The bundled cfgs use it for MatchZy: Swap teams and Scramble teams (MatchZy keeps track of which team is on which side); Add bot CT, Add bot T, Bots, Bot count and Bot difficulty (MatchZy kicks bots it didn't place, and they can't ready up; practice has its own Add bot here); and Team balance, Halftime side swap, Overtime, Free for all and Respawn (match rules MatchZy's live.cfg sets when the match goes live). Kick bots stays. The server also has it on Damage report (MatchZy prints its own) and One round.
+- `requires: CS2-SimpleAdmin_FunCommands`: the opposite, hidden unless that plugin (its name or its file name) is loaded; several are separated by commas.
+- **Changes last through a warmup.** Ending a GameModeManager warmup runs `server.cfg` and the mode's cfg again, so the settings changed on this map are run again after them (Kus's `bots.cfg` would otherwise put `bot_difficulty` back, for one). A new map starts from the mode's cfgs.
+- `applies: next round`, `applies: restart` or `applies: map change`: for a setting the game only reads at that point. Chat says so when it changes, and "Now in effect: ..." when it does. Once the admin closes the menu, so several settings can be changed first, they're asked whether to apply the changes now, unless they already took effect in the meantime. For `restart`: "Changes need a match restart", with Restart now or Restart later. For `next round`: "Changes apply next round", with Replay round (when this round has a backup and the admin may use round backups; it puts money, kills and the timer back to the round's start), End round (ends it as a draw: nobody scores, players keep what they have, and it counts as a round played; not offered in warmup, on the last round, or in one-round modes like surf where it would end the map), Restart match, and Next round. With both kinds changed, only the restart question is asked: a restart covers both. A player vote on it asks "... and restart the match?" and restarts when it passes.
+
+**Settings that leave sv_cheats on.** A setting whose enable cfg ends with `sv_cheats 1` (for a practice or fun setting) gets a confirmation before an admin turns it on, because every player can then use cheat commands like noclip and god mode, and it's kept out of player votes. GameModeManager finds these by reading the cfg; no header is needed. A cfg doesn't need `sv_cheats 1` ... `sv_cheats 0` around ConVars that aren't cheats (most aren't), and a cheat ConVar set that way doesn't stay on: CS2 resets it when `sv_cheats` goes back off.
+
+**Settings with a choice of values.** For a setting like round time, make one cfg per value, without the `enable_`/`disable_` prefix, and give each the same `setting:` name and its own `value:`:
+
+```
+// setting: Round time
+// value: 5 minutes
+mp_roundtime 5
+```
+
+Files that share a `setting:` name are one row with a dropdown of their values, in file name order, so name them to sort the way you want them listed (`roundtime_02.cfg`, `roundtime_05.cfg`, `roundtime_10.cfg`). The current value is the file the server matches best. When none matches (Kus's Start money is 800, between the files' values), the row shows the live value of the ConVar every file sets, so it's never blank. Any of the files can have `permission:` or `vote: false`. A setting needs at least two values. Set one from chat with `!setting set "Round time" "5 minutes"`.
+
+Files in the settings folder without a prefix or a `setting:` header are helpers that other cfgs run, and aren't shown. So is a `disable_` file with no `enable_` file next to it (like Kus's `disable_map_voting.cfg`): there would be nothing to turn back on.
+
+**Settings that come with GameModeManager.** The release has these in `cfg/settings/`, each with a header. A server keeps its own files, so updating only adds the ones it doesn't have:
+
+- **Match:** Friendly fire, Overtime, Halftime side swap, Team balance, Respawn, Kick idle players, and the values Round time, Max rounds and Freeze time
+- **Economy:** Free armor, Buy anywhere, Buying, and the values Buy time, Start money and Max money
+- **Players:** Alltalk, Drop weapons, Knife drop, Team collision, Free for all, Spectate enemies, and the value Gravity
+- **Movement:** Auto bunny hop, Movement unlock
+- **Bots:** Bots, and the values Bot difficulty and Bot count
+- **Practice:** Grenade trajectory, and these, which leave `sv_cheats` on (an admin confirms first, and players can't vote on them): Cheats (`sv_cheats` itself: turning it off ends every cheat at once), Infinite ammo, Bullet impacts, Bots stand still, Bots don't shoot, Bots ignore players
+
+**Leaving a cfg out.** `Settings.Hidden` in `GameModeManager.json` lists settings to leave out, by their name or their file name without `enable_`/`disable_`: `"Hidden": [ "surf", "course" ]`. For cfgs in the settings folder that are really modes, like Kus's `enable_surf.cfg`.
+</details>
+
+<details>
+<summary>How do I add actions?</summary>
+<br>
+
+Actions are cfgs that run once and leave nothing to turn off, like adding a bot or swapping teams. Put them in `/csgo/cfg/actions/` (`Actions.Folder` in the config). Each file is a row in `!actions` and in the admin panel's Actions page, and each subfolder is a group with its own page:
+
+```
+cfg/actions/swap_teams.cfg
+cfg/actions/bots/add_ct.cfg
+cfg/actions/bots/add_t.cfg
+cfg/actions/bots/kick_all.cfg
+```
+
+The same optional header works here:
+
+```
+// name: Add bot CT
+// permission: @css/generic
+bot_add_ct
+```
+
+- `name`: the row's name, instead of one made from the file name.
+- `permission`: the flag needed to run it (default `@css/cvar`).
+- `vote: true`: players without that flag can start a vote on it, like "Run Swap Teams?".
+- `group: Bots`: puts it on a page of its own in `!actions`, with the other actions of that group. A subfolder works too: `actions/bots/add_ct.cfg` is in the Bots group unless its header says otherwise.
+
+**Actions that come with GameModeManager**, in `cfg/actions/`: Swap teams and Scramble teams (Teams); Add bot CT, Add bot T, Kick CT bots, Kick T bots and Kick all bots (Bots). Restarting a round or the game is in CS2-SimpleAdmin's Server Manage menu, so it isn't repeated here.
+
+The page stays open after an action runs, so you can run it several times in a row. Players only see the actions they can run or vote on.
+
+The Actions pages also have a built-in Rounds page, for admins with `@css/generic` (`Actions.RoundsPermission`):
+
+- **Pause match**: one row that shows the match's state. CS2 only stops a match in freeze time, so mid-round it says "Cancel pending pause" until the next round, then "Unpause match". It reads the game's state, so a pause from the console, a round restore or another plugin shows too. It's greyed out during a timeout.
+- **CT timeout** and **T timeout**, greyed out while a pause or a timeout is running or waiting, so they can't be stacked.
+- **Freeze players** (ON/OFF): everyone alive stands still, players who respawn too, and the round clock holds while they are. It isn't a match pause: the bomb timer, smokes, molotovs and grenades in the air keep going, which is why CS2 and MatchZy only pause in freeze time. For casual games and admin moments; a new round ends it.
+- **Replay this round**, **Replay last round** and **Go back to round** (this map's rounds). They use the game's round backups, so the match goes back to the start of that round with its scores and everyone's money, and the game pauses it until an admin unpauses.
+
+Turn the page off with `Actions.Rounds: false`.
+
+**With SharpTimer.** Kus's surf, bhop, kz and course modes load SharpTimer, which has a `!mode` of its own for its movement modes. While it's loaded, an admin's `!mode` with one of GameModeManager's modes (like `!mode competitive`) changes the mode and never reaches SharpTimer; any other word goes to SharpTimer, and GameModeManager says nothing. The map change countdown also turns SharpTimer's HUD off (its `sharptimer_enable_*_hud` ConVars), so the two don't overlap; SharpTimer runs its config again on the next map.
+
+**With MatchZy.** Kus's competitive and practice modes load MatchZy, which has its own pauses (both teams unpause), timeouts, ready-up and warmup. While it's loaded, GameModeManager leaves ready-up and warmup to it: `!ready` and `!unready` are MatchZy's, the scheduled warmup doesn't start, the warmup timer isn't touched, and `mp_warmup_end` isn't held back. Admins' `!warmup`, `!startwarmup` and `!endwarmup` say MatchZy runs warmup in this mode and point to `!matchzy` (its Match controls start the match), and the admin panel's Warmup entry is hidden until MatchZy is unloaded. While a MatchZy match is live, the Rounds page uses MatchZy's own commands, which it takes from the server console as an admin's: **Pause match** and **Unpause match** run `css_forcepause` and `css_forceunpause`, the replay rows run `css_restore` (MatchZy then pauses the match, and `.unpause` works), and the timeout rows become one greyed-out "Timeouts with .tac" row, since MatchZy's timeouts belong to a player's team. Outside a live match (practice, or waiting for ready-up) the Rounds page works as without MatchZy.
+
+While MatchZy is loaded, `!matchzy` opens a MatchZy page for everyone (for admins with `@css/config`, MatchZy's own flag, the admin panel's Manage game > MatchZy when `AdminPanel.CommandMenus` is "admin"; that entry comes and goes as modes load and unload MatchZy). It has three sections. **Match**, the player's own commands (greyed out in practice): Ready (ON/OFF, during ready-up), Pause or Unpause, Tech pause and Tactical timeout (once the match is live), Coach T, Coach CT and Stop coaching; ready, pauses and timeouts belong to a team, so they're greyed out for a spectator. **Practice tools**, MatchZy's practice commands for everyone (greyed out outside practice): Add bot here, Add crouched bot, Clear smokes, Break glass, Fast forward, Show and Hide spawns, Bullet impacts, No flash and Dry run (not God mode: CS2-SimpleAdmin also answers `css_god`, so it's left to SimpleAdmin's Fun Commands, or `.god` in chat); they run as the player, so a bot goes where they stand. And for admins, **Match controls**: Practice mode (or Exit practice), Start match, Restart match, End match, Skip veto (during a veto), Knife round, Play all rounds and Whitelist (ON/OFF, as MatchZy has them) and Players to ready, which work from spectator too. Left out: commands that belong on a key (rethrow, throwindex, timer, last, back), ones that need typed input (nades, spawn numbers, team names), ones GameModeManager already has as a setting or action (team collision, grenade trajectory, kicking bots), and `.map`, which would change the map without GameModeManager knowing. MatchZy's `!settings` lists its match settings in chat; GameModeManager's opens the settings menu for admins and says nothing to other players while MatchZy is loaded.
+
+A setting whose files set no ConVar and load no plugin has no on/off state, so GameModeManager logs a warning for it at startup: if it runs something once, it belongs in the actions folder.
 </details>
 
 <details>

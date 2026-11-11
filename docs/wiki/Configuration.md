@@ -5,7 +5,7 @@
 	
 ```json
 {
-  "Version": 16,
+  "Version": 17,
   "WorkshopAddon": "3831211166",
   "Maps": {
     "Delay": 5,
@@ -43,12 +43,22 @@
   },
   "Settings": {
     "Enabled": true,
-    "Folder": "settings"
+    "Folder": "settings",
+    "Hidden": []
+  },
+  "Actions": {
+    "Enabled": true,
+    "Folder": "actions",
+    "Rounds": true,
+    "RoundsPermission": "@css/generic"
   },
   "Warmup": {
     "Enabled": true,
     "Time": 60,
     "PerMap": false,
+    "MinPlayers": 0,
+    "Ready": false,
+    "ReadyPercent": 100,
     "Default": {
       "Name": "Deathmatch",
       "Config": "warmup/dm.cfg"
@@ -82,6 +92,7 @@
     "ModeInterval": 4,
     "ModeVote": "random",
     "CountSkippedMaps": false,
+    "RecentModes": 2,
     "ModeSchedules": false,
     "Schedule": [
       {
@@ -108,7 +119,9 @@
         "mg_comp"
       ],
       "InVotes": true,
-      "InRotation": true
+      "InRotation": true,
+      "MinPlayers": 0,
+      "MaxPlayers": 0
     },
     "MapGroupFile": "gamemodes_server.txt",
     "List": [
@@ -414,7 +427,7 @@
 # General Settings
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Version             | Config version. GameModeManager won't load a config older than version 12.                                                                |
+| Version             | Config version. GameModeManager won't load a config older than version 12. On load, it adds settings from newer versions with their defaults and sets this to the current version, keeping the previous file as `GameModeManager.json.v<old version>.bak` (the updated file has no comments). Values already set are never changed. |
 | WorkshopAddon       | Workshop IDs (comma separated) of the addons with the menu files, added to MultiAddonManager's list. Empty = you load them yourself.      |
 
 # Map Settings
@@ -484,6 +497,15 @@ Messages to everyone stay in chat.
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Enabled             | Enables custom game settings.                                                                                                             |
 | Folder              | Default settings folder within `/csgo/cfg/`.                                                                                              |
+| Hidden              | Settings left out, by name or by file name without `enable_`/`disable_`, like `[ "surf", "course" ]`: cfgs in the settings folder that are really modes. |
+
+# Action Settings
+| Setting             | Description                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Enabled             | Enables `!actions` and the admin panel's Actions page. Added in config version 17.                                                      |
+| Folder              | Actions folder within `/csgo/cfg/`. Each cfg in it is an action, and each subfolder a group of them. See the FAQ, "How do I add actions?" |
+| Rounds              | Adds a Rounds page to the Actions menus: **Pause match** (one row that shows "Cancel pending pause" while CS2 waits for freeze time, and "Unpause match" once paused, however it was paused; greyed out during a timeout), **CT timeout** and **T timeout** (greyed out while a pause or timeout is running or waiting). During a live MatchZy match, pausing and going back use MatchZy's commands, and the timeouts are one greyed-out "Timeouts with .tac" row (see the FAQ), and **Replay this round**, **Replay last round** and **Go back to round** from the game's round backups (`mp_backup_round_auto 1`). Going back restores the round, both scores and every player's money, and the game pauses the match after. Added in config version 17. |
+| RoundsPermission    | The flag the Rounds page needs. Default `@css/generic`.                                                                                 |
 
 # Command Settings
 | Setting             | Description                                                                                                                               |
@@ -499,8 +521,11 @@ Messages to everyone stay in chat.
 | Enabled             | Enables or disables warmup.                                                                                                               |
 | Time                | Warmup length in seconds. 0 = whatever `mp_warmuptime` is.                                                                                |
 | PerMap              | Enables or disables per map warmup (i.e. map configs).                                                                                    |
-| Default             | Default warmup mode.                                                                                                                      |
-| List                | A customizable list of warmup modes for your server.                                                                                      |
+| MinPlayers          | Warmup waits for this many players on a team. Until then the game's own warmup countdown is paused (`mp_warmup_pausetimer`), and carries on once they're there. `0` = it doesn't wait. A mode or map cfg can set its own with `css_warmup_minplayers <n>`. Added in config version 17. |
+| Ready               | Ready-up: players type `!ready` (and `!unready`), the countdown stays paused, and the warmup ends once `ReadyPercent` of the players on a team are ready. A mode or map cfg can turn it on or off with `css_warmup_ready <true|false> [percent]`. Added in config version 17. |
+| ReadyPercent        | Share of players who must be ready, from 1 to 100. Default 100.                                                                           |
+| Default             | Default warmup mode. `"Random"` picks a different one each time a warmup starts.                                                          |
+| List                | Warmup modes with their names. Every other cfg in `cfg/warmup/` is a warmup mode too, named by its `// name: ...` header (else its file name), so a new warmup only needs its cfg. |
 
 # Rotation Settings
 | Setting             | Description                                                                                                                               |
@@ -512,6 +537,7 @@ Messages to everyone stay in chat.
 | ModeInterval        | Changes game mode every x map rotations. (If ModeRotation is enabled)                                                                     |
 | ModeVote            | What happens on the map that ends with a mode change. `"random"`: no map vote, and a random mode at the end. `"vote"`: every vote on that map (end of map, `!rtv`, `!nominate`) lists only the modes in rotation, and the winner is the next mode (a random one when nobody votes). Players are told when the match starts. Added in config version 16. |
 | CountSkippedMaps    | Maps left early (RTV, an admin's map change) count toward ModeInterval too, so "every 4 maps" means any 4 maps. Off: only maps played to the end count. An early change to another mode on the map that was due counts either way, so the mode doesn't change twice. Added in config version 16. |
+| RecentModes         | Random mode picks (rotation, `!mode random`), the mode put in map votes and mode votes skip the last this many modes played before the current one, when others are left. `0` = only the current one is skipped. Added in config version 17. |
 | ModeSchedules       | Enables mode schedules. Wins over ModeRotation.                                                                                           |
 | Schedule            | Schedule for mode rotations (24-hr format in the server's local time)                                                                                    |
 
@@ -523,6 +549,8 @@ Messages to everyone stay in chat.
 | List                | The modes on your server. Each has a Name, Config, DefaultMap and MapGroups, plus the two settings below.                                 |
 | InVotes             | A mode's setting. `false` keeps it out of votes, `!nominate`, `!changemode` and random picks. Admins can still choose it. Added in 2.1.0. |
 | InRotation          | A mode's setting. `false` keeps it out of mode rotation. Schedules can still use it. Added in 2.1.0.                                      |
+| MinPlayers          | A mode's setting, off by default. Player votes (`!changemode`, map votes with a mode in them) and `!nominate` only offer the mode with at least this many players (bots and spectating HLTV don't count). Player menus show it greyed out with the players it's for. `0` = no limit. Random picks (rotation, `!mode random`) prefer modes that fit, and take any mode when none does. Choosing a mode by name in admin commands and menus, and rotation's mode vote, ignore it. Added in config version 17. |
+| MaxPlayers          | A mode's setting: the same, with at most this many players. `0` = no limit. Added in config version 17. |
 | List                | A customizable list of game modes for your server with friendly names for menus.                                                          |  
 
 > [!CAUTION]

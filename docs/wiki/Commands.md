@@ -11,7 +11,10 @@ The commands below can be run by the server, such as within your mode configurat
 | Command                                       | Description                                                                                              |
 | :-------------------------------------------- | :------------------------------------------------------------------------------------------------------- |
 | css_gamemode <mode>                           | Sets the current mode.                                                                                   |
-| css_warmupmode <mode>                         | Schedules and sets the game mode to be used during the warmup period.                                    |
+| css_warmupmode <mode>                         | Schedules and sets the game mode to be used during the warmup period. `none` turns warmup off for this map or mode, and `random` picks a different warmup each time. Put it in a mode's or map's cfg.                                    |
+| css_warmup_minplayers <n> | For a mode's or map's cfg: warmup waits for this many players (see `Warmup.MinPlayers`). |
+| css_replace_bots | For a setting's cfg: kicks the bots and adds the same number back (`bot_kick` alone sets `bot_quota` to 0), so settings that only apply to new bots, like `bot_difficulty`, apply to all of them. |
+| css_warmup_ready <true|false> [percent] ||false> [percent]` | For a mode's or map's cfg: ready-up in warmup on or off (see `Warmup.Ready`). |
 | css_endwarmup                                 | Ends the custom warmup mode, transitioning to the scheduled or default game mode.                        |
 | css_startwarmup <mode>                        | Immediately starts a custom warmup mode with the specified mode.                                         |
 | css_timelimit <true\|false> <seconds>         | Enables or disables a time limit for the map. Optionally, you can specify the time limit in seconds.     |
@@ -30,11 +33,13 @@ The commands below can be run by the server, such as within your mode configurat
 | :---------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
 | !maps                                     | Displays an admin menu to change to one of the current mode's maps or start a map vote.                                |
 | !modes                                    | Displays an admin menu to change the game mode or start a vote on one.                                                 |
-| !settings                                 | Displays an admin menu to enable or disable custom game settings, or start a vote on one.                              |
+| !settings                                 | Displays an admin menu of custom game settings, each shown as on or off: pick one to turn it the other way, or start a vote on that.                              |
 | !mode <mode name> [map]                   | Changes the game mode to the mode specified. For example, for **mg_surf** you would do **!mode surf**. Add a map from that mode's list to start on it, like **!mode surf surf_beginner**. |
 | !warmup                                   | Displays an admin menu to start, schedule or end warmup.                                                               |
+| !matchzy                                  | While MatchZy is loaded: Match (your ready, pause, timeouts, coach), Practice tools (in practice), and Match controls for admins with `@css/config`. |
 | !timelimit <true\|false> <seconds>        | Sets the time limit for the current map.                                                                               |
-| !setting <enable\|disable> <setting name> | Enables or disables a custom game setting. For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**. |
+| !setting <enable\
+| !setting set <setting name> <value> | Sets a value setting, like **!setting set "Round time" "5 minutes"**. See the FAQ, "How do I add custom settings?" ||disable> <setting name> | Enables or disables a custom game setting. For example, for **enable_movement_unlock.cfg** you would do **!setting movement_unlock**. |
 
 To change to any map by name, use an admin plugin like [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin)'s `!map`, or GG1MapChooser's `ggmap`.
 
@@ -51,7 +56,9 @@ Player commands are commands that standard players with no administrative rights
 | !currentmode   | Displays the current game mode.                                                              |
 | !changemap     | Displays a menu of the current mode's maps. Picking one starts a yes/no vote to change to it. |
 | !changemode    | Displays a menu of modes. Picking one starts a yes/no vote to change to it.                  |
-| !changesetting | Displays a menu of settings. Pick one, then Enable or Disable, to start a vote.              |
+| !changesetting | Displays a menu of settings, each shown as on or off. Pick one to start a vote on turning it the other way.              |
+| !ready / !unready | In a warmup with ready-up (`Warmup.Ready`): says you're ready, or not any more. The warmup ends once enough players are. |
+| !actions | Menu of actions: replaying a round, and the cfgs in `cfg/actions/`, like adding a bot. Admins run them; players see only the ones they can run or vote on. |
 
 These come from [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser), which is included with GameModeManager:
 

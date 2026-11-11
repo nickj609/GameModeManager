@@ -73,9 +73,30 @@
 	border: 0px solid transparent;
 }
 
+/* No rounding on the menu panel itself: in Panorama a rounded panel clips what's inside it to its shape, which cut an open
+   dropdown off at the menu's bottom edge. The menu draws nothing itself; its background (.utils-bg) keeps its own rounding,
+   and the orange side bars get their outer corners here, so it looks the same. */
+.utils-menu
+{
+	border-radius: 0px;
+}
+
+.utils-bar-left
+{
+	border-radius: 4px 0px 0px 4px;
+}
+
+.utils-bar-right
+{
+	border-radius: 0px 4px 4px 0px;
+}
+
+/* Above the footer (its divider and page arrows), which comes after the rows: an open dropdown that reaches past the last row
+   draws over the footer instead of under it */
 .utils-buttons
 {
 	height: fit-children;
+	z-index: 10;
 }
 
 .utils-slot
@@ -89,14 +110,13 @@
 	margin: 4px 0px;
 }
 
-/* A dropdown that's open: PMM's own size, with the spacing above. PMM opens the first three rows' lists downward: with empty
-   rows hidden there can be nothing below, and the list would be cut off at the bottom of the menu. So a list that opens
-   downward makes the menu taller while it's open, and the rows below move down. One that opens upward still overlaps the
-   rows above it. */
+/* A dropdown that's open: PMM's own size, overlapping the rows below it, so nothing moves. PMM opens the first three rows'
+   lists downward; with fewer rows below, the list reaches over the footer (see .utils-buttons). One that opens upward
+   overlaps the rows above it. */
 .utils-slot.is-open
 {
 	height: 178px;
-	margin-bottom: 4px;
+	margin-bottom: -130px;
 }
 
 .utils-slot.is-open.is-up

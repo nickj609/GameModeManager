@@ -22,7 +22,7 @@
     "ShowVoteCounts": true,
     "ChatNumbers": true,
     "ResultStyle": "NextMapCard",
-    "ResultSeconds": 5,
+    "ResultSeconds": 2,
     "CheckSeconds": 3,
     "OpenDelay": 0.2,
     "InputDelay": 0.2,
