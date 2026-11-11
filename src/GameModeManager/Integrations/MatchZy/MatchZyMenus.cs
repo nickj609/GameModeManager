@@ -19,6 +19,7 @@ namespace GameModeManager.Integrations.MatchZy
     // and round restores for admins are on the Rounds page. Left out: commands that belong on a key (rethrow, throwindex,
     // timer, last, back), ones that need typed input (nades, spawn numbers, team names), ones GameModeManager already has as
     // a setting or action (team collision, grenade trajectory, kick bots), and .map, which would change the map behind its back.
+    // Also left out: .god, because CS2-SimpleAdmin's css_god (with a target) answers the same command; its Fun Commands have it.
     public class MatchZyMenus : IPluginDependency<Plugin, Config>
     {
         // Define class dependencies
@@ -95,7 +96,6 @@ namespace GameModeManager.Integrations.MatchZy
                 new("matchzy.hide-spawns", p => MatchZyMatch.RunAs(p, "css_hidespawns")),
                 new("matchzy.impacts", p => MatchZyMatch.RunAs(p, "css_impacts")),
                 new("matchzy.noflash", p => MatchZyMatch.RunAs(p, "css_noflash")),
-                new("matchzy.god", p => MatchZyMatch.RunAs(p, "css_god")),
                 new("matchzy.dry-run", p => MatchZyMatch.RunAs(p, "css_dryrun"))
             };
         }
