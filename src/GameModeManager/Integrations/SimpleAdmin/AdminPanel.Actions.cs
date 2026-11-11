@@ -54,6 +54,15 @@ namespace GameModeManager.Integrations.SimpleAdmin
 
             AddPauseRows(menu, _actionMenus.MatchPause);
 
+            // Freeze players: (ON) or (OFF), and the page opens again with the new state
+            bool frozen = _actionMenus.PlayerFreeze.Frozen;
+            AddOption(menu, $"({(frozen ? "ON" : "OFF")}) [{_localizer.Localize("action.freeze")}]", p =>
+            {
+                _actionMenus.PlayerFreeze.Toggle(p);
+                Call("LogCommand", c => c.Length == 2 && c[1].ParameterType == typeof(string), p, frozen ? "unfreeze players" : "freeze players");
+                Call("OpenMenu", c => c.Length == 2, InLanguage(RoundsMenu)(p), p);
+            });
+
             List<RoundBackups.Backup> backups = _actionMenus.Backups();
             AddOption(menu, _localizer.Localize("action.replay-round"), p => Act(p, "round restore 0", () => _actionMenus.Restore(p, backups[0])), backups.Count < 1);
             AddOption(menu, _localizer.Localize("action.replay-last"), p => Act(p, "round restore 1", () => _actionMenus.Restore(p, backups[1])), backups.Count < 2);

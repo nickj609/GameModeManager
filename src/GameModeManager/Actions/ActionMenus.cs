@@ -26,17 +26,19 @@ namespace GameModeManager.Actions
         private ILogger<ActionMenus> _logger;
         private RoundBackups _roundBackups;
         private MatchPause _matchPause;
+        private PlayerFreeze _playerFreeze;
         private GameRules _gameRules;
         private GameModeEvents _events;
         private Config _config = new();
 
         // Define class constructor
-        public ActionMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, RoundBackups roundBackups, MatchPause matchPause, GameRules gameRules, GameModeEvents events, ILogger<ActionMenus> logger)
+        public ActionMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, RoundBackups roundBackups, MatchPause matchPause, PlayerFreeze playerFreeze, GameRules gameRules, GameModeEvents events, ILogger<ActionMenus> logger)
         {
             _gameRules = gameRules;
             _events = events;
             _roundBackups = roundBackups;
             _matchPause = matchPause;
+            _playerFreeze = playerFreeze;
             _logger = logger;
             _localizer = localizer;
             _voteService = voteService;
@@ -186,6 +188,9 @@ namespace GameModeManager.Actions
                 }
             }
 
+            // Freeze players: ON/OFF, flipped in place
+            MenuFactory.Api!.AddToggle(menu, _localizer.Localize("action.freeze"), _playerFreeze.Frozen, (p, option) => _playerFreeze.Toggle(p));
+
             AddBackupRows(menu);
         }
 
@@ -212,6 +217,7 @@ namespace GameModeManager.Actions
         // The pause and timeout rows, for the admin panel's Rounds page too. Pausing in warmup does nothing, and a timeout is
         // already a pause, so it's greyed out then (unpausing stays possible).
         public MatchPause MatchPause => _matchPause;
+        public PlayerFreeze PlayerFreeze => _playerFreeze;
         public bool PauseUnavailable => (_gameRules.WarmupRunning || _gameRules.TimeoutRunning) && _matchPause.State == MatchPause.PauseState.Running;
 
         // This map's round backups, the newest first; none in warmup

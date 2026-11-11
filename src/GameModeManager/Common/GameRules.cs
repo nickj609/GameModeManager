@@ -13,6 +13,7 @@ namespace GameModeManager.Common
     {
         // Define class properties
         CCSGameRules? _gameRules = null;
+        private CCSGameRulesProxy? _proxy;
         private bool _endRoundFailed; // The game's round-end function failed once: not offered again until a reload
         public float GameStartTime => _gameRules?.GameStartTime ?? 0;
         public bool WarmupRunning => _gameRules?.WarmupPeriod ?? false;
@@ -62,7 +63,21 @@ namespace GameModeManager.Common
         }
 
         // Define methods to set game rules
-        public void SetGameRules() => _gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()?.GameRules;
+        public void SetGameRules()
+        {
+            _proxy = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault();
+            _gameRules = _proxy?.GameRules;
+        }
+
+        // Moves the round's start later, so its clock stands still for that long (Freeze players). Not in warmup or freeze time,
+        // where there's no round clock to hold. Like PMM_GG1MapChooser's freeze time extension.
+        public void HoldRoundClock(float seconds)
+        {
+            if (_gameRules == null || _proxy == null || !_proxy.IsValid || WarmupRunning || FreezePeriod)
+                return;
+            _gameRules.RoundStartTime += seconds;
+            Utilities.SetStateChanged(_proxy, "CCSGameRulesProxy", "m_pGameRules");
+        }
         public void SetGameRulesAsync()
         {
             _gameRules = null;
