@@ -175,6 +175,7 @@
   "matchzy.uncoach": "Припинити тренувати",
   "matchzy.controls": "Керування матчем",
   "matchzy.not-loaded": "MatchZy не працює в цьому режимі.",
+  "warmup.matchzy": "У цьому режимі розминкою керує MatchZy: почніть матч через {GOLD}!matchzy{DEFAULT}.",
   "action.unpause": "Продовжити матч",
   "action.timeout-ct": "Тайм-аут CT",
   "action.timeout-t": "Тайм-аут T",

@@ -175,6 +175,7 @@
   "matchzy.uncoach": "Dejar de entrenar",
   "matchzy.controls": "Control de partida",
   "matchzy.not-loaded": "MatchZy no está activo en este modo.",
+  "warmup.matchzy": "En este modo MatchZy gestiona el calentamiento: inicia la partida desde {GOLD}!matchzy{DEFAULT}.",
   "action.unpause": "Reanudar partida",
   "action.timeout-ct": "Tiempo muerto CT",
   "action.timeout-t": "Tiempo muerto T",

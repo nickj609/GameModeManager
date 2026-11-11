@@ -70,6 +70,8 @@ namespace GameModeManager.Warmup
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnWarmupCommand(CCSPlayerController? player, CommandInfo command)
         {
+            if (LeftToMatchZy(player, command))
+                return;
             if (player != null && !_adminPanel.Open(player, "warmup"))
                 _warmupMenus.MainMenu?.Open(player);
         }
@@ -97,6 +99,8 @@ namespace GameModeManager.Warmup
         [CommandHelper(minArgs: 0, usage: "*optional <mode>",whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnStartWarmupCommand(CCSPlayerController? player, CommandInfo command)
         {
+            if (LeftToMatchZy(player, command))
+                return;
             if(player != null)
             {
                 if (!armsRace)
@@ -130,6 +134,8 @@ namespace GameModeManager.Warmup
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnEndWarmupCommand(CCSPlayerController? player, CommandInfo command)
         {
+            if (LeftToMatchZy(player, command))
+                return;
             if(player != null)
             {
                 // GameModeManager's own warmup announces its end to everyone; the game's warmup ends without a message
@@ -145,6 +151,16 @@ namespace GameModeManager.Warmup
                     PlayerFeedback.Send(player, _localizer, "notify.warmup", MenuNotice.Success, "admin.done.warmup-ended");
                 }
             }
+        }
+
+        // MatchZy runs its own warmup and ready-up, so while it's loaded an admin's warmup commands point to !matchzy instead
+        // (its Match controls start the match). Server commands from cfgs aren't affected.
+        private bool LeftToMatchZy(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null || !MatchZyMatch.Loaded)
+                return false;
+            PlayerFeedback.Reply(command, player, _localizer, "notify.warmup", MenuNotice.Warning, "warmup.matchzy");
+            return true;
         }
     }
 }

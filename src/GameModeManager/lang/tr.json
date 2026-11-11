@@ -175,6 +175,7 @@
   "matchzy.uncoach": "Koçluğu bırak",
   "matchzy.controls": "Maç kontrolleri",
   "matchzy.not-loaded": "MatchZy bu modda çalışmıyor.",
+  "warmup.matchzy": "Bu modda ısınmayı MatchZy yönetiyor: maçı {GOLD}!matchzy{DEFAULT} ile başlat.",
   "action.unpause": "Maçı devam ettir",
   "action.timeout-ct": "CT mola",
   "action.timeout-t": "T mola",

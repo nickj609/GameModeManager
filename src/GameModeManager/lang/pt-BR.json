@@ -175,6 +175,7 @@
   "matchzy.uncoach": "Parar de treinar",
   "matchzy.controls": "Controle da partida",
   "matchzy.not-loaded": "O MatchZy não está ativo neste modo.",
+  "warmup.matchzy": "Neste modo o MatchZy cuida do aquecimento: inicie a partida pelo {GOLD}!matchzy{DEFAULT}.",
   "action.unpause": "Retomar partida",
   "action.timeout-ct": "Tempo técnico CT",
   "action.timeout-t": "Tempo técnico T",

@@ -175,6 +175,7 @@
   "matchzy.uncoach": "Przestań trenować",
   "matchzy.controls": "Sterowanie meczem",
   "matchzy.not-loaded": "MatchZy nie działa w tym trybie.",
+  "warmup.matchzy": "W tym trybie rozgrzewką zarządza MatchZy: rozpocznij mecz przez {GOLD}!matchzy{DEFAULT}.",
   "action.unpause": "Wznów mecz",
   "action.timeout-ct": "Przerwa CT",
   "action.timeout-t": "Przerwa T",

@@ -175,6 +175,7 @@
   "matchzy.uncoach": "Stoppen met coachen",
   "matchzy.controls": "Wedstrijdbeheer",
   "matchzy.not-loaded": "MatchZy draait niet in deze modus.",
+  "warmup.matchzy": "In deze modus regelt MatchZy de warming-up: start de wedstrijd via {GOLD}!matchzy{DEFAULT}.",
   "action.unpause": "Wedstrijd hervatten",
   "action.timeout-ct": "CT-time-out",
   "action.timeout-t": "T-time-out",

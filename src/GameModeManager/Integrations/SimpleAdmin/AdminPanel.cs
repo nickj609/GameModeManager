@@ -144,7 +144,8 @@ namespace GameModeManager.Integrations.SimpleAdmin
                 AddEntry("modes", "admin.modes", ModePermission, ModesMenu);
             if (_config.Settings.Enabled)
                 AddEntry("settings", "admin.game-settings", CvarPermission, SettingsMenu);
-            if (_config.Warmup.Enabled)
+            // Not while MatchZy is loaded: it runs its own warmup and ready-up (its Match controls start the match)
+            if (_config.Warmup.Enabled && !MatchZyMatch.Loaded)
                 AddEntry("warmup", "admin.warmup", CvarPermission, WarmupMenu);
             if (_config.Actions.Enabled && (_pluginState.Game.Actions.Count > 0 || _config.Actions.Rounds))
                 AddEntry("actions", "admin.actions", SectionPermission, p => ActionsMenu(p, null)); // Each action has its own flag

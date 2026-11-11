@@ -175,6 +175,7 @@
   "matchzy.uncoach": "Coaching beenden",
   "matchzy.controls": "Match-Steuerung",
   "matchzy.not-loaded": "MatchZy läuft in diesem Modus nicht.",
+  "warmup.matchzy": "In diesem Modus steuert MatchZy das Aufwärmen: starte das Match über {GOLD}!matchzy{DEFAULT}.",
   "action.unpause": "Match fortsetzen",
   "action.timeout-ct": "CT-Auszeit",
   "action.timeout-t": "T-Auszeit",

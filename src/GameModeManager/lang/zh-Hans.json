@@ -175,6 +175,7 @@
   "matchzy.uncoach": "停止当教练",
   "matchzy.controls": "比赛控制",
   "matchzy.not-loaded": "此模式下未运行 MatchZy。",
+  "warmup.matchzy": "此模式下热身由 MatchZy 管理：请通过 {GOLD}!matchzy{DEFAULT} 开始比赛。",
   "action.unpause": "继续比赛",
   "action.timeout-ct": "CT 暂停",
   "action.timeout-t": "T 暂停",

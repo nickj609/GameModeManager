@@ -175,6 +175,7 @@
   "matchzy.uncoach": "Edzés vége",
   "matchzy.controls": "Meccsvezérlés",
   "matchzy.not-loaded": "A MatchZy nem fut ebben a módban.",
+  "warmup.matchzy": "Ebben a módban a MatchZy kezeli a bemelegítést: a meccset a {GOLD}!matchzy{DEFAULT} paranccsal indítsd.",
   "action.unpause": "Meccs folytatása",
   "action.timeout-ct": "CT időkérés",
   "action.timeout-t": "T időkérés",

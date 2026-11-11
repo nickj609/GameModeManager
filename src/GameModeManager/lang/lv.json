@@ -175,6 +175,7 @@
   "matchzy.uncoach": "Beigt trenēt",
   "matchzy.controls": "Spēles vadība",
   "matchzy.not-loaded": "MatchZy šajā režīmā nedarbojas.",
+  "warmup.matchzy": "Šajā režīmā iesildīšanos vada MatchZy: sāc spēli ar {GOLD}!matchzy{DEFAULT}.",
   "action.unpause": "Turpināt spēli",
   "action.timeout-ct": "CT pārtraukums",
   "action.timeout-t": "T pārtraukums",
