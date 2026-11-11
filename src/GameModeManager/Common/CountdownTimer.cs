@@ -35,6 +35,11 @@ namespace GameModeManager.Common
             foreach (CCSPlayerController player in PlayerExtensions.ValidPlayers(false))
             {
                 CounterStrikeSharp.API.Modules.Menu.MenuManager.GetActiveMenus().Clear();
+
+                // An open PanoramaMenu menu hides the center message: GG1MapChooser's vote panel stays up after a map or mode vote
+                // until it times out, so the countdown only showed at 0. The map is about to change, so nothing open still matters.
+                if (MenuFactory.Api?.HasOpenedMenu(player) == true)
+                    MenuFactory.Api.CloseMenu(player);
                 player.PrintToCenterAlert(message(player, (int)interval));
             }
 
