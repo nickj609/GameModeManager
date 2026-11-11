@@ -12,13 +12,25 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 namespace GameModeManager.Settings
 {
     // Define class
-    // When a change takes effect: chat says when, "Now in effect" when it does, and the restart question for admins
+    // When a change takes effect: chat says when, "Now in effect" when it does, and for admins a question about applying it now
     public partial class SettingMenus
     {
+        // Define class
+        // What an admin changed while their menu was open, asked about when it closes
+        private class Waiting
+        {
+            public List<string> Restart = new(); // Settings that need a match restart
+            public List<string> Round = new();   // Settings that apply next round
+            public bool InAdminPanel;            // A change came from the admin panel, so the question opens there
+        }
+
         // Define event handlers
         // "Now in effect: Round time, Freeze time": the next-round changes, and on a new map's first round the map-change ones
         private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
         {
+            // A new round started, so the next-round changes are in effect: nobody needs to be asked about them any more
+            foreach (Waiting waiting in _waitingForClose.Values)
+                waiting.Round.Clear();
             Announce(SettingApplies.NextRound);
             if (_newMap)
             {
@@ -31,8 +43,11 @@ namespace GameModeManager.Settings
         private HookResult OnMatchStart(EventRoundAnnounceMatchStart @event, GameEventInfo info)
         {
             // The match restarted: nobody needs to be asked about a restart any more
-            foreach (List<string> waiting in _waitingForClose.Values)
-                waiting.Clear();
+            foreach (Waiting waiting in _waitingForClose.Values)
+            {
+                waiting.Restart.Clear();
+                waiting.Round.Clear();
+            }
             Announce(SettingApplies.Restart);
             return HookResult.Continue;
         }
@@ -61,7 +76,8 @@ namespace GameModeManager.Settings
             return setting is Setting own ? own.Applies : SettingApplies.Now;
         }
 
-        // After an admin's change: says when it applies, or, for one that needs a restart, asks whether to restart now
+        // After an admin's change: says when it applies, and for one that waits for a restart or the next round, asks (when the
+        // menu closes) whether to apply it now
         private bool AfterChange(CCSPlayerController player, string name, SettingApplies applies, Action<CCSPlayerController>? reopen, bool fromAdminPanel = false)
         {
             switch (applies)
@@ -69,6 +85,7 @@ namespace GameModeManager.Settings
                 case SettingApplies.NextRound:
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setting.applies-round", name));
                     Pending(SettingApplies.NextRound, name);
+                    WatchForClose(player, name, applies, fromAdminPanel);
                     return false;
                 case SettingApplies.MapChange:
                     Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setting.applies-map", name));
@@ -76,7 +93,7 @@ namespace GameModeManager.Settings
                     return false;
                 case SettingApplies.Restart:
                     Pending(SettingApplies.Restart, name);
-                    WatchForClose(player, name, fromAdminPanel);
+                    WatchForClose(player, name, applies, fromAdminPanel);
                     return false;
                 default:
                     return false;
@@ -104,17 +121,18 @@ namespace GameModeManager.Settings
             }
         }
 
-        // An admin who changed a setting that needs a restart is asked once, when they close the menu, so several can be
-        // changed first. Not asked when the match restarted in the meantime (OnMatchStart clears the list).
-        private void WatchForClose(CCSPlayerController player, string name, bool fromAdminPanel)
+        // An admin is asked once, when they close the menu, so several settings can be changed first. A restart covers the
+        // next-round changes too, so with both only the restart question is asked. Not asked about what already took effect
+        // in the meantime (a new round, a match restart, a new map).
+        private void WatchForClose(CCSPlayerController player, string name, SettingApplies applies, bool fromAdminPanel)
         {
-            if (!_waitingForClose.TryGetValue(player.Slot, out List<string>? names))
+            if (!_waitingForClose.TryGetValue(player.Slot, out Waiting? changes))
             {
-                _waitingForClose[player.Slot] = names = new();
+                _waitingForClose[player.Slot] = changes = new();
                 Timer? timer = null;
                 timer = _plugin?.AddTimer(0.5f, () =>
                 {
-                    if (!player.IsValid || !_waitingForClose.TryGetValue(player.Slot, out List<string>? waiting))
+                    if (!player.IsValid || !_waitingForClose.TryGetValue(player.Slot, out Waiting? waiting))
                     {
                         _waitingForClose.Remove(player.Slot);
                         timer?.Kill();
@@ -125,54 +143,87 @@ namespace GameModeManager.Settings
 
                     timer?.Kill();
                     _waitingForClose.Remove(player.Slot);
-                    if (waiting.Count > 0)
-                        OpenRestartMenu(player, string.Join(", ", waiting), _askInAdminPanel.Remove(player.Slot));
+                    if (waiting.Restart.Count > 0)
+                        AskRestart(player, waiting.Restart, waiting.InAdminPanel);
+                    else if (waiting.Round.Count > 0)
+                        AskRound(player, waiting.Round, waiting.InAdminPanel);
                 }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
             }
             if (fromAdminPanel)
-                _askInAdminPanel.Add(player.Slot);
+                changes.InAdminPanel = true;
+            List<string> names = applies == SettingApplies.Restart ? changes.Restart : changes.Round;
             if (!names.Contains(name))
                 names.Add(name);
         }
 
         // "Changes need a match restart": Restart now, or Restart later, which tells everyone the changes wait for a restart
-        // In the menu the change came from: the admin panel's own page, else a PanoramaMenu one
-        private void OpenRestartMenu(CCSPlayerController player, string names, bool inAdminPanel)
+        private void AskRestart(CCSPlayerController player, List<string> settings, bool inAdminPanel)
         {
-            Action restart = () =>
-            {
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restart.message", player.PlayerName, names));
-                Server.ExecuteCommand("mp_restartgame 1");
-            };
-            Action later = () => Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setting.applies-restart", names));
-
-            if (inAdminPanel)
-            {
-                using (MenuLanguages.For(player))
-                {
-                    if (AdminPanelQuestion?.Invoke(player, _localizer.Localize("setting.restart-title"), _localizer.Localize("setting.restart-now"), _localizer.Localize("setting.restart-later"), restart, later) == true)
-                        return;
-                }
-            }
-
+            string names = string.Join(", ", settings);
             using var _culture = MenuLanguages.For(player);
-            IMenu? menu = MenuFactory.Api?.GetMenu(_localizer.Localize("setting.restart-title"));
+            Ask(player, _localizer.Localize("setting.restart-title"), new List<(string, Action)>
+            {
+                (_localizer.Localize("setting.restart-now"), () => RestartMatch(player, names)),
+                (_localizer.Localize("setting.restart-later"), () => Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setting.applies-restart", names)))
+            }, inAdminPanel);
+        }
+
+        // "Changes apply next round": replay this round, end it, restart the match, or wait. Replay round only when this round
+        // has a backup and the admin may use it; End round only when that wouldn't end the match (not in one-round modes like
+        // surf, nor on the last round).
+        private void AskRound(CCSPlayerController player, List<string> settings, bool inAdminPanel)
+        {
+            string names = string.Join(", ", settings);
+            using var _culture = MenuLanguages.For(player);
+            var choices = new List<(string, Action)>();
+
+            List<Actions.RoundBackups.Backup> backups = _actionMenus.CanRestore(player) ? _actionMenus.Backups() : new();
+            if (backups.Count > 0)
+                choices.Add((_localizer.Localize("setting.round-replay"), () => _actionMenus.Restore(player, backups[0])));
+            if (_gameRules.CanEndRound)
+                choices.Add((_localizer.Localize("setting.round-end"), () => EndRound(player, names)));
+            choices.Add((_localizer.Localize("setting.round-restart"), () => RestartMatch(player, names)));
+            choices.Add((_localizer.Localize("setting.round-wait"), () => { }));
+
+            Ask(player, _localizer.Localize("setting.round-title"), choices, inAdminPanel);
+        }
+
+        private void RestartMatch(CCSPlayerController player, string names)
+        {
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restart.message", player.PlayerName, names));
+            Server.ExecuteCommand("mp_restartgame 1");
+        }
+
+        private void EndRound(CCSPlayerController player, string names)
+        {
+            if (_gameRules.EndRoundAsDraw())
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setting.round-ended", player.PlayerName, names));
+            else
+                PlayerFeedback.Send(player, _localizer, "notify.setting", MenuNotice.Warning, "setting.round-end-failed");
+        }
+
+        // A question in the menu the change came from: the admin panel's own page, else a PanoramaMenu one. Each choice closes
+        // the menu and runs. The last choice is the "not now" one: it runs when no menu can be shown.
+        private void Ask(CCSPlayerController player, string title, List<(string Label, Action Run)> choices, bool inAdminPanel)
+        {
+            if (inAdminPanel && AdminPanelQuestion?.Invoke(player, title, choices) == true)
+                return;
+
+            IMenu? menu = MenuFactory.Api?.GetMenu(title);
             if (menu == null)
             {
-                later();
+                choices[^1].Run();
                 return;
             }
 
-            MenuActions.Add(menu, _localizer.Localize("setting.restart-now"), (p, option) =>
+            foreach ((string label, Action run) in choices)
             {
-                MenuFactory.Api?.CloseMenu(p);
-                restart();
-            });
-            MenuActions.Add(menu, _localizer.Localize("setting.restart-later"), (p, option) =>
-            {
-                MenuFactory.Api?.CloseMenu(p);
-                later();
-            });
+                MenuActions.Add(menu, label, (p, option) =>
+                {
+                    MenuFactory.Api?.CloseMenu(p);
+                    run();
+                });
+            }
             menu.Open(player);
         }
     }

@@ -25,10 +25,14 @@ namespace GameModeManager.Settings
         private MenuLanguages _languages;
         private SettingStates _states;
         private GameModeEvents _events;
+        private GameRules _gameRules;
+        private ActionMenus _actionMenus;
 
         // Define class constructor
-        public SettingMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, MenuLanguages languages, SettingStates states, GameModeEvents events)
+        public SettingMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, MenuLanguages languages, SettingStates states, GameModeEvents events, GameRules gameRules, ActionMenus actionMenus)
         {
+            _gameRules = gameRules;
+            _actionMenus = actionMenus;
             _states = states;
             _events = events;
             _languages = languages;
@@ -41,12 +45,12 @@ namespace GameModeManager.Settings
         private LocalizedMenu _mainMenu = new(); // Admin menu (!settings) with votes on: change a setting, or start a vote
         private readonly Dictionary<SettingApplies, List<string>> _pending = new(); // Changes waiting to take effect, announced when they do
         private bool _newMap;
-        private readonly Dictionary<int, List<string>> _waitingForClose = new(); // By player slot: restart settings changed while their menu is open
-        private readonly HashSet<int> _askInAdminPanel = new(); // By player slot: the change came from the admin panel, so ask there
+        private readonly Dictionary<int, Waiting> _waitingForClose = new(); // By player slot: changes to ask about when their menu closes
         private Plugin? _plugin;
 
-        // A yes/no page in the admin panel, when CS2-SimpleAdmin is there: (player, title, yes, no, on yes, on no) -> shown
-        public Func<CCSPlayerController, string, string, string, Action, Action, bool>? AdminPanelQuestion;
+        // A question page in the admin panel, when CS2-SimpleAdmin is there: (player, title, choices) -> shown. Each choice closes
+        // the panel and runs.
+        public Func<CCSPlayerController, string, IReadOnlyList<(string Label, Action Run)>, bool>? AdminPanelQuestion;
         public bool VotesEnabled => _config.Votes.Enabled && _config.Votes.GameSettings;
         public const string DefaultPermission = "@css/cvar"; // The flag !settings needs
 
@@ -72,7 +76,6 @@ namespace GameModeManager.Settings
             // The map change stopped the timers waiting for admins to close their menu (and a new map needs no restart), so
             // forget them: a slot left in the list would never be asked again
             _waitingForClose.Clear();
-            _askInAdminPanel.Clear();
         }
 
         // Define load method

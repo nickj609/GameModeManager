@@ -122,7 +122,7 @@ namespace GameModeManager.Settings
             string title = _localizer.Localize("setting.cheats-title");
             string yes = _localizer.Localize("setting.cheats-yes");
             string cancel = _localizer.Localize("setting.cheats-no");
-            if (fromAdminPanel && AdminPanelQuestion?.Invoke(player, title, yes, cancel, apply, no) == true)
+            if (fromAdminPanel && AdminPanelQuestion?.Invoke(player, title, new List<(string, Action)> { (yes, apply), (cancel, no) }) == true)
                 return;
 
             IMenu? menu = MenuFactory.Api?.GetMenu(title, back);

@@ -97,20 +97,27 @@ namespace GameModeManager.Integrations.SimpleAdmin
             return menu;
         }
 
-        // A yes/no question in the panel, about a setting changed here: "Changes need a match restart", "Turn on
-        // sv_cheats?". The labels come already in the admin's language. False when the panel isn't there.
-        private bool OpenQuestionPage(CCSPlayerController player, string title, string yes, string no, Action onYes, Action onNo)
+        // A question in the panel, about a setting changed here: "Changes need a match restart", "Changes apply next round",
+        // "Turn on sv_cheats?". The labels come already in the admin's language. Each choice closes the panel and runs; all but
+        // the last ("not now") are recorded in SimpleAdmin's log. False when the panel isn't there.
+        private bool OpenQuestionPage(CCSPlayerController player, string title, IReadOnlyList<(string Label, Action Run)> choices)
         {
             if (_api == null)
                 return false;
 
             object page = NewMenu(title, player);
-            AddOption(page, yes, p => Act(p, title, onYes));
-            AddOption(page, no, p =>
+            for (int i = 0; i < choices.Count; i++)
             {
-                MenuFactory.Api?.CloseMenu(p);
-                onNo();
-            });
+                (string label, Action run) = choices[i];
+                if (i < choices.Count - 1)
+                    AddOption(page, label, p => Act(p, $"{title}: {label}", run));
+                else
+                    AddOption(page, label, p =>
+                    {
+                        MenuFactory.Api?.CloseMenu(p);
+                        run();
+                    });
+            }
             Call("OpenMenu", c => c.Length == 2, page, player);
             return true;
         }
