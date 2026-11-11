@@ -164,27 +164,26 @@ namespace GameModeManager.Actions
 
         private void AddRoundRows(IMenu menu, CCSPlayerController player)
         {
-            // With MatchZy loaded, its own .pause, .unpause and .tac run pauses and timeouts: one greyed-out row says so
-            if (MatchPause.LeftToMatchZy)
-            {
-                MenuActions.Add(menu, _localizer.Localize("action.pause-matchzy"), (p, option) => { }, true);
-                AddBackupRows(menu);
-                return;
-            }
-
             // Pause or unpause (or cancel a pause waiting for the next round), then the timeouts. The page opens again with the new state.
             MenuActions.Add(menu, _matchPause.PauseLabel(), (p, option) =>
             {
                 _matchPause.Toggle(p);
                 OpenRoundsPage(p);
             }, PauseUnavailable);
-            foreach (bool counterTerrorists in new[] { true, false })
+
+            // During a live MatchZy match, timeouts are its .tac: one greyed-out row says so
+            if (MatchPause.TimeoutsByMatchZy)
+                MenuActions.Add(menu, _localizer.Localize("action.timeouts-matchzy"), (p, option) => { }, true);
+            else
             {
-                MenuActions.Add(menu, _localizer.Localize(counterTerrorists ? "action.timeout-ct" : "action.timeout-t"), (p, option) =>
+                foreach (bool counterTerrorists in new[] { true, false })
                 {
-                    _matchPause.Timeout(p, counterTerrorists);
-                    OpenRoundsPage(p);
-                }, !_matchPause.CanCallTimeout);
+                    MenuActions.Add(menu, _localizer.Localize(counterTerrorists ? "action.timeout-ct" : "action.timeout-t"), (p, option) =>
+                    {
+                        _matchPause.Timeout(p, counterTerrorists);
+                        OpenRoundsPage(p);
+                    }, !_matchPause.CanCallTimeout);
+                }
             }
 
             AddBackupRows(menu);
@@ -230,6 +229,17 @@ namespace GameModeManager.Actions
         public void Restore(CCSPlayerController player, RoundBackups.Backup backup)
         {
             MenuFactory.Api?.CloseMenu(player);
+
+            // During a live MatchZy match, its own restore: it pauses the match after, and its .unpause then works
+            if (MatchZyMatch.Live)
+            {
+                MatchZyMatch.Restore(backup.Round);
+                _events.RaiseRoundRestored(backup.Round);
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restore.message", player.PlayerName, backup.Round));
+                PlayerFeedback.Notify(player, _localizer, "notify.action", MenuNotice.Success, "admin.done.restore", backup.Round);
+                return;
+            }
+
             if (!_roundBackups.Restore(backup))
             {
                 PlayerFeedback.Send(player, _localizer, "notify.action", MenuNotice.Warning, "general.validation.warmup");

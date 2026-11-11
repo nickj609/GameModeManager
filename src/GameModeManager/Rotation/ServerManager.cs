@@ -176,7 +176,11 @@ namespace GameModeManager.Rotation
                 // Disable countdown flag
                 _pluginState.Game.CountdownRunning = false;
 
-            }, "Map changing in ");
+            }, (player, seconds) =>
+            {
+                using (MenuLanguages.For(player))
+                    return _localizer.Localize("map.changing-in", seconds);
+            });
         }
 
         public void ChangeMode(IMode mode)

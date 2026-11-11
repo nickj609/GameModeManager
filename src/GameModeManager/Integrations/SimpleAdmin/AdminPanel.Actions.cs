@@ -52,12 +52,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
         {
             object menu = NewMenu(_localizer.Localize("action.rounds"), player);
 
-            // With MatchZy loaded, its own .pause, .unpause and .tac run pauses and timeouts: one greyed-out row says so
-            MatchPause pause = _actionMenus.MatchPause;
-            if (MatchPause.LeftToMatchZy)
-                AddOption(menu, _localizer.Localize("action.pause-matchzy"), p => { }, true);
-            else
-                AddPauseRows(menu, pause);
+            AddPauseRows(menu, _actionMenus.MatchPause);
 
             List<RoundBackups.Backup> backups = _actionMenus.Backups();
             AddOption(menu, _localizer.Localize("action.replay-round"), p => Act(p, "round restore 0", () => _actionMenus.Restore(p, backups[0])), backups.Count < 1);
@@ -81,6 +76,13 @@ namespace GameModeManager.Integrations.SimpleAdmin
                 Call("LogCommand", c => c.Length == 2 && c[1].ParameterType == typeof(string), p, "pause toggle");
                 Call("OpenMenu", c => c.Length == 2, InLanguage(RoundsMenu)(p), p);
             }, _actionMenus.PauseUnavailable);
+
+            // During a live MatchZy match, timeouts are its .tac: one greyed-out row says so
+            if (MatchPause.TimeoutsByMatchZy)
+            {
+                AddOption(menu, _localizer.Localize("action.timeouts-matchzy"), p => { }, true);
+                return;
+            }
             foreach (bool counterTerrorists in new[] { true, false })
             {
                 AddOption(menu, _localizer.Localize(counterTerrorists ? "action.timeout-ct" : "action.timeout-t"), p =>

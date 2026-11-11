@@ -13,6 +13,7 @@ The commands below can be run by the server, such as within your mode configurat
 | css_gamemode <mode>                           | Sets the current mode.                                                                                   |
 | css_warmupmode <mode>                         | Schedules and sets the game mode to be used during the warmup period. `none` turns warmup off for this map or mode, and `random` picks a different warmup each time. Put it in a mode's or map's cfg.                                    |
 | css_warmup_minplayers <n> | For a mode's or map's cfg: warmup waits for this many players (see `Warmup.MinPlayers`). |
+| css_replace_bots | For a setting's cfg: kicks the bots and adds the same number back (`bot_kick` alone sets `bot_quota` to 0), so settings that only apply to new bots, like `bot_difficulty`, apply to all of them. |
 | css_warmup_ready <true|false> [percent] ||false> [percent]` | For a mode's or map's cfg: ready-up in warmup on or off (see `Warmup.Ready`). |
 | css_endwarmup                                 | Ends the custom warmup mode, transitioning to the scheduled or default game mode.                        |
 | css_startwarmup <mode>                        | Immediately starts a custom warmup mode with the specified mode.                                         |

@@ -12,8 +12,8 @@ namespace GameModeManager.Common
     public static class LoadedPlugins
     {
         // Define class properties
-        // A loaded plugin: its name and its file's name
-        public record Info(string ModuleName, string FileName)
+        // A loaded plugin: its name, its file's name, and the plugin itself
+        public record Info(string ModuleName, string FileName, IPlugin? Plugin = null)
         {
             public bool Matches(string name) => name.Equals(ModuleName, StringComparison.OrdinalIgnoreCase) || name.Equals(FileName, StringComparison.OrdinalIgnoreCase);
         }
@@ -39,16 +39,19 @@ namespace GameModeManager.Common
                 if (type.GetProperty("State")?.GetValue(context)?.ToString() != "Loaded")
                     continue;
 
-                string moduleName = (type.GetProperty("Plugin")?.GetValue(context) as IPlugin)?.ModuleName ?? "";
+                IPlugin? plugin = type.GetProperty("Plugin")?.GetValue(context) as IPlugin;
                 string filePath = type.GetProperty("FilePath")?.GetValue(context) as string ?? "";
-                loaded.Add(new Info(moduleName, Path.GetFileNameWithoutExtension(filePath)));
+                loaded.Add(new Info(plugin?.ModuleName ?? "", Path.GetFileNameWithoutExtension(filePath), plugin));
             }
             return loaded;
         }
 
         // Whether that plugin is loaded. Read at most once a second, since warmup checks every second. False when the list
         // can't be read.
-        public static bool IsLoaded(string name)
+        public static bool IsLoaded(string name) => Find(name) != null;
+
+        // That plugin, when it's loaded
+        public static IPlugin? Find(string name)
         {
             if (DateTime.UtcNow >= _cachedUntil)
             {
@@ -62,7 +65,7 @@ namespace GameModeManager.Common
                 }
                 _cachedUntil = DateTime.UtcNow.AddSeconds(1);
             }
-            return _cached?.Any(plugin => plugin.Matches(name)) == true;
+            return _cached?.FirstOrDefault(plugin => plugin.Matches(name))?.Plugin;
         }
     }
 }

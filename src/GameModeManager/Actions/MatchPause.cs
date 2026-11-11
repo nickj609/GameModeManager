@@ -45,11 +45,12 @@ namespace GameModeManager.Actions
             }
         }
 
-        // MatchZy has its own pauses (both teams unpause) and timeouts: while it's loaded, the Rounds page leaves them to it
-        public static bool LeftToMatchZy => LoadedPlugins.IsLoaded(LoadedPlugins.MatchZy);
+        // During a live MatchZy match, pauses go through MatchZy (css_forcepause, css_forceunpause) so its pause tracking stays
+        // right, and timeouts are its .tac: they belong to a player's team, so the Rounds page can't call them
+        public static bool TimeoutsByMatchZy => MatchZyMatch.Live;
 
         // A timeout can be called when the match isn't paused or about to be, and no timeout is running or waiting
-        public bool CanCallTimeout => State == PauseState.Running && !_gameRules.TimeoutRunning && !_timeoutPending && !_gameRules.WarmupRunning;
+        public bool CanCallTimeout => State == PauseState.Running && !MatchZyMatch.Live && !_gameRules.TimeoutRunning && !_timeoutPending && !_gameRules.WarmupRunning;
 
         // Define on load behavior
         public void OnLoad(Plugin plugin)
@@ -83,7 +84,10 @@ namespace GameModeManager.Actions
             bool now = _gameRules.FreezePeriod;
             _pausePending = !now;
             Expect(now ? PauseState.Paused : PauseState.Pending);
-            Server.ExecuteCommand("mp_pause_match");
+            if (MatchZyMatch.Live)
+                MatchZyMatch.Pause();
+            else
+                Server.ExecuteCommand("mp_pause_match");
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix(now ? "pause.message" : "pause.pending-message", player.PlayerName));
         }
 
@@ -95,7 +99,10 @@ namespace GameModeManager.Actions
 
             _pausePending = false;
             Expect(PauseState.Running);
-            Server.ExecuteCommand("mp_unpause_match");
+            if (MatchZyMatch.Live)
+                MatchZyMatch.Unpause();
+            else
+                Server.ExecuteCommand("mp_unpause_match");
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix("unpause.message", player.PlayerName));
         }
 

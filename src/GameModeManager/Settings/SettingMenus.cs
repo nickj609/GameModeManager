@@ -46,6 +46,7 @@ namespace GameModeManager.Settings
         private readonly Dictionary<SettingApplies, List<string>> _pending = new(); // Changes waiting to take effect, announced when they do
         private bool _newMap;
         private readonly Dictionary<int, Waiting> _waitingForClose = new(); // By player slot: changes to ask about when their menu closes
+        private readonly List<(string Setting, string File)> _changedThisMap = new(); // The files of settings changed on this map, in order
         private Plugin? _plugin;
 
         // A question page in the admin panel, when CS2-SimpleAdmin is there: (player, title, choices) -> shown. Each choice closes
@@ -66,6 +67,7 @@ namespace GameModeManager.Settings
             _plugin = plugin;
             plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
             plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(OnMatchStart);
+            _events.WarmupEnded += OnWarmupEnded;
         }
 
         // Define on map start behavior
@@ -76,6 +78,7 @@ namespace GameModeManager.Settings
             // The map change stopped the timers waiting for admins to close their menu (and a new map needs no restart), so
             // forget them: a slot left in the list would never be asked again
             _waitingForClose.Clear();
+            _changedThisMap.Clear();
         }
 
         // Define load method

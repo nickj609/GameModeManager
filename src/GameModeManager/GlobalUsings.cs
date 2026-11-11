@@ -15,3 +15,4 @@ global using GameModeManager.Diagnostics;
 global using GameModeManager.Integrations.GG1MapChooser;
 global using GameModeManager.Integrations.SimpleAdmin;
 global using GameModeManager.Integrations.MultiAddonManager;
+global using GameModeManager.Integrations.MatchZy;

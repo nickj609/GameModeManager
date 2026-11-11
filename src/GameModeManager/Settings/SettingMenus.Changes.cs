@@ -45,7 +45,7 @@ namespace GameModeManager.Settings
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix(enable ? "enable.changesetting.message" : "disable.changesetting.message", player.PlayerName, setting.DisplayName));
             PlayerFeedback.Notify(player, _localizer, "notify.setting", MenuNotice.Success, enable ? "admin.done.setting-enabled" : "admin.done.setting-disabled", setting.DisplayName);
             _states.Expect(setting, enable);
-            Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}");
+            RunFile(setting.Name, enable ? setting.Enable : setting.Disable);
             _events.RaiseSettingChanged(setting, enable);
             return AfterChange(player, setting.DisplayName, AppliesOf(setting), reopen, fromAdminPanel);
         }
@@ -56,7 +56,7 @@ namespace GameModeManager.Settings
             string key = (enable ? "vote.enable-setting" : "vote.disable-setting") + (applies == SettingApplies.Restart ? "-restart" : "");
             _voteService.StartYesNo(player, () => _localizer.Localize(key, setting.DisplayName), () =>
             {
-                Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}");
+                RunFile(setting.Name, enable ? setting.Enable : setting.Disable);
                 _events.RaiseSettingChanged(setting, enable);
                 AfterVote(setting.DisplayName, applies);
             });
@@ -68,7 +68,7 @@ namespace GameModeManager.Settings
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setvalue.changesetting.message", player.PlayerName, setting.Name, label));
             PlayerFeedback.Notify(player, _localizer, "notify.setting", MenuNotice.Success, "admin.done.setting-set", setting.Name, label);
             _states.ExpectValue(setting, index);
-            Server.ExecuteCommand($"exec {_config.Settings.Folder}/{setting.Values[index].File}");
+            RunFile(setting.Name, setting.Values[index].File);
             _events.RaiseValueSettingChanged(setting, label);
             return AfterChange(player, setting.Name, setting.Applies, reopen, fromAdminPanel);
         }
@@ -78,7 +78,7 @@ namespace GameModeManager.Settings
             string key = "vote.set-setting" + (setting.Applies == SettingApplies.Restart ? "-restart" : "");
             _voteService.StartYesNo(player, () => _localizer.Localize(key, setting.Name, setting.Values[index].Label), () =>
             {
-                Server.ExecuteCommand($"exec {_config.Settings.Folder}/{setting.Values[index].File}");
+                RunFile(setting.Name, setting.Values[index].File);
                 _events.RaiseValueSettingChanged(setting, setting.Values[index].Label);
                 AfterVote(setting.Name, setting.Applies);
             });
@@ -137,6 +137,21 @@ namespace GameModeManager.Settings
             menu.Open(player);
         }
 
+        // Runs a setting's file and remembers it for this map. Ending a warmup runs server.cfg and the mode's cfg again, which
+        // would undo it (bots.cfg sets bot_difficulty, for one), so the changes made on this map are run again after that.
+        private void RunFile(string setting, string file)
+        {
+            Server.ExecuteCommand($"exec {_config.Settings.Folder}/{file}");
+            _changedThisMap.RemoveAll(change => change.Setting.Equals(setting, StringComparison.OrdinalIgnoreCase));
+            _changedThisMap.Add((setting, file));
+        }
+
+        private void OnWarmupEnded()
+        {
+            foreach ((string _, string file) in _changedThisMap)
+                Server.ExecuteCommand($"exec {_config.Settings.Folder}/{file}");
+        }
+
         // Define API methods
         // A change from another plugin (game_mode:api): no admin to name or ask, so players are only told when it applies.
         // One that needs a restart waits for the plugin to restart the match.
@@ -146,7 +161,7 @@ namespace GameModeManager.Settings
                 return false;
 
             _states.Expect(setting, enable);
-            Server.ExecuteCommand($"exec {_config.Settings.Folder}/{(enable ? setting.Enable : setting.Disable)}");
+            RunFile(setting.Name, enable ? setting.Enable : setting.Disable);
             _events.RaiseSettingChanged(setting, enable);
             AnnounceApplies(setting.DisplayName, AppliesOf(setting));
             return true;
@@ -159,7 +174,7 @@ namespace GameModeManager.Settings
                 return false;
 
             _states.ExpectValue(setting, index);
-            Server.ExecuteCommand($"exec {_config.Settings.Folder}/{setting.Values[index].File}");
+            RunFile(setting.Name, setting.Values[index].File);
             _events.RaiseValueSettingChanged(setting, setting.Values[index].Label);
             AnnounceApplies(setting.Name, setting.Applies);
             return true;
