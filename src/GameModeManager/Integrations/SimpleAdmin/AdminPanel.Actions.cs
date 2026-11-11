@@ -24,11 +24,11 @@ namespace GameModeManager.Integrations.SimpleAdmin
                 // Rounds first: replaying a round and going back to one. They close the panel, because the match pauses.
                 if (_actionMenus.CanRestore(player))
                     AddSubMenu(menu, _localizer.Localize("action.rounds"), RoundsMenu);
-                foreach (string name in _pluginState.Game.Actions.Select(action => action.Group).Where(name => name != "").Distinct())
+                foreach (string name in _pluginState.Game.Actions.Where(action => !ActionMenus.Hidden(action)).Select(action => action.Group).Where(name => name != "").Distinct())
                     AddSubMenu(menu, name, p => ActionsMenu(p, name));
             }
 
-            foreach (GameAction action in _pluginState.Game.Actions.Where(action => action.Group == (group ?? "")))
+            foreach (GameAction action in _pluginState.Game.Actions.Where(action => action.Group == (group ?? "") && !ActionMenus.Hidden(action)))
             {
                 bool run = _actionMenus.CanRun(player, action);
                 bool vote = _actionMenus.CanVote(player, action);

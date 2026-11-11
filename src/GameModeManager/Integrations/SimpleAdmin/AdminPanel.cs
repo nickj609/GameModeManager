@@ -27,14 +27,16 @@ namespace GameModeManager.Integrations.SimpleAdmin
         private SettingMenus _settingMenus;
         private SettingStates _settingStates;
         private ActionMenus _actionMenus;
+        private MatchZyMenus _matchZyMenus;
         private StringLocalizer _localizer;
         private Config _config = new Config();
         private ILogger<AdminPanel> _logger;
         private IStringLocalizer _iLocalizer;
 
         // Define class constructor
-        public AdminPanel(PluginState pluginState, MapMenus mapMenus, ModeMenus modeMenus, PlayerMenu playerMenu, MapChooserBridge mapChooser, SettingMenus settingMenus, SettingStates settingStates, ActionMenus actionMenus, StringLocalizer localizer, IStringLocalizer iLocalizer, ILogger<AdminPanel> logger)
+        public AdminPanel(PluginState pluginState, MapMenus mapMenus, ModeMenus modeMenus, PlayerMenu playerMenu, MapChooserBridge mapChooser, SettingMenus settingMenus, SettingStates settingStates, ActionMenus actionMenus, MatchZyMenus matchZyMenus, StringLocalizer localizer, IStringLocalizer iLocalizer, ILogger<AdminPanel> logger)
         {
+            _matchZyMenus = matchZyMenus;
             _logger = logger;
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
@@ -95,6 +97,9 @@ namespace GameModeManager.Integrations.SimpleAdmin
 
                 // Questions about a setting changed in this panel (restart now? turn on sv_cheats?) are asked here too
                 _settingMenus.AdminPanelQuestion = OpenQuestionPage;
+
+                // The MatchZy entry comes and goes with MatchZy
+                WatchMatchZy();
             }
             catch (Exception ex)
             {
@@ -144,6 +149,9 @@ namespace GameModeManager.Integrations.SimpleAdmin
             if (_config.Actions.Enabled && (_pluginState.Game.Actions.Count > 0 || _config.Actions.Rounds))
                 AddEntry("actions", "admin.actions", SectionPermission, p => ActionsMenu(p, null)); // Each action has its own flag
             AddEntry("rotation", "admin.rotation", CvarPermission, RotationMenu);
+            _matchZyShown = MatchZyMatch.Loaded;
+            if (_matchZyShown)
+                AddEntry("matchzy", "matchzy.title", MatchZyMatch.Permission, MatchZyMenu);
             _logger.LogInformation("Added Manage game to CS2-SimpleAdmin's menu");
         }
 

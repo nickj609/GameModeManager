@@ -102,11 +102,21 @@ namespace GameModeManager.Settings
                 PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "setting.unexpected-argument", _status);
         }
 
-        [RequiresPermissions("@css/cvar")]
+        // MatchZy has a !settings too (it lists the match's settings in chat). While it's loaded, a player without the flag only
+        // gets MatchZy's answer, not a "no permission" from this one as well.
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void OnSettingsCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player != null && !_adminPanel.Open(player, "settings"))
+            if (player == null)
+                return;
+            if (!AdminManager.PlayerHasPermissions(player, SettingMenus.DefaultPermission))
+            {
+                if (!MatchZyMatch.Loaded)
+                    PlayerFeedback.Reply(command, player, _localizer, "notify.setting", MenuNotice.Warning, "general.validation.no-permission", "!settings");
+                return;
+            }
+
+            if (!_adminPanel.Open(player, "settings"))
                 _settingMenus.OpenMainMenu(player);
         }
     }

@@ -15,10 +15,12 @@ namespace GameModeManager.Actions
         public string Group { get; }       // "" for a file directly in the actions folder
         public string Permission { get; }  // Who can run it; "" = @css/cvar
         public bool Vote { get; }          // Players without the permission can start a vote on it
+        public string Conflicts { get; }   // Plugins it clashes with ("// conflicts: MatchZy"): hidden while one is loaded
 
         // Define class constructor
-        public GameAction(string file, string name, string group, string permission, bool vote)
+        public GameAction(string file, string name, string group, string permission, bool vote, string conflicts = "")
         {
+            Conflicts = conflicts;
             File = file;
             Name = name;
             Group = group;

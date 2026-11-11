@@ -14,8 +14,28 @@ namespace GameModeManager.Integrations.MatchZy
     public static class MatchZyMatch
     {
         // Define class properties
+        // MatchZy's own flag for its admin commands, so the MatchZy page asks for the same
+        public const string Permission = "@css/config";
+
+        public static bool Loaded => LoadedPlugins.IsLoaded(LoadedPlugins.MatchZy);
+
         // A MatchZy match is live (its isMatchLive): not warmup, practice or waiting for players to ready up
         public static bool Live => Field("isMatchLive");
+        public static bool Practice => Field("isPractice");
+        public static bool Veto => Field("isVeto") || Field("isPreVeto");
+        public static bool KnifeRound => Field("isKnifeRequired");
+        public static bool Playout => Field("isPlayOutEnabled");
+        public static bool Whitelist => Field("isWhitelistRequired");
+
+        // A command for the match, from the server console, which MatchZy takes as an admin's
+        public static void Run(string command) => Server.ExecuteCommand(command);
+
+        // A practice command, as that player: MatchZy uses where they stand (.bot) or applies it to them (.god)
+        public static void RunAs(CCSPlayerController player, string command)
+        {
+            if (player.IsValid)
+                player.ExecuteClientCommandFromServer(command);
+        }
 
         // Define class methods
         public static void Pause() => Server.ExecuteCommand("css_forcepause");

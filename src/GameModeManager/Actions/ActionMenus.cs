@@ -28,11 +28,13 @@ namespace GameModeManager.Actions
         private MatchPause _matchPause;
         private GameRules _gameRules;
         private GameModeEvents _events;
+        private MatchZyMenus _matchZyMenus;
         private Config _config = new();
 
         // Define class constructor
-        public ActionMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, RoundBackups roundBackups, MatchPause matchPause, GameRules gameRules, GameModeEvents events, ILogger<ActionMenus> logger)
+        public ActionMenus(PluginState pluginState, StringLocalizer localizer, VoteService voteService, RoundBackups roundBackups, MatchPause matchPause, GameRules gameRules, GameModeEvents events, MatchZyMenus matchZyMenus, ILogger<ActionMenus> logger)
         {
+            _matchZyMenus = matchZyMenus;
             _gameRules = gameRules;
             _events = events;
             _roundBackups = roundBackups;
@@ -82,7 +84,7 @@ namespace GameModeManager.Actions
             ConfigMetadata header = ConfigMetadata.Read(file);
             string relative = Path.GetRelativePath(root, file).Replace('\\', '/');
             string name = header.Name ?? TitleCase(Path.GetFileNameWithoutExtension(file));
-            _pluginState.Game.Actions.Add(new GameAction(relative, name, header.Group ?? group, header.Permission ?? "", header.Vote ?? false));
+            _pluginState.Game.Actions.Add(new GameAction(relative, name, header.Group ?? group, header.Permission ?? "", header.Vote ?? false, header.Conflicts ?? ""));
         }
 
         private static string TitleCase(string name)
@@ -97,7 +99,8 @@ namespace GameModeManager.Actions
             using var _culture = MenuLanguages.For(player);
             List<GameAction> usable = _pluginState.Game.Actions.Where(action => CanRun(player, action) || CanVote(player, action)).ToList();
             bool restore = CanRestore(player);
-            if (usable.Count == 0 && !restore)
+            bool matchZy = _matchZyMenus.Available(player);
+            if (usable.Count == 0 && !restore && !matchZy)
             {
                 PlayerFeedback.Send(player, _localizer, "notify.action", MenuNotice.Warning, "actions.none");
                 return false;
@@ -111,6 +114,9 @@ namespace GameModeManager.Actions
             // Rounds first: replaying a round and going back to one
             if (restore)
                 menu.AddMenuOption(_localizer.Localize("action.rounds"), (p, option) => OpenRoundsPage(p));
+            // MatchZy's match controls or practice tools, while it's loaded
+            if (matchZy)
+                menu.AddMenuOption(_localizer.Localize("matchzy.title"), (p, option) => _matchZyMenus.Open(p, q => OpenMenu(q)));
 
             foreach (string group in usable.Select(action => action.Group).Where(group => group != "").Distinct())
                 menu.AddMenuOption(group, (p, option) => OpenGroup(p, group));
@@ -252,15 +258,18 @@ namespace GameModeManager.Actions
             PlayerFeedback.Notify(player, _localizer, "notify.action", MenuNotice.Success, "admin.done.restore", backup.Round);
         }
 
+        // An action that clashes with a loaded plugin ("// conflicts: MatchZy") isn't offered: that plugin has its own
+        public static bool Hidden(GameAction action) => LoadedPlugins.AnyLoaded(action.Conflicts);
+
         public bool CanRun(CCSPlayerController player, GameAction action)
         {
-            return SettingMenus.Allowed(player, action.Permission);
+            return !Hidden(action) && SettingMenus.Allowed(player, action.Permission);
         }
 
         // A player without the flag can start a vote on an action whose header says "vote: true", with player votes on
         public bool CanVote(CCSPlayerController player, GameAction action)
         {
-            return action.Vote && _config.Votes.Enabled && !CanRun(player, action);
+            return !Hidden(action) && action.Vote && _config.Votes.Enabled && !SettingMenus.Allowed(player, action.Permission);
         }
 
         public void Run(CCSPlayerController player, GameAction action)

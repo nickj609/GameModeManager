@@ -8,6 +8,7 @@
 #     AddSelect)
 #   - puts in a question's choices: (_localizer.Localize("key"), ...)
 #   - returns from a method whose name ends in Label (like MatchPause.PauseLabel)
+#   - starts a row built in code: new("key", ...)
 #   - is in the $extra list below (built through a variable or an interpolated key)
 # Run from the repository root:  .github/scripts/check-menu-labels.ps1 [-MaxLength 24]
 param([int]$MaxLength = 24)
@@ -24,7 +25,7 @@ $rowCall = '(MenuActions\.Add|AddOption|AddSubMenu|AddMenuOption|AddToggle|AddSe
 $choice = '\(\s*_localizer\.Localize\("([a-z0-9.\-]+)"\)\s*,'
 
 # Row texts the source builds in ways the patterns don't see (a variable, an interpolated key)
-$extra = @("setting.cheats-yes", "setting.cheats-no", "menu.enable", "menu.disable")
+$extra = @("setting.cheats-yes", "setting.cheats-no", "menu.enable", "menu.disable", "matchzy.ready-all")
 
 $keys = @{}
 foreach ($key in $extra) { $keys[$key] = "(listed in this script)" }
@@ -39,6 +40,10 @@ foreach ($file in Get-ChildItem $source -Recurse -Filter *.cs | Where-Object { $
             }
         }
         foreach ($m in [regex]::Matches($line, $choice)) { $keys[$m.Groups[1].Value] = $file.Name }
+        # A row model built in code: new("key", ...) (the MatchZy page)
+        foreach ($m in [regex]::Matches($line, 'new\(\s*"([a-z0-9.-]+)"')) {
+            if ($known -contains $m.Groups[1].Value) { $keys[$m.Groups[1].Value] = $file.Name }
+        }
 
         # A *Label() method: every known key in it is a row text
         if (-not $inLabelMethod -and $line -match '\b\w+Label\s*\(\s*\)\s*$') { $inLabelMethod = $true; $depth = 0; continue }

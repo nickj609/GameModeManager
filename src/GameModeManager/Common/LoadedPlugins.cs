@@ -50,6 +50,12 @@ namespace GameModeManager.Common
         // can't be read.
         public static bool IsLoaded(string name) => Find(name) != null;
 
+        // A setting or action's "// conflicts: MatchZy, Other": one of those plugins is loaded, so it's hidden from the menus
+        public static bool AnyLoaded(string names)
+        {
+            return names.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(IsLoaded);
+        }
+
         // That plugin, when it's loaded
         public static IPlugin? Find(string name)
         {

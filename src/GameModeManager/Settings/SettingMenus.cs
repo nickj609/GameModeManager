@@ -254,9 +254,9 @@ namespace GameModeManager.Settings
         // On/off and value settings together, by name. With forVotes, only the ones players can vote on.
         private IEnumerable<(string Name, ISetting? Setting, ValueSetting? ValueSetting)> Sorted(bool forVotes, string group)
         {
-            var onOff = _pluginState.Game.Settings.Values.Where(setting => !forVotes || Votable(setting))
+            var onOff = _pluginState.Game.Settings.Values.Where(setting => !Hidden(setting) && (!forVotes || Votable(setting)))
                 .Select(setting => (Name: setting.DisplayName, Setting: (ISetting?)setting, ValueSetting: (ValueSetting?)null));
-            var values = _pluginState.Game.ValueSettings.Values.Where(setting => !forVotes || Votable(setting))
+            var values = _pluginState.Game.ValueSettings.Values.Where(setting => !Hidden(setting) && (!forVotes || Votable(setting)))
                 .Select(setting => (Name: setting.Name, Setting: (ISetting?)null, ValueSetting: (ValueSetting?)setting));
             return onOff.Concat(values).Where(row => GroupOf(row.Setting, row.ValueSetting).Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(row => row.Name, StringComparer.OrdinalIgnoreCase);
         }
@@ -264,8 +264,8 @@ namespace GameModeManager.Settings
         // The groups settings are in, by name. With forVotes, only groups with a setting players can vote on.
         public IEnumerable<string> Groups(bool forVotes)
         {
-            var onOff = _pluginState.Game.Settings.Values.Where(setting => !forVotes || Votable(setting)).Select(setting => GroupOf(setting, null));
-            var values = _pluginState.Game.ValueSettings.Values.Where(setting => !forVotes || Votable(setting)).Select(setting => setting.Group);
+            var onOff = _pluginState.Game.Settings.Values.Where(setting => !Hidden(setting) && (!forVotes || Votable(setting))).Select(setting => GroupOf(setting, null));
+            var values = _pluginState.Game.ValueSettings.Values.Where(setting => !Hidden(setting) && (!forVotes || Votable(setting))).Select(setting => setting.Group);
             return onOff.Concat(values).Where(group => group != "").Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(group => group, StringComparer.OrdinalIgnoreCase);
         }
 

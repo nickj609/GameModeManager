@@ -35,7 +35,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
                     AddSubMenu(menu, page, p => SettingListMenu(p, vote, page));
 
             // Value settings: the row shows the current value, and its page lists the values (the current one greyed out)
-            foreach (ValueSetting valueSetting in _pluginState.Game.ValueSettings.Values.Where(s => (!vote || _settingMenus.Votable(s)) && s.Group.Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase))
+            foreach (ValueSetting valueSetting in _pluginState.Game.ValueSettings.Values.Where(s => !SettingMenus.Hidden(s) && (!vote || _settingMenus.Votable(s)) && s.Group.Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase))
             {
                 int? active = _settingStates.ActiveValue(valueSetting);
                 string row = active is int current ? $"{valueSetting.Name}{HintSeparator}{valueSetting.Values[current].Label}" : valueSetting.Name;
@@ -66,7 +66,7 @@ namespace GameModeManager.Integrations.SimpleAdmin
                 }, !vote && !SettingMenus.Allowed(player, valueSetting.Permission));
             }
 
-            foreach (ISetting setting in _pluginState.Game.Settings.Values.Where(s => (!vote || _settingMenus.Votable(s)) && SettingMenus.GroupOf(s, null).Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase))
+            foreach (ISetting setting in _pluginState.Game.Settings.Values.Where(s => !SettingMenus.Hidden(s) && (!vote || _settingMenus.Votable(s)) && SettingMenus.GroupOf(s, null).Equals(group, StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase))
             {
                 // A known state is an ON/OFF row that turns it the other way, or starts a vote on that. Mixed shows as off.
                 SettingState state = _settingStates.Get(setting);
