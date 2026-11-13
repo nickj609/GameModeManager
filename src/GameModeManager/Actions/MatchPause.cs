@@ -76,7 +76,10 @@ namespace GameModeManager.Actions
         }
 
         // Define class methods
-        public void Pause(CCSPlayerController player)
+        public void Pause(CCSPlayerController player) => Pause(player.PlayerName);
+
+        // By name, so the web panel can pause too
+        public void Pause(string admin)
         {
             if (State != PauseState.Running)
                 return;
@@ -88,11 +91,13 @@ namespace GameModeManager.Actions
                 MatchZyMatch.Pause();
             else
                 Server.ExecuteCommand("mp_pause_match");
-            Server.PrintToChatAll(_localizer.LocalizeWithPrefix(now ? "pause.message" : "pause.pending-message", player.PlayerName));
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix(now ? "pause.message" : "pause.pending-message", admin));
         }
 
         // Also cancels a pause that's still waiting for the next round
-        public void Unpause(CCSPlayerController player)
+        public void Unpause(CCSPlayerController player) => Unpause(player.PlayerName);
+
+        public void Unpause(string admin)
         {
             if (State == PauseState.Running)
                 return;
@@ -103,10 +108,12 @@ namespace GameModeManager.Actions
                 MatchZyMatch.Unpause();
             else
                 Server.ExecuteCommand("mp_unpause_match");
-            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("unpause.message", player.PlayerName));
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("unpause.message", admin));
         }
 
-        public void Timeout(CCSPlayerController player, bool counterTerrorists)
+        public void Timeout(CCSPlayerController player, bool counterTerrorists) => Timeout(player.PlayerName, counterTerrorists);
+
+        public void Timeout(string admin, bool counterTerrorists)
         {
             if (!CanCallTimeout)
                 return;
@@ -114,7 +121,7 @@ namespace GameModeManager.Actions
             // Counted as waiting until the round starts, so a second one can't be called before the game shows the first
             _timeoutPending = true;
             Server.ExecuteCommand(counterTerrorists ? "timeout_ct_start" : "timeout_terrorist_start");
-            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("timeout.message", player.PlayerName, counterTerrorists ? "CT" : "T"));
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("timeout.message", admin, counterTerrorists ? "CT" : "T"));
         }
 
         private void Expect(PauseState state)

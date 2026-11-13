@@ -92,12 +92,14 @@ namespace GameModeManager.Votes
 
         // Define class methods
         // The same rules for a vote that runs elsewhere (a mode vote on GG1's panel). Counts toward the caller's cooldown.
-        public bool TryStartExternal(CCSPlayerController caller)
+        public bool TryStartExternal(CCSPlayerController caller) => TryStartExternal(Caller.Of(caller));
+
+        public bool TryStartExternal(Caller caller)
         {
             if (!CanStart(caller, out _))
                 return false;
 
-            _lastStarted[caller.SteamID] = DateTime.UtcNow;
+            _lastStarted[caller.SteamId] = DateTime.UtcNow;
             return true;
         }
 
@@ -111,6 +113,12 @@ namespace GameModeManager.Votes
         // The same, with a title localized for each voter's menu. Chat and the native panel use the server's language.
         // allowNative false keeps the vote on the menu whatever the style.
         public bool StartYesNo(CCSPlayerController caller, Func<string> localizedTitle, Action onPassed, string? nativeSubject = null, bool allowNative = true)
+        {
+            return StartYesNo(Caller.Of(caller), localizedTitle, onPassed, nativeSubject, allowNative);
+        }
+
+        // From the web panel the caller has no player: the same rules, minus "you can't vote yourself"
+        public bool StartYesNo(Caller caller, Func<string> localizedTitle, Action onPassed, string? nativeSubject = null, bool allowNative = true)
         {
             if (!CanStart(caller, out var voters))
                 return false;
@@ -130,14 +138,14 @@ namespace GameModeManager.Votes
                 Needed = Math.Max(1, (int)Math.Ceiling(voters.Count * _config.Votes.Percentage / 100.0)),
             };
             _vote = vote;
-            _lastStarted[caller.SteamID] = DateTime.UtcNow;
+            _lastStarted[caller.SteamId] = DateTime.UtcNow;
 
-            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("vote.started", caller.PlayerName, title));
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("vote.started", caller.Name, title));
             Server.PrintToChatAll(_localizer.LocalizeWithPrefix("general.votes-needed", 0, vote.Needed));
 
             if (vote.Native)
             {
-                if (!_nativeVote.Start(voters, titleToken, vote.NativeSubject, Ballot, caller))
+                if (!_nativeVote.Start(voters, titleToken, vote.NativeSubject, Ballot, caller.Player))
                 {
                     _logger.LogWarning("Native vote could not start; falling back to the menu");
                     vote.Native = false;
@@ -160,7 +168,7 @@ namespace GameModeManager.Votes
         // when the vote can't start.
         public bool StartChoice(CCSPlayerController caller, string question, List<string> answers)
         {
-            if (!CanStart(caller, out var voters))
+            if (!CanStart(Caller.Of(caller), out var voters))
                 return false;
 
             var vote = new ActiveVote
@@ -181,11 +189,11 @@ namespace GameModeManager.Votes
             return true;
         }
 
-        // Tells the caller why when a vote can't start
-        private bool CanStart(CCSPlayerController caller, out List<CCSPlayerController> voters)
+        // Tells the caller why when a vote can't start. A web panel caller has no player, so the "can you vote" check is skipped.
+        private bool CanStart(Caller caller, out List<CCSPlayerController> voters)
         {
             voters = new();
-            if (!caller.ReallyValid())
+            if (caller.Player != null && !caller.Player.ReallyValid())
                 return false;
 
             if (!_config.Votes.Enabled)
@@ -208,7 +216,7 @@ namespace GameModeManager.Votes
                 PlayerFeedback.Send(caller, _localizer, "notify.vote", MenuNotice.Warning, "general.validation.warmup");
                 return false;
             }
-            if (_lastStarted.TryGetValue(caller.SteamID, out var last))
+            if (_lastStarted.TryGetValue(caller.SteamId, out var last))
             {
                 int wait = _config.Votes.Cooldown - (int)(DateTime.UtcNow - last).TotalSeconds;
                 if (wait > 0)
@@ -224,7 +232,7 @@ namespace GameModeManager.Votes
                 PlayerFeedback.Send(caller, _localizer, "notify.vote", MenuNotice.Warning, "general.validation.minimum-players", _config.Votes.MinPlayers);
                 return false;
             }
-            if (!voters.Any(p => p.Slot == caller.Slot))
+            if (caller.Player != null && !voters.Any(p => p.Slot == caller.Player.Slot))
             {
                 PlayerFeedback.Send(caller, _localizer, "notify.vote", MenuNotice.Warning, "vote.not-eligible");
                 return false;

@@ -142,6 +142,20 @@ namespace GameModeManager
         }; // Schedule options
     }
 
+    // Define web panel settings
+    // The optional GameModeManager web panel (a separate program; see its docs/setup.md). This server connects out to it over a
+    // WebSocket, so no port is opened here. The token and Cloudflare Access keys are in SecretsFile, never in this file.
+    public class PanelSettings
+    {
+        public bool Enabled { get; set; } = false; // Connects to the web panel
+        public string Url { get; set; } = "wss://agent.example.com/agent"; // The panel's agent address (its Cloudflare Tunnel hostname)
+        public string ServerName { get; set; } = "Production"; // Shown in the panel's log; the token decides which server this is
+        public string SecretsFile { get; set; } = "panel-secrets.json"; // Next to this file: { "Token", "AccessClientId", "AccessClientSecret" }. Keep it out of git
+        public bool Console { get; set; } = true; // The panel's console (panel admins and @css/rcon admins), through this server's own RCON on 127.0.0.1 (needs -usercon and rcon_password)
+        public string PublicAddress { get; set; } = ""; // ip:port players connect to (the panel's Connect button). Empty: net_public_adr or ip and hostport, when public
+        public bool PluginData { get; set; } = true; // The panel's Moderation page: read other plugins' own databases (SimpleAdmin, VIPCore ...), read only, with their own settings
+    }
+
     // Define game mode settings
     public class GameModeSettings
     {
@@ -189,7 +203,7 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-        public int Version { get; set; } = 17;
+        public int Version { get; set; } = 18;
         public string WorkshopAddon { get; set; } = "3831211166"; // Workshop IDs (comma separated) of the addons with the menus' panorama files, added to MultiAddonManager's list. Empty = you load them yourself
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
@@ -202,6 +216,7 @@ namespace GameModeManager
         public CommandSettings Commands { get; set; } = new();
         public RotationSettings Rotation { get; set; } = new();
         public GameModeSettings GameModes { get; set; } = new();
+        public PanelSettings Panel { get; set; } = new();
 
         // The checks that only need the config itself. tools/ConfigCheck runs these on Kus's config.
         public void Validate(ILogger logger)

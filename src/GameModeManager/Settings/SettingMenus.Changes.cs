@@ -184,6 +184,58 @@ namespace GameModeManager.Settings
             return true;
         }
 
+        // From the web panel: announced with the admin's name like a change from the admin menu. Returns when it applies, so the
+        // panel can ask what the menus ask ("Changes need a match restart", "Changes apply next round") and send the answer.
+        public SettingApplies ChangeFromPanel(Caller caller, ISetting setting, bool enable)
+        {
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix(enable ? "enable.changesetting.message" : "disable.changesetting.message", caller.Name, setting.DisplayName));
+            PlayerFeedback.Notify(caller, _localizer, "notify.setting", MenuNotice.Success, enable ? "admin.done.setting-enabled" : "admin.done.setting-disabled", setting.DisplayName);
+            _states.Expect(setting, enable);
+            RunFile(setting.Name, enable ? setting.Enable : setting.Disable);
+            _events.RaiseSettingChanged(setting, enable);
+            return AfterPanelChange(setting.DisplayName, AppliesOf(setting));
+        }
+
+        public SettingApplies SetValueFromPanel(Caller caller, ValueSetting setting, int index)
+        {
+            string label = setting.Values[index].Label;
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setvalue.changesetting.message", caller.Name, setting.Name, label));
+            PlayerFeedback.Notify(caller, _localizer, "notify.setting", MenuNotice.Success, "admin.done.setting-set", setting.Name, label);
+            _states.ExpectValue(setting, index);
+            RunFile(setting.Name, setting.Values[index].File);
+            _events.RaiseValueSettingChanged(setting, label);
+            return AfterPanelChange(setting.Name, setting.Applies);
+        }
+
+        // The panel's answer to "Restart now": the same chat line as the menus' (names = the changed settings)
+        public void RestartFromPanel(string admin, string names)
+        {
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restart.message", admin, names));
+            Server.ExecuteCommand("mp_restartgame 1");
+        }
+
+        // The panel's answer to "End round". False when the round couldn't be ended (the changes apply next round anyway).
+        public bool EndRoundFromPanel(string admin, string names)
+        {
+            if (!_gameRules.EndRoundAsDraw())
+                return false;
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setting.round-ended", admin, names));
+            return true;
+        }
+
+        // Like AfterChange, without the question: the panel asks it
+        private SettingApplies AfterPanelChange(string name, SettingApplies applies)
+        {
+            if (applies == SettingApplies.Now)
+                return applies;
+            Pending(applies, name);
+            if (applies == SettingApplies.NextRound)
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setting.applies-round", name));
+            else if (applies == SettingApplies.MapChange)
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("setting.applies-map", name));
+            return applies;
+        }
+
         private void AnnounceApplies(string name, SettingApplies applies)
         {
             if (applies == SettingApplies.Now)

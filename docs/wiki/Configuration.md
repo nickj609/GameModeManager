@@ -5,7 +5,7 @@
 	
 ```json
 {
-  "Version": 17,
+  "Version": 18,
   "WorkshopAddon": "3831211166",
   "Maps": {
     "Delay": 5,
@@ -419,6 +419,15 @@
         "InRotation": true
       }
     ]
+  },
+  "Panel": {
+    "Enabled": false,
+    "Url": "wss://agent.example.com/agent",
+    "ServerName": "Production",
+    "SecretsFile": "panel-secrets.json",
+    "Console": true,
+    "PublicAddress": "",
+    "PluginData": true
   }
 }
 ```
@@ -556,3 +565,19 @@ Messages to everyone stay in chat.
 > [!CAUTION]
 > - All configuration files must be within `/csgo/cfg/`.
 > - Your mode config files must use `css_gamemode` to cycle the game mode for the plugin.
+
+# Panel Settings
+The optional [GameModeManager web panel](https://github.com/nickj609/GameModeManager-WebPanel): everything the in-game admin menus do, from a browser. It's a separate program; this server connects out to it over a WebSocket (through a Cloudflare Tunnel), so the game host opens no port. Off by default. Added in config version 18.
+
+| Setting             | Description                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Enabled             | Connects to the panel.                                                                                                                    |
+| Url                 | The panel's agent address, like `wss://agent.example.com/agent`.                                                                          |
+| ServerName          | Shown in the panel's log. The token decides which server this is in the panel.                                                            |
+| SecretsFile         | A file next to `GameModeManager.json` with `Token` (from `gmmpanel token new <server>`), `AccessClientId` and `AccessClientSecret` (the Cloudflare Access service token). **Keep it out of git**: it's never written into this file. |
+| Console             | Lets the panel's owner send console commands. GameModeManager runs them through this server's own RCON (needs `-usercon` and `rcon_password`), so their output shows in the panel. RCON is never reached from outside. |
+| PublicAddress       | The `ip:port` players connect to, for the panel's **Connect** buttons (`steam://connect`). Empty: `net_public_adr`, or the `ip` ConVar with `hostport` when that's a public address. A hosted server usually needs this set. |
+| PluginData          | The panel's **Moderation** page. GameModeManager reads CS2-SimpleAdmin's bans, mutes and warnings, VIPCore's VIPs, K4-System's ranks, WeaponPaints' and cs2-store's players from each plugin's own database, with the settings in that plugin's own config (MySQL or MariaDB). Read only, fixed queries; bans, mutes and VIPs change through the plugins' own console commands. The panel never sees a database password. |
+
+> [!NOTE]
+> Every command from the panel is logged as `[Panel] <admin> (<SteamID>): <command>`, and players see the same chat lines as when an admin uses the in-game menus.

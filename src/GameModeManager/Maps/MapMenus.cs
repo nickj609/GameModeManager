@@ -120,50 +120,58 @@ namespace GameModeManager.Maps
         }
 
         // Define class methods
-        public void ChangeMap(CCSPlayerController player, IMap map)
+        // Each takes a player (a menu, a command) or a Caller, which is how the web panel asks: the same messages, with the
+        // admin's name, and the reply goes back to the panel instead of a player
+        public void ChangeMap(CCSPlayerController player, IMap map) => ChangeMap(Caller.Of(player), map);
+
+        public void ChangeMap(Caller caller, IMap map)
         {
-            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", player.PlayerName, map.DisplayName));
-            PlayerFeedback.Notify(player, _localizer, "notify.map", MenuNotice.Success, "admin.done.changemap", map.DisplayName);
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemap.message", caller.Name, map.DisplayName));
+            PlayerFeedback.Notify(caller, _localizer, "notify.map", MenuNotice.Success, "admin.done.changemap", map.DisplayName);
             _serverManager.ChangeMapInPool(map);
         }
 
-        public void StartVote(CCSPlayerController player, IMap map)
+        public void StartVote(CCSPlayerController player, IMap map) => StartVote(Caller.Of(player), map);
+
+        public void StartVote(Caller caller, IMap map)
         {
             if (_pluginState.Game.IsCurrentMap(map))
             {
-                PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "general.validation.current");
+                PlayerFeedback.Send(caller, _localizer, "notify.map", MenuNotice.Warning, "general.validation.current");
                 return;
             }
-            _voteService.StartYesNo(player, () => _localizer.Localize("map.vote.menu-title", map.DisplayName), () => _serverManager.ChangeMapInPool(map), map.DisplayName);
+            _voteService.StartYesNo(caller, () => _localizer.Localize("map.vote.menu-title", map.DisplayName), () => _serverManager.ChangeMapInPool(map), map.DisplayName);
         }
 
         // GameModeManager announces the next map or mode to everyone, so an admin who sets it needs no reply of their own
         public bool AnnouncesNext => _nextMapAnnouncer.Announces();
 
-        public void SetNextMap(CCSPlayerController player, IMap map)
+        public void SetNextMap(CCSPlayerController player, IMap map) => SetNextMap(Caller.Of(player), map);
+
+        public void SetNextMap(Caller caller, IMap map)
         {
             if (_pluginState.Game.IsCurrentMap(map))
-                PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "general.validation.current");
+                PlayerFeedback.Send(caller, _localizer, "notify.map", MenuNotice.Warning, "general.validation.current");
             else if (!_mapChooser.SetNextMap(map))
-                PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");
+                PlayerFeedback.Send(caller, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");
             else
                 if (!_nextMapAnnouncer.Announces())   // The announcement to everyone tells the admin too
-                    PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Success, "admin.done.nextmap", map.DisplayName);
+                    PlayerFeedback.Send(caller, _localizer, "notify.map", MenuNotice.Success, "admin.done.nextmap", map.DisplayName);
         }
 
-        private bool OnlyOneMap(CCSPlayerController player)
+        private bool OnlyOneMap(Caller caller)
         {
             if (_pluginState.Game.CurrentMode.Maps.Count >= 2)
                 return false;
 
-            PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "admin.one-map");
+            PlayerFeedback.Send(caller, _localizer, "notify.map", MenuNotice.Warning, "admin.one-map");
             return true;
         }
 
         // A random vote started by a player follows the vote rules (cooldown, minimum players, warmup)
         public void StartPlayerVote(CCSPlayerController player)
         {
-            if (OnlyOneMap(player))
+            if (OnlyOneMap(Caller.Of(player)))
                 return;
 
             if (_voteService.TryStartExternal(player))
@@ -171,13 +179,15 @@ namespace GameModeManager.Maps
         }
 
         // GG1MapChooser's vote across several maps
-        public void StartVote(CCSPlayerController player)
+        public void StartVote(CCSPlayerController player) => StartVote(Caller.Of(player));
+
+        public void StartVote(Caller caller)
         {
-            if (OnlyOneMap(player))
+            if (OnlyOneMap(caller))
                 return;
 
             if (!_mapChooser.StartMapVote())
-                PlayerFeedback.Send(player, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");
+                PlayerFeedback.Send(caller, _localizer, "notify.map", MenuNotice.Warning, "admin.vote-unavailable");
         }
     }
 }

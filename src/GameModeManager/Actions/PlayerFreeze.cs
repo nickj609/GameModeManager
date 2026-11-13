@@ -50,12 +50,15 @@ namespace GameModeManager.Actions
         }
 
         // Define class methods
-        public void Toggle(CCSPlayerController player)
+        public void Toggle(CCSPlayerController player) => Toggle(player.PlayerName);
+
+        // By name, so the web panel can freeze too
+        public void Toggle(string admin)
         {
             if (Frozen)
             {
                 Stop();
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("freeze.off-message", player.PlayerName));
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("freeze.off-message", admin));
                 return;
             }
 
@@ -66,7 +69,7 @@ namespace GameModeManager.Actions
                 PlayerExtensions.FreezePlayers(); // Players who spawned since
                 _gameRules.HoldRoundClock(Tick);
             }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
-            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("freeze.on-message", player.PlayerName));
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("freeze.on-message", admin));
         }
 
         private void Stop()

@@ -169,40 +169,49 @@ namespace GameModeManager.Modes
         }
 
         // Define class methods
-        public void ChangeMode(CCSPlayerController player, IMode mode)
+        // Each takes a player (a menu, a command) or a Caller, which is how the web panel asks (see MapMenus)
+        public void ChangeMode(CCSPlayerController player, IMode mode) => ChangeMode(Caller.Of(player), mode);
+
+        public void ChangeMode(Caller caller, IMode mode)
         {
-            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", player.PlayerName, mode.Name));
-            PlayerFeedback.Notify(player, _localizer, "notify.mode", MenuNotice.Success, "admin.done.changemode", mode.Name);
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("changemode.message", caller.Name, mode.Name));
+            PlayerFeedback.Notify(caller, _localizer, "notify.mode", MenuNotice.Success, "admin.done.changemode", mode.Name);
             _serverManager.ChangeMode(mode);
         }
 
-        public void ChangeToRandomMode(CCSPlayerController player)
+        public void ChangeToRandomMode(CCSPlayerController player) => ChangeToRandomMode(Caller.Of(player));
+
+        public void ChangeToRandomMode(Caller caller)
         {
             // For this many players, and not played recently, when there is one
             IMode? mode = _mapChooser.PickRandom(_pluginState.Game.Modes.Values.Where(m => _mapChooser.CanBeNextMode(m) && _mapChooser.InVotes(m)).ToList());
             if (mode != null)
-                ChangeMode(player, mode);
+                ChangeMode(caller, mode);
         }
 
-        public void SetNextMode(CCSPlayerController player, IMode mode)
+        public void SetNextMode(CCSPlayerController player, IMode mode) => SetNextMode(Caller.Of(player), mode);
+
+        public void SetNextMode(Caller caller, IMode mode)
         {
             if (_pluginState.Game.CurrentMode.Equals(mode))
-                PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "general.validation.current");
+                PlayerFeedback.Send(caller, _localizer, "notify.mode", MenuNotice.Warning, "general.validation.current");
             else if (!_mapChooser.SetNextMode(mode))
-                PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "admin.vote-unavailable");
+                PlayerFeedback.Send(caller, _localizer, "notify.mode", MenuNotice.Warning, "admin.vote-unavailable");
             else
                 if (!_nextMapAnnouncer.Announces())   // The announcement to everyone tells the admin too
-                    PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Success, "admin.done.nextmode", mode.Name);
+                    PlayerFeedback.Send(caller, _localizer, "notify.mode", MenuNotice.Success, "admin.done.nextmode", mode.Name);
         }
 
-        public void StartVote(CCSPlayerController player, IMode mode)
+        public void StartVote(CCSPlayerController player, IMode mode) => StartVote(Caller.Of(player), mode);
+
+        public void StartVote(Caller caller, IMode mode)
         {
             if (_pluginState.Game.CurrentMode.Equals(mode))
             {
-                PlayerFeedback.Send(player, _localizer, "notify.mode", MenuNotice.Warning, "general.validation.current");
+                PlayerFeedback.Send(caller, _localizer, "notify.mode", MenuNotice.Warning, "general.validation.current");
                 return;
             }
-            _voteService.StartYesNo(player, () => _localizer.Localize("mode.vote.menu-title", mode.Name), () => _serverManager.ChangeMode(mode), mode.Name);   // The game's panel: "Change current level to <mode>?" fits a mode change
+            _voteService.StartYesNo(caller, () => _localizer.Localize("mode.vote.menu-title", mode.Name), () => _serverManager.ChangeMode(mode), mode.Name);   // The game's panel: "Change current level to <mode>?" fits a mode change
         }
 
         // A vote on GG1's panel between random other modes

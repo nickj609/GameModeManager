@@ -75,6 +75,23 @@ namespace GameModeManager.Common
             MenuFactory.Api?.Notify(player, Plain(localizer.Localize(titleKey)), Plain(text), notice);
         }
 
+        // The same for a Caller: a player as above; the web panel keeps the text for its answer (Warning and Error are refusals)
+        public static void Send(Caller caller, StringLocalizer localizer, string titleKey, MenuNotice notice, string key, params object[] args)
+        {
+            if (caller.Player != null)
+                Send(caller.Player, localizer, titleKey, notice, key, args);
+            else
+                caller.Answer(Plain(localizer.Localize(key, args)), notice != MenuNotice.Success);
+        }
+
+        public static void Notify(Caller caller, StringLocalizer localizer, string titleKey, MenuNotice notice, string key, params object[] args)
+        {
+            if (caller.Player != null)
+                Notify(caller.Player, localizer, titleKey, notice, key, args);
+            else
+                caller.Answer(Plain(localizer.Localize(key, args)), notice != MenuNotice.Success);
+        }
+
         // Whether a message that has its own chat line should still print it: the same rule as Send and Reply
         public static bool ChatLine => !_settings.Enabled || MenuFactory.Api == null || _settings.Chat;
 

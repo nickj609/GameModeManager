@@ -232,30 +232,34 @@ namespace GameModeManager.Actions
             return _config.Actions.Rounds && SettingMenus.Allowed(player, _config.Actions.RoundsPermission);
         }
 
-        public void Restore(CCSPlayerController player, RoundBackups.Backup backup)
+        public void Restore(CCSPlayerController player, RoundBackups.Backup backup) => Restore(Caller.Of(player), backup);
+
+        // From a menu, or the web panel (a Caller without a player)
+        public void Restore(Caller caller, RoundBackups.Backup backup)
         {
-            MenuFactory.Api?.CloseMenu(player);
+            if (caller.Player != null)
+                MenuFactory.Api?.CloseMenu(caller.Player);
 
             // During a live MatchZy match, its own restore: it pauses the match after, and its .unpause then works
             if (MatchZyMatch.Live)
             {
                 MatchZyMatch.Restore(backup.Round);
                 _events.RaiseRoundRestored(backup.Round);
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restore.message", player.PlayerName, backup.Round));
-                PlayerFeedback.Notify(player, _localizer, "notify.action", MenuNotice.Success, "admin.done.restore", backup.Round);
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restore.message", caller.Name, backup.Round));
+                PlayerFeedback.Notify(caller, _localizer, "notify.action", MenuNotice.Success, "admin.done.restore", backup.Round);
                 return;
             }
 
             if (!_roundBackups.Restore(backup))
             {
-                PlayerFeedback.Send(player, _localizer, "notify.action", MenuNotice.Warning, "general.validation.warmup");
+                PlayerFeedback.Send(caller, _localizer, "notify.action", MenuNotice.Warning, "general.validation.warmup");
                 return;
             }
 
-            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restore.message", player.PlayerName, backup.Round));
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restore.message", caller.Name, backup.Round));
             if (_roundBackups.PausesAfterRestore())
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("restore.paused"));
-            PlayerFeedback.Notify(player, _localizer, "notify.action", MenuNotice.Success, "admin.done.restore", backup.Round);
+            PlayerFeedback.Notify(caller, _localizer, "notify.action", MenuNotice.Success, "admin.done.restore", backup.Round);
         }
 
         // An action that clashes with a loaded plugin ("// conflicts: MatchZy") isn't offered: that plugin has its own. Nor
@@ -273,10 +277,12 @@ namespace GameModeManager.Actions
             return !Hidden(action) && action.Vote && _config.Votes.Enabled && !SettingMenus.Allowed(player, action.Permission);
         }
 
-        public void Run(CCSPlayerController player, GameAction action)
+        public void Run(CCSPlayerController player, GameAction action) => Run(Caller.Of(player), action);
+
+        public void Run(Caller caller, GameAction action)
         {
-            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("action.message", player.PlayerName, action.Name));
-            PlayerFeedback.Notify(player, _localizer, "notify.action", MenuNotice.Success, "admin.done.action", action.Name);
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("action.message", caller.Name, action.Name));
+            PlayerFeedback.Notify(caller, _localizer, "notify.action", MenuNotice.Success, "admin.done.action", action.Name);
             Server.ExecuteCommand($"exec {action.File}");
             _events.RaiseActionRun(action);
         }
