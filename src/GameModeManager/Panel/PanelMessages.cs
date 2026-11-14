@@ -102,6 +102,7 @@ namespace GameModeManager.Panel
         public int Kills { get; set; }
         public int Deaths { get; set; }
         public int Ping { get; set; }
+        public string? Country { get; set; }            // ISO 3166-1 alpha-2 ("US") from the IP, looked up on this server (PanelCountries); the IP itself is never sent
     }
 
     public sealed class PanelPlugin

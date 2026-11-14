@@ -154,6 +154,7 @@ namespace GameModeManager
         public bool Console { get; set; } = true; // The panel's console (panel admins and @css/rcon admins), through this server's own RCON on 127.0.0.1 (needs -usercon and rcon_password)
         public string PublicAddress { get; set; } = ""; // ip:port players connect to (the panel's Connect button). Empty: net_public_adr or ip and hostport, when public
         public bool PluginData { get; set; } = true; // The panel's Moderation page: read CS2-SimpleAdmin's own database (bans, mutes, warnings), read only, with its own settings
+        public bool Countries { get; set; } = true; // The panel's "Player countries": each player's country, looked up on this server from their IP in DB-IP's free database (downloaded monthly next to this plugin). Only the two-letter country code is sent; IP addresses never leave the server
     }
 
     // Define game mode settings

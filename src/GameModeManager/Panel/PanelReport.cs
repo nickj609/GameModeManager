@@ -1,6 +1,5 @@
 // Included libraries
 using CounterStrikeSharp.API;
-using CounterStrikeSharp.API.Core;
 using GameModeManager.Shared.Models;
 using CounterStrikeSharp.API.Modules.Cvars;
 
@@ -21,12 +20,13 @@ namespace GameModeManager.Panel
         private ActionMenus _actionMenus;
         private AdminPanel _adminPanel;
         private PanelData _data;
+        private PanelCountries _countries;
         private Config _config = new();
         private string _version = "";
 
         // Define class constructor
         public PanelReport(PluginState pluginState, SettingStates settingStates, MapChooserBridge mapChooser, VoteService voteService,
-            GameRules gameRules, ActionMenus actionMenus, AdminPanel adminPanel, PanelData data)
+            GameRules gameRules, ActionMenus actionMenus, AdminPanel adminPanel, PanelData data, PanelCountries countries)
         {
             _pluginState = pluginState;
             _settingStates = settingStates;
@@ -36,6 +36,7 @@ namespace GameModeManager.Panel
             _actionMenus = actionMenus;
             _adminPanel = adminPanel;
             _data = data;
+            _countries = countries;
         }
 
         // Load config
@@ -122,7 +123,8 @@ namespace GameModeManager.Panel
                         Score = p.Score,
                         Kills = p.ActionTrackingServices?.MatchStats.Kills ?? 0,
                         Deaths = p.ActionTrackingServices?.MatchStats.Deaths ?? 0,
-                        Ping = (int)p.Ping
+                        Ping = (int)p.Ping,
+                        Country = _countries.Of(p)
                     }).OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).ToList()
             };
             return status;

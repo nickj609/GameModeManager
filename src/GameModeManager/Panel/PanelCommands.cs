@@ -17,7 +17,6 @@ namespace GameModeManager.Panel
         private MapMenus _mapMenus;
         private ModeMenus _modeMenus;
         private SettingMenus _settingMenus;
-        private SettingStates _settingStates;
         private ActionMenus _actionMenus;
         private WarmupManager _warmupManager;
         private GameRules _gameRules;
@@ -29,7 +28,7 @@ namespace GameModeManager.Panel
         private Config _config = new();
 
         // Define class constructor
-        public PanelCommands(PluginState pluginState, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus, SettingStates settingStates,
+        public PanelCommands(PluginState pluginState, MapMenus mapMenus, ModeMenus modeMenus, SettingMenus settingMenus,
             ActionMenus actionMenus, WarmupManager warmupManager, GameRules gameRules, PlayerMenu playerMenu, PanelReport report, PanelData data,
             StringLocalizer localizer, ILogger<PanelCommands> logger)
         {
@@ -37,7 +36,6 @@ namespace GameModeManager.Panel
             _mapMenus = mapMenus;
             _modeMenus = modeMenus;
             _settingMenus = settingMenus;
-            _settingStates = settingStates;
             _actionMenus = actionMenus;
             _warmupManager = warmupManager;
             _gameRules = gameRules;
