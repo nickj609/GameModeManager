@@ -18,8 +18,3 @@ global using GameModeManager.Integrations.SimpleAdmin;
 global using GameModeManager.Integrations.MultiAddonManager;
 global using GameModeManager.Integrations.MatchZy;
 global using GameModeManager.Integrations.SharpTimer;
-global using GameModeManager.Integrations.VipCore;
-global using GameModeManager.Integrations.K4System;
-global using GameModeManager.Integrations.K4Zenith;
-global using GameModeManager.Integrations.WeaponPaints;
-global using GameModeManager.Integrations.Store;

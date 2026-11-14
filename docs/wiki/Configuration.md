@@ -577,7 +577,7 @@ The optional [GameModeManager web panel](https://github.com/nickj609/GameModeMan
 | SecretsFile         | A file next to `GameModeManager.json` with `Token` (from `gmmpanel token new <server>`), `AccessClientId` and `AccessClientSecret` (the Cloudflare Access service token). **Keep it out of git**: it's never written into this file. |
 | Console             | Lets the panel's owner send console commands. GameModeManager runs them through this server's own RCON (needs `-usercon` and `rcon_password`), so their output shows in the panel. RCON is never reached from outside. |
 | PublicAddress       | The `ip:port` players connect to, for the panel's **Connect** buttons (`steam://connect`). Empty: `net_public_adr`, or the `ip` ConVar with `hostport` when that's a public address. A hosted server usually needs this set. |
-| PluginData          | The panel's **Moderation** page. GameModeManager reads CS2-SimpleAdmin's bans, mutes and warnings, VIPCore's VIPs, K4-System's ranks, WeaponPaints' and cs2-store's players from each plugin's own database, with the settings in that plugin's own config (MySQL or MariaDB). Read only, fixed queries; bans, mutes and VIPs change through the plugins' own console commands. The panel never sees a database password. |
+| PluginData          | The panel's **Moderation** page. GameModeManager reads CS2-SimpleAdmin's bans, mutes and warnings from its own database, with the settings in its own config (MySQL or MariaDB). Read only, fixed queries; bans and mutes change through SimpleAdmin's own console commands. The panel never sees a database password. |
 
 > [!NOTE]
 > Every command from the panel is logged as `[Panel] <admin> (<SteamID>): <command>`, and players see the same chat lines as when an admin uses the in-game menus.

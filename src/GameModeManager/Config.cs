@@ -153,7 +153,7 @@ namespace GameModeManager
         public string SecretsFile { get; set; } = "panel-secrets.json"; // Next to this file: { "Token", "AccessClientId", "AccessClientSecret" }. Keep it out of git
         public bool Console { get; set; } = true; // The panel's console (panel admins and @css/rcon admins), through this server's own RCON on 127.0.0.1 (needs -usercon and rcon_password)
         public string PublicAddress { get; set; } = ""; // ip:port players connect to (the panel's Connect button). Empty: net_public_adr or ip and hostport, when public
-        public bool PluginData { get; set; } = true; // The panel's Moderation page: read other plugins' own databases (SimpleAdmin, VIPCore ...), read only, with their own settings
+        public bool PluginData { get; set; } = true; // The panel's Moderation page: read CS2-SimpleAdmin's own database (bans, mutes, warnings), read only, with its own settings
     }
 
     // Define game mode settings

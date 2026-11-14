@@ -47,12 +47,7 @@ namespace GameModeManager.Panel
         // Define class properties
         private readonly List<PluginDataSource> _sources = new()
         {
-            new Integrations.SimpleAdmin.SimpleAdminData(),
-            new Integrations.VipCore.VipCoreData(),
-            new Integrations.K4System.K4SystemData(),
-            new Integrations.K4Zenith.ZenithData(),
-            new Integrations.WeaponPaints.WeaponPaintsData(),
-            new Integrations.Store.StoreData()
+            new Integrations.SimpleAdmin.SimpleAdminData()
         };
 
         // The connections found at the last status, so a query (off the game thread) needn't ask again
