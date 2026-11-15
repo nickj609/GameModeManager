@@ -102,19 +102,23 @@ namespace GameModeManager.Integrations.SimpleAdmin
                 parameters["@steamid"] = steamId;
             }
             string type = table.Type ? ", type" : "";
+            // Bans keep the player's IP: it's turned into their country here (the IP never leaves the server), so a banned
+            // player who hasn't joined since the panel was set up still gets their flag
+            string country = list == "bans" ? ", player_ip AS country" : "";
             var columns = new List<PanelDataColumn> { new("name", "Player"), new("steamid", "SteamID", "steamid") };
             if (table.Type)
                 columns.Add(new("type", "Type"));
             columns.AddRange(new PanelDataColumn[] { new("reason", "Reason"), new("admin", "Admin"), new("created", "Issued", "time"), new("length", "Length"), new("status", "Status", "status") });
 
             return new DataQuery(columns,
-                $"SELECT player_name AS name, player_steamid AS steamid{type}, reason, admin_name AS admin, created, duration AS length, status FROM {table.Table} WHERE {where} ORDER BY id DESC LIMIT @limit OFFSET @offset",
+                $"SELECT player_name AS name, player_steamid AS steamid{type}{country}, reason, admin_name AS admin, created, duration AS length, status FROM {table.Table} WHERE {where} ORDER BY id DESC LIMIT @limit OFFSET @offset",
                 $"SELECT COUNT(*) FROM {table.Table} WHERE {where}",
                 parameters,
                 (column, value) => column switch
                 {
                     "created" => PluginDatabase.Time(value),
                     "length" => PluginDatabase.Minutes(value),
+                    "country" => Panel.PanelCountries.Shared?.OfAddress(value?.ToString()),
                     _ => value?.ToString()
                 });
         }

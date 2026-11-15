@@ -24,7 +24,11 @@ namespace GameModeManager.Panel
         public PanelCountries(ILogger<PanelCountries> logger)
         {
             _logger = logger;
+            Shared = this;
         }
+
+        // For the plugins' data sources (CS2-SimpleAdmin's bans keep the player's IP), which aren't dependencies
+        public static PanelCountries? Shared { get; private set; }
 
         // Define class properties
         private const string FileName = "dbip-country-lite.mmdb";
@@ -59,8 +63,18 @@ namespace GameModeManager.Panel
             ulong id = player.AuthorizedSteamID.SteamId64;
             if (_bySteamId.TryGetValue(id, out string? known))
                 return known;
+            string? code = OfAddress(player.IpAddress);
+            _bySteamId[id] = code;
+            return code;
+        }
+
+        // Any thread: the country code of an address ("1.2.3.4" or "1.2.3.4:27005"), or null. Only the code leaves this class.
+        public string? OfAddress(string? address)
+        {
+            if (!_config.Panel.Countries || _reader is not Reader reader || string.IsNullOrWhiteSpace(address))
+                return null;
             string? code = null;
-            string address = player.IpAddress ?? "";
+            address = address.Trim();
             int colon = address.LastIndexOf(':');
             if (colon > 0 && address.IndexOf(':') == colon)
                 address = address[..colon];   // "1.2.3.4:27005" -> "1.2.3.4"
@@ -78,7 +92,6 @@ namespace GameModeManager.Panel
                     _logger.LogDebug("[Panel] Country lookup failed: {Error}", error.Message);
                 }
             }
-            _bySteamId[id] = code;
             return code;
         }
 

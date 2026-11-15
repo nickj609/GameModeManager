@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace GameModeManager.Panel
 {
     // Define classes
-    // The web panel's agent protocol, version 1: the panel repo's docs/agent-protocol.md is the spec, and its
+    // The web panel's agent protocol, version 1: the panel repo's docs/wiki/Agent-Protocol.md is the spec, and its
     // src/GmmPanel/Protocol/Messages.cs is the other side. JSON text frames with a "type", camelCase.
     public static class PanelProtocol
     {
