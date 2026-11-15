@@ -1,10 +1,7 @@
 ﻿// Included libraries
-using GameModeManager.Core;
 using GameModeManager.Shared;
-using GameModeManager.Services;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
-using GameModeManager.CrossCutting;
 using CounterStrikeSharp.API.Core.Capabilities;
 using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
@@ -28,7 +25,7 @@ namespace GameModeManager
     {
         // Define plugin properties
         public override string ModuleName => "GameModeManager";
-        public override string ModuleVersion => "2.3.1";
+        public override string ModuleVersion => "2.4.0";
         public override string ModuleAuthor => "Striker-Nick";
         public override string ModuleDescription => "A simple plugin to help administrators manage custom game modes, settings, and map rotations.";
         
@@ -38,13 +35,15 @@ namespace GameModeManager
         private readonly VoteService _voteService;
         private readonly MapChooserBridge _mapChooser;
         private readonly AdminPanel _adminPanel;
+        private readonly PanelAgent _panelAgent;
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
         // Define class constructor
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager, VoteService voteService, GameModeApi gameModeApi, MenuFactory menuFactory, MapChooserBridge mapChooser, AdminPanel adminPanel)
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager, VoteService voteService, GameModeApi gameModeApi, MenuFactory menuFactory, MapChooserBridge mapChooser, AdminPanel adminPanel, PanelAgent panelAgent)
         {
             _mapChooser = mapChooser;
             _adminPanel = adminPanel;
+            _panelAgent = panelAgent;
             _menuFactory = menuFactory;
             _gameModeApi = gameModeApi;
             _voteService = voteService;
@@ -101,6 +100,8 @@ namespace GameModeManager
             // Close a running vote (its panel / menus) before the plugin goes away
             _voteService.Cancel();
             _adminPanel.Unload();
+            // The web panel's link closes, so a reload doesn't leave an old one running
+            _panelAgent.Stop();
             base.Unload(hotReload);
         }
     }

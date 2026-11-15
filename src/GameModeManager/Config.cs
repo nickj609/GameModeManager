@@ -1,5 +1,4 @@
 // Included libraries
-using GameModeManager.Core;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 
@@ -21,6 +20,8 @@ namespace GameModeManager
         public List<string> MapGroups { get; set; } = new List<string>() { "mg_active", "mg_comp" };
         public bool InVotes { get; set; } = true; // false = left out of votes, !nominate, !changemode and random picks. Admins can still choose it
         public bool InRotation { get; set; } = true; // false = mode rotation never picks it. Schedules can still use it
+        public int MinPlayers { get; set; } = 0; // Player votes, !nominate and random picks offer it only with at least this many players. 0 = no limit. Choosing it by name (admins) ignores it
+        public int MaxPlayers { get; set; } = 0; // ...and at most this many. 0 = no limit
     }
 
     public class WarmupModeEntry
@@ -83,6 +84,16 @@ namespace GameModeManager
     {
         public bool Enabled { get; set; } = true; // Enable game settings
         public string Folder { get; set; } = "settings"; // Default settings folder
+        public List<string> Hidden { get; set; } = new(); // Settings left out, by name ("Surf") or file name without enable_/disable_ ("surf"): cfgs in the folder that are really modes
+    }
+
+    // Define action settings
+    public class ActionSettings
+    {
+        public bool Enabled { get; set; } = true; // !actions and the admin panel's Actions page, from the cfgs in Folder
+        public string Folder { get; set; } = "actions"; // In the cfg folder. Each subfolder is a group
+        public bool Rounds { get; set; } = true; // The Actions menu's Rounds page: pause and unpause, timeouts, and replaying or going back to a round (the game's round backups)
+        public string RoundsPermission { get; set; } = "@css/generic"; // The flag the Rounds page needs
     }
 
     // Define command settings
@@ -99,6 +110,9 @@ namespace GameModeManager
         public bool Enabled { get; set; } = true; // Enables or disables warmup
         public float Time { get; set; } = 60; // Warmup length in seconds. 0 = whatever mp_warmuptime is
         public bool PerMap { get; set; } = false; // Enables or disables per map warmup
+        public int MinPlayers { get; set; } = 0; // Warmup waits (its timer paused) until this many players are on a team. 0 = it doesn't wait. A mode or map cfg can set it: css_warmup_minplayers <n>
+        public bool Ready { get; set; } = false; // Players type !ready; warmup ends once ReadyPercent of them are. A mode or map cfg can set it: css_warmup_ready <true|false>
+        public int ReadyPercent { get; set; } = 100; // Share of players on a team who must be ready
         public WarmupModeEntry Default { get; set; } = new WarmupModeEntry() { Name = "Deathmatch", Config = $"warmup/dm.cfg" }; // Default warmup mode
         public List<WarmupModeEntry> List { get; set; } = new List<WarmupModeEntry>()
         {
@@ -116,6 +130,8 @@ namespace GameModeManager
         public int ModeInterval { get; set; } = 4; // Changes mode every x map rotations
         public string ModeVote { get; set; } = "random"; // When the mode changes: "random" skips the map vote and picks a mode, "vote" makes every vote on that map list only modes
         public bool CountSkippedMaps { get; set; } = false; // Maps left early (RTV, an admin's map change) count toward ModeInterval too
+        public int RecentModes { get; set; } = 2; // Random mode picks and mode votes skip the last this many modes played, when others are left. 0 = only the current one
+        [System.Text.Json.Serialization.JsonIgnore]
         public bool VoteForMode => ModeVote.Equals("vote", StringComparison.OrdinalIgnoreCase);
         public bool ModeSchedules { get; set; } = false; // Enables or disables mode schedules
         public List<ScheduleEntry> Schedule { get; set; } = new List<ScheduleEntry>()
@@ -126,6 +142,21 @@ namespace GameModeManager
         }; // Schedule options
     }
 
+    // Define web panel settings
+    // The optional GameModeManager web panel (a separate program; see its docs/setup.md). This server connects out to it over a
+    // WebSocket, so no port is opened here. The token and Cloudflare Access keys are in SecretsFile, never in this file.
+    public class PanelSettings
+    {
+        public bool Enabled { get; set; } = false; // Connects to the web panel
+        public string Url { get; set; } = "wss://agent.example.com/agent"; // The panel's agent address (its Cloudflare Tunnel hostname)
+        public string ServerName { get; set; } = "Production"; // Shown in the panel's log; the token decides which server this is
+        public string SecretsFile { get; set; } = "panel-secrets.json"; // Next to this file: { "Token", "AccessClientId", "AccessClientSecret" }. Keep it out of git
+        public bool Console { get; set; } = true; // The panel's console (panel admins and @css/rcon admins), through this server's own RCON on 127.0.0.1 (needs -usercon and rcon_password)
+        public string PublicAddress { get; set; } = ""; // ip:port players connect to (the panel's Connect button). Empty: net_public_adr or ip and hostport, when public
+        public bool PluginData { get; set; } = true; // The panel's Moderation page: read CS2-SimpleAdmin's own database (bans, mutes, warnings), read only, with its own settings
+        public bool Countries { get; set; } = true; // The panel's "Player countries": each player's country, looked up on this server from their IP in DB-IP's free database (downloaded monthly next to this plugin). Only the two-letter country code is sent; IP addresses never leave the server
+    }
+
     // Define game mode settings
     public class GameModeSettings
     {
@@ -134,6 +165,7 @@ namespace GameModeManager
 
         public bool InVotes(string mode) => List.FirstOrDefault(entry => entry.Name.Equals(mode, StringComparison.OrdinalIgnoreCase))?.InVotes != false;
         public bool InRotation(string mode) => List.FirstOrDefault(entry => entry.Name.Equals(mode, StringComparison.OrdinalIgnoreCase))?.InRotation != false;
+        public ModeEntry? Entry(string mode) => List.FirstOrDefault(entry => entry.Name.Equals(mode, StringComparison.OrdinalIgnoreCase));
 
         public List<ModeEntry> List { get; set; } = new List<ModeEntry>()
         {
@@ -172,7 +204,7 @@ namespace GameModeManager
     // Define configuration class
     public class Config : IBasePluginConfig
     {
-        public int Version { get; set; } = 16;
+        public int Version { get; set; } = 18;
         public string WorkshopAddon { get; set; } = "3831211166"; // Workshop IDs (comma separated) of the addons with the menus' panorama files, added to MultiAddonManager's list. Empty = you load them yourself
         public MapSettings Maps { get; set; } = new();
         public VoteSettings Votes { get; set; } = new();
@@ -180,10 +212,12 @@ namespace GameModeManager
         public AdminPanelSettings AdminPanel { get; set; } = new();
         public NotificationSettings Notifications { get; set; } = new();
         public GameSettings Settings { get; set; } = new();
+        public ActionSettings Actions { get; set; } = new();
         public WarmupSettings Warmup { get; set; } = new();
         public CommandSettings Commands { get; set; } = new();
         public RotationSettings Rotation { get; set; } = new();
         public GameModeSettings GameModes { get; set; } = new();
+        public PanelSettings Panel { get; set; } = new();
 
         // The checks that only need the config itself. tools/ConfigCheck runs these on Kus's config.
         public void Validate(ILogger logger)
@@ -305,6 +339,19 @@ namespace GameModeManager
                 throw new Exception("Invalid: Votes MinPlayers and Cooldown cannot be negative.");
             }
 
+            // Mode player limits: a wrong one only keeps a mode out of votes, so it's a warning
+            foreach (ModeEntry entry in GameModes.List)
+            {
+                if (entry.MinPlayers < 0 || entry.MaxPlayers < 0 || (entry.MaxPlayers > 0 && entry.MaxPlayers < entry.MinPlayers))
+                {
+                    logger.LogWarning("Mode {Mode}: MinPlayers {Min} and MaxPlayers {Max} don't make sense, so it has no player limit.", entry.Name, entry.MinPlayers, entry.MaxPlayers);
+                    entry.MinPlayers = 0;
+                    entry.MaxPlayers = 0;
+                }
+            }
+            if (Rotation.RecentModes < 0)
+                Rotation.RecentModes = 0;
+
             // Warmup settings
             if (Warmup.Time < 0)
             {
@@ -329,6 +376,9 @@ namespace GameModeManager
         public void OnConfigParsed(Config _config)
         {
             _config.Validate(Logger);
+
+            // Settings added since the file was written show up in it, with their defaults
+            ConfigUpgrade.Run(ModuleName, _config, Logger);
 
             // Game Settings
             if (_config.Settings.Enabled && !Directory.Exists(Path.Combine(PluginState.GameController.ConfigDirectory, _config.Settings.Folder)))

@@ -15,11 +15,22 @@
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Gameloop.Vdf" Version="0.6.2" GeneratePathProperty="true" />
+    <!-- The web panel's "Where players come from": reads DB-IP's free country database (Panel/PanelCountries.cs). Apache-2.0 -->
+    <PackageReference Include="MaxMind.Db" Version="4.1.0" GeneratePathProperty="true">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <!-- The web panel's Moderation page reads other plugins' MySQL databases with their own settings (Common/PluginDatabase.cs).
+         CounterStrikeSharp loads each plugin in its own load context, so SimpleAdmin's own copy shouldn't clash (to confirm on the test server). -->
+    <PackageReference Include="MySqlConnector" Version="2.6.2" GeneratePathProperty="true">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <!-- The one NuGet dependency loaded at runtime. Copied explicitly: copying all package assemblies would also ship
+    <!-- The NuGet dependencies loaded at runtime. Copied explicitly: copying all package assemblies would also ship
          CounterStrikeSharp's own dependencies (Microsoft.Extensions.*, Serilog ...), which must come from the host. -->
     <None Include="$(PkgGameloop_Vdf)\lib\netstandard1.0\Gameloop.Vdf.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="$(PkgMySqlConnector)\lib\net10.0\MySqlConnector.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="$(PkgMaxMind_Db)\lib\net8.0\MaxMind.Db.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
   <ItemGroup>
     <!-- PanoramaMenuManager API (capability menu:nfcore). Referenced from the sibling fork, not copied: it is GPL v3.

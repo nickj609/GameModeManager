@@ -73,6 +73,9 @@ jobs:
       - name: Check bundled plugins
         run: .github/scripts/check-integrations.ps1
 
+      - name: Check menu row texts fit
+        run: .github/scripts/check-menu-labels.ps1
+
       - name: Check Kus's config
         run: |
           $config = "$env:RUNNER_TEMP/GameModeManager.json"

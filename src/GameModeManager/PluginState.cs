@@ -1,7 +1,5 @@
 // Included libraries
-using GameModeManager.Models;
 using CounterStrikeSharp.API;
-using GameModeManager.Contracts;
 using GameModeManager.Shared.Models;
 
 // Declare namespace
@@ -49,6 +47,9 @@ namespace GameModeManager
             public int MapRotations = 0;
             public bool RotationStarted = false; // This map's end was a rotation, so it's already counted in MapRotations
             public bool PerMapWarmup = false;
+            public int WarmupMinPlayers = 0;       // Warmup.MinPlayers, or what a mode or map cfg set (css_warmup_minplayers)
+            public bool WarmupReady = false;       // Warmup.Ready, or what a mode or map cfg set (css_warmup_ready)
+            public int WarmupReadyPercent = 100;   // Warmup.ReadyPercent
             public bool WarmupRunning = false;
             public IMap CurrentMap = DefaultMap;
             // By name: only one map is loaded at a time, and the same map can be listed in two map groups with different workshop IDs
@@ -59,10 +60,13 @@ namespace GameModeManager
             public bool WarmupScheduled = false;
             public bool CountdownRunning = false;
             public IMode CurrentMode = DefaultMode;
+            public List<string> RecentModes = new(); // Modes played before the current one, the latest first
             public IMode WarmupMode = DefaultWarmup;
             public Dictionary<string, IMode> Modes = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<string, IMode> WarmupModes = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<string, ISetting> Settings = new(StringComparer.OrdinalIgnoreCase);
+            public Dictionary<string, ValueSetting> ValueSettings = new(StringComparer.OrdinalIgnoreCase); // Settings with a choice of values
+            public List<GameAction> Actions = new(); // The cfgs in the actions folder
             public Dictionary<string, IMapGroup> MapGroups = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<long, IMap> MapsByWorkshopId = new();
             public Dictionary<string, IMap> Maps = DefaultMaps.ToDictionary(m => m.Name, m => m, StringComparer.OrdinalIgnoreCase);
