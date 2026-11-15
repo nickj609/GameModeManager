@@ -17,6 +17,7 @@ GameModeManager simplifies server administration for Counter-Strike 2 by providi
 - **Customizable rotation** of maps and game modes, with mode schedules.
 - **Player voting** for settings and game modes.
 - **Per-mode map pools** for [GG1MapChooser](https://github.com/ssypchenko/GG1MapChooser): RTV, nominate and map votes only offer the current mode's maps.
+- **An optional [web panel](https://github.com/nickj609/GameModeManager-WebPanel)**: the admin menus, moderation and your community's home page in a browser.
 - **Shared API** for cross-plugin development and integration.
 - **Customization options** for rotation schedules, commands, voting styles, and languages.
 
@@ -114,6 +115,18 @@ If you use [CS2-SimpleAdmin](https://github.com/daffyyyy/CS2-SimpleAdmin), its a
 - **To get the red panel shown here:** install the optional [PMM_SimpleAdmin](https://github.com/RRimmer/PMM_SimpleAdmin) plugin, which isn't in the zip, then restart the server fully. Its menu files are already in GameModeManager's Workshop addon, so players don't need anything extra. Without it, the same items appear in SimpleAdmin's normal menus.
 - **Turning it off:** set `AdminPanel.Enabled` to `false` in `GameModeManager.json`.
 - **Admin commands in the panel:** set `AdminPanel.CommandMenus` to `"admin"` and `!maps`, `!modes`, `!settings` and `!warmup` open their page of the red panel instead of GameModeManager's own menus. The default, `"default"`, keeps the regular menus, and `"admin"` falls back to them when SimpleAdmin or the panel isn't loaded.
+
+## Web Panel (optional)
+The [GameModeManager Panel](https://github.com/nickj609/GameModeManager-WebPanel) puts GameModeManager's admin menus in a browser, with a home page for your community. It's a separate program you run yourself, on a Windows PC, a Raspberry Pi or a Docker host.
+
+![The web panel's servers page](https://raw.githubusercontent.com/nickj609/GameModeManager-WebPanel/main/docs/images/dashboard.png)
+
+- **Everything the in-game menus do:** maps, modes, votes, settings, actions, rounds, warmup, rotation and MatchZy, with the same questions and warnings, and staff get exactly what their admin flags give them.
+- **For your community:** every server with its players and a Connect button, player counts, where players come from, leaderboards, bans, rules and public profiles.
+- **Moderation with CS2-SimpleAdmin:** bans, mutes, gags and warnings, the chat log, player history, and ban appeals and player reports.
+- **No open ports:** GameModeManager connects out to the panel, so it works on hosts that only give you game ports, and RCON never leaves the server.
+
+It's off until you turn it on: see [Panel Settings](https://github.com/nickj609/GameModeManager/wiki/Configuration#panel-settings) and the panel's [Installation](https://github.com/nickj609/GameModeManager-WebPanel/wiki/Installation) guide.
 
 ## Requirements
 You need these on your server already, on Windows or Linux:
