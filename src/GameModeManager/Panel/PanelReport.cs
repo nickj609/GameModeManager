@@ -124,6 +124,7 @@ namespace GameModeManager.Panel
                         Team = PanelServerData.TeamName(p.TeamNum),
                         Score = p.Score,
                         Kills = p.ActionTrackingServices?.MatchStats.Kills ?? 0,
+                        Assists = p.ActionTrackingServices?.MatchStats.Assists ?? 0,
                         Deaths = p.ActionTrackingServices?.MatchStats.Deaths ?? 0,
                         Ping = (int)p.Ping,
                         Country = _countries.Of(p)
