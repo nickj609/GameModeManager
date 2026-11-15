@@ -1,5 +1,7 @@
 // Included libraries
 using System.Reflection;
+using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
 
 // Declare namespace
 namespace GameModeManager.Integrations.SimpleAdmin
@@ -37,8 +39,12 @@ namespace GameModeManager.Integrations.SimpleAdmin
                     Row("unsilence", "Unsilence", "@css/chat", new() { ["status"] = "ACTIVE", ["type"] = "SILENCE" })
                 }
             },
-            // Warnings are given in game (css_warn needs the player online), so the panel only lists them
-            new PanelDataList { Id = "warns", Label = "Warnings", Search = true, Flag = "@css/kick", Filters = new() { "active", "all" } },
+            // Warnings: css_warn takes a player on the server (#userid), so Warn works only while they're on this one
+            new PanelDataList
+            {
+                Id = "warns", Label = "Warnings", Search = true, Flag = "@css/kick", Filters = new() { "active", "all" },
+                Actions = new() { new PanelDataAction { Id = "warn", Label = "Warn", Flag = "@css/kick", Fields = new() { "steamid", "reason" } } }
+            },
             // Admins and groups: @css/root, as SimpleAdmin's own commands, through css_addadmin / css_deladmin / css_addgroup (SimpleAdmin reloads its admins)
             new PanelDataList
             {
@@ -144,8 +150,20 @@ namespace GameModeManager.Integrations.SimpleAdmin
                 (column, value) => column == "ends" ? (value == null ? "Never" : PluginDatabase.Time(value)) : value?.ToString());
         }
 
+        public override string? Refusal(string list, string action, PanelCommand command) =>
+            list == "warns" && action == "warn" && Online(command.Arg("steamid")) == null ? "They need to be on this server to be warned." : null;
+
+        // A player on this server by SteamID64, or null
+        private static CCSPlayerController? Online(string steamId) =>
+            ulong.TryParse(steamId, out ulong id) ? Utilities.GetPlayers().FirstOrDefault(p => p.IsValid && !p.IsBot && p.SteamID == id) : null;
+
         public override string? Command(string list, string action, PanelCommand command)
         {
+            if (list == "warns" && action == "warn")
+            {
+                string why = command.Arg("reason").Trim();
+                return Online(command.Arg("steamid")) is { } player ? $"css_warn #{player.UserId}{(why.Length > 0 ? $" \"{why}\"" : "")}" : null;
+            }
             if (list == "admins" && action == "addadmin")
                 return $"css_addadmin {command.Arg("steamid")} \"{command.Arg("name").Trim()}\" \"{command.Arg("flags").Trim()}\" {command.Arg("immunity")} {command.Arg("minutes")}";
             if (list == "admins" && action == "removeadmin")

@@ -23,6 +23,9 @@ namespace GameModeManager.Panel
 
         // The console line for a write, from checked arguments (SteamID64, minutes, reason ...), or null when not offered
         public virtual string? Command(string list, string action, PanelCommand command) => null;
+
+        // Why an action can't run right now (a player who has to be on this server), checked on the game thread before Command
+        public virtual string? Refusal(string list, string action, PanelCommand command) => null;
     }
 
     public sealed record DataQuery(List<PanelDataColumn> Columns, string Select, string Count, Dictionary<string, object?> Parameters,
@@ -170,6 +173,8 @@ namespace GameModeManager.Panel
                 return PanelResult.Refused("That action isn't offered for this list.");
             if (Check(command, action) is string problem)
                 return PanelResult.Refused(problem);
+            if (source.Refusal(command.Arg("list"), action.Id, command) is string refusal)
+                return PanelResult.Refused(refusal);
             string? line = source.Command(command.Arg("list"), action.Id, command);
             if (line == null)
                 return PanelResult.Refused("That action isn't offered for this list.");
