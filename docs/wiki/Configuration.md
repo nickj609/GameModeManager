@@ -422,7 +422,7 @@
   },
   "Panel": {
     "Enabled": false,
-    "Url": "wss://agent.example.com/agent",
+    "Url": "wss://panel.example.com/agent",
     "ServerName": "Production",
     "SecretsFile": "panel-secrets.json",
     "Console": true,
@@ -573,9 +573,9 @@ The optional [GameModeManager web panel](https://github.com/nickj609/GameModeMan
 | Setting             | Description                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Enabled             | Connects to the panel.                                                                                                                    |
-| Url                 | The panel's agent address, like `wss://agent.example.com/agent`.                                                                          |
+| Url                 | The panel's address with `/agent` at the end, like `wss://panel.example.com/agent`.                                                                          |
 | ServerName          | Shown in the panel's log. The token decides which server this is in the panel.                                                            |
-| SecretsFile         | A file next to `GameModeManager.json` with `Token` (from `gmmpanel token new <server>`), `AccessClientId` and `AccessClientSecret` (the Cloudflare Access service token). **Keep it out of git**: it's never written into this file. |
+| SecretsFile         | A file next to `GameModeManager.json` with `Token` (from `gmmpanel token new <server>`), and, only if Cloudflare Access is in front of the panel's address, `AccessClientId` and `AccessClientSecret` (the Access service token). **Keep it out of git**: it's never written into this file. |
 | Console             | Lets the panel's owner send console commands. GameModeManager runs them through this server's own RCON (needs `-usercon` and `rcon_password`), so their output shows in the panel. RCON is never reached from outside. |
 | PublicAddress       | The `ip:port` players connect to, for the panel's **Connect** buttons (`steam://connect`). Empty: `net_public_adr`, or the `ip` ConVar with `hostport` when that's a public address. A hosted server usually needs this set. |
 | PluginData          | The panel's **Moderation** page. GameModeManager reads CS2-SimpleAdmin's bans, mutes and warnings from its own database, with the settings in its own config (MySQL or MariaDB). Read only, fixed queries; bans and mutes change through SimpleAdmin's own console commands. The panel never sees a database password. |
