@@ -191,6 +191,7 @@ namespace GameModeManager.Panel
         public string Applies { get; set; } = "now";
         public bool Cheats { get; set; }
         public string Flag { get; set; } = "@css/cvar";   // The admin flag its menu row needs (the cfg's "// permission:")
+        public string Group { get; set; } = "";           // The cfg's "// group:" (its page in the menu); "" for none
     }
 
     public sealed class PanelValueSetting : PanelItem
@@ -200,6 +201,7 @@ namespace GameModeManager.Panel
         public List<string> CheatChoices { get; set; } = new();
         public string Flag { get; set; } = "@css/cvar";
         public string Applies { get; set; } = "now";
+        public string Group { get; set; } = "";
     }
 
     public sealed class PanelVotes

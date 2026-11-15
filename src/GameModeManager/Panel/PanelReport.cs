@@ -80,7 +80,8 @@ namespace GameModeManager.Panel
                         State = _settingStates.Get(s).ToString(),
                         Applies = Applies(SettingMenus.AppliesOf(s)),
                         Cheats = _settingStates.TurnsOnCheats(s),
-                        Flag = Flag((s as Setting)?.Permission)
+                        Flag = Flag((s as Setting)?.Permission),
+                        Group = (s as Setting)?.Group ?? ""
                     }).ToList(),
                 ValueSettings = game.ValueSettings.Values.Where(v => !SettingMenus.Hidden(v)).OrderBy(v => v.Name, StringComparer.OrdinalIgnoreCase)
                     .Select(v => new PanelValueSetting
@@ -91,7 +92,8 @@ namespace GameModeManager.Panel
                         Choices = v.Values.Select(value => value.Label).ToList(),
                         CheatChoices = v.Values.Where((value, i) => _settingStates.TurnsOnCheats(v, i)).Select(value => value.Label).ToList(),
                         Applies = Applies(v.Applies),
-                        Flag = Flag(v.Permission)
+                        Flag = Flag(v.Permission),
+                        Group = v.Group
                     }).ToList(),
                 Actions = game.Actions.Where(a => !ActionMenus.Hidden(a))
                     .Select(a => new PanelAction { Name = a.File, DisplayName = a.Name, Group = a.Group, Flag = Flag(a.Permission) }).ToList(),
