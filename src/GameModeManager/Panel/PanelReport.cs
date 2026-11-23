@@ -69,7 +69,7 @@ namespace GameModeManager.Panel
                 VoteInProgress = _voteService.InProgress || _mapChooser.VoteInProgress(),
                 Votes = Votes(),
                 Modes = game.Modes.Values.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
-                    .Select(m => new PanelMode { Name = m.Name, DisplayName = m.Name, Maps = m.Maps.Select(map => map.Name).ToList() }).ToList(),
+                    .Select(m => new PanelMode { Name = m.Name, DisplayName = m.Name, Maps = m.Maps.Select(map => map.Name).ToList(), DefaultMap = m.DefaultMap?.Name }).ToList(),
                 Maps = game.Maps.Values.OrderBy(m => m.DisplayName, StringComparer.OrdinalIgnoreCase)
                     .Select(m => new PanelItem { Name = m.Name, DisplayName = m.DisplayName }).ToList(),
                 Settings = game.Settings.Values.Where(s => !SettingMenus.Hidden(s)).OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase)

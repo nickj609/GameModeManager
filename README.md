@@ -122,7 +122,7 @@ The [GameModeManager Panel](https://github.com/nickj609/GameModeManager-WebPanel
 ![The web panel's servers page](https://raw.githubusercontent.com/nickj609/GameModeManager-WebPanel/main/docs/images/dashboard.png)
 
 - **Everything the in-game menus do:** maps, modes, votes, settings, actions, rounds, warmup, rotation and MatchZy, with the same questions and warnings, and staff get exactly what their admin flags give them.
-- **For your community:** every server with its players and a Connect button, player counts, where players come from, leaderboards, bans, rules and public profiles.
+- **For your community:** every server with its players and a Connect button, player counts, where players come from, a searchable list of every server, leaderboards for players and maps, bans, rules and public profiles.
 - **Moderation with CS2-SimpleAdmin:** bans, mutes, gags and warnings, the chat log, player history, and ban appeals and player reports.
 - **No open ports:** GameModeManager connects out to the panel, so it works on hosts that only give you game ports, and RCON never leaves the server.
 
