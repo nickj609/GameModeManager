@@ -385,8 +385,10 @@ namespace GameModeManager.Panel
                 case "modeVote" when value is "random" or "vote": rotation.ModeVote = value; break;
                 default: return PanelResult.Refused("That isn't a rotation setting or value.");
             }
+            // The change as the panel's Rotation page words it: "RTV / Nominate is off", "Change mode every 3 maps"
+            string said = Said(command.Arg("key"), value, on, number);
             if (command.Arg("save") != "true")
-                return PanelResult.Done($"Rotation: {command.Arg("key")} is now {value}. It lasts until the server restarts.");
+                return PanelResult.Done($"{said}. It lasts until the server restarts.");
 
             // Also into GameModeManager.json, so it lasts (the panel asks for @css/config for this)
             (string section, string setting, System.Text.Json.Nodes.JsonNode node) = command.Arg("key") switch
@@ -404,9 +406,22 @@ namespace GameModeManager.Panel
                 _config.Rotation.Enabled = on;
             string? problem = Configuration.ConfigSave.Set(typeof(Plugin).Assembly.GetName().Name ?? "GameModeManager", section, setting, node);
             return problem == null
-                ? PanelResult.Done($"Rotation: {command.Arg("key")} is now {value}, and saved in GameModeManager.json.")
-                : PanelResult.Done($"Rotation: {command.Arg("key")} is now {value} until the server restarts. Not saved: {problem}");
+                ? PanelResult.Done($"{said}, and saved in GameModeManager.json.")
+                : PanelResult.Done($"{said} until the server restarts. Not saved: {problem}");
         }
+
+        private static string Said(string? key, string value, bool on, int number) => key switch
+        {
+            "maps" => $"Map rotation is {(on ? "on" : "off")}",
+            "modes" => $"Mode rotation is {(on ? "on" : "off")}",
+            "countSkipped" => $"Count skipped maps is {(on ? "on" : "off")}",
+            "rtv" => $"RTV / Nominate is {(on ? "on" : "off")}",
+            "whenEmpty" => $"Rotate when empty is {(on ? "on" : "off")}",
+            "interval" => $"Change mode every {number} map{(number == 1 ? "" : "s")}",
+            "emptyMinutes" => $"Empty server wait is {number} minute{(number == 1 ? "" : "s")}",
+            "modeVote" => value == "vote" ? "Mode change is by player vote" : "Mode change is random",
+            _ => $"{key} is now {value}"
+        };
 
         // The Admin page's hostname and team names: live until the server restarts or a cfg sets them again. The value goes in
         // quotes on a console line, so quotes, semicolons and control characters are refused (the panel refuses them too).

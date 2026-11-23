@@ -184,6 +184,7 @@ namespace GameModeManager.Panel
     public sealed class PanelMode : PanelItem
     {
         public List<string> Maps { get; set; } = new();
+        public string? DefaultMap { get; set; }         // The map a change to this mode goes to (its DefaultMap), or null
     }
 
     public sealed class PanelSetting : PanelItem
